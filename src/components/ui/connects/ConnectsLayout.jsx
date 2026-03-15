@@ -1,0 +1,147 @@
+// src/components/ui/connects/ConnectsLayout.jsx
+
+// ── Skeleton card ─────────────────────────────────────────────
+const SkeletonCard = () => (
+  <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 animate-pulse">
+    <div className="flex items-start gap-3">
+      <div className="w-14 h-14 rounded-2xl bg-slate-200 shrink-0" />
+      <div className="flex-1 space-y-2 pt-1">
+        <div className="h-3 bg-slate-200 rounded w-2/3" />
+        <div className="h-2.5 bg-slate-100 rounded w-1/2" />
+        <div className="flex gap-1 mt-1">
+          <div className="h-4 w-12 bg-slate-100 rounded-full" />
+          <div className="h-4 w-14 bg-slate-100 rounded-full" />
+          <div className="h-4 w-10 bg-slate-100 rounded-full" />
+        </div>
+      </div>
+    </div>
+    <div className="border-t border-slate-100" />
+    <div className="space-y-2">
+      <div className="h-2.5 bg-slate-100 rounded w-3/4" />
+      <div className="h-2.5 bg-slate-100 rounded w-1/2" />
+      <div className="h-2.5 bg-slate-100 rounded w-2/5" />
+    </div>
+    <div className="h-9 bg-slate-200 rounded-xl" />
+  </div>
+);
+
+// ── Empty state ───────────────────────────────────────────────
+const EmptyState = ({ message, subMessage, actionLabel, onAction }) => (
+  <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center space-y-4">
+    <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200
+      flex items-center justify-center text-slate-300">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <div className="space-y-1">
+      <p className="text-sm font-bold text-slate-700">{message}</p>
+      {subMessage && (
+        <p className="text-xs text-slate-400 max-w-xs leading-relaxed">{subMessage}</p>
+      )}
+    </div>
+    {actionLabel && onAction && (
+      <button
+        type="button"
+        onClick={onAction}
+        className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold
+          hover:bg-blue-700 transition-all"
+      >
+        {actionLabel}
+      </button>
+    )}
+  </div>
+);
+
+// ── Section divider ───────────────────────────────────────────
+const SectionDivider = ({ label, count }) => (
+  <div className="flex items-center gap-3 col-span-2">
+    <div className="flex-1 h-px bg-slate-100" />
+    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+      {label} {count > 0 && `(${count})`}
+    </span>
+    <div className="flex-1 h-px bg-slate-100" />
+  </div>
+);
+
+// ── Main Layout ───────────────────────────────────────────────
+const ConnectsLayout = ({
+  title,
+  subtitle,
+  count,           // active count
+  loading,
+  error,
+  emptyState,
+  children,        // active ConnectCards
+  completedChildren, // ✅ completed ConnectCards
+  completedCount,    // ✅ completed count
+}) => {
+  const hasCompleted = completedCount > 0;
+
+  return (
+    <div className="space-y-6">
+
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
+          {subtitle && (
+            <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>
+          )}
+        </div>
+
+        {/* Active count badge */}
+        {!loading && count > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
+            bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+            {count} Active {count === 1 ? "Session" : "Sessions"}
+          </div>
+        )}
+      </div>
+
+      {/* ── Error ── */}
+      {error && (
+        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200
+          text-red-600 rounded-xl px-4 py-3">
+          <span>⚠</span> {error}
+        </div>
+      )}
+
+      {/* ── Active grid ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {/* Loading skeletons */}
+        {loading && (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        )}
+
+        {/* Empty state — only show if no active AND no completed */}
+        {!loading && !error && count === 0 && !hasCompleted && (
+          <EmptyState {...emptyState} />
+        )}
+
+        {/* Active cards */}
+        {!loading && !error && children}
+
+        {/* ── Completed section ── */}
+        {!loading && !error && hasCompleted && (
+          <>
+            <SectionDivider label="Completed Sessions" count={completedCount} />
+            {completedChildren}
+          </>
+        )}
+      </div>
+
+    </div>
+  );
+};
+
+export default ConnectsLayout;

@@ -1,0 +1,146 @@
+// src/components/mentee/dashboard/findMentors/FilterPanel.jsx
+import { useState } from "react";
+
+const INDUSTRIES = [
+  "Technology", "Finance", "Healthcare", "Education", "Marketing",
+  "Design", "Engineering", "Sales", "Legal", "Consulting", "Other",
+];
+
+const RATINGS = [
+  { label: "4.5+", value: "4.5" },
+  { label: "4.0+", value: "4.0" },
+  { label: "3.5+", value: "3.5" },
+  { label: "Any",  value: "" },
+];
+
+const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const activeFilterCount = [
+    filters.industry,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.minRating,
+  ].filter(Boolean).length;
+
+  return (
+    <div>
+      {/* Toggle button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((p) => !p)}
+        className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-xs font-semibold transition-all duration-150 ${
+          activeFilterCount > 0
+            ? "border-blue-400 bg-blue-50 text-blue-600"
+            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+        } shadow-sm`}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+        Filters
+        {activeFilterCount > 0 && (
+          <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+            {activeFilterCount}
+          </span>
+        )}
+        <svg
+          width="12" height="12" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        >
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      {/* Filter panel — collapsible */}
+      {isOpen && (
+        <div className="mt-3 bg-white border border-slate-100 rounded-2xl shadow-sm p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
+
+          {/* Industry */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+              Industry
+            </label>
+            <select
+              value={filters.industry}
+              onChange={(e) => updateFilter("industry", e.target.value)}
+              className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
+            >
+              <option value="">All Industries</option>
+              {INDUSTRIES.map((ind) => (
+                <option key={ind} value={ind}>{ind}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Price range */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+              Price Range ($/hr)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="0"
+                placeholder="Min"
+                value={filters.minPrice}
+                onChange={(e) => updateFilter("minPrice", e.target.value)}
+                className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
+              />
+              <span className="text-slate-300 font-bold shrink-0">—</span>
+              <input
+                type="number"
+                min="0"
+                placeholder="Max"
+                value={filters.maxPrice}
+                onChange={(e) => updateFilter("maxPrice", e.target.value)}
+                className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
+              />
+            </div>
+          </div>
+
+          {/* Rating */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+              Minimum Rating
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {RATINGS.map((r) => (
+                <button
+                  key={r.label}
+                  type="button"
+                  onClick={() => updateFilter("minRating", r.value)}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+                    filters.minRating === r.value
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Reset */}
+          {activeFilterCount > 0 && (
+            <div className="md:col-span-3 flex justify-end">
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors duration-150"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default FilterPanel;

@@ -1,0 +1,41 @@
+// components/mentee/dashboard/ProfileTab.jsx
+import ProfileHeroCard from "./ProfileHeroCard";
+import ProfessionalDetailsCard from "./ProfessionalDetailsCard";
+import InterestedFieldsCard from "./InterestedFieldsCard";
+import MentorshipPrefsCard from "./MentorshipPrefsCard";
+import SocialPresenceCard from "./SocialPresenceCard";
+
+const ProfileTab = ({ user, profile }) => {
+  return (
+    <div className="space-y-4">
+      {/* Hero Card */}
+      <ProfileHeroCard user={user} profile={profile} />
+
+      {/* Two-column grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ProfessionalDetailsCard profile={profile} />
+        <MentorshipPrefsCard profile={profile} />
+        <InterestedFieldsCard profile={profile} />
+        <SocialPresenceCard profile={profile} />
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-1 pb-4">
+        <p className="text-xs text-slate-400">
+          Last profile update:{" "}
+          {profile?.updatedAt
+            ? new Date(profile.updatedAt).toLocaleDateString("en-US", {
+                month: "short", day: "numeric", year: "numeric",
+              })
+            : "—"}
+        </p>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-600">
+          <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+          Profile Status: {profile?.isProfilePublished ? "Visible" : "Hidden"}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileTab;

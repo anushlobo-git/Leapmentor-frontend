@@ -1,0 +1,157 @@
+// components/mentor/onboarding/OnboardingFormShell.jsx
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+import PersonalInfoSection from "./PersonalInfoSection";
+import ProfessionalInfoSection from "./ProfessionalInfoSection";
+import SkillsSection from "./SkillsSection";
+import PreferencesSection from "./PreferencesSection";
+import SocialLinksSection from "./SocialLinksSection";
+import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
+import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+const OnboardingFormShell = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    profilePicture: "",
+    bio: "",
+    currentRole: "",
+    industry: "",
+    company: "",
+    yearsOfExperience: "",
+    hourlyRate: "",
+    skills: [],
+    communicationPreferences: [],
+    languages: "",
+    linkedInUrl: "",
+    portfolioUrl: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState({ type: "", text: "" });
+
+  // ✅ Universal onChange — handles string fields + array fields
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMsg({ type: "", text: "" });
+
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        ...form,
+        yearsOfExperience: Number(form.yearsOfExperience) || 0,
+        hourlyRate: Number(form.hourlyRate) || 0,
+        // skills is already an array (managed by SkillsSection)
+        // communicationPreferences is already an array (managed by PreferencesSection)
+        languages: typeof form.languages === "string"
+          ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
+          : form.languages,
+      };
+
+      await axios.post(`${BASE_URL}/api/mentor-profile`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMsg({ type: "success", text: "Profile saved! Redirecting to dashboard…" });
+      setTimeout(() => navigate("/dashboard/mentor"), 1000);
+    } catch (err) {
+      const apiMsg = err?.response?.data?.message || err?.message || "Something went wrong.";
+      setMsg({ type: "error", text: apiMsg });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      {/* Google Font */}
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
+
+      {/* Top accent bar */}
+      <div className="h-1 w-full bg-[#2563eb]" />
+
+      {/* Sticky header */}
+      <header className="sticky top-0 z-10 bg-white border-b border-[#e8edf5] shadow-sm">
+        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#2563eb] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+              M
+            </div>
+            <span className="text-sm font-bold text-[#0f172a]">Mentor Onboarding</span>
+          </div>
+         
+        </div>
+      </header>
+
+            <OnboardingProgressBar form={form} fields={MENTOR_ONBOARDING_FIELDS} />
+
+
+      {/* Page title */}
+      <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
+        <h1 className="text-2xl font-bold text-[#0f172a]">Mentor Onboarding</h1>
+        <p className="text-sm text-[#64748b] mt-1">
+          Complete your profile setup and help mentees find you.
+        </p>
+      </div>
+
+      {/* Form */}
+      <main className="max-w-2xl mx-auto px-6 py-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          <PersonalInfoSection form={form} onChange={handleChange} />
+          <ProfessionalInfoSection form={form} onChange={handleChange} />
+          <SkillsSection form={form} onChange={handleChange} />
+          <PreferencesSection form={form} onChange={handleChange} />
+          <SocialLinksSection form={form} onChange={handleChange} />
+
+          {/* Status message */}
+          {msg.text && (
+            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
+              msg.type === "success"
+                ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
+                : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
+            }`}>
+              <span>{msg.type === "success" ? "✓" : "⚠"}</span>
+              {msg.text}
+            </div>
+          )}
+
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md shadow-[#2563eb30]"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Saving profile…
+              </span>
+            ) : (
+              "Submit Profile →"
+            )}
+          </button>
+
+          <p className="text-center text-xs text-[#94a3b8] pb-8">
+            You can always edit your profile from the dashboard.
+          </p>
+        </form>
+      </main>
+    </div>
+  );
+};
+
+export default OnboardingFormShell;

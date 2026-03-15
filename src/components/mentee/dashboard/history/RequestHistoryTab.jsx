@@ -1,0 +1,87 @@
+// src/components/mentee/dashboard/history/RequestHistoryTab.jsx
+import useRequestHistory from "../../../../hooks/useRequestHistory";
+import { TABS } from "./constants";
+import HistoryTable from "./HistoryTable";
+import DetailDrawer from "./DetailDrawer";
+
+const RequestHistoryTab = () => {
+  const {
+    filtered, counts, loading, error,
+    activeTab, setActiveTab,
+    selected, setSelected,
+    deleteRequest,
+    updateRequest,
+  } = useRequestHistory();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+          <p className="text-sm text-slate-400 font-medium">Loading your history...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">Request History</h1>
+        <p className="text-sm text-slate-400 mt-0.5">
+          Manage and track your mentor outreach and collaboration requests.
+        </p>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
+          <span>⚠</span> {error}
+        </div>
+      )}
+
+      {/* Filter tabs */}
+      <div className="flex gap-1 border-b border-slate-100 pb-1">
+        {TABS.map((tab) => (
+          <button key={tab.key} type="button"
+            onClick={() => { setActiveTab(tab.key); setSelected(null); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${
+              activeTab === tab.key
+                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/50"
+                : "text-slate-400 hover:text-slate-600"
+            }`}>
+            {tab.label}
+            {counts[tab.key] > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === tab.key ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+              }`}>
+                {counts[tab.key]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <HistoryTable
+        requests={filtered}
+        selected={selected}
+        onSelect={setSelected}
+        onDelete={deleteRequest}
+      />
+
+      {/* Drawer */}
+      <DetailDrawer
+        request={selected}
+        onClose={() => setSelected(null)}
+        onDelete={deleteRequest}
+        onUpdateRequest={updateRequest}
+      />
+
+    </div>
+  );
+};
+
+export default RequestHistoryTab;

@@ -1,0 +1,115 @@
+// src/components/mentee/dashboard/findMentors/MentorCard.jsx
+
+const MAX_SKILLS_SHOWN = 3;
+
+const StarRating = ({ rating }) => {
+  const r = Number(rating) || 0;
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg
+          key={star}
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill={star <= Math.round(r) ? "#FBBF24" : "none"}
+          stroke={star <= Math.round(r) ? "#FBBF24" : "#CBD5E1"}
+          strokeWidth="2"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+      <span className="text-xs text-slate-500 ml-0.5 font-medium">
+        {r > 0 ? r.toFixed(1) : "New"}
+      </span>
+    </div>
+  );
+};
+
+// ✅ Added onViewProfile prop — called when "View Profile" is clicked
+const MentorCard = ({ mentor, onViewProfile }) => {
+  const { user, currentRole, company, industry, skills = [], hourlyRate, avgRating, profilePicture } = mentor;
+
+  const visibleSkills = skills.slice(0, MAX_SKILLS_SHOWN);
+  const extraSkills   = skills.length - MAX_SKILLS_SHOWN;
+
+  const initials = user?.name
+    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "?";
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-200 p-5 flex flex-col gap-3">
+
+      {/* ── Top row: avatar + name + industry badge ── */}
+      <div className="flex items-start gap-3">
+        <div className="shrink-0">
+          {profilePicture ? (
+            <img
+              src={profilePicture}
+              alt={user?.name}
+              className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-blue-900 flex items-center justify-center text-white text-base font-bold border-2 border-blue-100">
+              {initials}
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-slate-800 truncate">{user?.name || "—"}</p>
+          <p className="text-xs text-slate-500 truncate mt-0.5">
+            {currentRole || "—"}
+            {company ? ` · ${company}` : ""}
+          </p>
+          {industry && (
+            <span className="inline-block mt-1.5 text-xs font-semibold text-blue-900 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+              {industry}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ── Skills ── */}
+      {skills.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {visibleSkills.map((skill, i) => (
+            <span key={i} className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+              {skill}
+            </span>
+          ))}
+          {extraSkills > 0 && (
+            <span className="text-xs font-medium text-slate-400 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">
+              +{extraSkills} more
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* ── Price + rating ── */}
+      <div className="flex items-center justify-between mt-auto pt-1">
+        <div className="flex items-center gap-1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <span className="text-sm font-bold text-slate-800">
+            {hourlyRate ? `$${hourlyRate}/hr` : "Free"}
+          </span>
+        </div>
+        <StarRating rating={avgRating} />
+      </div>
+
+      {/* ── View Profile button — ✅ now calls onViewProfile ── */}
+      <button
+        type="button"
+        onClick={() => onViewProfile(mentor)}
+        className="w-full mt-1 py-2.5 rounded-xl text-xs font-bold bg-blue-900 text-white hover:bg-blue-900 active:scale-95 transition-all duration-150 shadow-sm shadow-blue-100"
+      >
+        View Profile
+      </button>
+    </div>
+  );
+};
+
+export default MentorCard;
