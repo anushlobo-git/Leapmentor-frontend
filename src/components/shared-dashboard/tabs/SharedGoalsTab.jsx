@@ -1,10 +1,10 @@
 // src/components/shared-dashboard/tabs/SharedGoalsTab.jsx
 import { useState } from "react";
-import useGoals      from "../../../hooks/useGoals";
-import useSessions   from "../../../hooks/useSessions";
-import GoalForm        from "./goals/GoalForm";
+import useGoals from "../../../hooks/useGoals";
+import useSessions from "../../../hooks/useSessions";
+import GoalForm from "./goals/GoalForm";
 import TimelineTracker from "./goals/TimelineTracker";
-import SessionCard     from "./goals/SessionCard";
+import SessionCard from "./goals/SessionCard";
 
 // ── Loading Skeleton ──────────────────────────────────────────
 const LoadingSkeleton = () => (
@@ -19,8 +19,8 @@ const LoadingSkeleton = () => (
 const GoalCard = ({ goal, onEdit }) => {
   const statusClass =
     goal.status === "completed" ? "bg-green-50 text-green-600 border-green-200"
-    : goal.status === "abandoned" ? "bg-red-50 text-red-500 border-red-200"
-    : "bg-violet-50 text-violet-600 border-violet-200";
+      : goal.status === "abandoned" ? "bg-red-50 text-red-500 border-red-200"
+        : "bg-violet-50 text-violet-600 border-violet-200";
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5">
@@ -48,8 +48,8 @@ const GoalCard = ({ goal, onEdit }) => {
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
             Edit
           </button>
@@ -60,41 +60,38 @@ const GoalCard = ({ goal, onEdit }) => {
 };
 
 // ── No Goal Empty State ───────────────────────────────────────
-const NoGoalState = ({ viewerRole, onSetGoal }) => (
+// Both mentor and mentee can set a goal
+const NoGoalState = ({ onSetGoal }) => (
   <div className="bg-white border border-dashed border-violet-200 rounded-2xl p-10
     flex flex-col items-center text-center gap-3">
     <div className="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-200
       flex items-center justify-center">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
         stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <circle cx="12" cy="12" r="6"/>
-        <circle cx="12" cy="12" r="2"/>
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
+        <circle cx="12" cy="12" r="2" />
       </svg>
     </div>
     <div>
       <p className="text-sm font-bold text-slate-800 mb-1">No goal set yet</p>
       <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-        {viewerRole === "mentor"
-          ? "Set a primary goal to guide this mentorship session."
-          : "Waiting for your mentor to set a goal for this session."}
+        Set a primary goal to guide this mentorship session.
       </p>
     </div>
-    {viewerRole === "mentor" && (
-      <button
-        onClick={onSetGoal}
-        className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-violet-600
-          border-none text-sm font-bold text-white cursor-pointer hover:bg-violet-700
-          transition-colors mt-1"
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Set Goal
-      </button>
-    )}
+    <button
+      onClick={onSetGoal}
+      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-violet-600
+        border-none text-sm font-bold text-white cursor-pointer hover:bg-violet-700
+        transition-colors mt-1"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Set Goal
+    </button>
   </div>
 );
 
@@ -122,8 +119,8 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
         bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
         All sessions complete — tokens released to mentor!
       </div>
@@ -135,7 +132,7 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
 const SharedGoalsTab = ({ connect, onAllComplete }) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  const viewerRole       = connect?.viewerRole || "mentee";
+  const viewerRole = connect?.viewerRole || "mentee";
   const connectRequestId = connect?._id;
 
   const otherName = viewerRole === "mentee"
@@ -144,7 +141,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
 
   // ── Goals + milestones from hook ─────────────────────────
   const {
-    goal, milestonesBySlot,   // ✅ use milestonesBySlot directly — no manual grouping
+    goal, milestonesBySlot,
     loading: goalsLoading, error: goalsError, saving: goalsSaving,
     createGoal, updateGoal,
     addMilestone, toggleMilestone, deleteMilestone,
@@ -208,7 +205,8 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       ) : goal ? (
         <GoalCard goal={goal} onEdit={() => setIsEditing(true)} />
       ) : (
-        <NoGoalState viewerRole={viewerRole} onSetGoal={() => setIsEditing(true)} />
+        // Both roles see Set Goal button — no viewerRole restriction
+        <NoGoalState onSetGoal={() => setIsEditing(true)} />
       )}
 
       {/* Overall progress bar */}
@@ -232,7 +230,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
               slot={slot}
               slotIndex={index}
               goal={goal}
-              milestones={milestonesBySlot[String(index)] || []}  // ✅ directly from hook
+              milestones={milestonesBySlot[String(index)] || []}
               viewerRole={viewerRole}
               otherName={otherName}
               saving={slotsSaving}
