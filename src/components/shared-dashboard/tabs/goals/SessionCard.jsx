@@ -17,10 +17,12 @@ const formatTime = (t) => {
 };
 
 // ── Meeting Link Section ──────────────────────────────────────
-const MeetingLinkSection = ({ slot, onSetLink, saving }) => {
-  const [editing,  setEditing]  = useState(false);
-  const [linkVal,  setLinkVal]  = useState(slot?.meetingLink || "");
-  const [linkErr,  setLinkErr]  = useState("");
+const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
+  const [editing, setEditing] = useState(false);
+  const [linkVal, setLinkVal] = useState(slot?.meetingLink || "");
+  const [linkErr, setLinkErr] = useState("");
+
+  const isMentor = viewerRole === "mentor";
 
   const handleSave = async () => {
     if (!linkVal.trim()) { setLinkErr("Link cannot be empty"); return; }
@@ -75,20 +77,24 @@ const MeetingLinkSection = ({ slot, onSetLink, saving }) => {
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
             </svg>
             <span className="truncate">{slot.meetingLink}</span>
           </a>
-          <button
-            onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
-            className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
-              text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-          >
-            Edit
-          </button>
+          {/* Only mentor can edit the meeting link */}
+          {isMentor && (
+            <button
+              onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
+              className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
+                text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              Edit
+            </button>
+          )}
         </div>
-      ) : (
+      ) : isMentor ? (
+        // Only mentor can add a meeting link
         <button
           onClick={() => setEditing(true)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
@@ -97,18 +103,30 @@ const MeetingLinkSection = ({ slot, onSetLink, saving }) => {
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Add Meeting Link
         </button>
+      ) : (
+        // Mentee sees a placeholder when no link is set yet
+        <p className="text-xs text-slate-400 italic">No meeting link added yet.</p>
       )}
     </div>
   );
 };
 
 // ── Session Milestones ────────────────────────────────────────
-const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDelete, saving }) => {
+const SessionMilestones = ({
+  milestones,
+  goal,
+  slotIndex,
+  viewerRole,
+  onAdd,
+  onToggle,
+  onDelete,
+  saving,
+}) => {
   const [showForm, setShowForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
 
@@ -123,6 +141,9 @@ const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDel
 
   const completed = milestones.filter((m) => m.isCompleted).length;
 
+  // Both mentor and mentee can add/toggle/delete milestones — but only if a goal exists
+  const canEditMilestones = !!goal;
+
   return (
     <div className="border-t border-slate-100 pt-3">
       <div className="flex items-center justify-between mb-2.5">
@@ -136,7 +157,8 @@ const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDel
             </span>
           )}
         </div>
-        {!showForm && goal && (
+        {/* Add button — visible to BOTH roles as long as a goal exists */}
+        {!showForm && canEditMilestones && (
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-50 border
@@ -144,8 +166,8 @@ const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDel
           >
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Add
           </button>
@@ -182,27 +204,36 @@ const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDel
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty state */}
       {milestones.length === 0 && !showForm && (
         <p className="text-xs text-slate-400 italic">
-          {goal ? "No milestones for this session yet." : "Set a goal first to add milestones."}
+          {goal
+            ? "No milestones for this session yet."
+            : viewerRole === "mentor"
+              ? "Set a goal first to add milestones."
+              : "Waiting for your mentor to set a goal before adding milestones."}
         </p>
       )}
 
-      {/* Milestone rows */}
+      {/* Milestone rows — toggle & delete available to BOTH roles */}
       <div className="flex flex-col gap-1.5">
         {milestones.map((m) => (
-          <div key={m._id} className={`flex items-center gap-2.5 px-3 py-2.5 border rounded-xl transition-all
-            ${m.isCompleted ? "bg-slate-50 border-slate-100 opacity-75" : "bg-white border-slate-200"}`}>
+          <div
+            key={m._id}
+            className={`flex items-center gap-2.5 px-3 py-2.5 border rounded-xl transition-all
+              ${m.isCompleted ? "bg-slate-50 border-slate-100 opacity-75" : "bg-white border-slate-200"}`}
+          >
             <button
               onClick={() => onToggle(m._id, !m.isCompleted)}
               className={`w-4 h-4 rounded-md border-2 flex items-center justify-center shrink-0
                 transition-all cursor-pointer p-0
-                ${m.isCompleted ? "bg-violet-600 border-violet-600" : "bg-white border-slate-300 hover:border-violet-400"}`}
+                ${m.isCompleted
+                  ? "bg-violet-600 border-violet-600"
+                  : "bg-white border-slate-300 hover:border-violet-400"}`}
             >
               {m.isCompleted && (
                 <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
             </button>
@@ -217,8 +248,8 @@ const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDel
             >
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
               </svg>
             </button>
           </div>
@@ -230,12 +261,12 @@ const SessionMilestones = ({ milestones, goal, slotIndex, onAdd, onToggle, onDel
 
 // ── Completion Section ────────────────────────────────────────
 const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, saving }) => {
-  const isMentee     = viewerRole === "mentee";
+  const isMentee = viewerRole === "mentee";
   const iMenteeMarked = slot?.menteeMarked || false;
   const iMentorMarked = slot?.mentorMarked || false;
-  const myMark        = isMentee ? iMenteeMarked : iMentorMarked;
-  const otherMark     = isMentee ? iMentorMarked : iMenteeMarked;
-  const bothDone      = iMenteeMarked && iMentorMarked;
+  const myMark = isMentee ? iMenteeMarked : iMentorMarked;
+  const otherMark = isMentee ? iMentorMarked : iMenteeMarked;
+  const bothDone = iMenteeMarked && iMentorMarked;
 
   return (
     <div className="border-t border-slate-100 pt-3">
@@ -285,7 +316,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
             <>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
+                <polyline points="20 6 9 17 4 12" />
               </svg>
               Mark Session Complete
             </>
@@ -299,8 +330,8 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
           bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
           Session Completed by Both Parties
         </div>
@@ -324,18 +355,18 @@ const SessionCard = ({
   onToggleMilestone,
   onDeleteMilestone,
 }) => {
-  const bothDone   = slot?.menteeMarked && slot?.mentorMarked;
+  const bothDone = slot?.menteeMarked && slot?.mentorMarked;
   const statusLabel = bothDone
     ? "Completed"
     : (slot?.menteeMarked || slot?.mentorMarked)
-    ? "In Progress"
-    : "Pending";
+      ? "In Progress"
+      : "Pending";
 
   const statusClass = bothDone
     ? "bg-emerald-50 text-emerald-600 border-emerald-200"
     : (slot?.menteeMarked || slot?.mentorMarked)
-    ? "bg-amber-50 text-amber-600 border-amber-200"
-    : "bg-slate-100 text-slate-500 border-slate-200";
+      ? "bg-amber-50 text-amber-600 border-amber-200"
+      : "bg-slate-100 text-slate-500 border-slate-200";
 
   return (
     <div className={`bg-white border rounded-2xl p-4 flex flex-col gap-3
@@ -357,25 +388,27 @@ const SessionCard = ({
         </span>
       </div>
 
-      {/* Meeting link */}
+      {/* Meeting link — mentor can add/edit, mentee can only view */}
       <MeetingLinkSection
         slot={slot}
+        viewerRole={viewerRole}
         onSetLink={(link) => onSetLink(slotIndex, link)}
         saving={saving}
       />
 
-      {/* Session milestones */}
+      {/* Session milestones — both roles can add/toggle/delete */}
       <SessionMilestones
         milestones={milestones}
         goal={goal}
         slotIndex={slotIndex}
+        viewerRole={viewerRole}
         onAdd={onAddMilestone}
         onToggle={onToggleMilestone}
         onDelete={onDeleteMilestone}
         saving={saving}
       />
 
-      {/* Completion */}
+      {/* Completion — both roles can mark their own side */}
       <CompletionSection
         slot={slot}
         viewerRole={viewerRole}

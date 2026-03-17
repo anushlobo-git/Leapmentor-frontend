@@ -11,12 +11,12 @@ const authHeaders = () => ({
 });
 
 const useGoals = (connectRequestId) => {
-  const [goal,             setGoal]             = useState(null);
-  const [milestones,       setMilestones]       = useState([]);
+  const [goal, setGoal] = useState(null);
+  const [milestones, setMilestones] = useState([]);
   const [milestonesBySlot, setMilestonesBySlot] = useState({});
-  const [loading,          setLoading]          = useState(true);
-  const [error,            setError]            = useState(null);
-  const [saving,           setSaving]           = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // ── Fetch goal + milestones ───────────────────────────────
   const fetchGoal = useCallback(async () => {
@@ -24,14 +24,14 @@ const useGoals = (connectRequestId) => {
     setLoading(true);
     setError(null);
     try {
-      const res  = await fetch(`${API}/api/goals/${connectRequestId}`, {
+      const res = await fetch(`${API}/api/goals/${connectRequestId}`, {
         headers: authHeaders(),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to load goal");
       setGoal(data.goal);
       setMilestones(data.milestones || []);
-      setMilestonesBySlot(data.milestonesBySlot || {}); // ✅ from backend
+      setMilestonesBySlot(data.milestonesBySlot || {});
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,10 +46,10 @@ const useGoals = (connectRequestId) => {
     setSaving(true);
     setError(null);
     try {
-      const res  = await fetch(`${API}/api/goals`, {
-        method:  "POST",
+      const res = await fetch(`${API}/api/goals`, {
+        method: "POST",
         headers: authHeaders(),
-        body:    JSON.stringify({ connectRequestId, title, description, startDate, endDate }),
+        body: JSON.stringify({ connectRequestId, title, description, startDate, endDate }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create goal");
@@ -68,10 +68,10 @@ const useGoals = (connectRequestId) => {
     setSaving(true);
     setError(null);
     try {
-      const res  = await fetch(`${API}/api/goals/${goalId}`, {
-        method:  "PATCH",
+      const res = await fetch(`${API}/api/goals/${goalId}`, {
+        method: "PATCH",
         headers: authHeaders(),
-        body:    JSON.stringify(fields),
+        body: JSON.stringify(fields),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update goal");
@@ -86,25 +86,22 @@ const useGoals = (connectRequestId) => {
   }, []);
 
   // ── Add milestone ─────────────────────────────────────────
-  // ✅ Now accepts slotIndex — null = goal-level, 0/1/2 = session-specific
   const addMilestone = useCallback(async (goalId, { title, slotIndex = null }) => {
     setSaving(true);
     setError(null);
     try {
-      const res  = await fetch(`${API}/api/goals/${goalId}/milestones`, {
-        method:  "POST",
+      const res = await fetch(`${API}/api/goals/${goalId}/milestones`, {
+        method: "POST",
         headers: authHeaders(),
-        body:    JSON.stringify({ title, slotIndex }),
+        body: JSON.stringify({ title, slotIndex }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add milestone");
 
       const newMilestone = data.milestone;
 
-      // ✅ Update flat milestones array
       setMilestones((prev) => [...prev, newMilestone]);
 
-      // ✅ Update milestonesBySlot grouped state
       const key = newMilestone.slotIndex !== null && newMilestone.slotIndex !== undefined
         ? String(newMilestone.slotIndex)
         : "null";
@@ -124,7 +121,7 @@ const useGoals = (connectRequestId) => {
 
   // ── Toggle milestone complete ─────────────────────────────
   const toggleMilestone = useCallback(async (milestoneId, isCompleted) => {
-    // Optimistic update — both flat and grouped
+    // Optimistic update
     const updateFn = (prev) =>
       prev.map((m) => m._id === milestoneId ? { ...m, isCompleted } : m);
 
@@ -140,15 +137,15 @@ const useGoals = (connectRequestId) => {
     });
 
     try {
-      const res  = await fetch(`${API}/api/milestones/${milestoneId}`, {
-        method:  "PATCH",
+      const res = await fetch(`${API}/api/goals/milestones/${milestoneId}`, {
+        method: "PATCH",
         headers: authHeaders(),
-        body:    JSON.stringify({ isCompleted }),
+        body: JSON.stringify({ isCompleted }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update milestone");
 
-      // ✅ Confirm with server response
+      // Confirm with server response
       setMilestones((prev) =>
         prev.map((m) => m._id === milestoneId ? data.milestone : m)
       );
@@ -181,28 +178,43 @@ const useGoals = (connectRequestId) => {
 
   // ── Delete milestone ──────────────────────────────────────
   const deleteMilestone = useCallback(async (milestoneId) => {
+    // Snapshot current state for rollback
+    let prevMilestones;
+    let prevMilestonesBySlot;
+
+    // Optimistic removal from both flat + grouped state
+    setMilestones((prev) => {
+      prevMilestones = prev;
+      return prev.filter((m) => m._id !== milestoneId);
+    });
+    setMilestonesBySlot((prev) => {
+      prevMilestonesBySlot = prev;
+      const updated = { ...prev };
+      Object.keys(updated).forEach((key) => {
+        updated[key] = updated[key].filter((m) => m._id !== milestoneId);
+      });
+      return updated;
+    });
+
     try {
-      const res  = await fetch(`${API}/api/milestones/${milestoneId}`, {
-        method:  "DELETE",
+      const res = await fetch(`${API}/api/goals/milestones/${milestoneId}`, {
+        method: "DELETE",
         headers: authHeaders(),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to delete milestone");
 
-      // ✅ Remove from both flat and grouped state
-      setMilestones((prev) => prev.filter((m) => m._id !== milestoneId));
-      setMilestonesBySlot((prev) => {
-        const updated = { ...prev };
-        Object.keys(updated).forEach((key) => {
-          updated[key] = updated[key].filter((m) => m._id !== milestoneId);
-        });
-        return updated;
-      });
+      // Some DELETE endpoints return 204 with no body — handle both cases
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to delete milestone");
+      }
 
       return { success: true };
     } catch (err) {
+      // Rollback to snapshot on failure
+      setMilestones(prevMilestones);
+      setMilestonesBySlot(prevMilestonesBySlot);
       setError(err.message);
-      return { success: false };
+      return { success: false, error: err.message };
     }
   }, []);
 

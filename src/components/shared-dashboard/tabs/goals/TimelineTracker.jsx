@@ -6,10 +6,10 @@ const formatDate = (d) =>
 const getProgress = (startDate, endDate) => {
   if (!startDate || !endDate) return 0;
   const start = new Date(startDate).getTime();
-  const end   = new Date(endDate).getTime();
-  const now   = Date.now();
+  const end = new Date(endDate).getTime();
+  const now = Date.now();
   if (now <= start) return 0;
-  if (now >= end)   return 100;
+  if (now >= end) return 100;
   return Math.round(((now - start) / (end - start)) * 100);
 };
 
@@ -20,14 +20,13 @@ const getDaysRemaining = (endDate) => {
 };
 
 const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
-  const [editing,   setEditing]   = useState(false);
+  const [editing, setEditing] = useState(false);
   const [startDate, setStartDate] = useState(goal?.startDate || "");
-  const [endDate,   setEndDate]   = useState(goal?.endDate   || "");
-  const [err,       setErr]       = useState("");
+  const [endDate, setEndDate] = useState(goal?.endDate || "");
+  const [err, setErr] = useState("");
 
-  const isMentor    = viewerRole === "mentor";
-  const progress    = getProgress(goal?.startDate, goal?.endDate);
-  const daysLeft    = getDaysRemaining(goal?.endDate);
+  const progress = getProgress(goal?.startDate, goal?.endDate);
+  const daysLeft = getDaysRemaining(goal?.endDate);
   const hasTimeline = goal?.startDate && goal?.endDate;
 
   const handleSave = async () => {
@@ -42,8 +41,8 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
   const daysLeftColor = daysLeft < 0
     ? "bg-red-50 text-red-500 border-red-200"
     : daysLeft <= 7
-    ? "bg-orange-50 text-orange-600 border-orange-200"
-    : "bg-green-50 text-green-600 border-green-200";
+      ? "bg-orange-50 text-orange-600 border-orange-200"
+      : "bg-green-50 text-green-600 border-green-200";
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5">
@@ -54,24 +53,25 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
           <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
               stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           </div>
           <p className="text-sm font-bold text-slate-800">Timeline</p>
         </div>
 
-        {isMentor && !editing && (
+        {/* Both roles can set/edit timeline */}
+        {!editing && (
           <button
             onClick={() => { setStartDate(goal?.startDate || ""); setEndDate(goal?.endDate || ""); setEditing(true); }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 cursor-pointer hover:border-blue-300 hover:text-blue-900 hover:bg-blue-50 transition-all"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
             {hasTimeline ? "Edit" : "Set Timeline"}
           </button>
@@ -143,7 +143,7 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
                 {daysLeft < 0
                   ? `Ended ${Math.abs(daysLeft)} days ago`
                   : daysLeft === 0 ? "Ends today"
-                  : `${daysLeft} days remaining`}
+                    : `${daysLeft} days remaining`}
               </span>
             </div>
           )}
@@ -151,7 +151,7 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
 
       ) : (
         <p className="text-sm text-slate-400 text-center py-4">
-          {isMentor ? "No timeline set. Click 'Set Timeline' to add dates." : "Awaiting timeline from mentor."}
+          No timeline set. Click 'Set Timeline' to add dates.
         </p>
       )}
     </div>
@@ -159,5 +159,3 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
 };
 
 export default TimelineTracker;
-
-
