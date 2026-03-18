@@ -25,6 +25,8 @@ import SharedDashboardPage from "./pages/SharedDashboardPage";
 import AdminLogin          from "./pages/admin/AdminLogin";
 import AdminUserManagement from "./pages/admin/AdminUserManagement";
 import AdminRoute          from "./components/admin/AdminRoute";
+import AdminEngagements from "./pages/admin/AdminEngagements";
+
 
 const App = () => {
   return (
@@ -63,7 +65,7 @@ const App = () => {
         {/* ── Admin (separate auth, separate token) ─────── */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/users" element={<AdminRoute><AdminUserManagement /></AdminRoute>} />
-
+        <Route path="/admin/engagements" element={<AdminRoute><AdminEngagements /></AdminRoute>} />
         {/* ── 404 ───────────────────────────────────────── */}
         <Route path="*" element={<NotFound />} />
       </Routes>

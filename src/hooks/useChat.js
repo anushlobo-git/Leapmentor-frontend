@@ -111,7 +111,6 @@ const useChat = (connectRequestId) => {
       setError("Connection error. Retrying...");
     });
 
-    // ✅ THE KEY FIX: new_message listener is set up once and
     // uses a functional state updater — no stale closure issues.
     socket.on("new_message", (message) => {
       setMessages((prev) => {
@@ -144,7 +143,7 @@ const useChat = (connectRequestId) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [connectRequestId]); // ✅ Only reconnects when the room changes
+  }, [connectRequestId]); // Only reconnects when the room changes
 
   // ── Load more (older messages) ────────────────────────────
   const loadMore = useCallback(async () => {
@@ -178,7 +177,7 @@ const useChat = (connectRequestId) => {
       isTypingRef.current = false;
       clearTimeout(typingTimerRef.current);
     }
-  }, []); // ✅ stable — uses refs, no deps needed
+  }, []); // stable — uses refs, no deps needed
 
   // ── Typing indicator ──────────────────────────────────────
   const handleTyping = useCallback(() => {
@@ -197,7 +196,7 @@ const useChat = (connectRequestId) => {
         socketRef.current?.emit("typing_stop", { connectRequestId: roomId });
       }
     }, TYPING_DEBOUNCE_MS);
-  }, []); // ✅ stable — uses refs
+  }, []); // stable — uses refs
 
   // ── Mark messages as read ─────────────────────────────────
   const markRead = useCallback(() => {
@@ -205,7 +204,7 @@ const useChat = (connectRequestId) => {
     socketRef.current.emit("mark_read", {
       connectRequestId: connectRequestIdRef.current,
     });
-  }, []); // ✅ stable — uses refs
+  }, []); // stable — uses refs
 
   return {
     messages,
