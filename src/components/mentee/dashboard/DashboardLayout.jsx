@@ -7,13 +7,16 @@ import HomeTab from "./HomeTab";
 import ProfileTab from "./ProfileTab";
 import FindMentorsTab from "./findMentors/FindMentorsTab";
 import RequestHistoryTab from "./history/RequestHistoryTab";
-import MenteeConnectsTab from "./connects/MenteeConnectsTab";
+import NotificationsTab from "../notifications/NotificationsTab"; // ✅ your version
+import MenteeConnectsTab from "./connects/MenteeConnectsTab";     // ✅ team's version
+import MenteeSettingsTab from "./settings/MenteeSettingsTab";     // ✅ team's version
 import ComingSoon from "./ComingSoon";
-import MenteeSettingsTab from "./settings/MenteeSettingsTab";
 
 const COMING_SOON_TABS = {
-  notifications: { icon: "🔔", title: "Notifications", desc: "You'll get alerts here when sessions are booked or mentors respond." },
-  trackings:     { icon: "📈", title: "Trackings",     desc: "Track your mentorship progress and goals over time." },
+  // ✅ notifications is a real tab (your version) — removed from coming soon
+  // ✅ connects is a real tab (team's version) — removed from coming soon
+  // ✅ settings is a real tab (team's version) — removed from coming soon
+  trackings: { icon: "📈", title: "Trackings", desc: "Track your mentorship progress and goals over time." },
 };
 
 const DashboardLayout = () => {
@@ -67,12 +70,13 @@ const DashboardLayout = () => {
           onClose={() => setSidebarOpen(false)}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"        && <HomeTab user={user} profile={profile} />}
-          {activeTab === "profile"     && <ProfileTab user={user} profile={profile} />}
-          {activeTab === "findMentors" && <FindMentorsTab />}
-          {activeTab === "history"     && <RequestHistoryTab />}
-          {activeTab === "connects"    && <MenteeConnectsTab />}
-          {activeTab === "settings"    && <MenteeSettingsTab profile={profile} />}
+          {activeTab === "home"          && <HomeTab user={user} profile={profile} />}
+          {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
+          {activeTab === "findMentors"   && <FindMentorsTab />}
+          {activeTab === "history"       && <RequestHistoryTab />}
+          {activeTab === "notifications" && <NotificationsTab />}          {/* ✅ your version */}
+          {activeTab === "connects"      && <MenteeConnectsTab />}         {/* ✅ team's version */}
+          {activeTab === "settings"      && <MenteeSettingsTab profile={profile} />} {/* ✅ team's version */}
           {comingSoon && <ComingSoon icon={comingSoon.icon} title={comingSoon.title} desc={comingSoon.desc} />}
         </main>
       </div>
