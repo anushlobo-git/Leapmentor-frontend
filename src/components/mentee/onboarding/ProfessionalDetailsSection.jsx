@@ -66,7 +66,7 @@ const ProfessionalDetailsSection = ({ form, handleChange }) => {
               value={form.company}
               onChange={handleChange}
               className={inputClass}
-              placeholder="Company Name"
+              placeholder="Company Name / Organization"
             />
           </div>
 
