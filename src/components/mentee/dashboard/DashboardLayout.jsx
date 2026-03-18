@@ -12,11 +12,9 @@ import RequestHistoryTab from "./history/RequestHistoryTab";
 import NotificationsTab from "../notifications/NotificationsTab";
 import MenteeConnectsTab from "./connects/MenteeConnectsTab";
 import MenteeSettingsTab from "./settings/MenteeSettingsTab";
-import ComingSoon from "./ComingSoon";
 
-const COMING_SOON_TABS = {
-  trackings: { icon: "📈", title: "Trackings", desc: "Track your mentorship progress and goals over time." },
-};
+
+
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMenteeDashboard();
@@ -63,7 +61,7 @@ const DashboardLayout = () => {
     );
   }
 
-  const comingSoon = COMING_SOON_TABS[activeTab];
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -84,7 +82,7 @@ const DashboardLayout = () => {
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "connects"      && <MenteeConnectsTab />}
           {activeTab === "settings"      && <MenteeSettingsTab profile={profile} />}
-          {comingSoon && <ComingSoon icon={comingSoon.icon} title={comingSoon.title} desc={comingSoon.desc} />}
+          
         </main>
       </div>
     </div>
