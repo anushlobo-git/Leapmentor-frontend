@@ -12,7 +12,22 @@ const NAV_ITEMS = [
   { key: "settings", label: "Settings", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> },
 ];
 
-const SidebarContent = ({ activeTab, setActiveTab, onClose }) => (
+const Badge = ({ count }) => {
+  if (!count || count === 0) return null;
+  return (
+    <span style={{
+      marginLeft: "auto", backgroundColor: "#ef4444", color: "white",
+      fontSize: "10px", fontWeight: "700", borderRadius: "999px",
+      minWidth: "18px", height: "18px", display: "flex",
+      alignItems: "center", justifyContent: "center",
+      padding: "0 5px", lineHeight: 1,
+    }}>
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+};
+
+const SidebarContent = ({ activeTab, setActiveTab, onClose, unreadCount }) => (
   <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
     <nav style={{ display: "flex", flexDirection: "column", gap: "2px", padding: "16px 12px 0" }}>
       {NAV_ITEMS.map((item) => {
@@ -34,14 +49,13 @@ const SidebarContent = ({ activeTab, setActiveTab, onClose }) => (
               {item.icon}
             </span>
             {item.label}
+            {item.key === "notifications" && <Badge count={unreadCount} />}
           </button>
         );
       })}
     </nav>
     <div style={{ padding: "0 12px 32px" }}>
-      <p style={{ fontSize: "10px", fontWeight: "600", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", padding: "0 12px", marginBottom: "4px" }}>
-        Support
-      </p>
+      <p style={{ fontSize: "10px", fontWeight: "600", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", padding: "0 12px", marginBottom: "4px" }}>Support</p>
       <button style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "12px", fontSize: "14px", color: "#64748b", border: "none", cursor: "pointer", width: "100%", backgroundColor: "transparent" }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -52,7 +66,7 @@ const SidebarContent = ({ activeTab, setActiveTab, onClose }) => (
   </div>
 );
 
-const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
+const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) => {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -64,29 +78,19 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
         .mentor-sidebar-desktop { display: flex; }
         .mentor-sidebar-backdrop, .mentor-sidebar-drawer { display: none; }
         @media (max-width: 767px) {
-          .mentor-sidebar-desktop  { display: none !important; }
+          .mentor-sidebar-desktop { display: none !important; }
           .mentor-sidebar-backdrop { display: block; }
-          .mentor-sidebar-drawer   { display: flex; }
+          .mentor-sidebar-drawer { display: flex; }
         }
       `}</style>
 
-      {/* Desktop sidebar */}
       <aside className="mentor-sidebar-desktop" style={{ width: "176px", flexShrink: 0, backgroundColor: "white", borderRight: "1px solid #f1f5f9", minHeight: "100vh", flexDirection: "column", justifyContent: "space-between" }}>
-        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} />
+        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} unreadCount={unreadCount} />
       </aside>
 
-      {/* Mobile backdrop */}
-      <div
-        className="mentor-sidebar-backdrop"
-        onClick={onClose}
-        style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 30, opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? "auto" : "none", transition: "opacity 0.3s ease" }}
-      />
+      <div className="mentor-sidebar-backdrop" onClick={onClose} style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 30, opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? "auto" : "none", transition: "opacity 0.3s ease" }} />
 
-      {/* Mobile drawer */}
-      <aside
-        className="mentor-sidebar-drawer"
-        style={{ position: "fixed", top: 0, left: 0, height: "100%", width: "224px", backgroundColor: "white", zIndex: 40, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)", flexDirection: "column", transform: isOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.3s ease-in-out" }}
-      >
+      <aside className="mentor-sidebar-drawer" style={{ position: "fixed", top: 0, left: 0, height: "100%", width: "224px", backgroundColor: "white", zIndex: 40, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)", flexDirection: "column", transform: isOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.3s ease-in-out" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: "56px", borderBottom: "1px solid #f1f5f9", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <img src="/images/logo.png" alt="Leapmentor" style={{ height: "28px", width: "auto" }} />
@@ -98,7 +102,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
             </svg>
           </button>
         </div>
-        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} />
+        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} unreadCount={unreadCount} />
       </aside>
     </>
   );
