@@ -1,18 +1,21 @@
 // src/hooks/useNotes.js
 import { useState, useEffect, useCallback } from "react";
 import {
-  getNotes    as apiGetNotes,
-  uploadNote  as apiUploadNote,
-  deleteNote  as apiDeleteNote,
-} from "../api/notes.ap";
+  getNotes        as apiGetNotes,
+  uploadNote      as apiUploadNote,
+  deleteNote      as apiDeleteNote,
+  getPrivateNotes as apiGetPrivateNotes,
+} from "../api/notes.ap.js";
 
 const useNotes = (connectRequestId) => {
-  const [notes,     setNotes]     = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [error,     setError]     = useState(null);
+  const [notes,          setNotes]          = useState([]);
+  const [privateNotes,   setPrivateNotes]   = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [privateLoading, setPrivateLoading] = useState(true);
+  const [uploading,      setUploading]      = useState(false);
+  const [error,          setError]          = useState(null);
 
-  // ── Fetch notes on mount ──────────────────────────────────
+  // ── Fetch shared notes ────────────────────────────────────
   const fetchNotes = useCallback(async () => {
     if (!connectRequestId) return;
     try {
@@ -27,19 +30,38 @@ const useNotes = (connectRequestId) => {
     }
   }, [connectRequestId]);
 
+  // ── Fetch private notes ───────────────────────────────────
+  const fetchPrivateNotes = useCallback(async () => {
+    if (!connectRequestId) return;
+    try {
+      setPrivateLoading(true);
+      const data = await apiGetPrivateNotes(connectRequestId);
+      setPrivateNotes(data.notes || []);
+    } catch (err) {
+      // ✅ Don't set global error for private notes — just log
+      console.warn("Private notes fetch failed:", err?.response?.data?.message);
+    } finally {
+      setPrivateLoading(false);
+    }
+  }, [connectRequestId]);
+
   useEffect(() => {
     fetchNotes();
-  }, [fetchNotes]);
+    fetchPrivateNotes();
+  }, [fetchNotes, fetchPrivateNotes]);
 
   // ── Upload a note ─────────────────────────────────────────
-  const uploadNote = useCallback(async (file, title = "") => {
+  const uploadNote = useCallback(async (file, title = "", isPrivate = false) => {
     if (!file || !connectRequestId) return;
     try {
       setUploading(true);
       setError(null);
-      const data = await apiUploadNote(connectRequestId, file, title);
-      // ✅ Prepend new note to top of list
-      setNotes((prev) => [data.note, ...prev]);
+      const data = await apiUploadNote(connectRequestId, file, title, isPrivate);
+      if (isPrivate) {
+        setPrivateNotes((prev) => [data.note, ...prev]);
+      } else {
+        setNotes((prev) => [data.note, ...prev]);
+      }
       return { success: true };
     } catch (err) {
       const msg = err?.response?.data?.message || "Upload failed. Please try again.";
@@ -51,12 +73,15 @@ const useNotes = (connectRequestId) => {
   }, [connectRequestId]);
 
   // ── Delete a note ─────────────────────────────────────────
-  const deleteNote = useCallback(async (noteId) => {
+  const deleteNote = useCallback(async (noteId, isPrivate = false) => {
     try {
       setError(null);
       await apiDeleteNote(noteId);
-      // ✅ Remove from local state immediately
-      setNotes((prev) => prev.filter((n) => n._id !== noteId));
+      if (isPrivate) {
+        setPrivateNotes((prev) => prev.filter((n) => n._id !== noteId));
+      } else {
+        setNotes((prev) => prev.filter((n) => n._id !== noteId));
+      }
       return { success: true };
     } catch (err) {
       const msg = err?.response?.data?.message || "Delete failed. Please try again.";
@@ -67,12 +92,15 @@ const useNotes = (connectRequestId) => {
 
   return {
     notes,
+    privateNotes,
     loading,
+    privateLoading,
     uploading,
     error,
     uploadNote,
     deleteNote,
-    refetch: fetchNotes,
+    refetch:        fetchNotes,
+    refetchPrivate: fetchPrivateNotes,
   };
 };
 
