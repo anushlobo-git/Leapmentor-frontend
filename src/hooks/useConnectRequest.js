@@ -9,7 +9,8 @@ const useConnectRequest = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError]     = useState("");
 
-const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sessionCount }) => {    setError("");
+  const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sessionCount }) => {
+    setError("");
     setSuccess(false);
 
     // ✅ Validate at least one slot selected
@@ -22,10 +23,10 @@ const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sess
       setSending(true);
       const token = localStorage.getItem("token");
       await axios.post(
-  `${BASE_URL}/api/connect-requests`,
-  { mentorId, message, selectedSlots, sessionRate, sessionCount },
-  { headers: { Authorization: `Bearer ${token}` } }
-);
+        `${BASE_URL}/api/connect-requests`,
+        { mentorId, message, selectedSlots, sessionRate, sessionCount },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setSuccess(true);
       return true;
     } catch (err) {

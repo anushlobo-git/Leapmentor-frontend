@@ -1,6 +1,8 @@
 // src/components/mentor/dashboard/DashboardLayout.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useMentorDashboard from "../../../hooks/useMentorDashboard";
+import useUnreadCount from "../../../hooks/useUnreadCount";
+import useSocketToast from "../../../hooks/useSocketToast"; // ✅ added
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import MentorHomeTab from "./MentorHomeTab";
@@ -18,8 +20,15 @@ const COMING_SOON_TABS = {
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMentorDashboard();
+  const { unreadCount, clearBadge } = useUnreadCount();
+  useSocketToast(); // ✅ listens for new_connect_request
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ✅ Clear badge when notifications tab is opened
+  useEffect(() => {
+    if (activeTab === "notifications") clearBadge();
+  }, [activeTab, clearBadge]);
 
   const handleSetTab = (tab) => {
     setActiveTab(tab);
@@ -59,6 +68,7 @@ const DashboardLayout = () => {
           setActiveTab={handleSetTab}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
           {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} />}

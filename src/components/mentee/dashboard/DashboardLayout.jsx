@@ -1,26 +1,27 @@
 // src/components/mentee/dashboard/DashboardLayout.jsx
 import { useState, useEffect } from "react";
 import useMenteeDashboard from "../../../hooks/useMenteeDashboard";
+import useUnreadCount from "../../../hooks/useUnreadCount";
+import useSocketToast from "../../../hooks/useSocketToast"; // ✅ added
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import HomeTab from "./HomeTab";
 import ProfileTab from "./ProfileTab";
 import FindMentorsTab from "./findMentors/FindMentorsTab";
 import RequestHistoryTab from "./history/RequestHistoryTab";
-import NotificationsTab from "../notifications/NotificationsTab"; // ✅ your version
-import MenteeConnectsTab from "./connects/MenteeConnectsTab";     // ✅ team's version
-import MenteeSettingsTab from "./settings/MenteeSettingsTab";     // ✅ team's version
+import NotificationsTab from "../notifications/NotificationsTab";
+import MenteeConnectsTab from "./connects/MenteeConnectsTab";
+import MenteeSettingsTab from "./settings/MenteeSettingsTab";
 import ComingSoon from "./ComingSoon";
 
 const COMING_SOON_TABS = {
-  // ✅ notifications is a real tab (your version) — removed from coming soon
-  // ✅ connects is a real tab (team's version) — removed from coming soon
-  // ✅ settings is a real tab (team's version) — removed from coming soon
   trackings: { icon: "📈", title: "Trackings", desc: "Track your mentorship progress and goals over time." },
 };
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMenteeDashboard();
+  const { unreadCount, clearBadge } = useUnreadCount();
+  useSocketToast(); // ✅ listens for request_accepted, request_declined, request_referred
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -29,6 +30,11 @@ const DashboardLayout = () => {
     window.addEventListener("setDashboardTab", handler);
     return () => window.removeEventListener("setDashboardTab", handler);
   }, []);
+
+  // ✅ Clear badge when notifications tab is opened
+  useEffect(() => {
+    if (activeTab === "notifications") clearBadge();
+  }, [activeTab, clearBadge]);
 
   const handleSetTab = (tab) => {
     setActiveTab(tab);
@@ -68,15 +74,16 @@ const DashboardLayout = () => {
           setActiveTab={handleSetTab}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
           {activeTab === "home"          && <HomeTab user={user} profile={profile} />}
           {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
           {activeTab === "findMentors"   && <FindMentorsTab />}
           {activeTab === "history"       && <RequestHistoryTab />}
-          {activeTab === "notifications" && <NotificationsTab />}          {/* ✅ your version */}
-          {activeTab === "connects"      && <MenteeConnectsTab />}         {/* ✅ team's version */}
-          {activeTab === "settings"      && <MenteeSettingsTab profile={profile} />} {/* ✅ team's version */}
+          {activeTab === "notifications" && <NotificationsTab />}
+          {activeTab === "connects"      && <MenteeConnectsTab />}
+          {activeTab === "settings"      && <MenteeSettingsTab profile={profile} />}
           {comingSoon && <ComingSoon icon={comingSoon.icon} title={comingSoon.title} desc={comingSoon.desc} />}
         </main>
       </div>

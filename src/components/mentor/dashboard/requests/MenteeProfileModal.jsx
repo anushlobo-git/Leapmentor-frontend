@@ -17,17 +17,14 @@ const formatTime = (time) => {
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
   return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
+    weekday: "long", month: "short", day: "numeric", year: "numeric",
   });
 };
 
 const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
-  const [loading, setLoading]         = useState(false);
-  const [actionModal, setActionModal] = useState(null); // { type: "accepted"|"rejected", mentee }
-  const [showReferModal, setShowReferModal] = useState(false); // ✅ new
+  const [loading, setLoading]               = useState(false);
+  const [actionModal, setActionModal]       = useState(null);
+  const [showReferModal, setShowReferModal] = useState(false);
 
   const mentee   = request.mentee;
   const slots    = request.selectedSlots || [];
@@ -46,6 +43,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
         body,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      // ✅ No toast here — backend emits socket event to mentee directly
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
     } catch (err) {
@@ -55,7 +53,6 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
     }
   };
 
-  // ── Success/failure modal shown after accept/reject ───────
   if (actionModal) {
     return (
       <RequestActionModal
@@ -66,13 +63,13 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
     );
   }
 
-  // ✅ Show ReferModal on top when refer is clicked
   if (showReferModal) {
     return (
       <ReferModal
         request={request}
         onClose={() => { setShowReferModal(false); onClose(); }}
         onReferred={(id, status) => {
+          // ✅ No toast here — backend emits socket event to mentee directly
           onUpdate(id, status);
           setShowReferModal(false);
         }}
@@ -124,8 +121,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Proposed Session Times</p>
             <div className="space-y-2">
               {slots.map((slot, i) => (
-                <div key={i}
-                  className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -152,30 +148,16 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
 
           {/* ── Actions ── */}
           <div className="flex gap-3 pt-1">
-            {/* ✅ Refer — now fully wired */}
-            <button type="button"
-              onClick={() => setShowReferModal(true)}
-              disabled={loading}
-              className="flex-1 py-3 rounded-2xl border-2 border-emerald-200 text-emerald-600 text-sm font-semibold hover:bg-emerald-50 disabled:opacity-50 transition-all duration-150"
-            >
+            <button type="button" onClick={() => setShowReferModal(true)} disabled={loading}
+              className="flex-1 py-3 rounded-2xl border-2 border-emerald-200 text-emerald-600 text-sm font-semibold hover:bg-emerald-50 disabled:opacity-50 transition-all duration-150">
               Refer
             </button>
-
-            {/* Reject */}
-            <button type="button"
-              onClick={() => handleRespond("rejected")}
-              disabled={loading}
-              className="flex-1 py-3 rounded-2xl border-2 border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 disabled:opacity-50 transition-all duration-150"
-            >
+            <button type="button" onClick={() => handleRespond("rejected")} disabled={loading}
+              className="flex-1 py-3 rounded-2xl border-2 border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 disabled:opacity-50 transition-all duration-150">
               {loading ? "..." : "Reject"}
             </button>
-
-            {/* Accept */}
-            <button type="button"
-              onClick={() => handleRespond("accepted")}
-              disabled={loading}
-              className="flex-1 py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-blue-200"
-            >
+            <button type="button" onClick={() => handleRespond("accepted")} disabled={loading}
+              className="flex-1 py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-blue-200">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
@@ -184,7 +166,6 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
               ) : "Accept Request"}
             </button>
           </div>
-
         </div>
       </div>
     </div>
