@@ -8,11 +8,12 @@ const authHeader = () => ({
 });
 
 // ── Upload a note (multipart/form-data) ───────────────────────
-export const uploadNote = async (connectRequestId, file, title = "") => {
+export const uploadNote = async (connectRequestId, file, title = "", isPrivate = false) => {
   const formData = new FormData();
-  formData.append("file",               file);
-  formData.append("connectRequestId",   connectRequestId);
-  if (title?.trim()) formData.append("title", title.trim());
+  formData.append("file",             file);
+  formData.append("connectRequestId", connectRequestId);
+  if (title?.trim())  formData.append("title",     title.trim());
+  if (isPrivate)      formData.append("isPrivate",  "true");       // ✅ NEW
 
   const res = await axios.post(`${BASE_URL}/api/notes/upload`, formData, {
     headers: {
@@ -23,10 +24,19 @@ export const uploadNote = async (connectRequestId, file, title = "") => {
   return res.data;
 };
 
-// ── Fetch all notes for a session ─────────────────────────────
+// ── Fetch all shared notes for a session ──────────────────────
 export const getNotes = async (connectRequestId) => {
   const res = await axios.get(
     `${BASE_URL}/api/notes/${connectRequestId}`,
+    { headers: authHeader() }
+  );
+  return res.data;
+};
+
+// ── Fetch private notes (own only) ────────────────────────────
+export const getPrivateNotes = async (connectRequestId) => {
+  const res = await axios.get(
+    `${BASE_URL}/api/notes/${connectRequestId}/private`,
     { headers: authHeader() }
   );
   return res.data;
