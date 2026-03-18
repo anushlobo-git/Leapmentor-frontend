@@ -10,13 +10,10 @@ import ProfileTab from "./ProfileTab";
 import AvailabilityTab from "./availability/AvailabilityTab";
 import RequestsTab from "./requests/RequestsTab";
 import MentorConnectsTab from "./connects/MentorConnectsTab";
-import ComingSoon from "./ComingSoon";
 import NotificationsTab from "./notifications/NotificationsTab";
 import SettingsTab from "./settings/SettingsTab";
+import TrackEarningsTab from "./earnings/TrackEarningsTab";
 
-const COMING_SOON_TABS = {
-  earnings: { icon: "💰", title: "Track Earnings", desc: "Monitor your mentorship earnings and payment history." },
-};
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMentorDashboard();
@@ -57,7 +54,7 @@ const DashboardLayout = () => {
     );
   }
 
-  const comingSoon = COMING_SOON_TABS[activeTab];
+  
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -78,7 +75,8 @@ const DashboardLayout = () => {
           {activeTab === "connects"      && <MentorConnectsTab />}
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "settings"      && <SettingsTab profile={profile} user={user} />}
-          {comingSoon && <ComingSoon icon={comingSoon.icon} title={comingSoon.title} desc={comingSoon.desc} />}
+          {activeTab === "earnings" && <TrackEarningsTab />}
+          
         </main>
       </div>
     </div>
