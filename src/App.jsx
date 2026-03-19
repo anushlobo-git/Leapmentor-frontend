@@ -26,7 +26,8 @@ import AdminLogin          from "./pages/admin/AdminLogin";
 import AdminUserManagement from "./pages/admin/AdminUserManagement";
 import AdminRoute          from "./components/admin/AdminRoute";
 import AdminEngagements from "./pages/admin/AdminEngagements";
-
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminPayments from "./pages/admin/AdminPayments";
 
 const App = () => {
   return (
@@ -66,6 +67,8 @@ const App = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/users" element={<AdminRoute><AdminUserManagement /></AdminRoute>} />
         <Route path="/admin/engagements" element={<AdminRoute><AdminEngagements /></AdminRoute>} />
+        <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+        <Route path="/admin/payments" element={<AdminRoute><AdminPayments /></AdminRoute>} />
         {/* ── 404 ───────────────────────────────────────── */}
         <Route path="*" element={<NotFound />} />
       </Routes>
