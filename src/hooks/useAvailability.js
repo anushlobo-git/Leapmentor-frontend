@@ -117,6 +117,7 @@ const useAvailability = () => {
 
   return {
     availability,
+    setAvailability, // ← exposed so AvailabilityTab can update googleCalendarConnected
     loading,
     saving,
     msg,
