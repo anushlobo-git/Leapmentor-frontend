@@ -2,11 +2,11 @@
 import { useState, useRef, useEffect } from "react";
 
 const COMMUNICATION_OPTIONS = [
-  { value: "Video Call",  label: "Video Meetings",          icon: "🎥" },
-  { value: "Chat",        label: "Instant Messaging (Chat)", icon: "💬" },
-  { value: "Email",       label: "Email Correspondence",     icon: "✉️" },
-  { value: "Phone Call",  label: "Phone Call",               icon: "📞" },
-  { value: "In-Person",   label: "In-Person",                icon: "🤝" },
+  { value: "Video Call", label: "Video Meetings", icon: "🎥" },
+  { value: "Chat", label: "Instant Messaging (Chat)", icon: "💬" },
+  { value: "Email", label: "Email Correspondence", icon: "✉️" },
+  { value: "Phone Call", label: "Phone Call", icon: "📞" },
+  { value: "In-Person", label: "In-Person", icon: "🤝" },
 ];
 
 // ✅ 20 professional languages — no free text allowed
@@ -21,7 +21,7 @@ const PreferencesSection = ({ form, onChange }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const selected  = form.communicationPreferences || [];
+  const selected = form.communicationPreferences || [];
   // ✅ Support both string (old) and array (new) format
   const languages = Array.isArray(form.languages)
     ? form.languages
@@ -61,10 +61,10 @@ const PreferencesSection = ({ form, onChange }) => {
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
-        <div className="w-8 h-8 rounded-xl bg-[#2563eb] flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
         </div>
         <h2 className="text-sm font-bold text-[#0f172a]">Mentorship Preferences</h2>
@@ -85,15 +85,14 @@ const PreferencesSection = ({ form, onChange }) => {
                   <label key={value} className="flex items-center gap-3 cursor-pointer group">
                     <div
                       onClick={() => toggleComm(value)}
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-150 cursor-pointer shrink-0 ${
-                        isChecked
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-150 cursor-pointer shrink-0 ${isChecked
                           ? "bg-[#2563eb] border-[#2563eb]"
                           : "border-[#cbd5e1] bg-white group-hover:border-[#2563eb]"
-                      }`}
+                        }`}
                     >
                       {isChecked && (
                         <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
                     </div>
@@ -119,7 +118,7 @@ const PreferencesSection = ({ form, onChange }) => {
                 {languages.map((lang) => (
                   <span
                     key={lang}
-                    className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    className="inline-flex items-center gap-1 bg-blue-100 text-blue-900 text-xs font-semibold px-2.5 py-1 rounded-full"
                   >
                     {lang}
                     <button
@@ -146,7 +145,7 @@ const PreferencesSection = ({ form, onChange }) => {
                 </span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                   style={{ transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-                  <polyline points="6 9 12 15 18 9"/>
+                  <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
 
@@ -160,16 +159,15 @@ const PreferencesSection = ({ form, onChange }) => {
                         key={lang}
                         type="button"
                         onClick={() => toggleLanguage(lang)}
-                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${
-                          isSelected
-                            ? "bg-blue-50 text-[#2563eb] font-semibold"
+                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${isSelected
+                            ? "bg-blue-50 text-blue-900 font-semibold"
                             : "text-[#334155] hover:bg-[#f8faff]"
-                        }`}
+                          }`}
                       >
                         {lang}
                         {isSelected && (
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6l3 3 5-5" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M2 6l3 3 5-5" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         )}
                       </button>
