@@ -70,7 +70,7 @@ const InterestedFieldsSection = ({ form, handleChange }) => {
         {/* Fields of Interest */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2">
-            Fields of Interest
+            Fields of Interest <span className="text-blue-900">*</span>
           </label>
           <TagInput
             tags={form.interestedFields || []}
@@ -83,7 +83,7 @@ const InterestedFieldsSection = ({ form, handleChange }) => {
         {/* Skills of Interest */}
         <div>
           <label className="block text-xs font-semibold text-slate-500 mb-2">
-            Skills of Interest
+            Skills of Interest <span className="text-blue-900">*</span>
           </label>
           <TagInput
             tags={form.skills || []}

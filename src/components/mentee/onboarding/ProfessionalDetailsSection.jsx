@@ -32,7 +32,7 @@ const ProfessionalDetailsSection = ({ form, handleChange }) => {
         <div className="grid grid-cols-2 gap-4">
           {/* Current Role */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Current Role</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Current Role<span className="text-blue-900">*</span></label>
             <input
               name="currentRole"
               value={form.currentRole}
@@ -44,14 +44,14 @@ const ProfessionalDetailsSection = ({ form, handleChange }) => {
 
           {/* Years of Experience */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Years of Experience</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Years of Experience<span className="text-blue-900">*</span></label>
             <select
               name="yearsOfExperience"
               value={form.yearsOfExperience}
               onChange={handleChange}
               className={inputClass}
             >
-              <option value="">Student / Aspiring</option>
+              <option value="">Select Experience</option>
               {EXPERIENCE_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
@@ -72,7 +72,7 @@ const ProfessionalDetailsSection = ({ form, handleChange }) => {
 
           {/* Industry */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Industry</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Industry<span className="text-blue-900">*</span></label>
             <select
               name="industry"
               value={form.industry}
