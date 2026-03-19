@@ -15,13 +15,19 @@ const AvailabilityTab = () => {
     saveAvailability,
     cancelChanges,
     setSpecificDates,
+    setAvailability,   // expose this from your useAvailability hook (see note below)
   } = useAvailability();
+
+  // Called by IntegrationsSection after connect / disconnect succeeds
+  const handleConnectionChange = (connected) => {
+    setAvailability((prev) => ({ ...prev, googleCalendarConnected: connected }));
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
+          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
           <p className="text-sm text-slate-400 font-medium">Loading availability...</p>
         </div>
       </div>
@@ -39,6 +45,7 @@ const AvailabilityTab = () => {
             Manage your calendar availability and integrations.
           </p>
         </div>
+
         {/* Buttons — full width on mobile, auto on sm+ */}
         <div className="flex items-center gap-2 sm:shrink-0">
           <button
@@ -53,7 +60,7 @@ const AvailabilityTab = () => {
             type="button"
             onClick={saveAvailability}
             disabled={saving}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-bold px-5 py-2.5 rounded-xl bg-blue-900 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-bold px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
           >
             {saving ? (
               <>
@@ -69,19 +76,23 @@ const AvailabilityTab = () => {
 
       {/* Status message */}
       {msg.text && (
-        <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
-          msg.type === "success"
-            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-            : "bg-red-50 border-red-200 text-red-600"
-        }`}>
+        <div
+          className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
+            msg.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+              : "bg-red-50 border-red-200 text-red-600"
+          }`}
+        >
           <span>{msg.type === "success" ? "✓" : "⚠"}</span>
           {msg.text}
         </div>
       )}
 
+      {/* Calendar section — now receives googleCalendarConnected for busy overlay */}
       <CalendarAvailabilitySection
         specificDates={availability.specificDates || []}
         setSpecificDates={setSpecificDates}
+        googleCalendarConnected={availability.googleCalendarConnected}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -91,8 +102,11 @@ const AvailabilityTab = () => {
           updateTimezone={updateTimezone}
           toggleDuration={toggleDuration}
         />
+
+        {/* IntegrationsSection — now receives onConnectionChange */}
         <IntegrationsSection
           googleCalendarConnected={availability.googleCalendarConnected}
+          onConnectionChange={handleConnectionChange}
         />
       </div>
 
@@ -106,3 +120,20 @@ const AvailabilityTab = () => {
 };
 
 export default AvailabilityTab;
+
+/*
+ * ─── NOTE: useAvailability hook ───────────────────────────────────────────────
+ * Make sure your useAvailability hook exposes `setAvailability` so that
+ * AvailabilityTab can optimistically update googleCalendarConnected after
+ * connect / disconnect without a full refetch.
+ *
+ * Minimal addition inside useAvailability.js:
+ *
+ *   const [availability, setAvailability] = useState({ ... });
+ *   ...
+ *   return {
+ *     availability,
+ *     setAvailability,   // ← add this line
+ *     ...
+ *   };
+ */
