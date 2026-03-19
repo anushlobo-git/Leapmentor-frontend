@@ -84,12 +84,12 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
         {/* ── Header ── */}
         <div className="flex items-start justify-between p-6 pb-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold shrink-0">
+            <div className="w-16 h-16 rounded-full bg-blue-900 flex items-center justify-center text-white text-xl font-bold shrink-0">
               {initials}
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800">{mentee?.name || "—"}</h2>
-              <p className="text-sm text-blue-600 font-semibold">Aspiring Mentee</p>
+              <p className="text-sm text-blue-900 font-semibold">Aspiring Mentee</p>
               <p className="text-xs text-slate-400 mt-0.5">{mentee?.email}</p>
             </div>
           </div>
@@ -110,7 +110,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-wide">Mentorship Request Message</p>
+                <p className="text-xs font-bold text-blue-900 uppercase tracking-wide">Mentorship Request Message</p>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed italic">"{request.message}"</p>
             </div>
@@ -131,7 +131,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
                     </svg>
                     <span className="text-sm font-semibold text-slate-700">{formatDate(slot.date)}</span>
                   </div>
-                  <span className="text-sm font-bold text-blue-600">
+                  <span className="text-sm font-bold text-blue-900">
                     {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
                   </span>
                 </div>
@@ -157,7 +157,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
               {loading ? "..." : "Reject"}
             </button>
             <button type="button" onClick={() => handleRespond("accepted")} disabled={loading}
-              className="flex-1 py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-blue-200">
+              className="flex-1 py-3 rounded-2xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-blue-200">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />

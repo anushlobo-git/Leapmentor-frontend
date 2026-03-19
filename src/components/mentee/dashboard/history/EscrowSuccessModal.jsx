@@ -76,7 +76,7 @@ const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }) => {
 
             {/* Badge */}
             <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-100
-              rounded-full px-3 py-1.5 text-xs font-semibold text-blue-600">
+              rounded-full px-3 py-1.5 text-xs font-semibold text-blue-900">
               <LockIcon size={11} />
               Secured in Escrow
             </div>

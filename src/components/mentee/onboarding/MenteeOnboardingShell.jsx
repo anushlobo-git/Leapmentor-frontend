@@ -6,6 +6,8 @@ import ProfessionalDetailsSection from "./ProfessionalDetailsSection";
 import InterestedFieldsSection from "./InterestedFieldsSection";
 import MentorshipPrefsSection from "./MentorshipPrefsSection";
 import SocialLinksSection from "./SocialLinksSection";
+import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
+import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
   const navigate = useNavigate();
@@ -28,6 +30,8 @@ const MenteeOnboardingShell = () => {
           
         </div>
       </header>
+                  <OnboardingProgressBar form={form} fields={MENTEE_ONBOARDING_FIELDS} />
+
 
       {/* Page title */}
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-2 text-center">

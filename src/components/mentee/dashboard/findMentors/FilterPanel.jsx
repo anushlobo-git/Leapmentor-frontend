@@ -31,7 +31,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
         onClick={() => setIsOpen((p) => !p)}
         className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-xs font-semibold transition-all duration-150 ${
           activeFilterCount > 0
-            ? "border-blue-400 bg-blue-50 text-blue-600"
+            ? "border-blue-400 bg-blue-50 text-blue-900"
             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
         } shadow-sm`}
       >
@@ -42,7 +42,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
         </svg>
         Filters
         {activeFilterCount > 0 && (
-          <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="w-4 h-4 rounded-full bg-blue-900 text-white text-[10px] font-bold flex items-center justify-center">
             {activeFilterCount}
           </span>
         )}
@@ -115,7 +115,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
                   onClick={() => updateFilter("minRating", r.value)}
                   className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
                     filters.minRating === r.value
-                      ? "bg-blue-600 text-white shadow-sm"
+                      ? "bg-blue-900 text-white shadow-sm"
                       : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                   }`}
                 >

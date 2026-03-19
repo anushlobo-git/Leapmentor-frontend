@@ -15,19 +15,19 @@ const MenteeEditProfileShell = () => {
   if (fetchLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-6 h-6 rounded-full border-2 border-blue-600/30 border-t-blue-600 animate-spin" />
+        <div className="w-6 h-6 rounded-full border-2 border-blue-900/30 border-t-blue-900 animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="h-1 w-full bg-blue-600" />
+      <div className="h-1 w-full bg-blue-900" />
 
       <header className="sticky top-0 z-10 bg-white border-b border-slate-100 shadow-sm">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center text-white font-bold text-sm shadow-sm">
               M
             </div>
             <span className="text-sm font-bold text-slate-800">Edit Profile</span>
@@ -70,7 +70,7 @@ const MenteeEditProfileShell = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md shadow-blue-200"
+            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-blue-900 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md shadow-blue-200"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

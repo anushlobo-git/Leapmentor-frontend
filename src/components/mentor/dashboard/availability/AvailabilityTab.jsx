@@ -21,7 +21,7 @@ const AvailabilityTab = () => {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
           <p className="text-sm text-slate-400 font-medium">Loading availability...</p>
         </div>
       </div>
@@ -53,7 +53,7 @@ const AvailabilityTab = () => {
             type="button"
             onClick={saveAvailability}
             disabled={saving}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-bold px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-bold px-5 py-2.5 rounded-xl bg-blue-900 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
           >
             {saving ? (
               <>

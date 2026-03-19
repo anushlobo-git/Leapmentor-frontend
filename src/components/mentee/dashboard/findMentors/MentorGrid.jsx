@@ -81,7 +81,7 @@ const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, total
           <button
             type="button"
             onClick={onLoadMore}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-blue-200 text-blue-600 text-xs font-bold hover:bg-blue-50 hover:border-blue-400 transition-all duration-150"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-blue-200 text-blue-900 text-xs font-bold hover:bg-blue-50 hover:border-blue-400 transition-all duration-150"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="6 9 12 15 18 9" />

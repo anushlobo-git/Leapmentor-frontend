@@ -48,7 +48,7 @@ const EmptyState = ({ message, subMessage, actionLabel, onAction }) => (
       <button
         type="button"
         onClick={onAction}
-        className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold
+        className="px-4 py-2 rounded-xl bg-blue-900 text-white text-xs font-bold
           hover:bg-blue-700 transition-all"
       >
         {actionLabel}
@@ -97,7 +97,7 @@ const ConnectsLayout = ({
         {/* Active count badge */}
         {!loading && count > 0 && (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
-            bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold shrink-0">
+            bg-blue-50 border border-blue-100 text-blue-900 text-xs font-bold shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
             {count} Active {count === 1 ? "Session" : "Sessions"}
           </div>

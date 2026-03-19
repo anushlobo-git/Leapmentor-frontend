@@ -4,7 +4,7 @@ const IntegrationsSection = ({ googleCalendarConnected }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+        <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="17 1 21 5 17 9"/>
             <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
@@ -46,7 +46,7 @@ const IntegrationsSection = ({ googleCalendarConnected }) => {
           className={`text-xs font-semibold px-4 py-2 rounded-xl border-2 transition-all duration-150 shrink-0 ${
             googleCalendarConnected
               ? "border-green-200 text-green-600 bg-green-50 cursor-default"
-              : "border-blue-200 text-blue-600 bg-white hover:bg-blue-50 hover:border-blue-400"
+              : "border-blue-200 text-blue-900 bg-white hover:bg-blue-50 hover:border-blue-400"
           }`}
         >
           {googleCalendarConnected ? "Connected ✓" : "Connect"}

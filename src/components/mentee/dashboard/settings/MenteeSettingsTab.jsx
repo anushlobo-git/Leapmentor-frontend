@@ -8,7 +8,7 @@ const Toggle = ({ checked, onChange }) => (
     type="button"
     onClick={() => onChange(!checked)}
     className={`relative inline-flex w-11 h-6 items-center rounded-full transition-colors duration-200 focus:outline-none ${
-      checked ? "bg-blue-600" : "bg-slate-200"
+      checked ? "bg-blue-900" : "bg-slate-200"
     }`}
   >
     <span className={`inline-block w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-200 ${
@@ -186,7 +186,7 @@ const MenteeSettingsTab = ({ profile }) => { // eslint-disable-line no-unused-va
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2 shadow-sm shadow-blue-200"
+            className="px-5 py-2.5 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2 shadow-sm shadow-blue-200"
           >
             {saving ? (
               <>
@@ -220,7 +220,7 @@ const MenteeSettingsTab = ({ profile }) => { // eslint-disable-line no-unused-va
           <button
             type="button"
             onClick={() => setShowPasswordForm((p) => !p)}
-            className="text-xs font-bold text-blue-600 hover:underline"
+            className="text-xs font-bold text-blue-900 hover:underline"
           >
             {showPasswordForm ? "Cancel" : "Update"}
           </button>

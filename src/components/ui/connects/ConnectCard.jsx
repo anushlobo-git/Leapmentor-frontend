@@ -152,7 +152,7 @@ const ConnectCard = ({
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
-            <span className="text-xs font-semibold text-blue-600">{tokenLabel}</span>
+            <span className="text-xs font-semibold text-blue-900">{tokenLabel}</span>
           </div>
         )}
 
@@ -223,7 +223,7 @@ const ConnectCard = ({
           active:scale-[0.98] transition-all flex items-center justify-center gap-2
           ${isCompleted
             ? "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
-            : "bg-blue-600 text-white hover:bg-blue-700"}`}
+            : "bg-blue-900 text-white hover:bg-blue-700"}`}
       >
         {isCompleted ? "View Session & Notes" : "Go to Shared Dashboard"}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"

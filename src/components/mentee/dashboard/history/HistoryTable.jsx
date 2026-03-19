@@ -16,7 +16,7 @@ const DeleteIcon = ({ onClick, title }) => (
 
 const ViewButton = ({ onClick, isSelected }) => (
   <button type="button" onClick={onClick}
-    className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+    className="flex items-center gap-1 text-xs font-semibold text-blue-900 hover:text-blue-700 transition-colors">
     {isSelected ? "Close" : "View"}
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>

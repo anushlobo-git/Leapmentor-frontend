@@ -39,7 +39,7 @@ const SlotsModal = ({ request, onClose }) => {
         {/* Header */}
         <div className="flex items-start justify-between p-6 pb-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-bold shrink-0">
+            <div className="w-14 h-14 rounded-full bg-blue-900 flex items-center justify-center text-white text-lg font-bold shrink-0">
               {initials}
             </div>
             <div>
@@ -63,7 +63,7 @@ const SlotsModal = ({ request, onClose }) => {
           {/* Message */}
           {message && (
             <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-              <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1.5">Message</p>
+              <p className="text-xs font-bold text-blue-900 uppercase tracking-wide mb-1.5">Message</p>
               <p className="text-sm text-slate-600 leading-relaxed italic">"{message}"</p>
             </div>
           )}
@@ -121,14 +121,14 @@ const SlotsModal = ({ request, onClose }) => {
                 <div key={i}
                   className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-black flex items-center justify-center shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-900 text-[10px] font-black flex items-center justify-center shrink-0">
                       {i + 1}
                     </span>
                     <span className="text-sm font-semibold text-slate-700">
                       {slot.day}, {formatDate(slot.date)}
                     </span>
                   </div>
-                  <span className="text-sm font-bold text-blue-600">
+                  <span className="text-sm font-bold text-blue-900">
                     {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
                   </span>
                 </div>
@@ -193,7 +193,7 @@ const RequestCard = ({ request, onViewProfile }) => {
         {/* Top row */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+            <div className="w-11 h-11 rounded-full bg-blue-900 flex items-center justify-center text-white text-sm font-bold shrink-0">
               {initials}
             </div>
             <div>
@@ -225,7 +225,7 @@ const RequestCard = ({ request, onViewProfile }) => {
               <button
                 type="button"
                 onClick={() => setShowSlots(true)}
-                className="shrink-0 w-8 h-8 rounded-xl bg-blue-600 text-white text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+                className="shrink-0 w-8 h-8 rounded-xl bg-blue-900 text-white text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
                 title={`${extraSlots} more slot${extraSlots > 1 ? "s" : ""}`}
               >
                 +{extraSlots}
@@ -295,7 +295,7 @@ const RequestCard = ({ request, onViewProfile }) => {
             <button
               type="button"
               onClick={() => onViewProfile(request)}
-              className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all duration-150 shadow-sm shadow-blue-100"
+              className="flex-1 py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold hover:bg-blue-700 transition-all duration-150 shadow-sm shadow-blue-100"
             >
               Respond
             </button>
