@@ -58,11 +58,25 @@ const useMenteeEditProfile = () => {
     e.preventDefault();
     setLoading(true);
     setMsg({ type: "", text: "" });
+
+    // ✅ Required field validations
+    if (!form.currentRole.trim())
+      return setMsg({ type: "error", text: "Current Role is required." });
+    if (!form.yearsOfExperience)
+      return setMsg({ type: "error", text: "Years of Experience is required." });
+    if (!form.industry)
+      return setMsg({ type: "error", text: "Industry is required." });
+    if (!form.interestedFields.length)
+      return setMsg({ type: "error", text: "Please add at least one Field of Interest." });
+    if (!form.skills.length)
+      return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
+
     const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({ type: "error", text: "Current Role cannot be a number." });
     if (isOnlyNumbers(form.company))
       return setMsg({ type: "error", text: "Company name cannot be a number." });
+
     const isValidUrl = (val) => {
       if (!val) return true;
       try { new URL(val); return true; }
@@ -72,11 +86,12 @@ const useMenteeEditProfile = () => {
       return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
+
     try {
       const token = localStorage.getItem("token");
       const payload = {
         ...form,
-        yearsOfExperience: Number(form.yearsOfExperience) || 0,
+        yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
       };
       await axios.put(`${BASE_URL}/api/mentee-profile/me`, payload, {
         headers: { Authorization: `Bearer ${token}` },
