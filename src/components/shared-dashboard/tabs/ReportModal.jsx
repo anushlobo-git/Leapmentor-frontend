@@ -3,12 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import useReportComplaint from "../../../hooks/useReportComplaint";
 
 const COMPLAINT_TYPES = [
-  { value: "session_not_completed", label: "Session Not Completed" },
-  { value: "session_not_taken",     label: "Session Not Taken" },
-  { value: "payment_issue",         label: "Payment Issue" },
   { value: "vulgar_chat",           label: "Vulgar Chat" },
   { value: "harassment",            label: "Harassment" },
-  { value: "no_show",               label: "No Show" },
   { value: "other",                 label: "Other" },
 ];
 
