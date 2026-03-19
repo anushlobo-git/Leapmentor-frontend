@@ -78,8 +78,8 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
               style={{ aspectRatio: "1 / 1" }}
               className={`relative rounded-lg text-[11px] font-semibold flex items-center justify-center transition-all duration-150
                 ${isPast ? "text-slate-200 cursor-not-allowed"
-                  : isSelected ? "bg-blue-600 text-white shadow-sm scale-105"
-                  : isToday ? "bg-blue-50 text-blue-600 ring-1 ring-blue-300 font-bold hover:bg-blue-100"
+                  : isSelected ? "bg-blue-900 text-white shadow-sm scale-105"
+                  : isToday ? "bg-blue-50 text-blue-900 ring-1 ring-blue-300 font-bold hover:bg-blue-100"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"}`}
             >
               {day}
@@ -108,7 +108,7 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
         </div>
         <div className="flex items-center gap-1">
           <button type="button" onClick={() => onAddSlot(dateEntry.date)}
-            className="w-4 h-4 rounded flex items-center justify-center text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-150">
+            className="w-4 h-4 rounded flex items-center justify-center text-blue-400 hover:text-blue-900 hover:bg-blue-50 transition-all duration-150">
             <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
@@ -180,7 +180,7 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates }) => {
         {/* ── Calendar ── */}
         <div className="w-full md:w-64 md:shrink-0">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-6 h-6 rounded-md bg-blue-900 flex items-center justify-center shrink-0">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>

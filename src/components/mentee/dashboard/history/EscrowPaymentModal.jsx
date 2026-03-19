@@ -159,7 +159,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
 
               <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 mt-1">
                 <span className="text-xs font-bold text-slate-700">You pay (held in escrow)</span>
-                <span className="text-sm font-bold text-blue-600 flex items-center gap-1">
+                <span className="text-sm font-bold text-blue-900 flex items-center gap-1">
                   <TokenIcon size={12} />{totalAmount} tokens
                 </span>
               </div>
@@ -167,11 +167,11 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
 
             {/* Balance row */}
             <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
-              <span className="text-xs font-semibold text-blue-600">Your balance</span>
+              <span className="text-xs font-semibold text-blue-900">Your balance</span>
               {fetching
                 ? <span className="text-xs text-blue-400 animate-pulse">Loading...</span>
                 : walletBalance !== null
-                  ? <span className={`text-xs font-bold ${insufficient ? "text-red-500" : "text-blue-600"}`}>
+                  ? <span className={`text-xs font-bold ${insufficient ? "text-red-500" : "text-blue-900"}`}>
                       {walletBalance} tokens
                     </span>
                   : <span className="text-xs text-blue-400">—</span>
@@ -211,7 +211,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
               type="button"
               onClick={handlePay}
               disabled={loading || fetching || insufficient || !sessionRate}
-              className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold
+              className="w-full py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold
                 hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2"
             >

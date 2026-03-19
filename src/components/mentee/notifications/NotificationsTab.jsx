@@ -136,7 +136,7 @@ const NotificationsTab = () => {
           <p className="text-sm text-slate-400 mt-0.5">
             Stay updated on your mentorship activity.
             {unreadCount > 0 && (
-              <span className="ml-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="ml-2 bg-blue-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                 {unreadCount} new
               </span>
             )}
@@ -145,7 +145,7 @@ const NotificationsTab = () => {
         <div className="flex items-center gap-3 mt-1">
           <button
             onClick={markAllRead}
-            className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-blue-900 hover:text-blue-700 transition-colors"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12"/>
@@ -221,7 +221,7 @@ const NotificationsTab = () => {
             </div>
           ))}
 
-          <button className="w-full py-3 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+          <button className="w-full py-3 text-xs font-semibold text-blue-900 hover:text-blue-700 transition-colors">
             Load older notifications
           </button>
         </div>

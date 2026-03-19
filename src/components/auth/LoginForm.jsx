@@ -171,7 +171,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
           <div className="text-right mt-1.5">
             <span
               onClick={() => navigate(`/forgot-password?role=${role}`)}
-              className="text-xs text-blue-600 font-semibold cursor-pointer hover:underline"
+              className="text-xs text-blue-900 font-semibold cursor-pointer hover:underline"
             >
               Forgot password? Click here
             </span>
@@ -179,7 +179,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
         </div>
 
         <button type="submit" disabled={loading}
-          className="w-full py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200 flex items-center justify-center gap-2 mt-2">
+          className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200 flex items-center justify-center gap-2 mt-2">
           {loading ? (
             <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Logging in...</>
           ) : (
@@ -215,7 +215,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
 
       <p className="text-sm text-slate-500 text-center mt-8">
         Don't have an account?{" "}
-        <span className="text-blue-600 font-semibold cursor-pointer hover:underline"
+        <span className="text-blue-900 font-semibold cursor-pointer hover:underline"
           onClick={() => navigate(registerPath)}>
           Register here
         </span>

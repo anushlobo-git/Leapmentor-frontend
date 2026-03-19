@@ -66,7 +66,7 @@ const RequestsTab = () => {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
           <p className="text-sm text-slate-400 font-medium">Loading requests...</p>
         </div>
       </div>
@@ -101,7 +101,7 @@ const RequestsTab = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${
                 activeTab === tab.key
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/50"
+                  ? "text-blue-900 border-b-2 border-blue-900 bg-blue-50/50"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
@@ -109,7 +109,7 @@ const RequestsTab = () => {
               {counts[tab.key] > 0 && (
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                   activeTab === tab.key
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-900 text-white"
                     : tab.key === "referred"
                     ? "bg-violet-100 text-violet-600"  // ✅ violet badge for referred
                     : "bg-slate-100 text-slate-500"

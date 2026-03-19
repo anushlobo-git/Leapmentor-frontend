@@ -63,7 +63,7 @@ const getInitials = (name = "") =>
 
 const AVATAR_COLORS = [
   "bg-rose-100 text-rose-600",
-  "bg-blue-100 text-blue-600",
+  "bg-blue-100 text-blue-900",
   "bg-violet-100 text-violet-600",
   "bg-emerald-100 text-emerald-600",
   "bg-amber-100 text-amber-600",
@@ -159,7 +159,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
         <div className="flex flex-wrap gap-1.5">
           {skills.map((skill) => (
             <span key={skill}
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide bg-blue-50 text-blue-600 border border-blue-100">
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide bg-blue-50 text-blue-900 border border-blue-100">
               {skill.toUpperCase()}
             </span>
           ))}
@@ -173,7 +173,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
 
       <button
         onClick={() => onViewProfile(mentor)}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-xl transition-colors"
+        className="w-full bg-blue-900 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-xl transition-colors"
       >
         View Profile
       </button>
@@ -231,7 +231,7 @@ const SessionCard = ({ request, index, navigate }) => {
           </p>
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0
             ${isOngoing
-              ? "bg-blue-50 text-blue-600 border border-blue-100"
+              ? "bg-blue-50 text-blue-900 border border-blue-100"
               : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
             {isOngoing ? "Ongoing" : "Accepted"}
           </span>
@@ -246,7 +246,7 @@ const SessionCard = ({ request, index, navigate }) => {
         {isOngoing ? (
           <button
             onClick={handleJoin}
-            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors"
+            className="text-xs bg-blue-900 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors"
           >
             Open Dashboard
           </button>
@@ -308,13 +308,13 @@ const HomeTab = ({ user, profile }) => {
                 <h2 className="text-base font-semibold text-slate-700">Recommended Mentors</h2>
                 {profile?.skills?.[0] && (
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Based on your skill: <span className="font-semibold text-blue-600">{profile.skills[0]}</span>
+                    Based on your skill: <span className="font-semibold text-blue-900">{profile.skills[0]}</span>
                   </p>
                 )}
               </div>
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "findMentors" }))}
-                className="text-xs text-blue-600 font-medium hover:underline"
+                className="text-xs text-blue-900 font-medium hover:underline"
               >
                 View all
               </button>
@@ -340,7 +340,7 @@ const HomeTab = ({ user, profile }) => {
                   <p className="text-sm text-slate-500">No mentor recommendations yet.</p>
                   <button
                     onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "findMentors" }))}
-                    className="text-xs text-blue-600 font-semibold mt-2 hover:underline"
+                    className="text-xs text-blue-900 font-semibold mt-2 hover:underline"
                   >
                     Browse all mentors →
                   </button>
@@ -390,11 +390,11 @@ const HomeTab = ({ user, profile }) => {
           <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-slate-700">Complete Profile</p>
-              <span className="text-sm font-bold text-blue-600">{profileCompletion}%</span>
+              <span className="text-sm font-bold text-blue-900">{profileCompletion}%</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-1.5 mb-4">
               <div
-                className="bg-blue-600 h-1.5 rounded-full transition-all"
+                className="bg-blue-900 h-1.5 rounded-full transition-all"
                 style={{ width: `${profileCompletion}%` }}
               />
             </div>
@@ -406,14 +406,14 @@ const HomeTab = ({ user, profile }) => {
               {profile?.interestedFields?.length > 0 ? (
                 profile.interestedFields.map((field) => (
                   <span key={field}
-                    className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                    className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-100">
                     {field}
                   </span>
                 ))
               ) : (
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "profile" }))}
-                  className="text-xs text-blue-600 font-semibold hover:underline"
+                  className="text-xs text-blue-900 font-semibold hover:underline"
                 >
                   Add interests →
                 </button>
@@ -434,7 +434,7 @@ const HomeTab = ({ user, profile }) => {
               ) : (
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "profile" }))}
-                  className="text-xs text-blue-600 font-semibold hover:underline"
+                  className="text-xs text-blue-900 font-semibold hover:underline"
                 >
                   Add skills →
                 </button>

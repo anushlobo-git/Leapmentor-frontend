@@ -41,7 +41,7 @@ export const AuthField = ({ label, hint, ...inputProps }) => (
     <label className="text-sm font-medium text-gray-700">{label}</label>
     <input
       {...inputProps}
-      className="w-full border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 bg-white outline-none focus:border-blue-600 transition-colors"
+      className="w-full border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 bg-white outline-none focus:border-blue-900 transition-colors"
     />
     {hint && <p className="text-xs text-slate-400">{hint}</p>}
   </div>

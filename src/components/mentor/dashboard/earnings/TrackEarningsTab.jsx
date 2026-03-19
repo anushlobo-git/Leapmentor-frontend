@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
       <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-lg">
         <p className="text-xs text-slate-400 font-medium">{label}</p>
-        <p className="text-sm font-bold text-blue-600">{fmt(payload[0].value)}</p>
+        <p className="text-sm font-bold text-blue-900">{fmt(payload[0].value)}</p>
       </div>
     );
   }
@@ -83,7 +83,7 @@ const WithdrawModal = ({ balance, onClose, onConfirm, loading, msg }) => (
           type="button"
           onClick={onConfirm}
           disabled={loading || balance <= 0}
-          className="flex-1 py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+          className="flex-1 py-3 rounded-2xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
         >
           {loading ? (
             <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Processing...</>
@@ -161,7 +161,7 @@ const TrackEarningsTab = () => {
             <button
               type="button"
               onClick={() => setShowWithdraw(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-sm shadow-blue-200"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-sm shadow-blue-200"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/>
@@ -261,7 +261,7 @@ const TrackEarningsTab = () => {
                   onClick={() => handleChartPeriod(p)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     chartPeriod === p
-                      ? "bg-white text-blue-600 shadow-sm"
+                      ? "bg-white text-blue-900 shadow-sm"
                       : "text-slate-400 hover:text-slate-600"
                   }`}
                 >

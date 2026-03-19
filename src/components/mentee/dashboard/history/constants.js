@@ -15,7 +15,7 @@ export const STATUS_STYLES = {
   accepted:  "bg-emerald-50 text-emerald-600 border border-emerald-200",
   rejected:  "bg-red-50 text-red-500 border border-red-200",
   referred:  "bg-violet-50 text-violet-600 border border-violet-200",
-  ongoing:   "bg-blue-50 text-blue-600 border border-blue-200",
+  ongoing:   "bg-blue-50 text-blue-900 border border-blue-200",
   completed: "bg-slate-100 text-slate-600 border border-slate-200",
 };
 

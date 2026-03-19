@@ -79,7 +79,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
             <span className="font-semibold text-slate-700">{selected?.user?.name}</span>.
           </p>
           <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-6 mt-1">
-            <p className="text-xs text-blue-600 font-medium leading-relaxed">
+            <p className="text-xs text-blue-900 font-medium leading-relaxed">
               📨 The request now appears in {selected?.user?.name}'s incoming requests tab.
             </p>
           </div>
@@ -119,7 +119,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
 
           {/* ── Mentee info pill ── */}
           <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
-            <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div className="w-9 h-9 rounded-full bg-blue-900 flex items-center justify-center text-white text-xs font-bold shrink-0">
               {initials}
             </div>
             <div>
@@ -139,7 +139,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
           {/* ── Loading ── */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+              <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
               <p className="text-sm text-slate-400 font-medium">Finding similar mentors...</p>
             </div>
           ) : mentors.length === 0 ? (

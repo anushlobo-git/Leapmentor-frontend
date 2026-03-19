@@ -93,7 +93,7 @@ const AcceptedContent = ({ request, onClose, onPayClick }) => {
       <button
         type="button"
         onClick={onPayClick}
-        className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all">
+        className="w-full py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold hover:bg-blue-700 transition-all">
         Make Payment
       </button>
 
@@ -178,7 +178,7 @@ const OngoingContent = ({ request, onClose }) => {
           </div>
           <div className="flex justify-between text-xs pt-1.5 border-t border-slate-200">
             <span className="font-bold text-slate-700">Total locked</span>
-            <span className="font-bold text-blue-600">{totalAmount} tokens</span>
+            <span className="font-bold text-blue-900">{totalAmount} tokens</span>
           </div>
         </div>
       )}
