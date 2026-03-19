@@ -36,7 +36,20 @@ const useMenteeOnboarding = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
-
+    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
+    if (isOnlyNumbers(form.currentRole))
+      return setMsg({ type: "error", text: "Current Role cannot be a number." });
+    if (isOnlyNumbers(form.company))
+      return setMsg({ type: "error", text: "Company name cannot be a number." });
+    const isValidUrl = (val) => {
+      if (!val) return true;
+      try { new URL(val); return true; }
+      catch { return false; }
+    };
+    if (!isValidUrl(form.linkedInUrl))
+      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
+    if (!isValidUrl(form.portfolioUrl))
+      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");

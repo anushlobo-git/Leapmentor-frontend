@@ -32,7 +32,7 @@ const SkillsSection = ({ form, onChange }) => {
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
         </div>
         <h2 className="text-sm font-bold text-[#0f172a]">Skills & Expertise</h2>
@@ -44,7 +44,7 @@ const SkillsSection = ({ form, onChange }) => {
         </label>
 
         {/* Tags display */}
-        <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+        <div className="flex flex-wrap gap-2 mb-3 min-h-8">
           {(form.skills || []).map((skill) => (
             <span
               key={skill}

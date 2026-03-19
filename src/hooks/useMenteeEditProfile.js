@@ -58,9 +58,27 @@ const useMenteeEditProfile = () => {
     e.preventDefault();
     setLoading(true);
     setMsg({ type: "", text: "" });
+    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
+    if (isOnlyNumbers(form.currentRole))
+      return setMsg({ type: "error", text: "Current Role cannot be a number." });
+    if (isOnlyNumbers(form.company))
+      return setMsg({ type: "error", text: "Company name cannot be a number." });
+    const isValidUrl = (val) => {
+      if (!val) return true;
+      try { new URL(val); return true; }
+      catch { return false; }
+    };
+    if (!isValidUrl(form.linkedInUrl))
+      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
+    if (!isValidUrl(form.portfolioUrl))
+      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`${BASE_URL}/api/mentee-profile/me`, form, {
+      const payload = {
+        ...form,
+        yearsOfExperience: Number(form.yearsOfExperience) || 0,
+      };
+      await axios.put(`${BASE_URL}/api/mentee-profile/me`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMsg({ type: "success", text: "Profile updated successfully!" });

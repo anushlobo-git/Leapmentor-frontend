@@ -14,7 +14,7 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder }) => {
   return (
     <div>
       {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-2 min-h-[28px]">
+      <div className="flex flex-wrap gap-2 mb-2 min-h-7">
         {tags.map((tag) => (
           <span
             key={tag}
@@ -31,7 +31,6 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder }) => {
           </span>
         ))}
       </div>
-
       {/* Input */}
       <input
         type="text"
@@ -60,8 +59,8 @@ const InterestedFieldsSection = ({ form, handleChange }) => {
       <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
           </svg>
         </div>
         <h2 className="text-sm font-bold text-slate-800">3. Interested Fields</h2>
