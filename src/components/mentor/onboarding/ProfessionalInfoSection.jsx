@@ -12,7 +12,7 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
-        <div className="w-8 h-8 rounded-xl bg-[#2563eb] flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
           </svg>
@@ -25,7 +25,7 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
           {/* Current Role */}
           <div>
             <label className="block text-xs font-semibold text-[#475569] mb-1.5">
-              Current Role <span className="text-[#2563eb]">*</span>
+              Current Role <span className="text-blue-900">*</span>
             </label>
             <input
               name="currentRole"
@@ -40,7 +40,7 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
           {/* Industry */}
           <div>
             <label className="block text-xs font-semibold text-[#475569] mb-1.5">
-              Industry <span className="text-[#2563eb]">*</span>
+              Industry <span className="text-blue-900">*</span>
             </label>
             <select
               name="industry"
@@ -73,7 +73,7 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
           {/* Years of Experience */}
           <div>
             <label className="block text-xs font-semibold text-[#475569] mb-1.5">
-              Years of Experience <span className="text-[#2563eb]">*</span>
+              Years of Experience <span className="text-blue-900">*</span>
             </label>
             <input
               name="yearsOfExperience"

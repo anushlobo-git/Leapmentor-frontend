@@ -81,22 +81,24 @@ const OnboardingFormShell = () => {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
       {/* Top accent bar */}
-      <div className="h-1 w-full bg-[#2563eb]" />
+      <div className="h-1 w-full bg-blue-900" />
 
       {/* Sticky header */}
       <header className="sticky top-0 z-10 bg-white border-b border-[#e8edf5] shadow-sm">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#2563eb] flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              M
-            </div>
+            <img
+              src="/images/logo.png"
+              alt="Leapmentor logo"
+              className="h-8 w-auto"
+            />
             <span className="text-sm font-bold text-[#0f172a]">Mentor Onboarding</span>
           </div>
-         
+
         </div>
       </header>
 
-            <OnboardingProgressBar form={form} fields={MENTOR_ONBOARDING_FIELDS} />
+      <OnboardingProgressBar form={form} fields={MENTOR_ONBOARDING_FIELDS} />
 
 
       {/* Page title */}
@@ -119,11 +121,10 @@ const OnboardingFormShell = () => {
 
           {/* Status message */}
           {msg.text && (
-            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
-              msg.type === "success"
+            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
                 ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
                 : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-            }`}>
+              }`}>
               <span>{msg.type === "success" ? "✓" : "⚠"}</span>
               {msg.text}
             </div>
@@ -133,7 +134,7 @@ const OnboardingFormShell = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md shadow-[#2563eb30]"
+            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-blue-900 hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md shadow-[#2563eb30]"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

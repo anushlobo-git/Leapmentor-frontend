@@ -14,7 +14,7 @@ const MenteeOnboardingShell = () => {
   const { form, loading, msg, handleChange, handleSubmit } = useMenteeOnboarding();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#f0f4ff]">
       {/* Top accent */}
       <div className="h-1 w-full bg-blue-900" />
 
@@ -22,19 +22,23 @@ const MenteeOnboardingShell = () => {
       <header className="sticky top-0 z-10 bg-white border-b border-slate-100 shadow-sm">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              M
-            </div>
+            <img
+              src="/images/logo.png"
+              alt="Leapmentor logo"
+              className="h-8 w-auto"
+            />
             <span className="text-sm font-bold text-slate-800">Leapmentor</span>
           </div>
-          
+
         </div>
       </header>
-                  <OnboardingProgressBar form={form} fields={MENTEE_ONBOARDING_FIELDS} />
 
 
       {/* Page title */}
-      <div className="max-w-2xl mx-auto px-6 pt-8 pb-2 text-center">
+      <OnboardingProgressBar form={form} fields={MENTEE_ONBOARDING_FIELDS} />
+
+      {/* Page title */}
+      <div className="max-w-2xl mx-auto px-6 pt-8 pb-2 ">
         <h1 className="text-2xl font-bold text-slate-900">Mentee Onboarding</h1>
         <p className="text-sm text-slate-400 mt-1">
           Complete your profile and find the perfect mentor to accelerate your career.
@@ -54,8 +58,8 @@ const MenteeOnboardingShell = () => {
           {/* Status message */}
           {msg.text && (
             <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                : "bg-red-50 border-red-200 text-red-600"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+              : "bg-red-50 border-red-200 text-red-600"
               }`}>
               <span>{msg.type === "success" ? "✓" : ":warning:"}</span>
               {msg.text}
@@ -79,7 +83,7 @@ const MenteeOnboardingShell = () => {
           </button>
 
           <p className="text-center text-xs text-slate-400 pb-8">
-            By clicking complete, you agree to our Terms of Service
+            You can always edit your profile from the dashboard.
           </p>
         </form>
       </main>

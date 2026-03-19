@@ -20,7 +20,7 @@ const PersonalInfoSection = ({ form, onChange }) => {
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
-        <div className="w-8 h-8 rounded-xl bg-[#2563eb] flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
@@ -46,7 +46,7 @@ const PersonalInfoSection = ({ form, onChange }) => {
                 </svg>
               )}
             </button>
-            <span className="text-xs font-semibold text-[#2563eb] cursor-pointer hover:underline" onClick={handlePhotoClick}>
+            <span className="text-xs font-semibold text-blue-900 cursor-pointer hover:underline" onClick={handlePhotoClick}>
               Upload Photo
             </span>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
