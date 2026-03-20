@@ -105,8 +105,19 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
       setMsg({ type: "success", text: "Login successful! Redirecting..." });
       setTimeout(() => redirectByRole(res.data?.user?.roles || [], role, navigate), 800);
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Invalid credentials";
-      setMsg({ type: "error", text: apiMsg });
+      const status   = err?.response?.status;
+      const data     = err?.response?.data;
+      const apiMsg   = data?.message || err?.message || "Invalid credentials";
+
+      // ✅ Redirect to verify email if not verified
+      if (status === 403 && data?.isEmailVerified === false) {
+         setMsg({ type: "error", text: "Please verify your email first. Redirecting..." });
+         setTimeout(() => {
+         navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
+         }, 1000);
+         return;
+     }
+     setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);
     }
