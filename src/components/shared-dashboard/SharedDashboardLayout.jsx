@@ -1,17 +1,21 @@
 // src/components/shared-dashboard/SharedDashboardLayout.jsx
 import { useState } from "react";
-import SharedTopbar    from "./SharedTopbar";
-import SharedSidebar   from "./SharedSidebar";
-import SharedHomeTab   from "./tabs/SharedHomeTab";
-import SharedChatTab   from "./tabs/SharedChatTab";
-import SharedGoalsTab  from "./tabs/SharedGoalsTab";
-import SharedNotesTab  from "./tabs/SharedNotesTab";
-import SharedReportTab from "./tabs/SharedReportTab";
+import SharedTopbar               from "./SharedTopbar";
+import SharedSidebar              from "./SharedSidebar";
+import SharedHomeTab              from "./tabs/SharedHomeTab";
+import SharedChatTab              from "./tabs/SharedChatTab";
+import SharedGoalsTab             from "./tabs/SharedGoalsTab";
+import SharedNotesTab             from "./tabs/SharedNotesTab";
+import SharedReportTab            from "./tabs/SharedReportTab";
+import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
+import useSocketToast             from "../../hooks/useSocketToast"; // ✅ added
 
-// ✅ activeTab and setActiveTab now come from SharedDashboardPage
-// so they survive connect refetches without resetting to "home"
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab, setActiveTab }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ✅ Creates window.__leapSocket so useSessions can receive real-time slot updates
+  // Also handles toast notifications while user is in shared dashboard
+  useSocketToast();
 
   const viewerRole = connect?.viewerRole || "mentee";
 
@@ -65,6 +69,11 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab, setActiveTab
           {/* Notes */}
           <div style={{ display: activeTab === "notes" ? "block" : "none" }}>
             <SharedNotesTab connect={connect} />
+          </div>
+
+          {/* Add Session */}
+          <div style={{ display: activeTab === "addSession" ? "block" : "none" }}>
+            <SharedAdditionalSessionTab connect={connect} onTabChange={setActiveTab} />
           </div>
 
           {/* Report */}

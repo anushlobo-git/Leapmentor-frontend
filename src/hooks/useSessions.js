@@ -14,8 +14,14 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const [totalSlots,     setTotalSlots]     = useState(0);
   const [progress,       setProgress]       = useState(0);
 
-  // ✅ Track if allComplete was already fired to avoid duplicate calls
   const allCompleteFiredRef = useRef(false);
+
+  const applySlotUpdate = useCallback((data) => {
+    if (data.slots)                        setSlots(data.slots);
+    if (data.completedSlots !== undefined) setCompletedSlots(data.completedSlots);
+    if (data.totalSlots     !== undefined) setTotalSlots(data.totalSlots);
+    if (data.progress       !== undefined) setProgress(data.progress);
+  }, []);
 
   const fetchSlots = useCallback(async () => {
     if (!connectRequestId) return;
@@ -26,23 +32,51 @@ const useSessions = (connectRequestId, onAllComplete) => {
         `${BASE_URL}/api/sessions/${connectRequestId}/slots`,
         { headers: authHeader() }
       );
-      setSlots(res.data.slots || []);
-      setCompletedSlots(res.data.completedSlots || 0);
-      setTotalSlots(res.data.totalSlots || 0);
-      setProgress(res.data.progress || 0);
+      applySlotUpdate(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load sessions.");
     } finally {
       setLoading(false);
     }
-  }, [connectRequestId]);
+  }, [connectRequestId, applySlotUpdate]);
 
   useEffect(() => { fetchSlots(); }, [fetchSlots]);
 
-  // ✅ Poll every 15 seconds to sync both sides in real time
+  // ✅ Listen on the SHARED global socket (window.__leapSocket)
+  // so we don't create a competing socket that overwrites userSockets map
   useEffect(() => {
     if (!connectRequestId) return;
-    const interval = setInterval(fetchSlots, 15000);
+
+    const handleSlotUpdate = (data) => {
+      if (data.connectRequestId !== connectRequestId) return;
+      console.log("📅 session_slots_updated — syncing instantly");
+      applySlotUpdate(data);
+
+      if (data.allComplete && onAllComplete && !allCompleteFiredRef.current) {
+        allCompleteFiredRef.current = true;
+        setTimeout(() => { onAllComplete(); }, 2000);
+      }
+    };
+
+    // ✅ Register listener on the shared global socket
+    const waitForSocket = setInterval(() => {
+      if (window.__leapSocket?.connected) {
+        window.__leapSocket.on("session_slots_updated", handleSlotUpdate);
+        clearInterval(waitForSocket);
+        console.log("📅 Registered session_slots_updated on shared socket");
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(waitForSocket);
+      window.__leapSocket?.off("session_slots_updated", handleSlotUpdate);
+    };
+  }, [connectRequestId, applySlotUpdate, onAllComplete]);
+
+  // ✅ Fallback polling every 30s
+  useEffect(() => {
+    if (!connectRequestId) return;
+    const interval = setInterval(fetchSlots, 30000);
     return () => clearInterval(interval);
   }, [connectRequestId, fetchSlots]);
 
@@ -79,23 +113,16 @@ const useSessions = (connectRequestId, onAllComplete) => {
         {},
         { headers: authHeader() }
       );
-
-      // ✅ Update local slot state immediately
       setSlots((prev) =>
         prev.map((s, i) => i === slotIndex ? { ...s, ...res.data.slot } : s)
       );
       setCompletedSlots(res.data.completedSlots);
       setProgress(res.data.progress);
 
-      // ✅ Only fire onAllComplete once — don't trigger if already fired
       if (res.data.allComplete && onAllComplete && !allCompleteFiredRef.current) {
         allCompleteFiredRef.current = true;
-        // ✅ Delay the parent refetch so we don't reset the active tab immediately
-        setTimeout(() => {
-          onAllComplete();
-        }, 2000);
+        setTimeout(() => { onAllComplete(); }, 2000);
       }
-
       return { success: true, ...res.data };
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to mark session complete.");
@@ -105,16 +132,30 @@ const useSessions = (connectRequestId, onAllComplete) => {
     }
   }, [connectRequestId, onAllComplete]);
 
+  const addSlot = useCallback(async ({ day, date, startTime, endTime }) => {
+    try {
+      setSaving(true);
+      setError(null);
+      const res = await axios.post(
+        `${BASE_URL}/api/sessions/${connectRequestId}/add-slot`,
+        { day, date, startTime, endTime },
+        { headers: authHeader() }
+      );
+      applySlotUpdate(res.data);
+      return { success: true };
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Failed to add session.";
+      setError(msg);
+      return { success: false, message: msg };
+    } finally {
+      setSaving(false);
+    }
+  }, [connectRequestId, applySlotUpdate]);
+
   return {
-    slots,
-    loading,
-    saving,
-    error,
-    completedSlots,
-    totalSlots,
-    progress,
-    setMeetingLink,
-    markSlotComplete,
+    slots, loading, saving, error,
+    completedSlots, totalSlots, progress,
+    setMeetingLink, markSlotComplete, addSlot,
     refetch: fetchSlots,
   };
 };
