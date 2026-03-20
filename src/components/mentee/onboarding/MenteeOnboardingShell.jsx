@@ -1,5 +1,4 @@
 // components/mentee/onboarding/MenteeOnboardingShell.jsx
-import { useNavigate } from "react-router-dom";
 import useMenteeOnboarding from "../../../hooks/useMenteeOnboarding";
 import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalDetailsSection from "./ProfessionalDetailsSection";
@@ -10,7 +9,6 @@ import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
-  const navigate = useNavigate();
   const { form, loading, msg, handleChange, handleSubmit } = useMenteeOnboarding();
 
   return (

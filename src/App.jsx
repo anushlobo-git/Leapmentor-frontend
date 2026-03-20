@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home     from "./components/Home";
 import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // ── Auth pages ────────────────────────────────────────────────
 const RegisterMentee = lazy(() => import("./pages/RegisterMentee"));
@@ -79,16 +80,16 @@ const App = () => {
           <Route path="/sso-callback-sync" element={<SSOSync />} />
 
           {/* ── Onboarding ────────────────────────────────── */}
-          <Route path="/onboarding/mentor" element={<MentorOnboarding />} />
-          <Route path="/onboarding/mentee" element={<MenteeOnboarding />} />
+          <Route path="/onboarding/mentor" element={<ProtectedRoute role="mentor"><MentorOnboarding /></ProtectedRoute>} />
+          <Route path="/onboarding/mentee" element={<ProtectedRoute role="mentee"><MenteeOnboarding /></ProtectedRoute>} />
 
           {/* ── Edit Profile ──────────────────────────────── */}
-          <Route path="/dashboard/mentee/edit-profile" element={<MenteeEditProfileShell />} />
-          <Route path="/dashboard/mentor/edit-profile" element={<MentorEditProfileShell />} />
+          <Route path="/dashboard/mentee/edit-profile" element={<ProtectedRoute role="mentee"><MenteeEditProfileShell /></ProtectedRoute>} />
+          <Route path="/dashboard/mentor/edit-profile" element={<ProtectedRoute role="mentor"><MentorEditProfileShell /></ProtectedRoute>} />
 
           {/* ── Dashboards ────────────────────────────────── */}
-          <Route path="/dashboard/mentor"  element={<MentorDashboard />} />
-          <Route path="/dashboard/mentee"  element={<MenteeDashboard />} />
+          <Route path="/dashboard/mentor"  element={<ProtectedRoute role="mentor"><MentorDashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/mentee"  element={<ProtectedRoute role="mentee"><MenteeDashboard /></ProtectedRoute>} />
 
           {/* ── Shared Dashboard ──────────────────────────── */}
           <Route path="/shared-dashboard/:connectRequestId" element={<SharedDashboardPage />} />
