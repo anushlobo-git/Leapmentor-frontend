@@ -137,7 +137,10 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
     mentor, mentee,
     mentorProfile, menteeProfile,
     confirmedSlot, totalAmount, paidAt,
+    status,
   } = connect;
+
+  const isCompleted = status === "completed"; 
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -249,6 +252,25 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
             onClick={() => onTabChange("goals")}
             color="#7c3aed"
           />
+          {/* ✅ NEW — hidden if session completed */}
+          {!isCompleted && (
+            <QuickAction
+              icon={
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                  <line x1="12" y1="14" x2="12" y2="20"/>
+                  <line x1="9" y1="17" x2="15" y2="17"/>
+                </svg>
+              }
+              label="Add Session"
+              onClick={() => onTabChange("addSession")}
+              color="#059669"
+            />
+          )}
           <QuickAction
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"

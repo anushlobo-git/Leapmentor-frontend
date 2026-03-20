@@ -60,7 +60,7 @@ const ProfessionalDetailsSection = ({ form, handleChange }) => {
 
           {/* Company */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Company</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5">Company / Organization</label>
             <input
               name="company"
               value={form.company}

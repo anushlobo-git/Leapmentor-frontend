@@ -1,6 +1,4 @@
 // src/hooks/useSocketToast.js
-// ✅ Global socket connection for dashboard-level real-time notifications
-// Separate from useChat which is room-scoped per session
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
@@ -15,8 +13,6 @@ const useSocketToast = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    // ✅ Connect a dedicated socket just for notifications
-    // Does NOT join any room — purely listens for user-level events
     const socket = io(BASE_URL, {
       auth:                 { token },
       reconnection:         true,
@@ -27,6 +23,10 @@ const useSocketToast = () => {
 
     socketRef.current = socket;
 
+    // ✅ Expose on window so useSessions and other hooks can attach listeners
+    // without creating competing sockets that overwrite userSockets map
+    window.__leapSocket = socket;
+
     socket.on("connect", () => {
       console.log("🔔 Notification socket connected:", socket.id);
     });
@@ -35,32 +35,39 @@ const useSocketToast = () => {
       console.warn("⚠️ Notification socket error:", err.message);
     });
 
-    // ✅ Mentor receives this when mentee sends a request
+    socket.on("disconnect", () => {
+      console.log("🔔 Notification socket disconnected");
+    });
+
+    // ── Toast events ────────────────────────────────────────
     socket.on("new_connect_request", ({ title, message, type }) => {
       showToast({ type: type || "info", title, message });
     });
 
-    // ✅ Mentee receives this when mentor accepts
     socket.on("request_accepted", ({ title, message, type }) => {
       showToast({ type: type || "success", title, message });
     });
 
-    // ✅ Mentee receives this when mentor declines
     socket.on("request_declined", ({ title, message, type }) => {
       showToast({ type: type || "warning", title, message });
     });
 
-    // ✅ Mentee receives this when mentor refers to another mentor
     socket.on("request_referred", ({ title, message, type }) => {
       showToast({ type: type || "info", title, message });
     });
 
+    // ✅ session_slots_updated is handled by useSessions via window.__leapSocket
+    // No toast needed here — just real-time state sync
+
     return () => {
-      console.log("🧹 Notification socket disconnected");
+      console.log("🧹 Notification socket cleanup");
       socket.disconnect();
       socketRef.current = null;
+      if (window.__leapSocket === socket) {
+        window.__leapSocket = null;
+      }
     };
-  }, []); // ✅ runs once on mount — token from localStorage
+  }, []);
 };
 
 export default useSocketToast;
