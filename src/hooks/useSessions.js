@@ -11,13 +11,13 @@ const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token
  * @param {function} onAllComplete  — called when all slots are marked done by both parties
  */
 const useSessions = (connectRequestId, onAllComplete) => {
-  const [slots,          setSlots]          = useState([]);
-  const [loading,        setLoading]        = useState(true);
-  const [saving,         setSaving]         = useState(false);
-  const [error,          setError]          = useState(null);
+  const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const [completedSlots, setCompletedSlots] = useState(0);
-  const [totalSlots,     setTotalSlots]     = useState(0);
-  const [progress,       setProgress]       = useState(0);
+  const [totalSlots, setTotalSlots] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   // ── Fetch all slots ───────────────────────────────────────
   const fetchSlots = useCallback(async () => {
