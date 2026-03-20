@@ -4,6 +4,7 @@ import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
 import GoalForm from "./goals/GoalForm";
 import TimelineTracker from "./goals/TimelineTracker";
+import MilestoneList from "./goals/MilestoneList";   // ← added
 import SessionCard from "./goals/SessionCard";
 
 // ── Loading Skeleton ──────────────────────────────────────────
@@ -60,7 +61,6 @@ const GoalCard = ({ goal, onEdit }) => {
 };
 
 // ── No Goal Empty State ───────────────────────────────────────
-// Both mentor and mentee can set a goal
 const NoGoalState = ({ onSetGoal }) => (
   <div className="bg-white border border-dashed border-violet-200 rounded-2xl p-10
     flex flex-col items-center text-center gap-3">
@@ -139,15 +139,15 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
     ? connect?.mentor?.name || "Mentor"
     : connect?.mentee?.name || "Mentee";
 
-  // ── Goals + milestones from hook ─────────────────────────
+  // ── Goals + milestones (flat array, goal-level only) ──────
   const {
-    goal, milestonesBySlot,
+    goal, milestones,
     loading: goalsLoading, error: goalsError, saving: goalsSaving,
     createGoal, updateGoal,
     addMilestone, toggleMilestone, deleteMilestone,
   } = useGoals(connectRequestId);
 
-  // ── Sessions (slots) ─────────────────────────────────────
+  // ── Sessions (slots) — completely unchanged ───────────────
   const {
     slots, loading: slotsLoading, saving: slotsSaving, error: slotsError,
     completedSlots, totalSlots, progress,
@@ -205,8 +205,19 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       ) : goal ? (
         <GoalCard goal={goal} onEdit={() => setIsEditing(true)} />
       ) : (
-        // Both roles see Set Goal button — no viewerRole restriction
         <NoGoalState onSetGoal={() => setIsEditing(true)} />
+      )}
+
+      {/* ── Milestones — goal-level, shown under goal card ── */}
+      {goal && (
+        <MilestoneList
+          goal={goal}
+          milestones={milestones}
+          saving={goalsSaving}
+          onAdd={addMilestone}
+          onToggle={toggleMilestone}
+          onDelete={deleteMilestone}
+        />
       )}
 
       {/* Overall progress bar */}
@@ -218,7 +229,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         />
       )}
 
-      {/* Sessions */}
+      {/* Sessions — meeting link + completion only, NO milestones */}
       {slots.length > 0 && (
         <div className="flex flex-col gap-4">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -229,16 +240,11 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
               key={index}
               slot={slot}
               slotIndex={index}
-              goal={goal}
-              milestones={milestonesBySlot[String(index)] || []}
               viewerRole={viewerRole}
               otherName={otherName}
               saving={slotsSaving}
               onSetLink={setMeetingLink}
               onMarkComplete={markSlotComplete}
-              onAddMilestone={addMilestone}
-              onToggleMilestone={toggleMilestone}
-              onDeleteMilestone={deleteMilestone}
             />
           ))}
         </div>

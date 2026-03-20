@@ -16,7 +16,7 @@ const formatTime = (t) => {
   return `${hour % 12 || 12}:${m} ${ampm}`;
 };
 
-// ── Meeting Link Section ──────────────────────────────────────
+// ── Meeting Link Section — exactly same as original ───────────
 const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
   const [editing, setEditing] = useState(false);
   const [linkVal, setLinkVal] = useState(slot?.meetingLink || "");
@@ -94,7 +94,6 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
           )}
         </div>
       ) : isMentor ? (
-        // Only mentor can add a meeting link
         <button
           onClick={() => setEditing(true)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
@@ -109,157 +108,13 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
           Add Meeting Link
         </button>
       ) : (
-        // Mentee sees a placeholder when no link is set yet
         <p className="text-xs text-slate-400 italic">No meeting link added yet.</p>
       )}
     </div>
   );
 };
 
-// ── Session Milestones ────────────────────────────────────────
-const SessionMilestones = ({
-  milestones,
-  goal,
-  slotIndex,
-  viewerRole,
-  onAdd,
-  onToggle,
-  onDelete,
-  saving,
-}) => {
-  const [showForm, setShowForm] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-
-  const handleAdd = async () => {
-    if (!newTitle.trim() || !goal) return;
-    const result = await onAdd(goal._id, { title: newTitle.trim(), slotIndex });
-    if (result?.success) {
-      setNewTitle("");
-      setShowForm(false);
-    }
-  };
-
-  const completed = milestones.filter((m) => m.isCompleted).length;
-
-  // Both mentor and mentee can add/toggle/delete milestones — but only if a goal exists
-  const canEditMilestones = !!goal;
-
-  return (
-    <div className="border-t border-slate-100 pt-3">
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-2">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Session Milestones
-          </p>
-          {milestones.length > 0 && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">
-              {completed}/{milestones.length}
-            </span>
-          )}
-        </div>
-        {/* Add button — visible to BOTH roles as long as a goal exists */}
-        {!showForm && canEditMilestones && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-50 border
-              border-violet-200 text-[10px] font-bold text-violet-600 hover:bg-violet-100 transition-colors"
-          >
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add
-          </button>
-        )}
-      </div>
-
-      {/* Add form */}
-      {showForm && (
-        <div className="flex gap-2 mb-2.5">
-          <input
-            autoFocus
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            placeholder="Milestone title..."
-            className="flex-1 px-3 py-2 border border-violet-200 rounded-xl text-xs text-slate-800
-              bg-white outline-none focus:border-violet-500 transition-colors placeholder:text-slate-400"
-          />
-          <button
-            onClick={() => { setShowForm(false); setNewTitle(""); }}
-            className="px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold
-              text-slate-500 hover:bg-slate-50 transition-colors"
-          >
-            ✕
-          </button>
-          <button
-            onClick={handleAdd}
-            disabled={!newTitle.trim() || saving}
-            className="px-3 py-2 rounded-xl bg-violet-600 text-white text-xs font-bold
-              hover:bg-violet-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Add
-          </button>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {milestones.length === 0 && !showForm && (
-        <p className="text-xs text-slate-400 italic">
-          {goal
-            ? "No milestones for this session yet."
-            : viewerRole === "mentor"
-              ? "Set a goal first to add milestones."
-              : "Waiting for your mentor to set a goal before adding milestones."}
-        </p>
-      )}
-
-      {/* Milestone rows — toggle & delete available to BOTH roles */}
-      <div className="flex flex-col gap-1.5">
-        {milestones.map((m) => (
-          <div
-            key={m._id}
-            className={`flex items-center gap-2.5 px-3 py-2.5 border rounded-xl transition-all
-              ${m.isCompleted ? "bg-slate-50 border-slate-100 opacity-75" : "bg-white border-slate-200"}`}
-          >
-            <button
-              onClick={() => onToggle(m._id, !m.isCompleted)}
-              className={`w-4 h-4 rounded-md border-2 flex items-center justify-center shrink-0
-                transition-all cursor-pointer p-0
-                ${m.isCompleted
-                  ? "bg-violet-600 border-violet-600"
-                  : "bg-white border-slate-300 hover:border-violet-400"}`}
-            >
-              {m.isCompleted && (
-                <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </button>
-            <span className={`flex-1 text-xs font-medium leading-snug
-              ${m.isCompleted ? "line-through text-slate-400" : "text-slate-700"}`}>
-              {m.title}
-            </span>
-            <button
-              onClick={() => onDelete(m._id)}
-              className="p-1 rounded-md border-none bg-transparent text-slate-300
-                hover:text-red-400 transition-colors cursor-pointer shrink-0"
-            >
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              </svg>
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// ── Completion Section ────────────────────────────────────────
+// ── Completion Section — exactly same as original ─────────────
 const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, saving }) => {
   const isMentee = viewerRole === "mentee";
   const iMenteeMarked = slot?.menteeMarked || false;
@@ -298,7 +153,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
         </div>
       </div>
 
-      {/* Mark complete button — hidden if already marked by this user or both done */}
+      {/* Mark complete button */}
       {!myMark && !bothDone && (
         <button
           onClick={() => onMarkComplete(slotIndex)}
@@ -340,20 +195,15 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
   );
 };
 
-// ── Main SessionCard ──────────────────────────────────────────
+// ── Main SessionCard — SessionMilestones removed, rest unchanged
 const SessionCard = ({
   slot,
   slotIndex,
-  goal,
-  milestones = [],
   viewerRole,
   otherName,
   saving,
   onSetLink,
   onMarkComplete,
-  onAddMilestone,
-  onToggleMilestone,
-  onDeleteMilestone,
 }) => {
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
   const statusLabel = bothDone
@@ -393,18 +243,6 @@ const SessionCard = ({
         slot={slot}
         viewerRole={viewerRole}
         onSetLink={(link) => onSetLink(slotIndex, link)}
-        saving={saving}
-      />
-
-      {/* Session milestones — both roles can add/toggle/delete */}
-      <SessionMilestones
-        milestones={milestones}
-        goal={goal}
-        slotIndex={slotIndex}
-        viewerRole={viewerRole}
-        onAdd={onAddMilestone}
-        onToggle={onToggleMilestone}
-        onDelete={onDeleteMilestone}
         saving={saving}
       />
 
