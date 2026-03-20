@@ -1,6 +1,6 @@
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
-import axiosInstance from "../../../../../../Leapmentor-backend/utils/axiosInstance";
+import axiosInstance from "../../../../utils/axiosInstance"; 
 
 const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) => {
   const [loading, setLoading] = useState(false);

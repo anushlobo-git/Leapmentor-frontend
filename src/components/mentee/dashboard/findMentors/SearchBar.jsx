@@ -1,6 +1,6 @@
 const SearchBar = ({ skill, setSkill, totalCount, hasSearched }) => {
 const handleChange = (e) => {
-setSkill(e.target.value); // ✅ only skill — controller handles both name + skill from this
+setSkill(e.target.value); 
 };
 const handleClear = () => {
 setSkill("");
