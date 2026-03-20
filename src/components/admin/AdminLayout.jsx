@@ -48,7 +48,6 @@ const NAV_ITEMS = [
           </svg>
         ),
       },
-      // ✅ ADDED
       {
         to: "/admin/support",
         label: "Support Messages",
@@ -80,6 +79,7 @@ const NAV_ITEMS = [
 ];
 
 const AdminLayout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate  = useNavigate();
   const adminRaw  = localStorage.getItem("adminUser");
   const adminUser = adminRaw ? JSON.parse(adminRaw) : { name: "Admin" };
@@ -90,42 +90,84 @@ const AdminLayout = ({ children }) => {
     navigate("/admin/login");
   };
 
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#f0f2f7", fontFamily: "'DM Sans', sans-serif" }}>
 
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
 
-      <aside className="flex flex-col w-56 flex-shrink-0 h-full"
-        style={{ background: "#ffffff", borderRight: "1px solid #e8eaf0" }}>
+      {/* ── Mobile backdrop ───────────────────────────────── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 lg:hidden"
+          style={{ background: "rgba(15,23,42,0.45)", backdropFilter: "blur(2px)" }}
+          onClick={closeSidebar}
+        />
+      )}
 
-        <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: "#e8eaf0" }}>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
+      {/* ══════════════════════════════════════════════════
+          SIDEBAR
+          Mobile: fixed overlay, slides in from left
+          Desktop (lg+): static, always visible
+      ══════════════════════════════════════════════════ */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-40 flex flex-col w-56 flex-shrink-0 h-full
+          transition-transform duration-300 ease-in-out
+          lg:static lg:translate-x-0
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+        style={{ background: "#ffffff", borderRight: "1px solid #e8eaf0" }}
+      >
+
+        {/* Logo row */}
+        <div className="flex items-center justify-between px-5 py-5 border-b flex-shrink-0"
+          style={{ borderColor: "#e8eaf0" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm text-slate-800 leading-none" style={{ fontWeight: 700 }}>Leapmentor</p>
+              <p className="text-[10px] mt-0.5" style={{ color: "#2563eb", fontWeight: 600 }}>Admin</p>
+            </div>
+          </div>
+
+          {/* Close — mobile only */}
+          <button
+            onClick={closeSidebar}
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
-          </div>
-          <div>
-            <p className="text-sm font-700 text-slate-800 leading-none" style={{ fontWeight: 700 }}>Leapmentor</p>
-            <p className="text-[10px] font-500 mt-0.5" style={{ color: "#2563eb", fontWeight: 600 }}>Admin</p>
-          </div>
+          </button>
         </div>
 
+        {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
           {NAV_ITEMS.map((section) => (
             <div key={section.group}>
-              <p className="text-[9px] font-700 tracking-widest px-3 mb-2"
+              <p className="text-[9px] tracking-widest px-3 mb-2"
                 style={{ color: "#94a3b8", fontWeight: 700, letterSpacing: "0.12em" }}>
                 {section.group}
               </p>
               <div className="space-y-0.5">
                 {section.links.map((link) => (
-                  <NavLink key={link.to} to={link.to}
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={closeSidebar}
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all
                       ${isActive
-                        ? "text-blue-700 font-600"
+                        ? "text-blue-700"
                         : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`
                     }
                     style={({ isActive }) => ({
@@ -142,18 +184,22 @@ const AdminLayout = ({ children }) => {
           ))}
         </nav>
 
-        <div className="px-4 py-4 border-t" style={{ borderColor: "#e8eaf0" }}>
+        {/* Admin info + logout */}
+        <div className="px-4 py-4 border-t flex-shrink-0" style={{ borderColor: "#e8eaf0" }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-700 flex-shrink-0"
-              style={{ background: "#2563eb", color: "white", fontWeight: 700 }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs text-white flex-shrink-0"
+              style={{ background: "#2563eb", fontWeight: 700 }}>
               {adminUser.name?.[0]?.toUpperCase() || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-600 text-slate-700 truncate" style={{ fontWeight: 600 }}>{adminUser.name}</p>
+              <p className="text-xs text-slate-700 truncate" style={{ fontWeight: 600 }}>{adminUser.name}</p>
               <p className="text-[10px] text-slate-400 truncate">{adminUser.email}</p>
             </div>
-            <button onClick={handleLogout} title="Logout"
-              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all">
+            <button
+              onClick={handleLogout}
+              title="Logout"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+            >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
@@ -164,24 +210,47 @@ const AdminLayout = ({ children }) => {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-8 py-4 flex-shrink-0"
-          style={{ background: "#ffffff", borderBottom: "1px solid #e8eaf0" }}>
-          <div>
-            <p className="text-xs text-slate-400" style={{ fontFamily: "'DM Mono', monospace" }}>
+      {/* ══════════════════════════════════════════════════
+          MAIN CONTENT
+      ══════════════════════════════════════════════════ */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        {/* Top bar */}
+        <header
+          className="flex items-center justify-between px-4 lg:px-8 py-4 flex-shrink-0"
+          style={{ background: "#ffffff", borderBottom: "1px solid #e8eaf0" }}
+        >
+          <div className="flex items-center gap-3">
+
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="3" y1="6"  x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+
+            {/* Date — hidden on small screens */}
+            <p className="hidden sm:block text-xs text-slate-400" style={{ fontFamily: "'DM Mono', monospace" }}>
               {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
-              style={{ background: "#f0f9ff", border: "1px solid #bae6fd" }}>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs font-600 text-blue-700" style={{ fontWeight: 600 }}>System Online</span>
-            </div>
+
+          {/* System Online */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
+            style={{ background: "#f0f9ff", border: "1px solid #bae6fd" }}>
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="hidden sm:inline text-xs text-blue-700" style={{ fontWeight: 600 }}>System Online</span>
+            <span className="sm:hidden text-xs text-blue-700" style={{ fontWeight: 600 }}>Online</span>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-8 py-6">
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto px-4 lg:px-8 py-4 lg:py-6">
           {children}
         </main>
       </div>
