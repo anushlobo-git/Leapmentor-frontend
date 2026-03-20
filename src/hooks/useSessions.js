@@ -1,25 +1,22 @@
 // src/hooks/useSessions.js
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-/**
- * useSessions
- * @param {string}   connectRequestId
- * @param {function} onAllComplete  — called when all slots are marked done by both parties
- */
 const useSessions = (connectRequestId, onAllComplete) => {
-  const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [slots,          setSlots]          = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [saving,         setSaving]         = useState(false);
+  const [error,          setError]          = useState(null);
   const [completedSlots, setCompletedSlots] = useState(0);
-  const [totalSlots, setTotalSlots] = useState(0);
-  const [progress, setProgress] = useState(0);
+  const [totalSlots,     setTotalSlots]     = useState(0);
+  const [progress,       setProgress]       = useState(0);
 
-  // ── Fetch all slots ───────────────────────────────────────
+  // ✅ Track if allComplete was already fired to avoid duplicate calls
+  const allCompleteFiredRef = useRef(false);
+
   const fetchSlots = useCallback(async () => {
     if (!connectRequestId) return;
     try {
@@ -42,7 +39,13 @@ const useSessions = (connectRequestId, onAllComplete) => {
 
   useEffect(() => { fetchSlots(); }, [fetchSlots]);
 
-  // ── Set meeting link for a slot ───────────────────────────
+  // ✅ Poll every 15 seconds to sync both sides in real time
+  useEffect(() => {
+    if (!connectRequestId) return;
+    const interval = setInterval(fetchSlots, 15000);
+    return () => clearInterval(interval);
+  }, [connectRequestId, fetchSlots]);
+
   const setMeetingLink = useCallback(async (slotIndex, meetingLink) => {
     if (!meetingLink?.trim()) return { success: false };
     try {
@@ -53,7 +56,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
         { meetingLink },
         { headers: authHeader() }
       );
-      // ✅ Update local state — only this slot changes
       setSlots((prev) =>
         prev.map((s, i) =>
           i === slotIndex ? { ...s, meetingLink: res.data.slot.meetingLink } : s
@@ -68,7 +70,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
     }
   }, [connectRequestId]);
 
-  // ── Mark a slot complete ──────────────────────────────────
   const markSlotComplete = useCallback(async (slotIndex) => {
     try {
       setSaving(true);
@@ -79,16 +80,20 @@ const useSessions = (connectRequestId, onAllComplete) => {
         { headers: authHeader() }
       );
 
-      // ✅ Update local slot state
+      // ✅ Update local slot state immediately
       setSlots((prev) =>
         prev.map((s, i) => i === slotIndex ? { ...s, ...res.data.slot } : s)
       );
       setCompletedSlots(res.data.completedSlots);
       setProgress(res.data.progress);
 
-      // ✅ If ALL slots are done — trigger parent refetch
-      if (res.data.allComplete && onAllComplete) {
-        onAllComplete();
+      // ✅ Only fire onAllComplete once — don't trigger if already fired
+      if (res.data.allComplete && onAllComplete && !allCompleteFiredRef.current) {
+        allCompleteFiredRef.current = true;
+        // ✅ Delay the parent refetch so we don't reset the active tab immediately
+        setTimeout(() => {
+          onAllComplete();
+        }, 2000);
       }
 
       return { success: true, ...res.data };
