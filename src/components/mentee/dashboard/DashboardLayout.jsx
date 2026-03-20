@@ -12,6 +12,7 @@ import RequestHistoryTab from "./history/RequestHistoryTab";
 import NotificationsTab from "../notifications/NotificationsTab";
 import MenteeConnectsTab from "./connects/MenteeConnectsTab";
 import MenteeSettingsTab from "./settings/MenteeSettingsTab";
+import HelpCenter from "../../common/HelpCenter";
 
 
 
@@ -82,6 +83,7 @@ const DashboardLayout = () => {
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "connects"      && <MenteeConnectsTab />}
           {activeTab === "settings"      && <MenteeSettingsTab profile={profile} />}
+          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
           
         </main>
       </div>
