@@ -1,5 +1,5 @@
 // src/pages/SharedDashboardPage.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import SharedDashboardLayout from "../components/shared-dashboard/SharedDashboardLayout";
@@ -14,9 +14,12 @@ const SharedDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
 
+  // ✅ Track active tab here so it survives connect refetches
+  const [activeTab, setActiveTab] = useState("home");
+
   const fetchConnect = useCallback(async () => {
     try {
-      setLoading(true);
+      // ✅ Don't show loading spinner on refetch — only on first load
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
       const res = await axios.get(
@@ -36,11 +39,10 @@ const SharedDashboardPage = () => {
 
   useEffect(() => { fetchConnect(); }, [fetchConnect]);
 
-  // ✅ Called by useSessions when ALL slots are marked complete by both parties
-  // Refetches the connect object so status reflects "completed" everywhere in the UI
+  // ✅ onAllComplete — refetch connect but DON'T reset the tab
   const handleAllComplete = useCallback(() => {
     console.log("🎉 All sessions complete — refetching connect...");
-    fetchConnect();
+    fetchConnect(); // ✅ updates connect.status to "completed" without resetting activeTab
   }, [fetchConnect]);
 
   if (loading) {
@@ -77,6 +79,8 @@ const SharedDashboardPage = () => {
     <SharedDashboardLayout
       connect={connect}
       onAllComplete={handleAllComplete}
+      activeTab={activeTab}        // ✅ pass tab state down
+      setActiveTab={setActiveTab}  // ✅ pass setter down
     />
   );
 };

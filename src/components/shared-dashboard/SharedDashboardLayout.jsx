@@ -8,8 +8,9 @@ import SharedGoalsTab  from "./tabs/SharedGoalsTab";
 import SharedNotesTab  from "./tabs/SharedNotesTab";
 import SharedReportTab from "./tabs/SharedReportTab";
 
-const SharedDashboardLayout = ({ connect, onAllComplete }) => {
-  const [activeTab,   setActiveTab]   = useState("home");
+// ✅ activeTab and setActiveTab now come from SharedDashboardPage
+// so they survive connect refetches without resetting to "home"
+const SharedDashboardLayout = ({ connect, onAllComplete, activeTab, setActiveTab }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const viewerRole = connect?.viewerRole || "mentee";
@@ -53,7 +54,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete }) => {
             <SharedChatTab connect={connect} />
           </div>
 
-          {/* Goals — receives onAllComplete to trigger connect refetch */}
+          {/* Goals */}
           <div style={{ display: activeTab === "goals" ? "block" : "none" }}>
             <SharedGoalsTab
               connect={connect}
@@ -68,8 +69,8 @@ const SharedDashboardLayout = ({ connect, onAllComplete }) => {
 
           {/* Report */}
           <div style={{ display: activeTab === "report" ? "block" : "none" }}>
-  <SharedReportTab connect={connect} />
-</div>
+            <SharedReportTab connect={connect} />
+          </div>
 
         </main>
       </div>
