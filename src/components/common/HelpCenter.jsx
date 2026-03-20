@@ -10,14 +10,14 @@ const mentorFaqs = [
       { q: "How do I accept a session request?", a: "Go to Requests in your sidebar. You'll see pending requests with mentee details and preferred time slots. Click 'Accept' to confirm — the mentee will be notified and prompted to complete payment." },
       { q: "What happens after a session is accepted?", a: "The session moves to 'Active Sessions' with an 'Awaiting Payment' status. Once the mentee pays, the status updates to 'Ongoing' and you'll see an 'Open Dashboard' button to start the session." },
       { q: "Can I reschedule or cancel a session?", a: "Yes. Open the session card and choose 'Reschedule' or 'Cancel'. Cancellations made less than 2 hours before the session may affect your rating. We recommend messaging the mentee first." },
-      { q: "How long can a session last?", a: "Sessions are booked in 1-hour slots. If you and the mentee agree to extend, you can add time in 30-minute increments directly from the session dashboard." },
+      { q: "How long can a session last?", a: "Sessions are booked in 30mins , 60mins and 1-hour slots. If you and the mentee agree to extend, you can add time in 30-minute increments directly from the session dashboard." },
     ],
   },
   {
     category: "Payments & Earnings",
     items: [
-      { q: "When do I receive my earnings?", a: "Earnings are released 24 hours after a session completes. Track all pending and received payments in the Track Earnings section." },
-      { q: "What payout methods are supported?", a: "We support bank transfers, UPI, and PayPal depending on your region. Update your payout method in Settings → Payments." },
+      { q: "When do I receive my earnings?", a: "Earnings are released immediately after a session completes and the mentee has paid. Track all pending and received payments in the Track Earnings section." },
+      { q: "What payout methods are supported?", a: "There's only token method possible now so tokens will be paid as payments " },
       { q: "Why is a session still showing 'Awaiting Payment'?", a: "The mentee hasn't completed payment yet. We send automated reminders. If it's been over 24 hours, nudge them via the message button on the session card." },
     ],
   },
@@ -45,13 +45,13 @@ const menteeFaqs = [
     items: [
       { q: "How do I book a session with a mentor?", a: "Browse mentors from the Explore page, open a mentor's profile, and select an available time slot. You'll be prompted to confirm and complete payment to finalize the booking." },
       { q: "Can I book multiple sessions at once?", a: "Yes! You can book multiple sessions with the same or different mentors. All upcoming sessions are visible in your dashboard under Active Sessions." },
-      { q: "What if my preferred time slot isn't available?", a: "You can send a Connect request to the mentor with your preferred time. The mentor can add a custom slot for you, or you can browse their next available openings." },
+      { q: "What if my preferred time slot isn't available?", a: "You can only book a slot at mentor availability , or you can browse their next available openings." },
     ],
   },
   {
     category: "Payments & Refunds",
     items: [
-      { q: "What payment methods are accepted?", a: "We accept major credit/debit cards, UPI, and PayPal. All transactions are secured and encrypted." },
+      { q: "What payment methods are accepted?", a: "We currently accept only token payments." },
       { q: "Can I get a refund if I cancel?", a: "Cancellations made 24+ hours before the session are fully refunded. Cancellations within 24 hours receive a 50% refund. No-shows are non-refundable." },
       { q: "Where can I see my payment history?", a: "Go to Settings → Billing to view all past transactions, download receipts, and check upcoming charges." },
     ],
