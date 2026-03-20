@@ -48,6 +48,18 @@ const NAV_ITEMS = [
           </svg>
         ),
       },
+      // ✅ ADDED
+      {
+        to: "/admin/support",
+        label: "Support Messages",
+        icon: (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        ),
+      },
     ],
   },
   {
@@ -81,16 +93,11 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#f0f2f7", fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── Google Font ──────────────────────────────────── */}
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
 
-      {/* ══════════════════════════════════════════════════
-          SIDEBAR
-      ══════════════════════════════════════════════════ */}
       <aside className="flex flex-col w-56 flex-shrink-0 h-full"
         style={{ background: "#ffffff", borderRight: "1px solid #e8eaf0" }}>
 
-        {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: "#e8eaf0" }}>
           <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)" }}>
@@ -105,7 +112,6 @@ const AdminLayout = ({ children }) => {
           </div>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
           {NAV_ITEMS.map((section) => (
             <div key={section.group}>
@@ -136,7 +142,6 @@ const AdminLayout = ({ children }) => {
           ))}
         </nav>
 
-        {/* Admin user at bottom */}
         <div className="px-4 py-4 border-t" style={{ borderColor: "#e8eaf0" }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-700 flex-shrink-0"
@@ -159,12 +164,7 @@ const AdminLayout = ({ children }) => {
         </div>
       </aside>
 
-      {/* ══════════════════════════════════════════════════
-          MAIN CONTENT
-      ══════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Top bar */}
         <header className="flex items-center justify-between px-8 py-4 flex-shrink-0"
           style={{ background: "#ffffff", borderBottom: "1px solid #e8eaf0" }}>
           <div>
@@ -181,7 +181,6 @@ const AdminLayout = ({ children }) => {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto px-8 py-6">
           {children}
         </main>
