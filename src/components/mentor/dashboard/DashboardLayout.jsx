@@ -13,7 +13,7 @@ import MentorConnectsTab from "./connects/MentorConnectsTab";
 import NotificationsTab from "./notifications/NotificationsTab";
 import SettingsTab from "./settings/SettingsTab";
 import TrackEarningsTab from "./earnings/TrackEarningsTab";
-
+import HelpCenter from "../../common/HelpCenter"; // ✅ added
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMentorDashboard();
@@ -76,6 +76,7 @@ const DashboardLayout = () => {
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "settings"      && <SettingsTab profile={profile} user={user} />}
           {activeTab === "earnings" && <TrackEarningsTab />}
+          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
           
         </main>
       </div>

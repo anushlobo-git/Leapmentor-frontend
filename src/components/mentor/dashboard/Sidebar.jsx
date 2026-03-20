@@ -56,10 +56,24 @@ const SidebarContent = ({ activeTab, setActiveTab, onClose, unreadCount }) => (
     </nav>
     <div style={{ padding: "0 12px 32px" }}>
       <p style={{ fontSize: "10px", fontWeight: "600", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", padding: "0 12px", marginBottom: "4px" }}>Support</p>
-      <button style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "12px", fontSize: "14px", color: "#64748b", border: "none", cursor: "pointer", width: "100%", backgroundColor: "transparent" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
+      {/* ✅ CHANGED: onClick added, active highlight added */}
+      <button
+        onClick={() => { setActiveTab("help"); onClose?.(); }}
+        style={{
+          display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px",
+          borderRadius: "12px", fontSize: "14px", border: "none", cursor: "pointer",
+          width: "100%",
+          backgroundColor: activeTab === "help" ? "#eff6ff" : "transparent",
+          color: activeTab === "help" ? "#1e3a8a" : "#64748b",
+          fontWeight: activeTab === "help" ? "600" : "500",
+          transition: "all 0.15s",
+        }}
+      >
+        <span style={{ color: activeTab === "help" ? "#1e3a8a" : "#94a3b8", display: "flex", alignItems: "center" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </span>
         Help Center
       </button>
     </div>
