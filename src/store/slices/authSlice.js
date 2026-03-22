@@ -3,8 +3,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
-
 //helper function for redirection
 export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
