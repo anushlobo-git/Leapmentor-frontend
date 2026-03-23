@@ -1,5 +1,4 @@
 // src/components/mentor/dashboard/earnings/TrackEarningsTab.jsx
-import { useState } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
