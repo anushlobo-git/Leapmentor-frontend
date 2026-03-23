@@ -25,7 +25,6 @@ const BadgeCard = ({ badge }) => (
       ? "bg-white border-blue-100 shadow-sm"
       : "bg-slate-50 border-slate-100 opacity-60"
   }`}>
-    {/* Lock icon for locked badges */}
     {!badge.unlocked && (
       <div className="absolute top-2 right-2">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -34,22 +33,16 @@ const BadgeCard = ({ badge }) => (
         </svg>
       </div>
     )}
-
-    {/* Badge icon */}
     <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
       badge.unlocked ? "bg-blue-50" : "bg-slate-100"
     }`}>
       {badge.icon}
     </div>
-
-    {/* Label */}
     <p className={`text-xs font-bold text-center ${
       badge.unlocked ? "text-slate-700" : "text-slate-400"
     }`}>
       {badge.label}
     </p>
-
-    {/* Status */}
     <span className={`text-[10px] font-semibold uppercase tracking-wide ${
       badge.unlocked ? "text-blue-500" : "text-slate-400"
     }`}>
@@ -78,7 +71,8 @@ const PreferenceRow = ({ title, desc, checked, onChange }) => (
 );
 
 // ── Main SettingsTab ──────────────────────────────────────
-const SettingsTab = ({ profile, user }) => {
+// ✅ NEW: accepts onMentorUpdate prop (optional — safe if not passed)
+const SettingsTab = ({ profile, user, onMentorUpdate }) => {
   const {
     fetching,
     saving,
@@ -89,6 +83,14 @@ const SettingsTab = ({ profile, user }) => {
     badges,
     handleSave,
   } = useMentorSettings(profile);
+
+  // ✅ NEW: wrap handleSave to propagate updated data upward
+  const handleSaveAndUpdate = async () => {
+    const updated = await handleSave();
+    if (updated && onMentorUpdate) {
+      onMentorUpdate(updated);
+    }
+  };
 
   // ── Loading skeleton ──────────────────────────────────
   if (fetching) {
@@ -150,9 +152,7 @@ const SettingsTab = ({ profile, user }) => {
       {/* ── Account Settings ── */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <SectionHeader icon="👤" title="Account Settings" />
-
         <div className="space-y-4">
-          {/* Hourly Rate */}
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-1.5">
               Hourly Rate per Session ($)
@@ -175,7 +175,6 @@ const SettingsTab = ({ profile, user }) => {
       {/* ── Preferences ── */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <SectionHeader icon="⚙️" title="Preferences" />
-
         <PreferenceRow
           title="Email Notifications"
           desc="Receive session reminders and message alerts via email."
@@ -192,10 +191,9 @@ const SettingsTab = ({ profile, user }) => {
 
       {/* ── Action Buttons ── */}
       <div className="flex items-center justify-end gap-3 pt-2 pb-8">
-        
         <button
           type="button"
-          onClick={handleSave}
+          onClick={handleSaveAndUpdate} // ✅ changed from handleSave to handleSaveAndUpdate
           disabled={saving}
           className="px-5 py-2.5 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 flex items-center gap-2 shadow-sm shadow-blue-200"
         >
