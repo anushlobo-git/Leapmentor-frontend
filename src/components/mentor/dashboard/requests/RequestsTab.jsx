@@ -1,43 +1,51 @@
 // src/components/mentor/dashboard/requests/RequestsTab.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import RequestCard from "./RequestCard";
 import MenteeProfileModal from "./MenteeProfileModal";
+import useSocketToast from "../../../../hooks/useSocketToast"; // ✅
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const TABS = [
-  { key: "all",      label: "All Requests" },
-  { key: "pending",  label: "Pending" },
+  { key: "all", label: "All Requests" },
+  { key: "pending", label: "Pending" },
   { key: "accepted", label: "Accepted" },
   { key: "rejected", label: "Rejected" },
-  { key: "referred", label: "Referred" }, // ✅ new tab
+  { key: "referred", label: "Referred" },
 ];
 
 const RequestsTab = () => {
-  const [requests, setRequests]               = useState([]);
-  const [loading, setLoading]                 = useState(true);
-  const [error, setError]                     = useState("");
-  const [activeTab, setActiveTab]             = useState("all");
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true); // ✅
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState(null);
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${BASE_URL}/api/connect-requests/incoming`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setRequests(res.data.requests || []);
-      } catch (err) {
-        setError(err?.response?.data?.message || "Failed to load requests.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRequests();
+  // ✅ Extracted to useCallback so socket can trigger it
+  const fetchRequests = useCallback(async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${BASE_URL}/api/connect-requests/incoming`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRequests(res.data.requests || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load requests.");
+    } finally {
+      setLoading(false);
+      setInitialLoad(false); // ✅ after first fetch, never block UI again
+    }
   }, []);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
+
+  // ✅ Real-time sync — refetch silently when any request status changes
+  useSocketToast(fetchRequests);
 
   // ✅ Update request status locally after respond/refer
   const handleUpdate = (id, newStatus) => {
@@ -55,14 +63,15 @@ const RequestsTab = () => {
 
   // Count badges
   const counts = {
-    all:      requests.length,
-    pending:  requests.filter((r) => r.status === "pending").length,
+    all: requests.length,
+    pending: requests.filter((r) => r.status === "pending").length,
     accepted: requests.filter((r) => r.status === "accepted").length,
     rejected: requests.filter((r) => r.status === "rejected").length,
-    referred: requests.filter((r) => r.status === "referred").length, // ✅ new
+    referred: requests.filter((r) => r.status === "referred").length,
   };
 
-  if (loading) {
+  // ✅ Only show full-page spinner on very first load
+  if (loading && initialLoad) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
@@ -99,21 +108,19 @@ const RequestsTab = () => {
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${
-                activeTab === tab.key
+              className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${activeTab === tab.key
                   ? "text-blue-900 border-b-2 border-blue-900 bg-blue-50/50"
                   : "text-slate-400 hover:text-slate-600"
-              }`}
+                }`}
             >
               {tab.label}
               {counts[tab.key] > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  activeTab === tab.key
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === tab.key
                     ? "bg-blue-900 text-white"
                     : tab.key === "referred"
-                    ? "bg-violet-100 text-violet-600"  // ✅ violet badge for referred
-                    : "bg-slate-100 text-slate-500"
-                }`}>
+                      ? "bg-violet-100 text-violet-600"
+                      : "bg-slate-100 text-slate-500"
+                  }`}>
                   {counts[tab.key]}
                 </span>
               )}
@@ -126,7 +133,7 @@ const RequestsTab = () => {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             </div>
             <p className="text-sm font-bold text-slate-700">
@@ -136,10 +143,10 @@ const RequestsTab = () => {
               {activeTab === "pending"
                 ? "You'll see new requests here when mentees reach out."
                 : activeTab === "referred"
-                ? "Requests you've referred to other mentors will appear here."
-                : activeTab === "all"
-                ? "When mentees send you connect requests, they'll appear here."
-                : `No requests have been ${activeTab} yet.`}
+                  ? "Requests you've referred to other mentors will appear here."
+                  : activeTab === "all"
+                    ? "When mentees send you connect requests, they'll appear here."
+                    : `No requests have been ${activeTab} yet.`}
             </p>
           </div>
         ) : (

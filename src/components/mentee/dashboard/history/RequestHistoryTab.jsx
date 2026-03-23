@@ -1,5 +1,6 @@
 // src/components/mentee/dashboard/history/RequestHistoryTab.jsx
 import useRequestHistory from "../../../../hooks/useRequestHistory";
+import useSocketToast from "../../../../hooks/useSocketToast"; // ✅
 import { TABS } from "./constants";
 import HistoryTable from "./HistoryTable";
 import DetailDrawer from "./DetailDrawer";
@@ -11,7 +12,11 @@ const RequestHistoryTab = () => {
     selected, setSelected,
     deleteRequest,
     updateRequest,
+    fetchRequests, // ✅
   } = useRequestHistory();
+
+  // ✅ Refetch mentee's request list in real-time when mentor accepts/rejects/refers
+  useSocketToast(fetchRequests);
 
   if (loading) {
     return (
@@ -47,16 +52,14 @@ const RequestHistoryTab = () => {
         {TABS.map((tab) => (
           <button key={tab.key} type="button"
             onClick={() => { setActiveTab(tab.key); setSelected(null); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${
-              activeTab === tab.key
+            className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${activeTab === tab.key
                 ? "text-blue-900 border-b-2 border-blue-900 bg-blue-50/50"
                 : "text-slate-400 hover:text-slate-600"
-            }`}>
+              }`}>
             {tab.label}
             {counts[tab.key] > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === tab.key ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500"
-              }`}>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === tab.key ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500"
+                }`}>
                 {counts[tab.key]}
               </span>
             )}
