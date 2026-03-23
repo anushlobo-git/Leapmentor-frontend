@@ -5,7 +5,7 @@ import { useToast } from "../context/ToastContext";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-const useSocketToast = () => {
+const useSocketToast = (onRequestChanged) => {  // ✅ added param
   const { showToast } = useToast();
   const socketRef = useRef(null);
 
@@ -14,11 +14,11 @@ const useSocketToast = () => {
     if (!token) return;
 
     const socket = io(BASE_URL, {
-      auth:                 { token },
-      reconnection:         true,
+      auth: { token },
+      reconnection: true,
       reconnectionAttempts: 10,
-      reconnectionDelay:    2000,
-      transports:           ["websocket", "polling"],
+      reconnectionDelay: 2000,
+      transports: ["websocket", "polling"],
     });
 
     socketRef.current = socket;
@@ -56,6 +56,11 @@ const useSocketToast = () => {
       showToast({ type: type || "info", title, message });
     });
 
+    // ✅ Triggers UI refetch on both dashboards when request status changes
+    socket.on("request_status_changed", (data) => {
+      if (onRequestChanged) onRequestChanged(data);
+    });
+
     // ✅ session_slots_updated is handled by useSessions via window.__leapSocket
     // No toast needed here — just real-time state sync
 
@@ -67,7 +72,7 @@ const useSocketToast = () => {
         window.__leapSocket = null;
       }
     };
-  }, []);
+  }, [onRequestChanged]); // ✅ added to dependency array
 };
 
 export default useSocketToast;
