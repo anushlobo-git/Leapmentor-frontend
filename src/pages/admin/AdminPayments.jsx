@@ -44,7 +44,6 @@ const TYPE_CONFIG = {
   escrow_hold:        { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Escrow"      },
   escrow_release:     { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout"      },
   escrow_refund:      { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Refund"      },
-  withdrawal:         { bg: "#fffbeb", color: "#d97706", border: "#fde68a", label: "Withdrawal"  },
   commission_deduct:  { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission"  },
   mentor_payout:      { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout"      },
   debit:              { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Debit"       },
@@ -280,10 +279,9 @@ const AdminPayments = () => {
 
   const TYPE_FILTERS = [
     { key: "",               label: "All"        },
-    { key: "credit",         label: "Commission" },
+    { key: "commission_deduct", label: "Commission" },
     { key: "escrow_release", label: "Payout"     },
     { key: "escrow_refund",  label: "Refund"     },
-    { key: "withdrawal",     label: "Withdrawal" },
     { key: "escrow_hold",    label: "Escrow"     },
   ];
 

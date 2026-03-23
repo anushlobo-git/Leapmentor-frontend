@@ -141,12 +141,6 @@ const SettingsTab = ({ profile, user, onMentorUpdate }) => {
             <BadgeCard key={badge.key} badge={badge} />
           ))}
         </div>
-        <button
-          type="button"
-          className="mt-4 text-xs font-semibold text-blue-900 hover:underline"
-        >
-          show more
-        </button>
       </div>
 
       {/* ── Account Settings ── */}

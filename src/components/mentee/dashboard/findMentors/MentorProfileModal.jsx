@@ -5,6 +5,13 @@ import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
 
+const BADGES = [
+  { key: "newcomer",     label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",        condition: () => true },
+  { key: "ten_sessions", label: "10 Sessions",  icon: "🎯", desc: "Completed 10 sessions",    condition: (p) => (p?.totalSessions || 0) >= 10 },
+  { key: "top_rated",    label: "Top Rated",    icon: "⭐", desc: "Achieved 4.5+ rating",     condition: (p) => (p?.avgRating || 0) >= 4.5 },
+  { key: "expert_guide", label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed",   condition: (p) => (p?.totalSessions || 0) >= 50 },
+];
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const formatTime = (time) => {
@@ -40,7 +47,7 @@ const StarRating = ({ rating, reviewCount }) => {
 
 const MAX_SLOTS = 5;
 
-// ── Slot Pill ─────────────────────────────────────────────────
+// ── Slot Pill 
 const SlotPill = ({ slot, group, selected, maxReached, onToggle }) => {
   const isDisabled = maxReached && !selected;
   return (
@@ -249,6 +256,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
     );
   }
 
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -348,6 +356,35 @@ const MentorProfileModal = ({ mentor, onClose }) => {
             </div>
           </div>
 
+
+{/* ── Badges ── */}
+<div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Badges</p>
+  <div className="flex gap-3 flex-wrap">
+    {badges.map((badge) => (
+      <div
+        key={badge.key}
+        title={badge.desc}
+        className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl border transition-all duration-200
+          ${badge.unlocked
+            ? "bg-amber-50 border-amber-200 shadow-sm"
+            : "bg-slate-50 border-slate-100 opacity-35 grayscale"
+          }`}
+      >
+        <span className="text-2xl">{badge.icon}</span>
+        <span className={`text-[10px] font-bold ${badge.unlocked ? "text-amber-700" : "text-slate-400"}`}>
+          {badge.label}
+        </span>
+        {badge.unlocked && (
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+{/* ── Details ── */}
+<div className="grid grid-cols-2 gap-x-6 gap-y-4"></div>
           {/* ── Details ── */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             {[
