@@ -5,15 +5,14 @@ import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const BADGES = [
   { key: "newcomer",     label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",        condition: () => true },
   { key: "ten_sessions", label: "10 Sessions",  icon: "🎯", desc: "Completed 10 sessions",    condition: (p) => (p?.totalSessions || 0) >= 10 },
   { key: "top_rated",    label: "Top Rated",    icon: "⭐", desc: "Achieved 4.5+ rating",     condition: (p) => (p?.avgRating || 0) >= 4.5 },
   { key: "expert_guide", label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed",   condition: (p) => (p?.totalSessions || 0) >= 50 },
 ];
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
 const formatTime = (time) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
@@ -47,7 +46,7 @@ const StarRating = ({ rating, reviewCount }) => {
 
 const MAX_SLOTS = 5;
 
-// ── Slot Pill 
+// ── Slot Pill ─────────────────────────────────────────────────
 const SlotPill = ({ slot, group, selected, maxReached, onToggle }) => {
   const isDisabled = maxReached && !selected;
   return (
@@ -125,8 +124,12 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
   const [lockError, setLockError] = useState("");
 
-  const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location } = mentor;
-  const initials = user?.name ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?";
+const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location, totalSessions } = mentor;
+
+const badges = BADGES.map((badge) => ({
+  ...badge,
+  unlocked: badge.condition({ avgRating, totalSessions }),
+}));  const initials = user?.name ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?";
 
   useEffect(() => {
     if (!mentor?.user?._id) return;
@@ -228,7 +231,6 @@ const MentorProfileModal = ({ mentor, onClose }) => {
     );
   }
 
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -312,8 +314,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
             </div>
           </div>
 
-
-{/* ── Badges ── */}
+          {/* ── Badges ── */}
 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Badges</p>
   <div className="flex gap-3 flex-wrap">
@@ -341,6 +342,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
 
 {/* ── Details ── */}
 <div className="grid grid-cols-2 gap-x-6 gap-y-4"></div>
+
           {/* ── Details ── */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             {[
