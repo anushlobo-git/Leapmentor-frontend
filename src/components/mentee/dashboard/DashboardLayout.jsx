@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import useMenteeDashboard from "../../../hooks/useMenteeDashboard";
 import useUnreadCount from "../../../hooks/useUnreadCount";
-import useSocketToast from "../../../hooks/useSocketToast";
+import useSocketToast from "../../../hooks/useSocketToast"; // ✅ added
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import HomeTab from "./HomeTab";
@@ -14,32 +14,25 @@ import MenteeConnectsTab from "./connects/MenteeConnectsTab";
 import MenteeSettingsTab from "./settings/MenteeSettingsTab";
 import HelpCenter from "../../common/HelpCenter";
 
-
-
-
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMenteeDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
   useSocketToast(); // ✅ listens for request_accepted, request_declined, request_referred
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   useEffect(() => {
     const handler = (e) => setActiveTab(e.detail);
     window.addEventListener("setDashboardTab", handler);
     return () => window.removeEventListener("setDashboardTab", handler);
   }, []);
-
   // ✅ Clear badge when notifications tab is opened
   useEffect(() => {
     if (activeTab === "notifications") clearBadge();
   }, [activeTab, clearBadge]);
-
   const handleSetTab = (tab) => {
     setActiveTab(tab);
     setSidebarOpen(false);
   };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -50,7 +43,6 @@ const DashboardLayout = () => {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -61,8 +53,6 @@ const DashboardLayout = () => {
       </div>
     );
   }
-
-
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -90,5 +80,4 @@ const DashboardLayout = () => {
     </div>
   );
 };
-
 export default DashboardLayout;
