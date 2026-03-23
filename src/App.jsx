@@ -11,8 +11,6 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 // ── Auth pages ────────────────────────────────────────────────
 const RegisterMentee = lazy(() => import("./pages/RegisterMentee"));
 const RegisterMentor = lazy(() => import("./pages/RegisterMentor"));
-const RegisterBoth   = lazy(() => import("./pages/RegisterBoth"));
-const Login          = lazy(() => import("./pages/Login"));
 const LoginMentor    = lazy(() => import("./pages/LoginMentor"));
 const LoginMentee    = lazy(() => import("./pages/LoginMentee"));
 const VerifyEmail    = lazy(() => import("./pages/VerifyEmail"));
@@ -70,8 +68,6 @@ const App = () => {
           {/* ── Auth ──────────────────────────────────────── */}
           <Route path="/register/mentee"   element={<RegisterMentee />} />
           <Route path="/register/mentor"   element={<RegisterMentor />} />
-          <Route path="/register/both"     element={<RegisterBoth />} />
-          <Route path="/login"             element={<Login />} />
           <Route path="/login/mentor"      element={<LoginMentor />} />
           <Route path="/login/mentee"      element={<LoginMentee />} />
           <Route path="/verify-email"      element={<VerifyEmail />} />
