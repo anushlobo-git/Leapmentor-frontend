@@ -33,6 +33,10 @@ const useMentorSearch = () => {
 
       const params = new URLSearchParams();
 
+      // ── Send the search term as BOTH skill AND name ──────────
+      // Backend checks: skill → Atlas Search on skills/role/industry
+      //                 name  → regex on User.name
+      // Whichever matches returns results — union of both
       if (currentSkill.trim()) {
         params.set("skill", currentSkill.trim());
         params.set("name",  currentSkill.trim());
@@ -110,20 +114,10 @@ const useMentorSearch = () => {
     fetchMentors(skill, filters, 1, false);
   };
 
-  // ── ✅ NEW: update a single mentor in the list after settings save ──
-  const updateMentor = (updatedMentor) => {
-    setMentors((prev) =>
-      prev.map((m) =>
-        m.user._id === updatedMentor.user._id ? { ...m, ...updatedMentor } : m
-      )
-    );
-  };
-
   return {
     skill, filters, mentors, loading, loadingMore,
     error, hasSearched, hasMore, totalCount,
     setSkill, updateFilter, resetFilters, loadMore, searchMentors,
-    updateMentor, // ✅ NEW
   };
 };
 

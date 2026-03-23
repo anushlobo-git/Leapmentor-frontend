@@ -111,33 +111,6 @@ const SelectedSlotRow = ({ slot, index, onRemove }) => (
 
 // ── Main Modal ────────────────────────────────────────────────
 const MentorProfileModal = ({ mentor, onClose }) => {
-
-  // ✅ FIX: always fetch fresh profile when modal opens so latest hourlyRate shows
-  const [freshMentor, setFreshMentor] = useState(mentor);
-  const [fetchingProfile, setFetchingProfile] = useState(true);
-
-  useEffect(() => {
-    const fetchFreshProfile = async () => {
-      try {
-        setFetchingProfile(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${BASE_URL}/api/mentor-profile/${mentor.user._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        // merge so user._id and other joined fields are preserved
-        setFreshMentor((prev) => ({ ...prev, ...res.data }));
-      } catch (err) {
-        // silently fall back to prop data if fetch fails
-        setFreshMentor(mentor);
-      } finally {
-        setFetchingProfile(false);
-      }
-    };
-
-    fetchFreshProfile();
-  }, [mentor.user._id]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const [groupedSlots, setGroupedSlots] = useState([]);
   const [availableDurations, setAvailableDurations] = useState([60]);
   const [selectedDuration, setSelectedDuration] = useState(60);
@@ -152,8 +125,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
   const [lockError, setLockError] = useState("");
 
-  // ✅ FIX: destructure from freshMentor instead of mentor
-  const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location } = freshMentor;
+  const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location } = mentor;
   const initials = user?.name ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?";
 
   useEffect(() => {
@@ -265,11 +237,9 @@ const MentorProfileModal = ({ mentor, onClose }) => {
         <div className="flex items-start justify-between p-6 pb-5">
           <div className="flex items-center gap-4">
 
-            {/* ✅ show skeleton while fetching fresh profile */}
+            {/* Profile picture with green online dot */}
             <div className="relative shrink-0">
-              {fetchingProfile ? (
-                <div className="w-20 h-20 rounded-full bg-slate-100 animate-pulse" />
-              ) : profilePicture ? (
+              {profilePicture ? (
                 <img
                   src={profilePicture}
                   alt={user?.name}
@@ -280,35 +250,27 @@ const MentorProfileModal = ({ mentor, onClose }) => {
                   {initials}
                 </div>
               )}
+              {/* Online indicator */}
               <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm" />
             </div>
 
             {/* Name / role / bio / location */}
             <div className="flex-1 min-w-0">
-              {fetchingProfile ? (
-                <div className="space-y-2">
-                  <div className="h-5 w-36 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-4 w-48 bg-slate-100 rounded animate-pulse" />
+              <h2 className="text-xl font-bold text-slate-800 leading-tight">{user?.name || "—"}</h2>
+              <p className="text-sm text-blue-700 font-semibold mt-0.5">
+                {currentRole}{company ? ` at ${company}` : ""}
+              </p>
+              {bio && (
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed line-clamp-3">{bio}</p>
+              )}
+              {location && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span className="text-xs text-slate-400">{location}</span>
                 </div>
-              ) : (
-                <>
-                  <h2 className="text-xl font-bold text-slate-800 leading-tight">{user?.name || "—"}</h2>
-                  <p className="text-sm text-blue-700 font-semibold mt-0.5">
-                    {currentRole}{company ? ` at ${company}` : ""}
-                  </p>
-                  {bio && (
-                    <p className="text-xs text-slate-500 mt-1.5 leading-relaxed line-clamp-3">{bio}</p>
-                  )}
-                  {location && (
-                    <div className="flex items-center gap-1 mt-1.5">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      <span className="text-xs text-slate-400">{location}</span>
-                    </div>
-                  )}
-                </>
               )}
             </div>
           </div>
@@ -332,9 +294,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
             {/* Hourly Rate */}
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Hourly Rate</p>
-              {fetchingProfile ? (
-                <div className="h-10 w-24 bg-slate-100 rounded animate-pulse" />
-              ) : hourlyRate ? (
+              {hourlyRate ? (
                 <p className="font-black text-slate-800 leading-none flex items-end gap-0.5">
                   <span className="text-xl font-bold text-slate-500 mb-0.5">$</span>
                   <span className="text-4xl">{hourlyRate}</span>
@@ -348,11 +308,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
             {/* Rating */}
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Rating</p>
-              {fetchingProfile ? (
-                <div className="h-6 w-28 bg-slate-100 rounded animate-pulse" />
-              ) : (
-                <StarRating rating={avgRating} reviewCount={reviewCount} />
-              )}
+              <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
           </div>
 
@@ -395,11 +351,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
             ].map(({ label, value }) => (
               <div key={label}>
                 <p className="text-xs text-slate-400 font-medium">{label}</p>
-                {fetchingProfile ? (
-                  <div className="h-4 w-24 bg-slate-100 rounded animate-pulse mt-1" />
-                ) : (
-                  <p className="text-sm font-bold text-slate-700 mt-0.5">{value || "—"}</p>
-                )}
+                <p className="text-sm font-bold text-slate-700 mt-0.5">{value || "—"}</p>
               </div>
             ))}
           </div>

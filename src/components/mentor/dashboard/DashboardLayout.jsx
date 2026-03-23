@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import useMentorDashboard from "../../../hooks/useMentorDashboard";
 import useUnreadCount from "../../../hooks/useUnreadCount";
-import useSocketToast from "../../../hooks/useSocketToast";
+import useSocketToast from "../../../hooks/useSocketToast"; // ✅ added
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import MentorHomeTab from "./MentorHomeTab";
@@ -13,16 +13,16 @@ import MentorConnectsTab from "./connects/MentorConnectsTab";
 import NotificationsTab from "./notifications/NotificationsTab";
 import SettingsTab from "./settings/SettingsTab";
 import TrackEarningsTab from "./earnings/TrackEarningsTab";
-import HelpCenter from "../../common/HelpCenter";
+import HelpCenter from "../../common/HelpCenter"; // ✅ added
 
 const DashboardLayout = () => {
-  // ✅ destructure setProfile from the hook
-  const { user, profile, setProfile, loading, error } = useMentorDashboard();
+  const { user, profile, loading, error } = useMentorDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
-  useSocketToast();
+  useSocketToast(); // ✅ listens for new_connect_request
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // ✅ Clear badge when notifications tab is opened
   useEffect(() => {
     if (activeTab === "notifications") clearBadge();
   }, [activeTab, clearBadge]);
@@ -30,12 +30,6 @@ const DashboardLayout = () => {
   const handleSetTab = (tab) => {
     setActiveTab(tab);
     setSidebarOpen(false);
-  };
-
-  // ✅ NEW: called by SettingsTab after a successful save
-  // updates the dashboard-level profile state so all tabs see fresh data instantly
-  const handleProfileUpdate = (updatedProfile) => {
-    setProfile((prev) => ({ ...prev, ...updatedProfile }));
   };
 
   if (loading) {
@@ -60,6 +54,8 @@ const DashboardLayout = () => {
     );
   }
 
+  
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} />
@@ -78,15 +74,10 @@ const DashboardLayout = () => {
           {activeTab === "requests"      && <RequestsTab />}
           {activeTab === "connects"      && <MentorConnectsTab />}
           {activeTab === "notifications" && <NotificationsTab />}
-          {activeTab === "settings"      && (
-            <SettingsTab
-              profile={profile}
-              user={user}
-              onMentorUpdate={handleProfileUpdate} // ✅ NEW: passed here
-            />
-          )}
-          {activeTab === "earnings"      && <TrackEarningsTab />}
-          {activeTab === "help"          && <HelpCenter />}
+          {activeTab === "settings"      && <SettingsTab profile={profile} user={user} />}
+          {activeTab === "earnings" && <TrackEarningsTab />}
+          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
+          
         </main>
       </div>
     </div>
