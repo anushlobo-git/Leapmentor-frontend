@@ -32,6 +32,11 @@ const useGoals = (connectRequestId) => {
 
   const { showToast } = useToast();
 
+  // ✅ FIX: Store showToast in a ref so the socket useEffect doesn't
+  // re-run every time showToast gets a new reference from context.
+  const showToastRef = useRef(showToast);
+  useEffect(() => { showToastRef.current = showToast; }, [showToast]);
+
   // ── Fetch goal + milestones ───────────────────────────────
   const fetchGoal = useCallback(async () => {
     if (!connectRequestId) return;
@@ -82,7 +87,7 @@ const useGoals = (connectRequestId) => {
       }
       setGoal(goal);
       setMilestones([]);
-      showToast({ type: "success", title: "Goal Set!", message: `"${goal.title}"` });
+      showToastRef.current({ type: "success", title: "Goal Set!", message: `"${goal.title}"` });
     });
 
     // ✅ goal_updated — skip if we triggered it
@@ -92,7 +97,7 @@ const useGoals = (connectRequestId) => {
         return;
       }
       setGoal(goal);
-      showToast({ type: "info", title: "Goal Updated", message: `"${goal.title}"` });
+      showToastRef.current({ type: "info", title: "Goal Updated", message: `"${goal.title}"` });
     });
 
     // ✅ milestone_added — skip if we triggered it
@@ -102,7 +107,7 @@ const useGoals = (connectRequestId) => {
         return;
       }
       setMilestones((prev) => [...prev, milestone]);
-      showToast({ type: "info", title: "Milestone Added", message: `"${milestone.title}"` });
+      showToastRef.current({ type: "info", title: "Milestone Added", message: `"${milestone.title}"` });
     });
 
     // ✅ milestone_updated — skip if we triggered it
@@ -114,7 +119,7 @@ const useGoals = (connectRequestId) => {
       setMilestones((prev) =>
         prev.map((m) => m._id === milestone._id ? milestone : m)
       );
-      showToast({
+      showToastRef.current({
         type: milestone.isCompleted ? "success" : "warning",
         title: milestone.isCompleted ? "Milestone Completed!" : "Milestone Reopened",
         message: `"${milestone.title}"`,
@@ -128,7 +133,7 @@ const useGoals = (connectRequestId) => {
         return;
       }
       setMilestones((prev) => prev.filter((m) => m._id !== milestoneId));
-      showToast({ type: "warning", title: "Milestone Removed", message: "A milestone was deleted" });
+      showToastRef.current({ type: "warning", title: "Milestone Removed", message: "A milestone was deleted" });
     });
 
     socket.on("connect_error", (err) => {
@@ -139,7 +144,7 @@ const useGoals = (connectRequestId) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [connectRequestId]);
+  }, [connectRequestId]); // ✅ Only connectRequestId — showToast no longer causes re-runs
 
   // ── Create goal ───────────────────────────────────────────
   const createGoal = useCallback(async ({ title, description, startDate, endDate }) => {

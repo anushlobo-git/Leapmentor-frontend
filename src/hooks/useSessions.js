@@ -23,10 +23,11 @@ const useSessions = (connectRequestId, onAllComplete) => {
     if (data.progress       !== undefined) setProgress(data.progress);
   }, []);
 
-  const fetchSlots = useCallback(async () => {
+  // ✅ silent=true → no loading spinner (used for background polls)
+  const fetchSlots = useCallback(async (silent = false) => {
     if (!connectRequestId) return;
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
       const res = await axios.get(
         `${BASE_URL}/api/sessions/${connectRequestId}/slots`,
@@ -36,14 +37,14 @@ const useSessions = (connectRequestId, onAllComplete) => {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load sessions.");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [connectRequestId, applySlotUpdate]);
 
+  // Initial fetch — shows loading skeleton once
   useEffect(() => { fetchSlots(); }, [fetchSlots]);
 
   // ✅ Listen on the SHARED global socket (window.__leapSocket)
-  // so we don't create a competing socket that overwrites userSockets map
   useEffect(() => {
     if (!connectRequestId) return;
 
@@ -58,7 +59,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
       }
     };
 
-    // ✅ Register listener on the shared global socket
     const waitForSocket = setInterval(() => {
       if (window.__leapSocket?.connected) {
         window.__leapSocket.on("session_slots_updated", handleSlotUpdate);
@@ -73,10 +73,10 @@ const useSessions = (connectRequestId, onAllComplete) => {
     };
   }, [connectRequestId, applySlotUpdate, onAllComplete]);
 
-  // ✅ Fallback polling every 30s
+  // ✅ Silent background poll every 30s — no loading flash
   useEffect(() => {
     if (!connectRequestId) return;
-    const interval = setInterval(fetchSlots, 30000);
+    const interval = setInterval(() => fetchSlots(true), 30000);
     return () => clearInterval(interval);
   }, [connectRequestId, fetchSlots]);
 
