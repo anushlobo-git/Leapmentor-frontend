@@ -78,7 +78,7 @@ const PreferenceRow = ({ title, desc, checked, onChange }) => (
 );
 
 // ── Main SettingsTab ──────────────────────────────────────
-const SettingsTab = ({ profile, user }) => {
+const SettingsTab = ({ profile }) => {
   const {
     fetching,
     saving,
@@ -139,12 +139,6 @@ const SettingsTab = ({ profile, user }) => {
             <BadgeCard key={badge.key} badge={badge} />
           ))}
         </div>
-        <button
-          type="button"
-          className="mt-4 text-xs font-semibold text-blue-900 hover:underline"
-        >
-          show more
-        </button>
       </div>
 
       {/* ── Account Settings ── */}
