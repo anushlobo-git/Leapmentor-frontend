@@ -68,7 +68,7 @@ const DashboardLayout = () => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile}/>}
+          {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab}/>}
           {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
           {activeTab === "availability"  && <AvailabilityTab />}
           {activeTab === "requests"      && <RequestsTab />}

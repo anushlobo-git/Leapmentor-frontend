@@ -76,7 +76,7 @@ const TimezoneDurationSection = ({ timezone, sessionDurations, updateTimezone, t
             );
           })}
         </div>
-        <p className="text-xs font-medium text-slate-500 mt-2">
+        <p className="text-xs font-medium text-slate-800 mt-2">
           Select the session lengths you want to offer mentees.
         </p>
       </div>
