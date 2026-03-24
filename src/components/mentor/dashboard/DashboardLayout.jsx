@@ -16,7 +16,7 @@ import TrackEarningsTab from "./earnings/TrackEarningsTab";
 import HelpCenter from "../../common/HelpCenter"; // ✅ added
 
 const DashboardLayout = () => {
-  const { user, profile, loading, error } = useMentorDashboard();
+  const { user, profile, loading, error,refetchProfile } = useMentorDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
   useSocketToast(); // ✅ listens for new_connect_request
   const [activeTab, setActiveTab] = useState("home");
@@ -68,7 +68,7 @@ const DashboardLayout = () => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} />}
+          {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile}/>}
           {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
           {activeTab === "availability"  && <AvailabilityTab />}
           {activeTab === "requests"      && <RequestsTab />}

@@ -17,6 +17,19 @@ const useMentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const refetchProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${BASE_URL}/api/mentor-profile/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setProfile(res.data);
+  } catch (err) {
+    console.error("Profile refetch failed:", err.message);
+  }
+};
+
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -82,7 +95,7 @@ const useMentorDashboard = () => {
     fetchData();
   }, [navigate, location.pathname]); // ✅ FIXED: added location.pathname
 
-  return { user, profile, loading, error };
+  return { user, profile, loading, error ,refetchProfile};
 };
 
 export default useMentorDashboard;
