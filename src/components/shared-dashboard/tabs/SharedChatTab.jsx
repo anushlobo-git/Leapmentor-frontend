@@ -63,7 +63,7 @@ const Avatar = ({ name, picture, size = 32 }) => {
 const ChatHeader = ({ name, picture, otherOnline }) => (
   <div style={{
     display: "flex", alignItems: "center", gap: "10px",
-    padding: "14px 16px", borderBottom: "1px solid #f1f5f9",
+    padding: "14px 20px", borderBottom: "1px solid #f1f5f9",
     backgroundColor: "white", flexShrink: 0,
   }}>
     <div style={{ position: "relative" }}>
@@ -244,7 +244,7 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
   return (
     <div style={{
       display: "flex", alignItems: "flex-end", gap: "10px",
-      padding: "12px 16px", borderTop: "1px solid #f1f5f9",
+      padding: "12px 20px", borderTop: "1px solid #f1f5f9",
       backgroundColor: "white", flexShrink: 0,
     }}>
       <textarea
@@ -301,7 +301,7 @@ const SharedChatTab = ({ connect }) => {
   const prevScrollHeight   = useRef(0);
 
   // ── Determine other person ──────────────────────────────
-  const viewerRole   = connect?.viewerRole;
+  const viewerRole = connect?.viewerRole;
   const myId = viewerRole === "mentee"
     ? connect?.mentee?._id?.toString()
     : connect?.mentor?._id?.toString();
@@ -361,7 +361,11 @@ const SharedChatTab = ({ connect }) => {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "400px" }}>
+      <div style={{
+        // Fills parent flex container while loading
+        flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+        minHeight: "400px",
+      }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
           <div style={{
             width: "32px", height: "32px", borderRadius: "50%",
@@ -376,9 +380,38 @@ const SharedChatTab = ({ connect }) => {
   }
 
   return (
+    /*
+      KEY LAYOUT CHANGES vs original:
+      ─────────────────────────────────────────────────────────────
+      1. Removed fixed `height: "calc(100vh - 120px)"` — this was
+         the main culprit for clipping or not filling properly.
+         Replaced with `flex: 1` so it stretches to fill whatever
+         height the parent content area provides.
+
+      2. Added `width: "100%"` — ensures full horizontal stretch
+         with no dead whitespace on the right.
+
+      3. `minHeight: 0` on the outer div — critical for nested flex
+         children to scroll correctly inside a flex parent. Without
+         this, the browser won't constrain the height and the
+         messages area won't scroll; it'll overflow instead.
+
+      4. Padding on header/input bumped from 16px → 20px horizontal
+         to match a balanced 20px breathing room on all sides,
+         consistent with industry-standard chat UIs (Slack, Linear).
+
+      Your parent layout (the content area wrapper) should be:
+        display: "flex", flexDirection: "column", height: "100%"
+      or using Tailwind: className="flex flex-col h-full"
+      so this component's `flex: 1` has something to expand into.
+      ─────────────────────────────────────────────────────────────
+    */
     <div style={{
-      display: "flex", flexDirection: "column",
-      height: "calc(100vh - 120px)",
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,           // ← fills all available height from parent
+      width: "100%",     // ← fills all available width — no right dead zone
+      minHeight: 0,      // ← essential: lets flex children scroll correctly
       backgroundColor: "white",
       border: "1px solid #e2e8f0",
       borderRadius: "20px",
@@ -397,16 +430,20 @@ const SharedChatTab = ({ connect }) => {
       )}
 
       <div ref={scrollContainerRef} style={{
-        flex: 1, overflowY: "auto", padding: "16px",
-        display: "flex", flexDirection: "column",
+        flex: 1,
+        overflowY: "auto",
+        padding: "16px 20px",   // ← balanced 20px horizontal padding
+        display: "flex",
+        flexDirection: "column",
         backgroundColor: "#f8fafc",
+        minHeight: 0,            // ← same fix at scroll container level
       }}>
         {hasMore && <LoadMoreButton onClick={handleLoadMore} loading={loadingMore} />}
         {messages.length === 0 && <EmptyState otherName={otherName} />}
 
         {messages.map((msg, index) => {
-          const prev        = messages[index - 1];
-          const showSep     = !prev || !isSameDay(prev.createdAt, msg.createdAt);
+          const prev    = messages[index - 1];
+          const showSep = !prev || !isSameDay(prev.createdAt, msg.createdAt);
           return (
             <div key={msg._id}>
               {showSep && <DateSeparator dateStr={msg.createdAt} />}

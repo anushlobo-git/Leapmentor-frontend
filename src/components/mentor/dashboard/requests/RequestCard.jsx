@@ -4,7 +4,6 @@ import ReferredByProfileModal from "./ReferredByProfileModal";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "—";
-  // Handle both ISO timestamps and YYYY-MM-DD strings
   const d = dateStr.includes("T") ? new Date(dateStr) : new Date(dateStr + "T00:00:00");
   if (isNaN(d)) return "—";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -18,16 +17,21 @@ const formatTime = (time) => {
   return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
-const STATUS_STYLES = {
-  pending:  "bg-amber-50 text-amber-600 border-amber-200",
-  accepted: "bg-emerald-50 text-emerald-600 border-emerald-200",
-  rejected: "bg-red-50 text-red-500 border-red-200",
-  referred: "bg-violet-50 text-violet-600 border-violet-200",
+const STATUS_CONFIG = {
+  pending:   { label: "Pending",   badge: "bg-blue-100   text-blue-800   border-blue-300",    dot: "bg-blue-500"    },
+  accepted:  { label: "Accepted",  badge: "bg-emerald-100 text-emerald-800 border-emerald-300", dot: "bg-emerald-500" },
+  ongoing:   { label: "Ongoing",   badge: "bg-indigo-100 text-indigo-800  border-indigo-300",  dot: "bg-indigo-500"  },
+  rejected:  { label: "Rejected",  badge: "bg-red-100    text-red-700     border-red-300",     dot: "bg-red-500"     },
+  referred:  { label: "Referred",  badge: "bg-violet-100 text-violet-800  border-violet-300",  dot: "bg-violet-500"  },
+  completed: { label: "Completed", badge: "bg-slate-100  text-slate-700   border-slate-300",   dot: "bg-slate-500"   },
 };
+
+const getCfg = (s) => STATUS_CONFIG[s] || STATUS_CONFIG.pending;
 
 // ── Slots Detail Modal ────────────────────────────────────────
 const SlotsModal = ({ request, onClose }) => {
   const { mentee, selectedSlots = [], confirmedSlot, status, message, requestedAt } = request;
+  const cfg      = getCfg(status);
   const initials = mentee?.name
     ? mentee.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
@@ -36,72 +40,61 @@ const SlotsModal = ({ request, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 
-        {/* Header */}
-        <div className="flex items-start justify-between p-6 pb-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-blue-900 flex items-center justify-center text-white text-lg font-bold shrink-0">
-              {initials}
+        {/* Top strip — lightened to blue-50 with a blue-200 border bottom */}
+        <div className="bg-blue-50 border-b border-blue-100 rounded-t-3xl px-6 pt-6 pb-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center text-blue-700 text-base font-bold shrink-0">
+                {initials}
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-800">{mentee?.name || "—"}</h2>
+                <p className="text-sm text-slate-500">{mentee?.email}</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">{mentee?.name || "—"}</h2>
-              <p className="text-xs text-slate-400 mt-0.5">{mentee?.email}</p>
-              <span className={`inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border capitalize ${STATUS_STYLES[status] || STATUS_STYLES.pending}`}>
-                {status}
-              </span>
-            </div>
+            <button type="button" onClick={onClose}
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
-          <button type="button" onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
         </div>
 
-        <div className="px-6 pb-6 space-y-5">
+        <div className="px-6 pb-6 pt-5 space-y-4">
 
           {/* Message */}
           {message && (
-            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-              <p className="text-xs font-bold text-blue-900 uppercase tracking-wide mb-1.5">Message</p>
-              <p className="text-sm text-slate-600 leading-relaxed italic">"{message}"</p>
+            <div className="bg-slate-50 border-l-4 border-blue-400 rounded-r-xl px-4 py-3">
+              <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1">Message</p>
+              <p className="text-sm text-slate-600 leading-relaxed">"{message}"</p>
             </div>
           )}
 
-          {/* ✅ Referral info inside modal */}
+          {/* Referral info */}
           {request.referredBy && (
-            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4">
-              <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1.5">Referred By</p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 text-xs font-bold shrink-0">
-                  {request.referredBy?.name
-                    ? request.referredBy.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-                    : "?"}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">{request.referredBy?.name || "—"}</p>
-                  {request.referredBy?.email && (
-                    <p className="text-xs text-slate-400">{request.referredBy.email}</p>
-                  )}
-                </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-300 flex items-center justify-center text-amber-900 text-xs font-bold shrink-0">
+                {request.referredBy?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?"}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-amber-800">Referred by {request.referredBy?.name}</p>
+                {request.referredBy?.email && (
+                  <p className="text-xs text-amber-600">{request.referredBy.email}</p>
+                )}
               </div>
             </div>
           )}
 
-          {/* Confirmed slot (accepted) */}
+          {/* Confirmed slot */}
           {status === "accepted" && confirmedSlot && (
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Confirmed Session</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Confirmed Session</p>
               <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                  <span className="text-sm font-semibold text-emerald-700">
-                    {confirmedSlot.day}, {formatDate(confirmedSlot.date)}
-                  </span>
-                </div>
-                <span className="text-sm font-bold text-emerald-600">
+                <span className="text-sm font-semibold text-emerald-800">
+                  {confirmedSlot.day}, {formatDate(confirmedSlot.date)}
+                </span>
+                <span className="text-sm font-bold text-emerald-700">
                   {formatTime(confirmedSlot.startTime)} – {formatTime(confirmedSlot.endTime)}
                 </span>
               </div>
@@ -110,10 +103,10 @@ const SlotsModal = ({ request, onClose }) => {
 
           {/* All proposed slots */}
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">
-              {status === "accepted" ? "All Proposed Slots" : "Proposed Session Times"}
-              <span className="ml-2 text-blue-500 normal-case font-semibold">
-                {selectedSlots.length} slot{selectedSlots.length > 1 ? "s" : ""}
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+              Proposed Slots
+              <span className="ml-1.5 text-blue-600 normal-case font-semibold">
+                ({selectedSlots.length})
               </span>
             </p>
             <div className="space-y-2">
@@ -121,14 +114,14 @@ const SlotsModal = ({ request, onClose }) => {
                 <div key={i}
                   className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-900 text-[10px] font-black flex items-center justify-center shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] font-black flex items-center justify-center shrink-0">
                       {i + 1}
                     </span>
                     <span className="text-sm font-semibold text-slate-700">
                       {slot.day}, {formatDate(slot.date)}
                     </span>
                   </div>
-                  <span className="text-sm font-bold text-blue-900">
+                  <span className="text-sm font-bold text-blue-700">
                     {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
                   </span>
                 </div>
@@ -136,14 +129,12 @@ const SlotsModal = ({ request, onClose }) => {
             </div>
           </div>
 
-          {/* Requested on */}
           <p className="text-xs text-slate-400 text-center">
             Requested on {formatDate(requestedAt)}
           </p>
 
-          {/* Close */}
           <button type="button" onClick={onClose}
-            className="w-full py-3 rounded-2xl border-2 border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all duration-150">
+            className="w-full py-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all">
             Close
           </button>
         </div>
@@ -152,167 +143,166 @@ const SlotsModal = ({ request, onClose }) => {
   );
 };
 
-// ── Request Card ──────────────────────────────────────────────
+// ── Main Request Card ─────────────────────────────────────────
 const RequestCard = ({ request, onViewProfile }) => {
-  const [showSlots, setShowSlots]                         = useState(false);
-  const [showReferredByProfile, setShowReferredByProfile] = useState(false); // ✅ NEW
+  const [showSlots,             setShowSlots]             = useState(false);
+  const [showReferredByProfile, setShowReferredByProfile] = useState(false);
 
   const { mentee, message, selectedSlots = [], confirmedSlot, status, requestedAt } = request;
+
+  const cfg       = getCfg(status);
+  const isPending = status === "pending";
 
   const initials = mentee?.name
     ? mentee.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
 
-  const displaySlot = status === "accepted" && confirmedSlot
-    ? confirmedSlot
-    : selectedSlots[0];
+  const displaySlot = isPending
+    ? selectedSlots[0]
+    : (confirmedSlot || selectedSlots[0]);
 
   const extraSlots = selectedSlots.length - 1;
 
-  // ✅ NEW — build object for ReferredByProfileModal
-  const referredByMentor = request.referredBy
-    ? {
-        name:              request.referredBy.name              || "",
-        email:             request.referredBy.email             || "",
-        currentRole:       request.referredByProfile?.currentRole       || "",
-        company:           request.referredByProfile?.company           || "",
-        industry:          request.referredByProfile?.industry          || "",
-        bio:               request.referredByProfile?.bio               || "",
-        hourlyRate:        request.referredByProfile?.hourlyRate        || null,
-        avgRating:         request.referredByProfile?.avgRating         || 0,
-        yearsOfExperience: request.referredByProfile?.yearsOfExperience || null,
-        profilePicture:    request.referredByProfile?.profilePicture    || null,
-        skills:            request.referredByProfile?.skills            || [],
-      }
-    : null;
+  const referredByMentor = request.referredBy ? {
+    name:              request.referredBy.name                      || "",
+    email:             request.referredBy.email                     || "",
+    currentRole:       request.referredByProfile?.currentRole       || "",
+    company:           request.referredByProfile?.company           || "",
+    industry:          request.referredByProfile?.industry          || "",
+    bio:               request.referredByProfile?.bio               || "",
+    hourlyRate:        request.referredByProfile?.hourlyRate        || null,
+    avgRating:         request.referredByProfile?.avgRating         || 0,
+    yearsOfExperience: request.referredByProfile?.yearsOfExperience || null,
+    profilePicture:    request.referredByProfile?.profilePicture    || null,
+    skills:            request.referredByProfile?.skills            || [],
+  } : null;
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4 hover:shadow-md transition-shadow duration-150">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col">
 
-        {/* Top row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-blue-900 flex items-center justify-center text-white text-sm font-bold shrink-0">
-              {initials}
+        {/* ── Soft blue header — light background, dark text ── */}
+        <div className="bg-blue-50 border-b border-blue-100 px-5 pt-5 pb-4">
+          <div className="flex items-center justify-between gap-2">
+
+            {/* Avatar + Name + Email */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-11 h-11 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center text-blue-700 text-sm font-bold shrink-0">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <p className="text-base font-bold text-slate-800 truncate leading-snug">
+                  {mentee?.name || "—"}
+                </p>
+                <p className="text-sm text-slate-500 truncate mt-0.5">
+                  {mentee?.email || "—"}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-bold text-slate-800">{mentee?.name || "—"}</p>
-              <p className="text-xs text-slate-400">{mentee?.email || "—"}</p>
-            </div>
+
+            {/* Status badge */}
+            <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shrink-0 ${cfg.badge}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+              {cfg.label}
+            </span>
+
           </div>
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full border capitalize shrink-0 ${STATUS_STYLES[status] || STATUS_STYLES.pending}`}>
-            {status}
-          </span>
         </div>
 
-        {/* Slot display + extra slots badge */}
-        {displaySlot && (
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-              <p className="text-xs font-semibold text-blue-700">
-                {displaySlot.day}, {formatDate(displaySlot.date)} · {formatTime(displaySlot.startTime)} – {formatTime(displaySlot.endTime)}
-              </p>
-            </div>
-            {/* Extra slots badge */}
-            {extraSlots > 0 && status === "pending" && (
-              <button
-                type="button"
-                onClick={() => setShowSlots(true)}
-                className="shrink-0 w-8 h-8 rounded-xl bg-blue-900 text-white text-xs font-black flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
-                title={`${extraSlots} more slot${extraSlots > 1 ? "s" : ""}`}
-              >
-                +{extraSlots}
-              </button>
-            )}
-          </div>
-        )}
+        {/* ── Card body ── */}
+        <div className="px-5 pt-4 pb-5 flex flex-col gap-3 flex-1">
 
-        {/* Referred note — this mentor referred to someone else */}
-        {status === "referred" && (
-          <div className="flex items-center gap-2 bg-violet-50 border border-violet-100 rounded-xl px-3 py-2">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-            </svg>
-            <p className="text-xs text-violet-600 font-medium">Referred to another mentor</p>
-          </div>
-        )}
-
-        {/* ✅ NEW — Referred-by banner, clickable to view profile */}
-        {request.referredBy && (
-          <button
-            type="button"
-            onClick={() => setShowReferredByProfile(true)}
-            className="w-full flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 hover:bg-amber-100 transition-colors text-left"
-          >
-            <div className="w-7 h-7 rounded-full bg-amber-300 flex items-center justify-center text-amber-900 text-[10px] font-bold shrink-0">
-              {request.referredBy?.name
-                ? request.referredBy.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-                : "?"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-amber-700 font-medium leading-tight">
-                Referred by{" "}
-                <span className="font-bold">{request.referredBy?.name || "another mentor"}</span>
-              </p>
-              {request.referredByProfile?.currentRole && (
-                <p className="text-[10px] text-amber-500 truncate">
-                  {request.referredByProfile.currentRole}
-                  {request.referredByProfile.company ? ` · ${request.referredByProfile.company}` : ""}
+          {/* Slot chip — date + time */}
+          {displaySlot && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <p className="text-sm font-semibold text-slate-700 truncate">
+                  {displaySlot.day}, {formatDate(displaySlot.date)}
                 </p>
+              </div>
+              <div className="shrink-0 bg-slate-700 text-white text-sm font-bold px-3 py-2 rounded-lg whitespace-nowrap">
+                {formatTime(displaySlot.startTime)} – {formatTime(displaySlot.endTime)}
+              </div>
+              {extraSlots > 0 && isPending && (
+                <button type="button" onClick={() => setShowSlots(true)}
+                  className="shrink-0 h-8 px-2.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 transition-colors">
+                  +{extraSlots}
+                </button>
               )}
             </div>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-              <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-        )}
+          )}
 
-        {/* Message preview */}
-        {message && (
-          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed italic">"{message}"</p>
-        )}
-
-        {/* Requested date */}
-        <p className="text-xs text-slate-400">Requested on {formatDate(requestedAt)}</p>
-
-        {/* View + Respond buttons */}
-        <div className="flex gap-2 pt-1">
-          <button
-            type="button"
-            onClick={() => setShowSlots(true)}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition-all duration-150"
-          >
-            View Details
-          </button>
-          {status === "pending" && (
-            <button
-              type="button"
-              onClick={() => onViewProfile(request)}
-              className="flex-1 py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold hover:bg-blue-700 transition-all duration-150 shadow-sm shadow-blue-100"
-            >
-              Respond
+          {/* Referred by banner */}
+          {request.referredBy && (
+            <button type="button" onClick={() => setShowReferredByProfile(true)}
+              className="w-full flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 hover:bg-amber-100 transition-colors text-left">
+              <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                {request.referredBy?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?"}
+              </div>
+              <p className="text-sm text-amber-800 font-semibold flex-1 truncate">
+                Referred by <span className="font-bold">{request.referredBy?.name}</span>
+              </p>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#92400e" strokeWidth="2.5" strokeLinecap="round" className="shrink-0">
+                <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+              </svg>
             </button>
           )}
-        </div>
 
+          {/* Referred out */}
+          {status === "referred" && (
+            <div className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2.5">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+              </svg>
+              <p className="text-sm text-violet-700 font-semibold">Referred to another mentor</p>
+            </div>
+          )}
+
+          {/* Message preview */}
+          {message && (
+            <div className="border-l-2 border-slate-200 pl-3">
+              <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                "{message}"
+              </p>
+            </div>
+          )}
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Footer */}
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+            <p className="text-sm text-slate-500 font-semibold shrink-0">
+              {formatDate(requestedAt)}
+            </p>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => setShowSlots(true)}
+                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all whitespace-nowrap">
+                View Details
+              </button>
+              {isPending && (
+                <button type="button" onClick={() => onViewProfile(request)}
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
+                  Respond
+                </button>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* Slots detail modal */}
       {showSlots && (
-        <SlotsModal
-          request={request}
-          onClose={() => setShowSlots(false)}
-        />
+        <SlotsModal request={request} onClose={() => setShowSlots(false)} />
       )}
 
-      {/* ✅ NEW — Referred by profile modal */}
       {showReferredByProfile && referredByMentor && (
         <ReferredByProfileModal
           mentor={referredByMentor}
