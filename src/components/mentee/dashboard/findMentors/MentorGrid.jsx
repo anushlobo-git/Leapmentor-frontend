@@ -53,7 +53,7 @@ const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, total
   return (
     <div className="space-y-6">
       {/* Results count */}
-      <p className="text-xs text-slate-400 font-medium">
+      <p className="text-xs text-slate-700 font-medium">
         Showing <span className="text-slate-600 font-bold">{mentors.length}</span> of{" "}
         <span className="text-slate-600 font-bold">{totalCount}</span> mentors
       </p>

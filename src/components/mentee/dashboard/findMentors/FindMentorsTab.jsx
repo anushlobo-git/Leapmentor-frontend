@@ -29,7 +29,7 @@ return (
 {/* Header */}
 <div>
 <h1 className="text-2xl font-bold text-slate-800">Find Mentors</h1>
-<p className="text-sm text-slate-400 mt-0.5">
+<p className="text-sm text-blue-900 mt-0.5">
 Search by skill or name to find the right mentor for your goals.
 </p>
 </div>

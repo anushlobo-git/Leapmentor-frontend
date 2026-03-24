@@ -9,11 +9,11 @@ const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
-  const [mentors,  setMentors]  = useState([]);
+  const [mentors, setMentors] = useState([]);
   const [sessions, setSessions] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [balance,  setBalance]  = useState(0);
-  const [escrow,   setEscrow]   = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState(0);
+  const [escrow, setEscrow] = useState(0);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -26,7 +26,7 @@ const useHomeData = (profile) => {
           "";
 
         const mentorRes = await axios.get(`${BASE_URL}/api/mentors/search`, {
-          params:  { skill: skillTerm, limit: 3 },
+          params: { skill: skillTerm, limit: 3 },
           headers: authHeader(),
         });
         setMentors(mentorRes.data.mentors || []);
@@ -40,7 +40,7 @@ const useHomeData = (profile) => {
           .filter((r) => r.status === "accepted" || r.status === "ongoing")
           .sort((a, b) => {
             if (a.status === "ongoing" && b.status !== "ongoing") return -1;
-            if (a.status !== "ongoing" && b.status === "ongoing") return  1;
+            if (a.status !== "ongoing" && b.status === "ongoing") return 1;
             return 0;
           });
         setSessions(upcoming);
@@ -118,10 +118,10 @@ const calculateProfileCompletion = (profile) => {
 
 // ── Mentor Card ───────────────────────────────────────────────
 const MentorCard = ({ mentor, onViewProfile }) => {
-  const name     = mentor.user?.name || "Mentor";
+  const name = mentor.user?.name || "Mentor";
   const initials = getInitials(name);
   const avatarBg = getAvatarColor(name);
-  const skills   = mentor.skills?.slice(0, 2) || [];
+  const skills = mentor.skills?.slice(0, 2) || [];
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
@@ -140,9 +140,9 @@ const MentorCard = ({ mentor, onViewProfile }) => {
           )}
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-800 truncate">{name}</p>
-            <p className="text-xs text-slate-500 truncate">{mentor.currentRole}</p>
+            <p className="text-xs text-slate-800 truncate">{mentor.currentRole}</p>
             {mentor.company && (
-              <p className="text-xs text-slate-400 truncate">@ {mentor.company}</p>
+              <p className="text-xs text-slate-800 truncate">@ {mentor.company}</p>
             )}
           </div>
         </div>
@@ -167,7 +167,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
 
       <button
         onClick={() => onViewProfile(mentor)}
-        className="w-full bg-blue-900 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-xl transition-colors"
+        className="w-30 bg-blue-900 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-xl transition-colors"
       >
         View Profile
       </button>
@@ -195,15 +195,15 @@ const MentorCardSkeleton = () => (
 
 // ── Session Card ──────────────────────────────────────────────
 const SessionCard = ({ request, index, navigate }) => {
-  const slot      = request.confirmedSlot || request.selectedSlots?.[0];
-  const dateObj   = slot?.date ? new Date(slot.date + "T00:00:00") : null;
-  const dateNum   = dateObj ? dateObj.getDate().toString() : "—";
+  const slot = request.confirmedSlot || request.selectedSlots?.[0];
+  const dateObj = slot?.date ? new Date(slot.date + "T00:00:00") : null;
+  const dateNum = dateObj ? dateObj.getDate().toString() : "—";
   const dateMonth = dateObj
     ? dateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
     : "—";
   const mentorName = request.mentor?.name || "Mentor";
-  const timeStr    = formatSlotTime(slot);
-  const isOngoing  = request.status === "ongoing";
+  const timeStr = formatSlotTime(slot);
+  const isOngoing = request.status === "ongoing";
 
   const handleJoin = () => {
     if (isOngoing) navigate(`/shared-dashboard/${request._id}`);
@@ -229,7 +229,7 @@ const SessionCard = ({ request, index, navigate }) => {
             {isOngoing ? "Ongoing" : "Accepted"}
           </span>
         </div>
-        <p className="text-[10px] text-slate-400 truncate mt-0.5">
+        <p className="text-[10px] text-blue-900 truncate mt-0.5">
           {timeStr ? timeStr : "Time TBD"}
           {slot?.date ? ` · ${formatSlotDate(slot)}` : ""}
         </p>
@@ -278,7 +278,7 @@ const LeapPointsPanel = ({ balance, loading }) => (
     </div>
 
     {/* Current Balance label */}
-    <p className="text-xs text-slate-400 font-medium -mb-1">Current Balance</p>
+    <p className="text-xs text-blue-900 font-medium -mb-1">Current Balance</p>
 
     {/* Balance number + LP badge */}
     {loading ? (
@@ -309,11 +309,11 @@ const LeapPointsPanel = ({ balance, loading }) => (
 
 // ── Main HomeTab ──────────────────────────────────────────────
 const HomeTab = ({ user, profile }) => {
-  const navigate          = useNavigate();
-  const firstName         = user?.name?.split(" ")[0] || "there";
-  const isFirstLogin      = user?.isFirstLogin ?? false;
+  const navigate = useNavigate();
+  const firstName = user?.name?.split(" ")[0] || "there";
+  const isFirstLogin = user?.isFirstLogin ?? false;
   const profileCompletion = calculateProfileCompletion(profile);
-  const [selectedMentor,  setSelectedMentor] = useState(null);
+  const [selectedMentor, setSelectedMentor] = useState(null);
 
   const { mentors, sessions, loading, balance } = useHomeData(profile);
 
@@ -325,9 +325,9 @@ const HomeTab = ({ user, profile }) => {
         <div className="flex items-center justify-between gap-6 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
-              {isFirstLogin ? `Welcome, ${firstName}! 👋` : `Welcome back, ${firstName}! 👋`}
+              {isFirstLogin ? `Welcome, ${firstName}! 👋` : `Welcome , ${firstName}! 👋`}
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-blue-900 mt-1">
               {sessions.length > 0
                 ? `You have ${sessions.length} active session${sessions.length > 1 ? "s" : ""}.`
                 : "No active sessions yet. Find a mentor to get started!"}
@@ -347,7 +347,7 @@ const HomeTab = ({ user, profile }) => {
                   style={{ width: `${profileCompletion}%` }}
                 />
               </div>
-              <p className="text-xs text-slate-400 mt-1.5">
+              <p className="text-xs text-slate-600 mt-1.5">
                 {profileCompletion < 100
                   ? "Add more details to attract mentors"
                   : "Your profile is complete 🎉"}
@@ -368,7 +368,7 @@ const HomeTab = ({ user, profile }) => {
             <div>
               <h2 className="text-base font-semibold text-slate-700">Recommended Mentors</h2>
               {profile?.skills?.[0] && (
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5">
                   Based on your skill:{" "}
                   <span className="font-semibold text-blue-900">{profile.skills[0]}</span>
                 </p>
@@ -399,7 +399,7 @@ const HomeTab = ({ user, profile }) => {
               ))
             ) : (
               <div className="col-span-3 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center">
-                <p className="text-sm text-slate-500">No mentor recommendations yet.</p>
+                <p className="text-sm text-slate-700">No mentor recommendations yet.</p>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "findMentors" }))}
                   className="text-xs text-blue-900 font-semibold mt-2 hover:underline"
@@ -412,7 +412,7 @@ const HomeTab = ({ user, profile }) => {
         </section>
 
         {/* ── Active Sessions + Leap Points (side by side) ── */}
-        <div className="flex gap-4 items-start">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch">
 
           {/* Active Sessions — takes all remaining space */}
           <section className="flex-1 min-w-0">
@@ -434,8 +434,8 @@ const HomeTab = ({ user, profile }) => {
                 ))
               ) : (
                 <div className="bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-6 text-center">
-                  <p className="text-sm text-slate-500">No active sessions yet.</p>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-sm text-slate-700">No active sessions yet.</p>
+                  <p className="text-xs text-slate-700 mt-1">
                     Once a mentor accepts, your sessions appear here.
                   </p>
                 </div>
