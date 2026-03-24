@@ -40,7 +40,7 @@ const SlotsModal = ({ request, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 
-        {/* Top strip — lightened to blue-50 with a blue-200 border bottom */}
+        {/* Top strip */}
         <div className="bg-blue-50 border-b border-blue-100 rounded-t-3xl px-6 pt-6 pb-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -181,7 +181,7 @@ const RequestCard = ({ request, onViewProfile }) => {
     <>
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col">
 
-        {/* ── Soft blue header — light background, dark text ── */}
+        {/* ── Soft blue header ── */}
         <div className="bg-blue-50 border-b border-blue-100 px-5 pt-5 pb-4">
           <div className="flex items-center justify-between gap-2">
 
@@ -212,27 +212,46 @@ const RequestCard = ({ request, onViewProfile }) => {
         {/* ── Card body ── */}
         <div className="px-5 pt-4 pb-5 flex flex-col gap-3 flex-1">
 
-          {/* Slot chip — date + time */}
+          {/* ── Slot: stacked date + time in one unified chip ── */}
           {displaySlot && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-0">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                  <rect x="3" y="4" width="18" height="18" rx="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <p className="text-sm font-semibold text-slate-700 truncate">
-                  {displaySlot.day}, {formatDate(displaySlot.date)}
-                </p>
+            <div className="flex items-center gap-2">
+              {/* Date + time block */}
+              <div className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1">
+                {/* Date row */}
+                <div className="flex items-center gap-1.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <p className="text-xs font-medium text-slate-900 truncate">
+                    {displaySlot.day}, {formatDate(displaySlot.date)}
+                  </p>
+                </div>
+                {/* Time row */}
+                <div className="flex items-center gap-1.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <p className="text-xs font-bold text-blue-700">
+                    {formatTime(displaySlot.startTime)}
+                    <span className="mx-1 font-normal text-slate-400">–</span>
+                    {formatTime(displaySlot.endTime)}
+                  </p>
+                </div>
               </div>
-              <div className="shrink-0 bg-slate-700 text-white text-sm font-bold px-3 py-2 rounded-lg whitespace-nowrap">
-                {formatTime(displaySlot.startTime)} – {formatTime(displaySlot.endTime)}
-              </div>
+
+              {/* +N more slots button */}
               {extraSlots > 0 && isPending && (
-                <button type="button" onClick={() => setShowSlots(true)}
-                  className="shrink-0 h-8 px-2.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 transition-colors">
-                  +{extraSlots}
+                <button
+                  type="button"
+                  onClick={() => setShowSlots(true)}
+                  className="shrink-0 h-full px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold hover:bg-blue-100 transition-colors leading-none"
+                >
+                  +{extraSlots}<br />
+                  <span className="text-[9px] font-semibold text-blue-500">more</span>
                 </button>
               )}
             </div>
@@ -284,7 +303,7 @@ const RequestCard = ({ request, onViewProfile }) => {
             </p>
             <div className="flex items-center gap-2">
               <button type="button" onClick={() => setShowSlots(true)}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all whitespace-nowrap">
+                className="px-4 py-2 rounded-lg bg-blue-100 border-2 border-blue-200 text-blue-700 text-sm font-semibold hover:bg-blue-200 transition-all whitespace-nowrap">
                 View Details
               </button>
               {isPending && (
