@@ -4,19 +4,13 @@ const SocialPresenceCard = ({ profile }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-          </svg>
-        </div>
-        <h3 className="text-sm font-bold text-slate-800">Social Presence</h3>
+        <h3 className="text-m font-bold text-slate-800">Social Presence</h3>
       </div>
 
       <div className="space-y-3">
         {/* LinkedIn */}
         <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
-          <div className="w-9 h-9 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
+          <div className="w-6 h-6 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
               <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
@@ -26,7 +20,7 @@ const SocialPresenceCard = ({ profile }) => {
             <p className="text-xs font-semibold text-slate-500">LinkedIn</p>
             {profile?.linkedInUrl ? (
               <a href={profile.linkedInUrl} target="_blank" rel="noopener noreferrer"
-                className="text-sm font-semibold text-blue-900 hover:underline truncate block">
+                className="text-sm  text-slate-700 hover:underline truncate block">
                 {profile.linkedInUrl.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, "")}
               </a>
             ) : <p className="text-sm text-slate-400">—</p>}
@@ -43,7 +37,7 @@ const SocialPresenceCard = ({ profile }) => {
 
         {/* Portfolio */}
         <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
-          <div className="w-9 h-9 rounded-xl bg-slate-700 flex items-center justify-center shrink-0">
+          <div className="w-6 h-6 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -53,7 +47,7 @@ const SocialPresenceCard = ({ profile }) => {
             <p className="text-xs font-semibold text-slate-500">Portfolio</p>
             {profile?.portfolioUrl ? (
               <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer"
-                className="text-sm font-semibold text-blue-900 hover:underline truncate block">
+                className="text-sm  text-slate-700 hover:underline truncate block">
                 {profile.portfolioUrl.replace(/^https?:\/\//, "")}
               </a>
             ) : <p className="text-sm text-slate-400">—</p>}

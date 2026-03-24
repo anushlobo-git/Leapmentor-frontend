@@ -2,7 +2,7 @@
 
 const TagChip = ({ label }) => {
   return (
-    <span className={`inline-flex items-center text-sm font-m text-slate-600 px-3 py-1.5  `}>
+    <span className={`inline-flex items-center text-sm font-m text-slate-600 px-3 py-1.5 rounded-full border `}>
       {label}
     </span>
   );
