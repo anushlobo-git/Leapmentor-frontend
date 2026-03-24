@@ -15,10 +15,9 @@ const AvailabilityTab = () => {
     saveAvailability,
     cancelChanges,
     setSpecificDates,
-    setAvailability,   // expose this from your useAvailability hook (see note below)
+    setAvailability,
   } = useAvailability();
 
-  // Called by IntegrationsSection after connect / disconnect succeeds
   const handleConnectionChange = (connected) => {
     setAvailability((prev) => ({ ...prev, googleCalendarConnected: connected }));
   };
@@ -27,8 +26,8 @@ const AvailabilityTab = () => {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">Loading availability...</p>
+          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
+          <p className="text-sm font-medium text-slate-500">Loading availability...</p>
         </div>
       </div>
     );
@@ -37,30 +36,22 @@ const AvailabilityTab = () => {
   return (
     <div className="space-y-5">
 
-      {/* Header row — stacks on mobile, side-by-side on sm+ */}
+      {/* Header row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Availability Settings</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm font-medium text-slate-500 mt-0.5">
             Manage your calendar availability and integrations.
           </p>
         </div>
 
-        {/* Buttons — full width on mobile, auto on sm+ */}
+        {/* Save Changes first, then Cancel — equal width on mobile, fixed width on sm+ */}
         <div className="flex items-center gap-2 sm:shrink-0">
-          <button
-            type="button"
-            onClick={cancelChanges}
-            disabled={saving}
-            className="flex-1 sm:flex-none text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 transition-all duration-150"
-          >
-            Cancel
-          </button>
           <button
             type="button"
             onClick={saveAvailability}
             disabled={saving}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-bold px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
+            className="flex-1 sm:flex-none sm:w-36 flex items-center justify-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl bg-blue-900 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
           >
             {saving ? (
               <>
@@ -71,13 +62,21 @@ const AvailabilityTab = () => {
               "Save Changes"
             )}
           </button>
+          <button
+            type="button"
+            onClick={cancelChanges}
+            disabled={saving}
+            className="flex-1 sm:flex-none sm:w-36 text-sm font-semibold px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 transition-all duration-150"
+          >
+            Cancel
+          </button>
         </div>
       </div>
 
       {/* Status message */}
       {msg.text && (
         <div
-          className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
+          className={`flex items-center gap-2 text-sm font-medium rounded-xl px-4 py-3 border ${
             msg.type === "success"
               ? "bg-emerald-50 border-emerald-200 text-emerald-700"
               : "bg-red-50 border-red-200 text-red-600"
@@ -88,7 +87,6 @@ const AvailabilityTab = () => {
         </div>
       )}
 
-      {/* Calendar section — now receives googleCalendarConnected for busy overlay */}
       <CalendarAvailabilitySection
         specificDates={availability.specificDates || []}
         setSpecificDates={setSpecificDates}
@@ -102,8 +100,6 @@ const AvailabilityTab = () => {
           updateTimezone={updateTimezone}
           toggleDuration={toggleDuration}
         />
-
-        {/* IntegrationsSection — now receives onConnectionChange */}
         <IntegrationsSection
           googleCalendarConnected={availability.googleCalendarConnected}
           onConnectionChange={handleConnectionChange}
@@ -111,7 +107,7 @@ const AvailabilityTab = () => {
       </div>
 
       <div className="pt-1 pb-4">
-        <p className="text-xs text-slate-400">
+        <p className="text-xs font-medium text-slate-500">
           Changes are saved to your profile and visible to mentees immediately.
         </p>
       </div>
@@ -120,4 +116,3 @@ const AvailabilityTab = () => {
 };
 
 export default AvailabilityTab;
-
