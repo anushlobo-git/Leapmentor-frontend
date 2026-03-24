@@ -229,7 +229,7 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
         <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-orange-400" />
-            <span className="text-[11px] font-semibold text-slate-600">Has events</span>
+            <span className="text-[11px] font-semibold text-slate-800">Has events</span>
           </div>
         </div>
       )}
@@ -399,7 +399,7 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-800">Calendar Availability</h3>
-              <p className="text-[10px] text-slate-500">Click dates to mark available</p>
+              <p className="text-[10px] text-slate-700">Click dates to mark available</p>
             </div>
           </div>
 

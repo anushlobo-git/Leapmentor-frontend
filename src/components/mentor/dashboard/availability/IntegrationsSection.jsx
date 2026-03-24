@@ -104,7 +104,7 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
         )}
       </div>
 
-      <p className="text-xs font-medium text-slate-500 mt-3 leading-relaxed">
+      <p className="text-xs font-medium text-slate-800 mt-3 leading-relaxed">
         Syncing your calendar prevents bookings on times you are busy and automatically adds
         sessions to your schedule.
       </p>
