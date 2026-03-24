@@ -121,19 +121,3 @@ const AvailabilityTab = () => {
 
 export default AvailabilityTab;
 
-/*
- * ─── NOTE: useAvailability hook ───────────────────────────────────────────────
- * Make sure your useAvailability hook exposes `setAvailability` so that
- * AvailabilityTab can optimistically update googleCalendarConnected after
- * connect / disconnect without a full refetch.
- *
- * Minimal addition inside useAvailability.js:
- *
- *   const [availability, setAvailability] = useState({ ... });
- *   ...
- *   return {
- *     availability,
- *     setAvailability,   // ← add this line
- *     ...
- *   };
- */
