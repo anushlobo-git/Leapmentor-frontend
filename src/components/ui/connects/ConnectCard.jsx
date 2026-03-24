@@ -75,15 +75,15 @@ const ConnectCard = ({
   onDashboardClick,
   isCompleted = false,   // ✅ new prop
 }) => {
-  const role    = person?.currentRole || "";
+  const role = person?.currentRole || "";
   const company = person?.company || "";
-  const skills  = person?.skills?.slice(0, 3) || [];
+  const skills = person?.skills?.slice(0, 3) || [];
   const picture = person?.profilePicture || "";
 
-  const slot        = session?.confirmedSlot;
-  const paidAt      = session?.paidAt;
+  const slot = session?.confirmedSlot;
+  const paidAt = session?.paidAt;
   const completedAt = session?.completedAt;
-  const total       = session?.totalAmount;
+  const total = session?.totalAmount;
 
   return (
     <div className={`rounded-2xl p-5 flex flex-col gap-4 transition-all duration-200
@@ -99,11 +99,11 @@ const ConnectCard = ({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className={`text-sm font-bold truncate
-                ${isCompleted ? "text-slate-500" : "text-slate-800"}`}>
+                ${isCompleted ? "text-slate-700" : "text-slate-800"}`}>
                 {name}
               </p>
               {(role || company) && (
-                <p className="text-xs text-slate-400 truncate mt-0.5">
+                <p className="text-xs text-blue-900 truncate mt-0.5">
                   {role}{role && company ? " @ " : ""}{company}
                 </p>
               )}
@@ -115,7 +115,7 @@ const ConnectCard = ({
                 bg-slate-100 border border-slate-200 text-slate-500 text-[10px] font-bold">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
                 Completed
               </span>
@@ -162,8 +162,8 @@ const ConnectCard = ({
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
               stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               className="shrink-0">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
             <span className="text-xs font-semibold text-emerald-600">
               {total} tokens released
@@ -182,7 +182,7 @@ const ConnectCard = ({
               <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            <span className="text-xs text-slate-500">{formatSlot(slot)}</span>
+            <span className="text-xs text-slate-700">{formatSlot(slot)}</span>
           </div>
         )}
 
@@ -195,7 +195,7 @@ const ConnectCard = ({
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-700">
               Completed {formatDate(completedAt)}
             </span>
           </div>
@@ -210,7 +210,7 @@ const ConnectCard = ({
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span className="text-xs text-slate-400">Started {formatDate(paidAt)}</span>
+            <span className="text-xs text-slate-700">Started {formatDate(paidAt)}</span>
           </div>
         )}
       </div>
@@ -219,7 +219,7 @@ const ConnectCard = ({
       <button
         type="button"
         onClick={onDashboardClick}
-        className={`w-full py-2.5 rounded-xl text-xs font-bold
+        className={`w-45  py-2.5 rounded-xl text-xs font-bold
           active:scale-[0.98] transition-all flex items-center justify-center gap-2
           ${isCompleted
             ? "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"

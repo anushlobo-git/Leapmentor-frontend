@@ -40,7 +40,7 @@ const AvailabilityTab = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Availability Settings</h1>
-          <p className="text-sm font-medium text-slate-700 mt-0.5">
+          <p className="text-sm  text-blue-900 mt-0.5">
             Manage your calendar availability and integrations.
           </p>
         </div>
