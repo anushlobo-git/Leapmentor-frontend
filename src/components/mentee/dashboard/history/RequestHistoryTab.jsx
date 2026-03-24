@@ -1,6 +1,6 @@
 // src/components/mentee/dashboard/history/RequestHistoryTab.jsx
 import useRequestHistory from "../../../../hooks/useRequestHistory";
-import useSocketToast from "../../../../hooks/useSocketToast"; // ✅
+import useSocketToast from "../../../../hooks/useSocketToast";
 import { TABS } from "./constants";
 import HistoryTable from "./HistoryTable";
 import DetailDrawer from "./DetailDrawer";
@@ -12,10 +12,9 @@ const RequestHistoryTab = () => {
     selected, setSelected,
     deleteRequest,
     updateRequest,
-    fetchRequests, // ✅
+    fetchRequests,
   } = useRequestHistory();
 
-  // ✅ Refetch mentee's request list in real-time when mentor accepts/rejects/refers
   useSocketToast(fetchRequests);
 
   if (loading) {
@@ -35,7 +34,7 @@ const RequestHistoryTab = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Request History</h1>
-        <p className="text-sm text-slate-400 mt-0.5">
+        <p className="text-sm text-blue-900 mt-0.5">
           Manage and track your mentor outreach and collaboration requests.
         </p>
       </div>
@@ -47,24 +46,28 @@ const RequestHistoryTab = () => {
         </div>
       )}
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 border-b border-slate-100 pb-1">
-        {TABS.map((tab) => (
-          <button key={tab.key} type="button"
-            onClick={() => { setActiveTab(tab.key); setSelected(null); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-xs font-bold transition-all duration-150 ${activeTab === tab.key
-                ? "text-blue-900 border-b-2 border-blue-900 bg-blue-50/50"
-                : "text-slate-400 hover:text-slate-600"
+      {/* Filter tabs — full width */}
+      <div className="w-full border-b border-slate-100">
+        <div className="flex w-full">
+          {TABS.map((tab) => (
+            <button key={tab.key} type="button"
+              onClick={() => { setActiveTab(tab.key); setSelected(null); }}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${
+                activeTab === tab.key
+                  ? "text-blue-900 border-blue-900 bg-blue-50/50"
+                  : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
               }`}>
-            {tab.label}
-            {counts[tab.key] > 0 && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === tab.key ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500"
+              {tab.label}
+              {counts[tab.key] > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  activeTab === tab.key ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500"
                 }`}>
-                {counts[tab.key]}
-              </span>
-            )}
-          </button>
-        ))}
+                  {counts[tab.key]}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
