@@ -273,7 +273,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
 
         {/* Profile completion pill */}
         {completionPct < 100 && (
-          <div className="hidden sm:flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setActiveTab("profile")}>
+          <div className="flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setActiveTab("profile")}>
             <div className="relative w-9 h-9">
               <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3" />
