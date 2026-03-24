@@ -2,18 +2,23 @@
 import { useState, useRef, useEffect } from "react";
 import useReportComplaint from "../../../hooks/useReportComplaint";
 
-const COMPLAINT_TYPES = [
-  { value: "vulgar_chat",           label: "Vulgar Chat" },
-  { value: "harassment",            label: "Harassment" },
-  { value: "other",                 label: "Other" },
-];
-
 const ReportModal = ({ connect, onClose, onSuccess }) => {
   const [complaintType, setComplaintType] = useState("");
   const [description,   setDescription]   = useState("");
   const [screenshot,    setScreenshot]     = useState(null);
   const [preview,       setPreview]        = useState(null);
   const fileRef = useRef(null);
+
+  // ✅ Inside component so connect prop is accessible
+  const COMPLAINT_TYPES = [
+    { value: "vulgar_chat", label: "Vulgar Chat" },
+    { value: "harassment",  label: "Harassment"  },
+    ...(connect?.viewerRole === "mentee"
+      ? [{ value: "refund", label: "Refund" }]
+      : []
+    ),
+    { value: "other", label: "Other" },
+  ];
 
   const { submitReport, submitting, error, setError } = useReportComplaint(connect?._id);
 
@@ -183,7 +188,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
             </div>
           )}
 
-          {/* ── Buttons — inside scroll so always reachable ── */}
+          {/* ── Buttons ── */}
           <div className="flex gap-3 pt-1 pb-2">
             <button type="button" onClick={onClose} disabled={submitting}
               className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs
