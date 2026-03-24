@@ -31,13 +31,13 @@ const TYPE_ICON_PATH = {
 
 // ── Stats Bar ─────────────────────────────────────────────────
 const StatCard = ({ icon, label, value, accent }) => (
-  <div className={`flex items-center gap-4 bg-white rounded-2xl border px-5 py-4 flex-1 min-w-0 ${accent ? "border-blue-200 bg-blue-50/40" : "border-slate-100"}`}>
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${accent ? "bg-blue-100" : "bg-slate-100"}`}>
+  <div className={`flex items-center gap-3 bg-white rounded-2xl border px-4 py-3.5 flex-1 min-w-0 ${accent ? "border-blue-200 bg-blue-50/40" : "border-slate-100"}`}>
+    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${accent ? "bg-blue-100" : "bg-slate-100"}`}>
       {icon}
     </div>
     <div className="min-w-0">
-      <p className="text-2xl font-bold text-slate-800 leading-none">{value}</p>
-      <p className={`text-xs font-semibold mt-1 ${accent ? "text-blue-600" : "text-slate-500"}`}>{label}</p>
+      <p className="text-xl sm:text-2xl font-bold text-slate-800 leading-none">{value}</p>
+      <p className={`text-[10px] sm:text-xs font-semibold mt-1 leading-tight ${accent ? "text-blue-600" : "text-slate-500"}`}>{label}</p>
     </div>
   </div>
 );
@@ -132,7 +132,7 @@ const NotifCard = ({ notif, onMarkRead, onDelete }) => {
   return (
     <div
       onClick={() => !notif.read && onMarkRead(notif.id)}
-      className={`relative rounded-2xl border px-5 py-4 flex items-start gap-4 transition-all duration-200 hover:shadow-md group
+      className={`relative rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
         ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
         ${notif.accent ? "border-l-[3px] border-l-blue-500" : ""}
       `}
@@ -143,32 +143,36 @@ const NotifCard = ({ notif, onMarkRead, onDelete }) => {
       )}
 
       {/* Avatar */}
-      <div className={`w-11 h-11 rounded-xl ${avatarBg} flex items-center justify-center shrink-0 shadow-sm`}>
-        <span className="text-sm font-bold text-white">{initials}</span>
+      <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl ${avatarBg} flex items-center justify-center shrink-0 shadow-sm`}>
+        <span className="text-xs sm:text-sm font-bold text-white">{initials}</span>
       </div>
 
       {/* Body */}
       <div className="flex-1 min-w-0">
         {/* Top row: badge + time */}
-        <div className="flex items-center justify-between gap-3 flex-wrap mb-1.5">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          {/* Badge row — wraps on mobile */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span
-              className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${cfg.bg}`}
+              className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.bg}`}
               style={{ color: cfg.stroke }}
             >
               {cfg.label}
             </span>
             {!notif.read && (
-              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-full">
+              <span className="text-[9px] sm:text-[10px] font-bold text-blue-700 bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-full">
                 New
               </span>
             )}
           </div>
-          <span className="text-xs font-medium text-slate-400 shrink-0">{notif.time}</span>
+          {/* Time — always right-aligned, never wraps */}
+          <span className="text-[10px] sm:text-xs font-medium text-slate-400 shrink-0 whitespace-nowrap">
+            {notif.time}
+          </span>
         </div>
 
         {/* Title + sender */}
-        <p className={`text-sm font-bold ${notif.read ? "text-slate-600" : "text-slate-800"}`}>
+        <p className={`text-sm font-bold leading-snug ${notif.read ? "text-slate-600" : "text-slate-800"}`}>
           {notif.title}
           {notif.senderName && (
             <span className={`font-medium ml-1.5 ${notif.read ? "text-slate-400" : "text-slate-500"}`}>
@@ -178,18 +182,18 @@ const NotifCard = ({ notif, onMarkRead, onDelete }) => {
         </p>
 
         {/* Preview body */}
-        <p className={`text-sm mt-1 leading-relaxed line-clamp-2 ${notif.read ? "text-slate-400" : "text-slate-600"}`}>
+        <p className={`text-xs sm:text-sm mt-1 leading-relaxed line-clamp-2 ${notif.read ? "text-slate-400" : "text-slate-600"}`}>
           {notif.body}
         </p>
 
-        {/* Action buttons */}
+        {/* Action buttons — stack on very small screens */}
         {notif.actions?.length > 0 && (
-          <div className="flex gap-2 mt-3 flex-wrap">
+          <div className="flex flex-wrap gap-2 mt-3">
             {notif.actions.map((action) => (
               <button
                 key={action.label}
                 onClick={(e) => e.stopPropagation()}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all duration-150 ${
+                className={`text-xs font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all duration-150 ${
                   action.primary
                     ? "bg-blue-900 text-white hover:bg-blue-800 shadow-sm"
                     : "border border-slate-300 text-slate-700 bg-white hover:bg-slate-50"
@@ -202,8 +206,8 @@ const NotifCard = ({ notif, onMarkRead, onDelete }) => {
         )}
       </div>
 
-      {/* Right col: type icon + delete */}
-      <div className="flex flex-col items-center gap-2 shrink-0">
+      {/* Right col: type icon + delete — hidden on xs, shown sm+ */}
+      <div className="hidden sm:flex flex-col items-center gap-2 shrink-0">
         <div className={`w-8 h-8 rounded-xl ${cfg.bg} flex items-center justify-center`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={cfg.stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             {TYPE_ICON_PATH[notif.type] || TYPE_ICON_PATH["new_message"]}
@@ -220,6 +224,18 @@ const NotifCard = ({ notif, onMarkRead, onDelete }) => {
           </svg>
         </button>
       </div>
+
+      {/* Delete button — always visible on mobile (no hover needed) */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(notif.id); }}
+        title="Delete"
+        className="sm:hidden w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 bg-white border border-slate-200 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all duration-150 shrink-0 self-start"
+      >
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        </svg>
+      </button>
     </div>
   );
 };
@@ -252,10 +268,9 @@ const NotificationsTab = () => {
 
   useEffect(() => { fetchNotifications(); }, []);
 
-  const unreadCount    = notifications.filter((n) => !n.read).length;
-  const thisWeekCount  = notifications.filter((n) => {
-    // For API notifs we have createdAt; for static we check if time string contains "ago" or "Yesterday"
-    if (n.isApi) return true; // already filtered by API, assume recent
+  const unreadCount   = notifications.filter((n) => !n.read).length;
+  const thisWeekCount = notifications.filter((n) => {
+    if (n.isApi) return true;
     const t = n.time || "";
     return (
       t.includes("minute") || t.includes("hour") ||
@@ -288,8 +303,8 @@ const NotificationsTab = () => {
     return (
       <div className="flex flex-col gap-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-100 px-5 py-4 flex items-start gap-4">
-            <div className="w-11 h-11 rounded-xl bg-slate-100 animate-pulse shrink-0" />
+          <div key={i} className="bg-white rounded-2xl border border-slate-100 px-4 py-4 sm:px-5 flex items-start gap-3 sm:gap-4">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-slate-100 animate-pulse shrink-0" />
             <div className="flex-1 space-y-2.5 pt-1">
               <div className="h-2.5 bg-slate-100 rounded animate-pulse w-1/4" />
               <div className="h-3.5 bg-slate-100 rounded animate-pulse w-1/2" />
@@ -302,17 +317,18 @@ const NotificationsTab = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
 
-      {/* Header */}
-      <div className="flex items-start justify-between">
+      {/* Header — stacks on mobile */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Notifications</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Notifications</h1>
           <p className="text-sm font-medium text-slate-500 mt-0.5">
             Manage your recent activities and requests.
           </p>
         </div>
-        <div className="flex items-center gap-3 mt-1 shrink-0">
+        {/* Actions — full width row on mobile */}
+        <div className="flex items-center gap-3 sm:mt-1 shrink-0">
           <button
             onClick={markAllRead}
             className="flex items-center gap-1.5 text-xs font-bold text-blue-900 hover:text-blue-700 transition-colors"
@@ -336,8 +352,8 @@ const NotificationsTab = () => {
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Stats bar — 1 col on xs, 3 col on sm+ */}
+      <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
         <StatCard
           label="Total Notifications"
           value={notifications.length}
@@ -383,7 +399,7 @@ const NotificationsTab = () => {
 
       {/* Empty state */}
       {notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center gap-3">
+        <div className="flex flex-col items-center justify-center py-16 sm:py-24 text-center gap-3">
           <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
