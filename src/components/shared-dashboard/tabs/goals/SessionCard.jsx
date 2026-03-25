@@ -131,7 +131,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
 
       <div className="flex flex-col gap-1.5 mb-3">
         {/* My status */}
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
+        <div className={`w-75 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
           ${myMark
             ? "bg-emerald-50 border-emerald-200 text-emerald-700"
             : "bg-slate-50 border-slate-200 text-slate-500"}`}>
@@ -140,7 +140,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
         </div>
 
         {/* Other person's status */}
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
+        <div className={`w-75 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
           ${otherMark
             ? "bg-emerald-50 border-emerald-200 text-emerald-700"
             : "bg-amber-50 border-amber-200 text-amber-700"}`}>
@@ -158,7 +158,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
         <button
           onClick={() => onMarkComplete(slotIndex)}
           disabled={saving}
-          className="w-full py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold
+          className="w-40 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold
             hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed
             flex items-center justify-center gap-2"
         >

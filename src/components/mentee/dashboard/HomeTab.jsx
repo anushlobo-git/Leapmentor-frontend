@@ -146,14 +146,13 @@ const MentorCard = ({ mentor, onViewProfile }) => {
             )}
           </div>
         </div>
-
       </div>
 
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skills.map((skill) => (
             <span key={skill}
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide bg-blue-50 text-blue-900 border border-blue-100">
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide bg-amber-50 text-slate-800 border border-blue-100">
               {skill.toUpperCase()}
             </span>
           ))}
@@ -167,7 +166,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
 
       <button
         onClick={() => onViewProfile(mentor)}
-        className="w-30 bg-blue-900 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-xl transition-colors"
+        className="w-20 bg-blue-100 hover:bg-blue-300 text-slate-800 text-xs font-semibold py-2 rounded-xl transition-colors"
       >
         View Profile
       </button>
@@ -211,14 +210,11 @@ const SessionCard = ({ request, index, navigate }) => {
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 px-3 py-2.5 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-
-      {/* LEFT — date badge */}
       <div className={`w-9 h-11 rounded-xl flex flex-col items-center justify-center text-white ${getAccent(index)} shrink-0`}>
         <span className="text-[8px] font-bold tracking-widest">{dateMonth}</span>
         <span className="text-base font-bold leading-none">{dateNum}</span>
       </div>
 
-      {/* MIDDLE — name + status badge + time */}
       <div className="flex-1 min-w-0 overflow-hidden">
         <div className="flex items-center gap-1.5">
           <p className="text-xs font-semibold text-slate-800 truncate">{mentorName}</p>
@@ -235,18 +231,16 @@ const SessionCard = ({ request, index, navigate }) => {
         </p>
       </div>
 
-      {/* RIGHT — open dashboard button (ongoing only) */}
       <div className="shrink-0">
         {isOngoing && (
           <button
             onClick={handleJoin}
-            className="text-xs bg-blue-900 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-semibold transition-colors whitespace-nowrap"
+            className="w-35 text-xs bg-blue-900 hover:bg-blue-700 text-white px-4 py-2 rounded-full font-semibold transition-colors whitespace-nowrap"
           >
             Open Dashboard →
           </button>
         )}
       </div>
-
     </div>
   );
 };
@@ -265,10 +259,7 @@ const SessionSkeleton = () => (
 // ── Leap Points Panel ─────────────────────────────────────────
 const LeapPointsPanel = ({ balance, loading }) => (
   <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-3">
-
-    {/* Header */}
     <div className="flex items-center gap-2">
-      {/* Gold coin icon */}
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="10" fill="#F59E0B" />
         <circle cx="12" cy="12" r="7.5" fill="#FBBF24" />
@@ -277,10 +268,8 @@ const LeapPointsPanel = ({ balance, loading }) => (
       <p className="text-base font-bold text-slate-800">Leap Points</p>
     </div>
 
-    {/* Current Balance label */}
     <p className="text-xs text-blue-900 font-medium -mb-1">Current Balance</p>
 
-    {/* Balance number + LP badge */}
     {loading ? (
       <div className="h-9 w-28 bg-slate-200 rounded-lg animate-pulse" />
     ) : (
@@ -292,10 +281,8 @@ const LeapPointsPanel = ({ balance, loading }) => (
       </div>
     )}
 
-    {/* Divider */}
     <div className="border-t border-slate-100 mt-1" />
 
-    {/* Info box */}
     <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
       <p className="text-[10px] text-amber-800 leading-relaxed">
         Leap Points are the platform currency used to book and pay for mentoring sessions.
@@ -303,7 +290,6 @@ const LeapPointsPanel = ({ balance, loading }) => (
         Points never expire and are non-refundable once used for booking.
       </p>
     </div>
-
   </div>
 );
 
@@ -312,7 +298,7 @@ const HomeTab = ({ user, profile }) => {
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
-  const profileCompletion = calculateProfileCompletion(profile);
+  const completionPct = calculateProfileCompletion(profile);
   const [selectedMentor, setSelectedMentor] = useState(null);
 
   const { mentors, sessions, loading, balance } = useHomeData(profile);
@@ -321,7 +307,7 @@ const HomeTab = ({ user, profile }) => {
     <>
       <div className="flex flex-col gap-6 -mt-2">
 
-        {/* ── Welcome + Profile Completion ── */}
+        {/* ── Welcome + Profile Completion Pill ── */}
         <div className="flex items-center justify-between gap-6 flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
@@ -334,32 +320,26 @@ const HomeTab = ({ user, profile }) => {
             </p>
           </div>
 
-          {/* Profile completion card */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex items-center gap-5 shrink-0">
-            <div className="w-48">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-slate-700">Complete Profile</p>
-                <span className="text-sm font-bold text-blue-900">{profileCompletion}%</span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-1.5">
-                <div
-                  className="bg-blue-900 h-1.5 rounded-full transition-all duration-500"
-                  style={{ width: `${profileCompletion}%` }}
-                />
-              </div>
-              <p className="text-xs text-slate-600 mt-1.5">
-                {profileCompletion < 100
-                  ? "Add more details to attract mentors"
-                  : "Your profile is complete 🎉"}
-              </p>
-            </div>
-            <button
+          {/* ── Circular profile completion pill ── */}
+          {completionPct < 100 && (
+            <div
+              className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "profile" }))}
-              className="text-xs bg-blue-900 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
             >
-              Go to profile →
-            </button>
-          </div>
+              <div className="relative w-9 h-9">
+                <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e3a5f" strokeWidth="3"
+                    strokeDasharray={`${completionPct} ${100 - completionPct}`}
+                    strokeLinecap="round" />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-extrabold text-blue-900">
+                  {completionPct}%
+                </span>
+              </div>
+              <span className="text-xs font-bold text-blue-900">Profile</span>
+            </div>
+          )}
         </div>
 
         {/* ── Recommended Mentors ── */}
@@ -414,7 +394,6 @@ const HomeTab = ({ user, profile }) => {
         {/* ── Active Sessions + Leap Points (side by side) ── */}
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
 
-          {/* Active Sessions — takes all remaining space */}
           <section className="flex-1 min-w-0">
             <h2 className="text-base font-semibold text-slate-700 mb-3">Active Sessions</h2>
             <div className="flex flex-col gap-2.5">
@@ -443,7 +422,6 @@ const HomeTab = ({ user, profile }) => {
             </div>
           </section>
 
-          {/* Leap Points — increased from w-52 (208px) to w-64 (256px) */}
           <div className="w-64 shrink-0">
             <h2 className="text-base font-semibold text-slate-700 mb-3">Wallet</h2>
             <LeapPointsPanel balance={balance} loading={loading} />

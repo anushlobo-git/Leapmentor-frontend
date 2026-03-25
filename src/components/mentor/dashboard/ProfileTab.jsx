@@ -15,7 +15,7 @@ const ProfileTab = ({ user, profile }) => {
       <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Mentor Dashboard</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm text-blue-900 mt-0.5">
             Manage your professional identity and preferences.
           </p>
         </div>

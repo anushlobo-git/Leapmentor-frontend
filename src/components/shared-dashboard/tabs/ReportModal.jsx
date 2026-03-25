@@ -77,7 +77,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
             </div>
             <div>
               <p className="text-sm font-bold text-slate-800">Report an Issue</p>
-              <p className="text-xs text-slate-400">Reporting {otherName}</p>
+              <p className="text-xs text-blue-900">Reporting {otherName}</p>
             </div>
           </div>
           <button type="button" onClick={onClose}
@@ -97,7 +97,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
 
           {/* Complaint type */}
           <div>
-            <label className="text-xs font-semibold text-slate-500 block mb-2">
+            <label className="text-xs font-semibold text-slate-700 block mb-2">
               Complaint Type <span className="text-red-400">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -116,7 +116,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
 
           {/* Description */}
           <div>
-            <label className="text-xs font-semibold text-slate-500 block mb-1.5">
+            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Describe the issue <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -138,7 +138,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
 
           {/* Screenshot */}
           <div>
-            <label className="text-xs font-semibold text-slate-500 block mb-1.5">
+            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Screenshot <span className="text-slate-400 font-normal">(optional)</span>
             </label>
             {preview ? (
@@ -197,7 +197,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
               Cancel
             </button>
             <button type="button" onClick={handleSubmit} disabled={submitting}
-              className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs
+              className="w-20 flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs
                 font-bold hover:bg-red-600 transition-all
                 disabled:opacity-40 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2">

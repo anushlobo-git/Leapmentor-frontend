@@ -238,8 +238,8 @@ const MilestoneList = ({ goal, milestones, saving, onAdd, onToggle, onDelete }) 
       {/* Empty state */}
       {milestones.length === 0 && !showForm && (
         <div className="text-center py-7">
-          <p className="text-sm font-semibold text-slate-500 mb-1">No milestones yet</p>
-          <p className="text-xs text-slate-400">Break your goal into smaller, checkable steps.</p>
+          <p className="text-sm font-semibold text-slate-700 mb-1">No milestones yet</p>
+          <p className="text-xs text-slate-600">Break your goal into smaller, checkable steps.</p>
         </div>
       )}
 

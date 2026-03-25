@@ -1,102 +1,100 @@
 // src/components/shared-dashboard/SharedSidebar.jsx
 import { useEffect } from "react";
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Target,
+  Paperclip,
+  CalendarPlus,
+  X,
+  ClipboardList,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  {
-    key: "home", label: "Home",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    ),
-  },
-  {
-    key: "chat", label: "Chat",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-    ),
-  },
-  {
-    key: "goals", label: "Goals",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <circle cx="12" cy="12" r="6"/>
-        <circle cx="12" cy="12" r="2"/>
-      </svg>
-    ),
-  },
-  {
-    key: "notes", label: "Notes",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-      </svg>
-    ),
-  },
-  // ✅ NEW
-  {
-    key: "addSession", label: "Add Session",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-        <line x1="12" y1="14" x2="12" y2="20"/>
-        <line x1="9" y1="17" x2="15" y2="17"/>
-      </svg>
-    ),
-  },
-  {
-    key: "report", label: "Report",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/>
-        <line x1="16" y1="17" x2="8" y2="17"/>
-        <polyline points="10 9 9 9 8 9"/>
-      </svg>
-    ),
-  },
+  { key: "overview",          label: "Overview",        icon: LayoutDashboard },
+  { key: "chat",              label: "Chat",             icon: MessageSquare },
+  { key: "goals",             label: "Goals",            icon: Target },
+  { key: "notes",             label: "Notes",            icon: Paperclip },
+  { key: "addSession",        label: "Add Session",      icon: CalendarPlus },
+  { key: "report", label: "Review & Report", icon:ClipboardList },
 ];
 
+const sidebarBg = "linear-gradient(170deg, #eef4ff 0%, #f5f0ff 50%, #edfcf4 100%)";
+
+const navItemStyle = (isActive) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  padding: "9px 12px",
+  borderRadius: "12px",
+  fontSize: "13px",
+  fontWeight: isActive ? "700" : "500",
+  border: isActive ? "1px solid rgba(99,102,241,0.18)" : "1px solid transparent",
+  cursor: "pointer",
+  textAlign: "left",
+  width: "100%",
+  transition: "all 0.18s cubic-bezier(0.4,0,0.2,1)",
+  position: "relative",
+  background: isActive ? "rgba(255,255,255,0.88)" : "transparent",
+  color: isActive ? "#1e3a8a" : "#64748b",
+  boxShadow: isActive
+    ? "0 2px 12px rgba(99,102,241,0.13), inset 0 1px 0 rgba(255,255,255,0.9)"
+    : "none",
+  backdropFilter: isActive ? "blur(8px)" : "none",
+  letterSpacing: isActive ? "-0.01em" : "0",
+});
+
+const AccentBar = () => (
+  <span style={{
+    position: "absolute", left: 0, top: "50%",
+    transform: "translateY(-50%)",
+    width: "3px", height: "18px", borderRadius: "0 3px 3px 0",
+    background: "linear-gradient(180deg, #6366f1, #4f46e5)",
+    boxShadow: "0 0 8px rgba(99,102,241,0.5)",
+  }} />
+);
+
+const Blobs = () => (
+  <>
+    <div style={{
+      position: "absolute", top: "-40px", right: "-30px",
+      width: "130px", height: "130px", borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(99,102,241,0.13) 0%, transparent 70%)",
+      pointerEvents: "none",
+    }} />
+    <div style={{
+      position: "absolute", bottom: "60px", left: "-20px",
+      width: "110px", height: "110px", borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)",
+      pointerEvents: "none",
+    }} />
+  </>
+);
+
 const SidebarContent = ({ activeTab, setActiveTab, onClose }) => (
-  <nav style={{ display: "flex", flexDirection: "column", gap: "2px", padding: "16px 12px 0" }}>
-    {NAV_ITEMS.map((item) => {
-      const isActive = activeTab === item.key;
-      return (
-        <button
-          key={item.key}
-          onClick={() => { setActiveTab(item.key); onClose?.(); }}
-          style={{
-            display: "flex", alignItems: "center", gap: "12px",
-            padding: "10px 12px", borderRadius: "12px",
-            fontSize: "14px", fontWeight: isActive ? "600" : "500",
-            border: "none", cursor: "pointer", textAlign: "left", width: "100%",
-            backgroundColor: isActive ? "#eff6ff" : "transparent",
-            color: isActive ? "#1e3a8a" : "#64748b",
-            transition: "all 0.15s",
-          }}
-        >
-          <span style={{ color: isActive ? "#1e3a8a" : "#94a3b8", display: "flex", alignItems: "center" }}>
-            {item.icon}
-          </span>
-          {item.label}
-        </button>
-      );
-    })}
-  </nav>
+  <div style={{ position: "relative", zIndex: 1, flex: 1 }}>
+    <nav style={{ display: "flex", flexDirection: "column", gap: "2px", padding: "16px 10px 0" }}>
+      {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
+        const isActive = activeTab === key;
+        return (
+          <button
+            key={key}
+            onClick={() => { setActiveTab(key); onClose?.(); }}
+            style={navItemStyle(isActive)}
+          >
+            {isActive && <AccentBar />}
+            <Icon
+              size={15}
+              strokeWidth={isActive ? 2.5 : 2}
+              color={isActive ? "#4f46e5" : "#94a3b8"}
+              style={{ flexShrink: 0, transition: "color 0.18s" }}
+            />
+            {label}
+          </button>
+        );
+      })}
+    </nav>
+  </div>
 );
 
 const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
@@ -104,6 +102,14 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
+
+  const asideStyle = {
+    width: "200px", flexShrink: 0,
+    minHeight: "100%", display: "flex", flexDirection: "column",
+    background: sidebarBg,
+    borderRight: "1px solid rgba(148,163,184,0.12)",
+    position: "relative", overflow: "hidden",
+  };
 
   return (
     <>
@@ -119,45 +125,54 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
       `}</style>
 
       {/* Desktop */}
-      <aside className="shared-sidebar-desktop" style={{
-        width: "176px", flexShrink: 0,
-        backgroundColor: "white", borderRight: "1px solid #f1f5f9",
-        minHeight: "100%", flexDirection: "column",
-      }}>
+      <aside className="shared-sidebar-desktop" style={asideStyle}>
+        <Blobs />
         <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} />
       </aside>
 
       {/* Mobile backdrop */}
-      <div className="shared-sidebar-backdrop" onClick={onClose} style={{
-        position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)",
-        zIndex: 30, opacity: isOpen ? 1 : 0,
-        pointerEvents: isOpen ? "auto" : "none", transition: "opacity 0.3s ease",
-      }} />
+      <div
+        className="shared-sidebar-backdrop"
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0,
+          backgroundColor: "rgba(15,23,42,0.5)",
+          backdropFilter: "blur(4px)",
+          zIndex: 30,
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+          transition: "opacity 0.3s ease",
+        }}
+      />
 
       {/* Mobile drawer */}
-      <aside className="shared-sidebar-drawer" style={{
-        position: "fixed", top: 0, left: 0, height: "100%", width: "224px",
-        backgroundColor: "white", zIndex: 40,
-        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-        flexDirection: "column",
-        transform: isOpen ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 0.3s ease-in-out",
-      }}>
+      <aside
+        className="shared-sidebar-drawer"
+        style={{
+          ...asideStyle,
+          position: "fixed", top: 0, left: 0,
+          height: "100%", width: "224px",
+          zIndex: 40,
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+          flexDirection: "column",
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+        }}
+      >
+        <Blobs />
         <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 16px", height: "56px",
-          borderBottom: "1px solid #f1f5f9", flexShrink: 0,
+          display: "flex", alignItems: "center", justifyContent: "flex-end",
+          padding: "12px 16px 0", flexShrink: 0,
         }}>
-          <span style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b" }}>Session Menu</span>
-          <button onClick={onClose} style={{
-            padding: "6px", borderRadius: "8px", border: "none",
-            backgroundColor: "transparent", cursor: "pointer", color: "#94a3b8",
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
+          <button
+            onClick={onClose}
+            style={{
+              padding: "6px", borderRadius: "8px", border: "none",
+              background: "rgba(148,163,184,0.15)", cursor: "pointer",
+              color: "#64748b", display: "flex", alignItems: "center",
+            }}
+          >
+            <X size={16} />
           </button>
         </div>
         <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} />

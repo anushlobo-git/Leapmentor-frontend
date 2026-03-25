@@ -21,14 +21,18 @@ const formatSlot = (slot) => {
   const date = new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
   });
-  const fmt = (t) => {
+  const getParts = (t) => {
     const [h, m] = t.split(":");
     const hour = parseInt(h);
     const ampm = hour >= 12 ? "PM" : "AM";
     const display = hour % 12 || 12;
-    return `${display}:${m} ${ampm}`;
+    return { display: `${display}:${m}`, ampm };
   };
-  return `${slot.day}, ${date} · ${fmt(slot.startTime)} – ${fmt(slot.endTime)}`;
+  const start = getParts(slot.startTime);
+  const end = getParts(slot.endTime);
+  // Omit AM/PM from start if same period as end to save space
+  const startStr = start.ampm === end.ampm ? start.display : `${start.display} ${start.ampm}`;
+  return `${slot.day}, ${date} · ${startStr} – ${end.display} ${end.ampm}`;
 };
 
 const formatDate = (dateStr) => {
@@ -38,14 +42,12 @@ const formatDate = (dateStr) => {
   });
 };
 
-// ── Skill Tag ─────────────────────────────────────────────────
 const SkillTag = ({ label }) => (
   <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200">
     {label}
   </span>
 );
 
-// ── Avatar ────────────────────────────────────────────────────
 const Avatar = ({ name, picture, isCompleted }) => {
   if (picture) {
     return (
@@ -66,14 +68,13 @@ const Avatar = ({ name, picture, isCompleted }) => {
   );
 };
 
-// ── Main Card ─────────────────────────────────────────────────
 const ConnectCard = ({
   name,
   person,
   session,
   tokenLabel,
   onDashboardClick,
-  isCompleted = false,   // ✅ new prop
+  isCompleted = false,
 }) => {
   const role = person?.currentRole || "";
   const company = person?.company || "";
@@ -86,7 +87,7 @@ const ConnectCard = ({
   const total = session?.totalAmount;
 
   return (
-    <div className={`rounded-2xl p-5 flex flex-col gap-4 transition-all duration-200
+    <div className={`rounded-2xl p-5 flex flex-col gap-4 transition-all duration-200 h-full
       ${isCompleted
         ? "bg-slate-50 border border-slate-200 hover:border-slate-300"
         : "bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm"}`}>
@@ -109,7 +110,6 @@ const ConnectCard = ({
               )}
             </div>
 
-            {/* Status badge */}
             {isCompleted ? (
               <span className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full
                 bg-slate-100 border border-slate-200 text-slate-500 text-[10px] font-bold">
@@ -128,7 +128,6 @@ const ConnectCard = ({
             )}
           </div>
 
-          {/* Skills */}
           {skills.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {skills.map((s, i) => <SkillTag key={i} label={s} />)}
@@ -140,10 +139,9 @@ const ConnectCard = ({
       {/* ── Divider ── */}
       <div className="border-t border-slate-100" />
 
-      {/* ── Session info ── */}
-      <div className="space-y-2">
+      {/* ── Session info — flex-1 pushes button to bottom ── */}
+      <div className="flex-1 space-y-2">
 
-        {/* Escrow badge — only for active */}
         {!isCompleted && total != null && (
           <div className="flex items-center gap-2">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -156,7 +154,6 @@ const ConnectCard = ({
           </div>
         )}
 
-        {/* Completed — tokens released badge */}
         {isCompleted && total != null && (
           <div className="flex items-center gap-2">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -171,7 +168,6 @@ const ConnectCard = ({
           </div>
         )}
 
-        {/* Session slot */}
         {slot && (
           <div className="flex items-center gap-2">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -186,7 +182,6 @@ const ConnectCard = ({
           </div>
         )}
 
-        {/* Completed date */}
         {isCompleted && completedAt && (
           <div className="flex items-center gap-2">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -201,7 +196,6 @@ const ConnectCard = ({
           </div>
         )}
 
-        {/* Started date — only for active */}
         {!isCompleted && paidAt && (
           <div className="flex items-center gap-2">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -215,11 +209,11 @@ const ConnectCard = ({
         )}
       </div>
 
-      {/* ── CTA button ── */}
+      {/* ── CTA button — always at bottom ── */}
       <button
         type="button"
         onClick={onDashboardClick}
-        className={`w-45  py-2.5 rounded-xl text-xs font-bold
+        className={`w-full py-2.5 rounded-xl text-xs font-bold
           active:scale-[0.98] transition-all flex items-center justify-center gap-2
           ${isCompleted
             ? "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"

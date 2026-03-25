@@ -50,24 +50,16 @@ const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
         </button>
 
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-          <div style={{
-            width: "28px", height: "28px", borderRadius: "8px",
-            backgroundColor: "#1e3a8a",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-              stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          {/* ✅ Hide logo text on mobile to save space */}
-          <span className="shared-logo-text" style={{ fontSize: "15px", fontWeight: "700", color: "#1e293b" }}>
-            Leapmentor
-          </span>
+         <div
+          className="flex items-center gap-2 cursor-pointer"
+          
+        >
+          <img
+            src="/images/logo.png"
+            alt="Leapmentor logo"
+            className="h-8 w-auto"
+          />
+          <span className="text-xl font-bold text-gray-900 tracking-tight">Leapmentor</span>
         </div>
 
         {/* Session badge */}
@@ -97,16 +89,16 @@ const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
       <button
         onClick={() => navigate(backPath)}
         style={{
-          display: "flex", alignItems: "center", gap: "6px",
-          padding: "7px 12px", borderRadius: "10px",
-          border: "1px solid #e2e8f0",
-          backgroundColor: "white", cursor: "pointer",
-          fontSize: "12px", fontWeight: "600", color: "#475569",
-          transition: "all 0.15s",
-          flexShrink: 0,
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+  display: "flex", alignItems: "center", gap: "6px",
+  padding: "7px 12px", borderRadius: "10px",
+  border: "1px solid #1e3a8a",
+  backgroundColor: "#1e3a8a", cursor: "pointer",
+  fontSize: "12px", fontWeight: "600", color: "white",
+  transition: "all 0.15s",
+  flexShrink: 0,
+}}
+onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1e40af"}
+onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1e3a8a"}
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -114,7 +106,7 @@ const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
           <polyline points="12 19 5 12 12 5" />
         </svg>
         {/* ✅ Short text on mobile */}
-        <span className="shared-back-full">Back to Dashboard</span>
+        <span className="shared-back-full">Back</span>
         <span className="shared-back-short" style={{ display: "none" }}>Back</span>
       </button>
 
