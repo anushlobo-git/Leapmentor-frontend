@@ -18,15 +18,79 @@ const toDateStr = (year, month, day) =>
 const GRID_7 = { display:"grid", gridTemplateColumns:"repeat(7, minmax(0, 1fr))" };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const isSlotBusy = (dateStr, slot, busySlots) => {
-  if (!busySlots?.length) return false;
+
+/**
+ * Returns the overlapping busy periods for a given slot, or [] if none.
+ */
+const getOverlappingBusy = (dateStr, slot, busySlots) => {
+  if (!busySlots?.length) return [];
   const slotStart = new Date(`${dateStr}T${slot.startTime}:00`);
   const slotEnd   = new Date(`${dateStr}T${slot.endTime}:00`);
-  return busySlots.some((busy) => {
+  return busySlots.filter((busy) => {
     const busyStart = new Date(busy.start);
     const busyEnd   = new Date(busy.end);
     return slotStart < busyEnd && slotEnd > busyStart;
   });
+};
+
+const isSlotBusy = (dateStr, slot, busySlots) =>
+  getOverlappingBusy(dateStr, slot, busySlots).length > 0;
+
+/**
+ * Format an ISO datetime to a short local time string, e.g. "10:30 AM"
+ */
+const formatTime = (isoStr) => {
+  if (!isoStr || !isoStr.includes("T")) return "";
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+};
+
+/**
+ * Convert an ISO datetime to HH:MM (24h) for use as <input type="time"> min/max.
+ */
+const isoToHHMM = (isoStr) => {
+  if (!isoStr) return "";
+  const d = new Date(isoStr);
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+};
+
+/**
+ * Given a slot and its busy overlaps, compute the allowed min/max for
+ * startTime and endTime inputs so the user cannot extend into busy time.
+ *
+ * Strategy:
+ *  - Find all busy periods that overlap or are adjacent to the slot's date.
+ *  - The startTime must be ≤ the start of the first overlapping busy period.
+ *  - The endTime must be ≥ the end of the last overlapping busy period,
+ *    but we instead BLOCK editing entirely and show a warning.
+ *
+ * Simpler approach used here:
+ *  - Collect ALL busy windows for the date (not just overlapping ones).
+ *  - Disable the inputs when the slot is busy, and show what time ranges are blocked.
+ */
+const getBusyWindowsForDate = (dateStr, busySlots) => {
+  if (!busySlots?.length) return [];
+  return busySlots
+    .filter((b) => {
+      const d = new Date(b.start).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+      return d === dateStr;
+    })
+    .map((b) => ({
+      start: b.start,
+      end: b.end,
+      startHHMM: isoToHHMM(b.start),
+      endHHMM: isoToHHMM(b.end),
+      label: `${formatTime(b.start)} – ${formatTime(b.end)}`,
+    }));
+};
+
+// Returns true if end - start < minDuration (in minutes)
+const isSlotTooShort = (startTime, endTime, minDuration) => {
+  if (!startTime || !endTime) return false;
+  const [sh, sm] = startTime.split(":").map(Number);
+  const [eh, em] = endTime.split(":").map(Number);
+  const diffMins = (eh * 60 + em) - (sh * 60 + sm);
+  return diffMins > 0 && diffMins < minDuration;
 };
 
 const getEventsForDate = (dateStr, events) => {
@@ -39,12 +103,6 @@ const getEventsForDate = (dateStr, events) => {
     });
     return localDate === dateStr;
   });
-};
-
-const formatTime = (isoStr) => {
-  if (!isoStr || !isoStr.includes("T")) return "";
-  const d = new Date(isoStr);
-  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 };
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -70,16 +128,37 @@ const TrashIcon = () => (
   </svg>
 );
 
+const WarnIcon = () => (
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+);
+
 // ─── TimeInput ────────────────────────────────────────────────────────────────
+const snapToQuarter = (timeStr) => {
+  if (!timeStr) return timeStr;
+  const [hh, mm] = timeStr.split(":");
+  const mins = parseInt(mm, 10);
+  const snapped = Math.round(mins / 15) * 15;
+  if (snapped === 60) {
+    const newHour = (parseInt(hh, 10) + 1) % 24;
+    return `${String(newHour).padStart(2, "0")}:00`;
+  }
+  return `${hh}:${String(snapped).padStart(2, "0")}`;
+};
+
 const TimeInput = ({ value, onChange }) => (
   <input
     type="time"
     value={value}
-    onChange={(e) => onChange(e.target.value)}
+    onChange={(e) => onChange(snapToQuarter(e.target.value))}
     className="text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150 cursor-pointer hover:border-slate-300"
     style={{ width: "100px" }}
   />
 );
+
 
 // ─── EventTooltip ─────────────────────────────────────────────────────────────
 const EventTooltip = ({ events, isBusyOnly }) => (
@@ -237,11 +316,59 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
   );
 };
 
+// ─── BusyBadge ────────────────────────────────────────────────────────────────
+/**
+ * Shows "Busy · 10:30 AM – 11:00 AM" for each overlapping busy window.
+ * If multiple windows overlap the slot they are stacked.
+ */
+const BusyBadge = ({ overlaps }) => {
+  if (!overlaps?.length) return null;
+  return (
+    <div className="flex flex-col gap-1">
+      {overlaps.map((b, i) => (
+        <span
+          key={i}
+          className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-300 rounded-lg px-2.5 py-1 leading-none whitespace-nowrap"
+        >
+          <WarnIcon />
+          Busy&nbsp;·&nbsp;{formatTime(b.start)}–{formatTime(b.end)}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+// ─── BlockedTimeInfo ──────────────────────────────────────────────────────────
+/**
+ * Shown below the time row when the slot is busy — explains which windows are
+ * blocked and that the inputs are locked.
+ */
+const BlockedTimeInfo = ({ busyWindows }) => {
+  if (!busyWindows?.length) return null;
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1.5 items-center">
+      <span className="text-[10px] font-semibold text-orange-600">Blocked:</span>
+      {busyWindows.map((w, i) => (
+        <span
+          key={i}
+          className="text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-2 py-0.5 leading-none"
+        >
+          {w.label}
+        </span>
+      ))}
+      <span className="text-[10px] text-slate-500 italic">— adjust times to avoid conflict</span>
+    </div>
+  );
+};
+
 // ─── DateSlotEditor ───────────────────────────────────────────────────────────
-const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRemoveDate, busySlots }) => {
+const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRemoveDate, busySlots, minDuration }) => {
   const displayStr = new Date(dateEntry.date + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "short", month: "short", day: "numeric",
   });
+
+  // All busy windows for this date (for the blocked-time info strip)
+  const busyWindowsForDate = getBusyWindowsForDate(dateEntry.date, busySlots);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -252,7 +379,7 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
           <span className="text-xs font-bold text-slate-700">{displayStr}</span>
         </div>
         <div className="flex items-center gap-1">
-          {/* Add slot button — blue-900 */}
+          {/* Add slot button */}
           <button
             type="button"
             onClick={() => onAddSlot(dateEntry.date)}
@@ -262,7 +389,7 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
             <PlusIcon />
             Add slot
           </button>
-          {/* Remove date button — darker red */}
+          {/* Remove date button */}
           <button
             type="button"
             onClick={() => onRemoveDate(dateEntry.date)}
@@ -276,9 +403,12 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
       </div>
 
       {/* Slots */}
-      <div className="px-3.5 py-2.5 space-y-2">
+      <div className="px-3.5 py-2.5 space-y-3">
         {dateEntry.slots.map((slot, index) => {
-          const busy = isSlotBusy(dateEntry.date, slot, busySlots);
+          const overlaps = getOverlappingBusy(dateEntry.date, slot, busySlots);
+          const isBusy   = overlaps.length > 0;
+          const tooShort = minDuration && isSlotTooShort(slot.startTime, slot.endTime, minDuration);
+
           return (
             <div key={index} className="flex items-center gap-2 flex-wrap">
               <TimeInput
@@ -291,18 +421,18 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
                 onChange={(val) => onUpdateSlot(dateEntry.date, index, "endTime", val)}
               />
 
-              {busy && (
-                <span className="flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-300 rounded-lg px-2.5 py-1 leading-none">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  Busy
+              {/* Busy badge with conflict time */}
+              {isBusy && <BusyBadge overlaps={overlaps} />}
+
+              {/* Slot too short warning */}
+              {tooShort && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 rounded-lg px-2.5 py-1 leading-none whitespace-nowrap">
+                  <WarnIcon />
+                  Too short — needs {minDuration} min
                 </span>
               )}
 
-              {/* Remove slot — only show when multiple slots exist */}
+              {/* Remove slot — only when multiple slots exist */}
               {dateEntry.slots.length > 1 && (
                 <button
                   type="button"
@@ -322,12 +452,18 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
 };
 
 // ─── CalendarAvailabilitySection ──────────────────────────────────────────────
-const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCalendarConnected }) => {
+const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCalendarConnected, onBusySlotsChange, sessionDurations }) => {
   const now = new Date();
+  const minDuration = sessionDurations?.length ? Math.min(...sessionDurations) : 30;
   const [calYear,         setCalYear]         = useState(now.getFullYear());
   const [calMonth,        setCalMonth]        = useState(now.getMonth());
   const [busySlots,       setBusySlots]       = useState([]);
   const [calendarEvents,  setCalendarEvents]  = useState([]);
+
+  const updateBusySlots = (slots) => {
+    setBusySlots(slots);
+    onBusySlotsChange?.(slots);
+  };
 
   const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -347,7 +483,7 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
       const params  = { startDate: firstDay, endDate: lastDay };
 
       axios.get(`${BASE_URL}/api/google-calendar/busy`, { params, headers })
-        .then(({ data }) => setBusySlots(data.busy || []))
+        .then(({ data }) => updateBusySlots(data.busy || []))
         .catch((err) => console.error("Failed to fetch busy slots:", err));
 
       axios.get(`${BASE_URL}/api/google-calendar/events`, { params, headers })
@@ -480,6 +616,7 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
                     onUpdateSlot={handleUpdateSlot}
                     onRemoveDate={handleRemoveDate}
                     busySlots={busySlots}
+                    minDuration={minDuration}
                   />
                 ))}
               </div>
