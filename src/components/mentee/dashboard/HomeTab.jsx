@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
+import LeapBuddy from "../../LeapBuddy";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
@@ -437,6 +438,7 @@ const HomeTab = ({ user, profile }) => {
           onClose={() => setSelectedMentor(null)}
         />
       )}
+      <LeapBuddy role="mentee" user={user} profile={profile} />
     </>
   );
 };

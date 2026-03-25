@@ -26,10 +26,10 @@ const useSessions = (connectRequestId, onAllComplete) => {
     if (data.progress !== undefined) setProgress(data.progress);
   }, []);
 
-  const fetchSlots = useCallback(async () => {
+  const fetchSlots = useCallback(async (silent = false) => {
     if (!connectRequestId) return;
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
       const res = await axios.get(
         `${BASE_URL}/api/sessions/${connectRequestId}/slots`,
@@ -39,7 +39,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load sessions.");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [connectRequestId, applySlotUpdate]);
 
@@ -83,7 +83,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
   // ✅ Fallback polling every 30s
   useEffect(() => {
     if (!connectRequestId) return;
-    const interval = setInterval(fetchSlots, 30000);
+    const interval = setInterval(() => fetchSlots(true), 30000);
     return () => clearInterval(interval);
   }, [connectRequestId, fetchSlots]);
 

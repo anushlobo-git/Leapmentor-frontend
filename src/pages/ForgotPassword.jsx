@@ -3,54 +3,43 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword, verifyResetOtp, resetPassword, clearMessages } from "../store/slices/authSlice";
-
 // ── Steps: 1 = enter email, 2 = enter OTP, 3 = new password ──
 const STEPS = { EMAIL: 1, OTP: 2, PASSWORD: 3 };
-
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-
-  const { loading, error, successMsg } = useSelector((state) => state.auth);
-
+  const { loading } = useSelector((state) => state.auth);
   const role = searchParams.get("role") || "mentor";
   const loginPath = role === "mentee" ? "/login/mentee" : "/login/mentor";
-
   const [step, setStep] = useState(STEPS.EMAIL);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-
-  // local msg for timed step transitions
+  // local msg — driven only by handlers, never by Redux sync
   const [msg, setMsg] = useState({ type: "", text: "" });
-
-  // sync redux messages → local msg
-  useEffect(() => {
-    if (error) setMsg({ type: "error", text: error });
-    if (successMsg) setMsg({ type: "success", text: successMsg });
-  }, [error, successMsg]);
-  // Clear any stale Redux messages on mount
+  // Clear any stale Redux messages on mount only
   useEffect(() => {
     dispatch(clearMessages());
   }, []);
-
   // ── Step 1 — Send OTP ─────────────────────────────────────
   const handleSendOTP = async (e) => {
     e.preventDefault();
     dispatch(clearMessages());
     setMsg({ type: "", text: "" });
-
     const action = await dispatch(forgotPassword({ email }));
     if (forgotPassword.fulfilled.match(action)) {
       setMsg({ type: "success", text: "OTP sent! Check your email." });
-      setTimeout(() => { setMsg({ type: "", text: "" }); setStep(STEPS.OTP); }, 800);
+      setTimeout(() => {
+        dispatch(clearMessages());
+        setMsg({ type: "", text: "" });
+        setStep(STEPS.OTP);
+      }, 800);
     } else {
       setMsg({ type: "error", text: action.payload || "Failed to send OTP." });
     }
   };
-
   // ── OTP box helpers ───────────────────────────────────────
   const handleOtpChange = (val, idx) => {
     if (!/^\d?$/.test(val)) return;
@@ -61,13 +50,11 @@ const ForgotPassword = () => {
       document.getElementById(`otp-${idx + 1}`)?.focus();
     }
   };
-
   const handleOtpKeyDown = (e, idx) => {
     if (e.key === "Backspace" && !otp[idx] && idx > 0) {
       document.getElementById(`otp-${idx - 1}`)?.focus();
     }
   };
-
   const handleOtpPaste = (e) => {
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     if (pasted.length === 6) {
@@ -76,7 +63,6 @@ const ForgotPassword = () => {
     }
     e.preventDefault();
   };
-
   // ── Step 2 — Verify OTP ───────────────────────────────────
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
@@ -86,16 +72,18 @@ const ForgotPassword = () => {
     }
     dispatch(clearMessages());
     setMsg({ type: "", text: "" });
-
     const action = await dispatch(verifyResetOtp({ email, otp: otpStr }));
     if (verifyResetOtp.fulfilled.match(action)) {
       setMsg({ type: "success", text: "OTP verified!" });
-      setTimeout(() => { setMsg({ type: "", text: "" }); setStep(STEPS.PASSWORD); }, 600);
+      setTimeout(() => {
+        dispatch(clearMessages());
+        setMsg({ type: "", text: "" });
+        setStep(STEPS.PASSWORD);
+      }, 600);
     } else {
       setMsg({ type: "error", text: action.payload || "Invalid OTP." });
     }
   };
-
   // ── Step 3 — Reset Password ───────────────────────────────
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -104,39 +92,35 @@ const ForgotPassword = () => {
     }
     dispatch(clearMessages());
     setMsg({ type: "", text: "" });
-
     const action = await dispatch(resetPassword({ email, otp: otp.join(""), newPassword }));
     if (resetPassword.fulfilled.match(action)) {
       setMsg({ type: "success", text: "Password reset! Redirecting to login..." });
-      setTimeout(() => navigate(loginPath), 1500);
+      setTimeout(() => {
+        dispatch(clearMessages());
+        navigate(loginPath);
+      }, 1500);
     } else {
       setMsg({ type: "error", text: action.payload || "Failed to reset password." });
     }
   };
-
   // ── Step labels ───────────────────────────────────────────
   const stepMeta = {
     [STEPS.EMAIL]: { title: "Forgot Password", subtitle: "Enter your email to receive a reset OTP" },
     [STEPS.OTP]: { title: "Enter OTP", subtitle: `We sent a 6-digit code to ${email}` },
     [STEPS.PASSWORD]: { title: "Set New Password", subtitle: "Choose a strong new password" },
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm">
-
         {/* ── Logo ── */}
         <div className="flex items-center gap-2.5 mb-8 justify-center">
-
           <img
             src="/images/logo.png"
             alt="Leapmentor logo"
             className="h-8 w-auto"
           />
-
           <span className="text-lg font-bold text-slate-800 tracking-tight">Leapmentor</span>
         </div>
-
         {/* ── Step progress dots ── */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1, 2, 3].map((s) => (
@@ -144,15 +128,12 @@ const ForgotPassword = () => {
               }`} />
           ))}
         </div>
-
         {/* ── Card ── */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
             {stepMeta[step].title}
           </h1>
           <p className="text-sm text-slate-500 mb-6">{stepMeta[step].subtitle}</p>
-
           {/* Message banner */}
           {msg.text && (
             <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
@@ -162,7 +143,6 @@ const ForgotPassword = () => {
               {msg.text}
             </div>
           )}
-
           {/* ── STEP 1: Email ── */}
           {step === STEPS.EMAIL && (
             <form onSubmit={handleSendOTP} className="space-y-4">
@@ -185,7 +165,6 @@ const ForgotPassword = () => {
               </button>
             </form>
           )}
-
           {/* ── STEP 2: OTP ── */}
           {step === STEPS.OTP && (
             <form onSubmit={handleVerifyOTP} className="space-y-5">
@@ -204,14 +183,12 @@ const ForgotPassword = () => {
                   />
                 ))}
               </div>
-
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-900 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
                 {loading
                   ? <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Verifying...</>
                   : "Verify OTP"}
               </button>
-
               {/* Resend */}
               <p className="text-xs text-slate-400 text-center">
                 Didn't get it?{" "}
@@ -222,7 +199,6 @@ const ForgotPassword = () => {
               </p>
             </form>
           )}
-
           {/* ── STEP 3: New Password ── */}
           {step === STEPS.PASSWORD && (
             <form onSubmit={handleResetPassword} className="space-y-4">
@@ -256,7 +232,6 @@ const ForgotPassword = () => {
                 </div>
                 <p className="text-xs text-slate-400 mt-1">Minimum 6 characters</p>
               </div>
-
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-900 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
                 {loading
@@ -266,7 +241,6 @@ const ForgotPassword = () => {
             </form>
           )}
         </div>
-
         {/* Back to login */}
         <p className="text-sm text-slate-400 text-center mt-6">
           Remember your password?{" "}
@@ -275,10 +249,8 @@ const ForgotPassword = () => {
             Back to Login
           </span>
         </p>
-
       </div>
     </div>
   );
 };
-
 export default ForgotPassword;
