@@ -10,7 +10,8 @@ import SharedReportTab            from "./tabs/SharedReportTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import useSocketToast             from "../../hooks/useSocketToast";
 
-const SharedDashboardLayout = ({ connect, onAllComplete, activeTab, setActiveTab }) => {
+const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
+  const activeTab = activeTabProp || "overview"; 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useSocketToast();
@@ -69,7 +70,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab, setActiveTab
 
           {/* Home */}
           <div style={{
-            display: activeTab === "home" ? "block" : "none",
+           display: activeTab === "overview" ? "block" : "none",
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>

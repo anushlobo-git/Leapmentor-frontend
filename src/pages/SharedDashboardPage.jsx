@@ -15,7 +15,7 @@ const SharedDashboardPage = () => {
   const [error,   setError]   = useState(null);
 
   // ✅ Track active tab here so it survives connect refetches
-  const [activeTab, setActiveTab] = useState("home");
+ const [activeTab, setActiveTab] = useState("overview");
 
   const fetchConnect = useCallback(async () => {
     try {

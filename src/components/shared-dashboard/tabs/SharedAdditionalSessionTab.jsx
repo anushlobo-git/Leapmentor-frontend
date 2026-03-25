@@ -394,7 +394,7 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
           </div>
           <div>
             <h1 style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", margin: 0 }}>Additional Session</h1>
-            <p style={{ fontSize: "13px", color: "#94a3b8", margin: 0, marginTop: "2px" }}>
+            <p style={{ fontSize: "13px", color: "#1e3a8a", margin: 0, marginTop: "2px" }}>
               Book another session with your {isMentor ? "mentee" : "mentor"}
             </p>
           </div>

@@ -34,45 +34,40 @@ const formatDate = (d) => d
 
 // ── Person Card ───────────────────────────────────────────────
 const PersonCard = ({ name, profile, roleLabel }) => {
-  const picture  = profile?.profilePicture || "";
-  const role     = profile?.currentRole || "";
-  const company  = profile?.company || "";
-  const skills   = profile?.skills?.slice(0, 3) || [];
+  const picture = profile?.profilePicture || "";
+  const role = profile?.currentRole || "";
+  const company = profile?.company || "";
+  const skills = profile?.skills?.slice(0, 3) || [];
 
   return (
-    <div style={{
-      flex: 1, backgroundColor: "white",
-      border: "1px solid #e2e8f0", borderRadius: "16px",
-      padding: "20px", display: "flex", flexDirection: "column", gap: "12px",
-    }}>
+    <div className="flex-1 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3">
       {/* Role label */}
-      <p style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
         {roleLabel}
       </p>
 
       {/* Avatar + name */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="flex items-center gap-3">
         {picture ? (
-          <img src={picture} alt={name} style={{
-            width: "48px", height: "48px", borderRadius: "14px",
-            objectFit: "cover", border: "2px solid #f1f5f9", flexShrink: 0,
-          }} />
+          <img
+            src={picture}
+            alt={name}
+            className="w-12 h-12 rounded-[14px] object-cover border-2 border-slate-100 shrink-0"
+          />
         ) : (
-          <div style={{
-            width: "48px", height: "48px", borderRadius: "14px",
-            background: getGradient(name), flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "white", fontWeight: "700", fontSize: "16px",
-          }}>
+          <div
+            className="w-12 h-12 rounded-[14px] shrink-0 flex items-center justify-center text-white font-bold text-base"
+            style={{ background: getGradient(name) }}
+            role="img"
+            aria-label={name}
+          >
             {getInitials(name)}
           </div>
         )}
-        <div style={{ minWidth: 0 }}>
-          <p style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {name}
-          </p>
+        <div className="min-w-0">
+         <p className="text-sm font-bold text-slate-900 truncate">{name}</p>
           {(role || company) && (
-            <p style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <p className="text-[11px] text-blue-900 mt-0.5 truncate">
               {role}{role && company ? " @ " : ""}{company}
             </p>
           )}
@@ -81,13 +76,12 @@ const PersonCard = ({ name, profile, roleLabel }) => {
 
       {/* Skills */}
       {skills.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+        <div className="flex flex-wrap gap-1">
           {skills.map((s, i) => (
-            <span key={i} style={{
-              padding: "2px 8px", borderRadius: "999px",
-              backgroundColor: "#f1f5f9", border: "1px solid #e2e8f0",
-              fontSize: "10px", fontWeight: "600", color: "#475569",
-            }}>
+            <span
+              key={i}
+              className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600"
+            >
               {s}
             </span>
           ))}
@@ -97,42 +91,37 @@ const PersonCard = ({ name, profile, roleLabel }) => {
   );
 };
 
-// ── Info row ──────────────────────────────────────────────────
+// ── Info Row ──────────────────────────────────────────────────
 const InfoRow = ({ icon, label, value, accent }) => (
-  <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
-    <span style={{ color: "#94a3b8", marginTop: "1px", flexShrink: 0 }}>{icon}</span>
-    <div style={{ flex: 1 }}>
-      <p style={{ fontSize: "10px", color: "#94a3b8", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+  <div className="flex items-start gap-2.5">
+    <span className="text-slate-400 mt-0.5 shrink-0">{icon}</span>
+    <div className="flex-1">
+      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">
         {label}
       </p>
-      <p style={{ fontSize: "13px", fontWeight: "600", color: accent || "#1e293b", marginTop: "2px" }}>
+      <p
+  className={`text-[13px] font-semibold mt-0.5 ${accent ? "" : "text-slate-900"}`}
+  style={accent ? { color: accent } : undefined}
+>
         {value}
       </p>
     </div>
   </div>
 );
 
-// ── Quick action button ───────────────────────────────────────
+// ── Quick Action Button ───────────────────────────────────────
 const QuickAction = ({ icon, label, onClick, color = "#2563eb" }) => (
   <button
     onClick={onClick}
-    style={{
-      flex: 1, display: "flex", flexDirection: "column",
-      alignItems: "center", gap: "6px",
-      padding: "14px 10px", borderRadius: "14px",
-      border: "1px solid #e2e8f0", backgroundColor: "white",
-      cursor: "pointer", transition: "all 0.15s",
-    }}
-    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"}
-    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+    className="flex-1 flex flex-col items-center gap-1.5 py-3.5 px-2.5 rounded-[14px] border border-slate-200 bg-white cursor-pointer transition-colors duration-150 hover:bg-slate-50"
   >
     <span style={{ color }}>{icon}</span>
-    <span style={{ fontSize: "11px", fontWeight: "600", color: "#475569" }}>{label}</span>
+    <span className="text-[11px] font-semibold text-slate-600">{label}</span>
   </button>
 );
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedHomeTab = ({ connect, onTabChange }) => {
+const SharedHomeTab = ({ connect, onTabChange = () => { } }) => {
   const {
     mentor, mentee,
     mentorProfile, menteeProfile,
@@ -140,39 +129,35 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
     status,
   } = connect;
 
-  const isCompleted = status === "completed"; 
+  const isCompleted = status === "completed";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+    <div className="flex flex-col gap-6">
 
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "22px", fontWeight: "800", color: "#1e293b" }}>
+        <h1 className="text-[22px] font-bold text-slate-800">
           Session Overview
         </h1>
-        <p style={{ fontSize: "13px", color: "#94a3b8", marginTop: "4px" }}>
+        <p className="text-[13px] text-blue-900 mt-1">
           Your active mentorship session details and participants.
         </p>
       </div>
 
       {/* Participants */}
       <div>
-        <p style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "12px" }}>
+        <p className="text-[11px] font-bold text-slate-700 uppercase tracking-widest mb-3">
           Participants
         </p>
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+        <div className="flex gap-3 flex-wrap">
           <PersonCard name={mentor?.name || "Mentor"} profile={mentorProfile} roleLabel="Mentor" />
           <PersonCard name={mentee?.name || "Mentee"} profile={menteeProfile} roleLabel="Mentee" />
         </div>
       </div>
 
-      {/* Session details */}
-      <div style={{
-        backgroundColor: "white", border: "1px solid #e2e8f0",
-        borderRadius: "16px", padding: "20px",
-        display: "flex", flexDirection: "column", gap: "16px",
-      }}>
-        <p style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+      {/* Session Details */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4">
+        <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">
           Session Details
         </p>
 
@@ -181,10 +166,10 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
             icon={
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
             }
             label="Confirmed Session"
@@ -197,8 +182,8 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
             icon={
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             }
             label="Tokens in Escrow"
@@ -212,8 +197,8 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
             icon={
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
               </svg>
             }
             label="Session Started"
@@ -222,17 +207,17 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
         )}
       </div>
 
-      {/* Quick actions */}
+      {/* Quick Actions */}
       <div>
-        <p style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "12px" }}>
+        <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest mb-3">
           Quick Actions
         </p>
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <div className="flex gap-2.5 flex-wrap">
           <QuickAction
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             }
             label="Open Chat"
@@ -243,27 +228,28 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <circle cx="12" cy="12" r="6"/>
-                <circle cx="12" cy="12" r="2"/>
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
               </svg>
             }
             label="Set Goals"
             onClick={() => onTabChange("goals")}
             color="#7c3aed"
           />
-          {/* ✅ NEW — hidden if session completed */}
+
+          {/* Hidden if session completed */}
           {!isCompleted && (
             <QuickAction
               icon={
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                  <line x1="12" y1="14" x2="12" y2="20"/>
-                  <line x1="9" y1="17" x2="15" y2="17"/>
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                  <line x1="12" y1="14" x2="12" y2="20" />
+                  <line x1="9" y1="17" x2="15" y2="17" />
                 </svg>
               }
               label="Add Session"
@@ -271,14 +257,15 @@ const SharedHomeTab = ({ connect, onTabChange }) => {
               color="#059669"
             />
           )}
+
           <QuickAction
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
               </svg>
             }
             label="Report"

@@ -21,7 +21,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
 
       {/* Title */}
       <div>
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+        <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
           Goal Title <span className="text-red-400">*</span>
         </label>
         <input
@@ -34,7 +34,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
 
       {/* Description */}
       <div>
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+        <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
           Description <span className="text-xs text-slate-400 normal-case font-normal">(optional)</span>
         </label>
         <textarea
@@ -49,7 +49,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
       {/* Dates */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
             Start Date
           </label>
           <input
@@ -60,7 +60,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
             End Date
           </label>
           <input

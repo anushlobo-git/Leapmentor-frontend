@@ -28,7 +28,6 @@ const CSS = `
   .sidebar-root {
     width: 228px;
     flex-shrink: 0;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background: linear-gradient(160deg, #eef4ff 0%, #f5f0ff 45%, #edfdf8 100%);
@@ -86,7 +85,7 @@ const CSS = `
     text-align: left;
     width: 100%;
     background: transparent;
-    color: #1e293b; /* slate-800 */
+    color: #1e293b;
     position: relative;
     transition: background 0.15s, color 0.15s, box-shadow 0.15s;
     letter-spacing: 0;
@@ -95,7 +94,7 @@ const CSS = `
 
   .sidebar-nav-btn:hover {
     background: rgba(255,255,255,0.72);
-    color: #0f172a; /* slate-900 on hover */
+    color: #0f172a;
     box-shadow: 0 1px 6px rgba(99,102,241,0.08);
   }
 
@@ -113,7 +112,7 @@ const CSS = `
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    color: #64748b; /* keep icons slightly muted */
+    color: #64748b;
     transition: color 0.15s;
   }
 
@@ -176,7 +175,13 @@ const CSS = `
   }
 
   /* ── Mobile ── */
-  .mentor-sidebar-desktop { display: flex; }
+  .mentor-sidebar-desktop {
+    display: flex;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: flex-start;
+  }
   .mentor-sidebar-backdrop,
   .mentor-sidebar-drawer { display: none; }
 

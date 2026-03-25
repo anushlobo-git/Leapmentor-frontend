@@ -27,7 +27,7 @@ const GoalCard = ({ goal, onEdit }) => {
     <div className="bg-white border border-slate-200 rounded-2xl p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+          <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1.5">
             Primary Goal
           </p>
           <p className="text-lg font-extrabold text-slate-800 leading-snug mb-2">
@@ -75,7 +75,7 @@ const NoGoalState = ({ onSetGoal }) => (
     </div>
     <div>
       <p className="text-sm font-bold text-slate-800 mb-1">No goal set yet</p>
-      <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+      <p className="text-xs text-slate-700 max-w-xs leading-relaxed">
         Set a primary goal to guide this mentorship session.
       </p>
     </div>
@@ -101,7 +101,7 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
     <div className="flex items-center justify-between mb-3">
       <div>
         <p className="text-sm font-bold text-slate-800">Overall Session Progress</p>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs text-slate-700 mt-0.5">
           {completedSlots} of {totalSlots} session{totalSlots !== 1 ? "s" : ""} completed by both parties
         </p>
       </div>
@@ -172,7 +172,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold text-slate-800 m-0">Goals & Milestones</h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-blue-900 mt-1">
           Set your session goal, break it into milestones, and track progress together.
         </p>
       </div>
@@ -231,11 +231,12 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
 
       {/* Sessions — meeting link + completion only, NO milestones */}
       {slots.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            Sessions ({slots.length})
-          </p>
-          {slots.map((slot, index) => (
+  <div className="flex flex-col gap-4">
+    <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">
+      Sessions ({slots.length})
+    </p>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {slots.map((slot, index) => (
             <SessionCard
               key={index}
               slot={slot}
@@ -247,6 +248,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
               onMarkComplete={markSlotComplete}
             />
           ))}
+          </div>
         </div>
       )}
 

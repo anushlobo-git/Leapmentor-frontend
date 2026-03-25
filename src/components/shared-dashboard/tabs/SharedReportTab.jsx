@@ -51,7 +51,7 @@ const FeedbackCard = ({ feedback, label, isOwn }) => (
   <div className={`rounded-2xl p-5 border space-y-3
     ${isOwn ? "bg-blue-50 border-blue-100" : "bg-white border-slate-200"}`}>
     <div className="flex items-center justify-between">
-      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+      <p className="text-xs font-bold text-slate-800 uppercase tracking-widest">{label}</p>
       <StarRatingDisplay value={feedback.rating} />
     </div>
     {feedback.comment && (
@@ -59,7 +59,7 @@ const FeedbackCard = ({ feedback, label, isOwn }) => (
         "{feedback.comment}"
       </p>
     )}
-    <p className="text-[10px] text-slate-400">
+    <p className="text-[10px] text-blue-900">
       {new Date(feedback.createdAt).toLocaleDateString("en-US", {
         month: "short", day: "numeric", year: "numeric",
       })}
@@ -135,8 +135,8 @@ const SharedReportTab = ({ connect }) => {
         {/* ── Header with Report button ───────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Session Report</h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <h1 className="text-2xl font-bold text-slate-800">Session Review</h1>
+            <p className="text-sm text-blue-900 mt-0.5">
               Share your feedback about this mentorship session.
             </p>
           </div>
@@ -175,14 +175,14 @@ const SharedReportTab = ({ connect }) => {
                 </p>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 block mb-2">
+                  <label className="text-xs font-semibold text-slate-700 block mb-2">
                     Overall Rating <span className="text-red-400">*</span>
                   </label>
                   <StarRatingInput value={rating} onChange={setRating} disabled={submitting} />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 block mb-1.5">
+                  <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                     Your Feedback{" "}
                     <span className="text-slate-400 font-normal normal-case">(optional)</span>
                   </label>
@@ -207,7 +207,7 @@ const SharedReportTab = ({ connect }) => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={rating === 0 || submitting}
-                  className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold
+                  className="w-50 py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold
                     hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed
                     flex items-center justify-center gap-2"
                 >
@@ -258,7 +258,7 @@ const SharedReportTab = ({ connect }) => {
             ) : (
               <div className="bg-slate-50 border border-dashed border-slate-200
                 rounded-2xl p-5 text-center">
-                <p className="text-xs font-semibold text-slate-500">
+                <p className="text-xs font-semibold text-slate-700">
                   Waiting for {otherName} to submit their feedback
                 </p>
               </div>
