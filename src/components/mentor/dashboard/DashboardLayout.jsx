@@ -73,7 +73,7 @@ const DashboardLayout = () => {
           {activeTab === "availability"  && <AvailabilityTab />}
           {activeTab === "requests"      && <RequestsTab />}
           {activeTab === "connects"      && <MentorConnectsTab />}
-          {activeTab === "notifications" && <NotificationsTab />}
+          {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
           {activeTab === "settings"      && <SettingsTab profile={profile} user={user} />}
           {activeTab === "earnings" && <TrackEarningsTab />}
           {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
