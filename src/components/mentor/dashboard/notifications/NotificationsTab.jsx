@@ -121,17 +121,53 @@ const normalizeApiNotif = (notif) => ({
   body: notif.message,
   actions: [],
   isApi: true,
+  metadata: notif.metadata || {},
 });
 
+// ── Resolve where each notification type navigates ────────────
+const resolveNavigation = (notif, setActiveTab) => {
+  if (!setActiveTab) return;
+
+  const type = notif.type;
+
+  switch (type) {
+    case "connect_request_received":
+    case "connect_request_declined":
+      setActiveTab("requests");
+      break;
+
+    case "connect_request_accepted":
+      setActiveTab("history");  // ← mentee goes here to make payment
+      break;
+    case "upcoming_session":
+    case "new_message":
+    case "session_completed":
+      setActiveTab("connects");
+      break;
+
+    case "new_review":
+      setActiveTab("profile");
+      break;
+
+    case "support_resolved":
+      setActiveTab("home");
+      break;
+
+    default:
+      break;
+  }
+};
 // ── Notification Card ─────────────────────────────────────────
-const NotifCard = ({ notif, onMarkRead, onDelete }) => {
-  const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG["new_message"];
+const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {  const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG["new_message"];
   const initials = getInitials(notif.senderName || notif.title);
   const avatarBg = getAvatarColor(notif.id);
 
   return (
     <div
-      onClick={() => !notif.read && onMarkRead(notif.id)}
+      onClick={() => {
+  if (!notif.read) onMarkRead(notif.id);
+  resolveNavigation(notif, setActiveTab);
+}}
       className={`relative rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
         ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
         ${notif.accent ? "border-l-[3px] border-l-blue-500" : ""}
@@ -240,7 +276,7 @@ const NotifCard = ({ notif, onMarkRead, onDelete }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const NotificationsTab = () => {
+const NotificationsTab = ({ setActiveTab }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -416,6 +452,7 @@ const NotificationsTab = () => {
               notif={notif}
               onMarkRead={markRead}
               onDelete={deleteOne}
+              setActiveTab={setActiveTab}
             />
           ))}
           <button className="w-full py-3 text-xs font-bold text-blue-900 hover:text-blue-700 transition-colors">

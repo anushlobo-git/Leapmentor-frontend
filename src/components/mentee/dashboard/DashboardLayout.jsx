@@ -70,7 +70,7 @@ const DashboardLayout = () => {
           {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
           {activeTab === "findMentors"   && <FindMentorsTab />}
           {activeTab === "history"       && <RequestHistoryTab />}
-          {activeTab === "notifications" && <NotificationsTab />}
+          {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
           {activeTab === "connects"      && <MenteeConnectsTab />}
           {activeTab === "settings"      && <MenteeSettingsTab profile={profile} />}
           {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
