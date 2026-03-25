@@ -7,9 +7,15 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const useConnectRequest = () => {
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
-  const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sessionCount }) => {
+  const sendRequest = async ({
+    mentorId,
+    message,
+    selectedSlots,
+    sessionRate,
+    sessionCount,
+  }) => {
     setError("");
     setSuccess(false);
 
@@ -25,12 +31,15 @@ const useConnectRequest = () => {
       await axios.post(
         `${BASE_URL}/api/connect-requests`,
         { mentorId, message, selectedSlots, sessionRate, sessionCount },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setSuccess(true);
       return true;
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Failed to send request.";
+      const apiMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to send request.";
       setError(apiMsg);
       return false;
     } finally {
