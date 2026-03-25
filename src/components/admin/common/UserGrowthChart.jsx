@@ -19,28 +19,44 @@ const smoothPath = (points, w, h, min, max) => {
 
 const RANGES = ["7D", "30D", "90D"];
 
+// How many Y-axis ticks to show
+const Y_TICKS = 4;
+
 const UserGrowthChart = ({ data = [] }) => {
   const [range, setRange] = useState("30D");
   const [hovered, setHovered] = useState(null);
 
-  const W = 700, H = 160;
+  // Left padding to accommodate Y-axis labels
+  const LABEL_W = 38;
+  const W = 700;
+  const CHART_W = W - LABEL_W;
+  const H = 160;
 
   // Slice data by range
   const sliced = useMemo(() => {
     const n = range === "7D" ? 7 : range === "30D" ? 30 : 90;
-    return data.length ? data.slice(-n) : generateMockData(n);
+    return data.length ? data.slice(-n) : [];
   }, [data, range]);
 
-  const values  = sliced.map((d) => d.count);
-  const min     = Math.min(...values);
-  const max     = Math.max(...values);
-  const result  = smoothPath(values, W, H, min, max);
+  const values = sliced.map((d) => d.count);
+  const min    = Math.min(...values);
+  const max    = Math.max(...values);
+  const result = smoothPath(values, CHART_W, H, min, max);
 
   if (!result) return null;
   const { line, xs, ys } = result;
 
   // Area fill path
   const area = `${line} L ${xs[xs.length - 1]} ${H} L ${xs[0]} ${H} Z`;
+
+  // Y-axis tick values & positions
+  const yTicks = Array.from({ length: Y_TICKS }, (_, i) => {
+    const fraction = i / (Y_TICKS - 1);           // 0 → bottom, 1 → top
+    const value    = Math.round(min + fraction * (max - min));
+    // mirror the chart's own y mapping
+    const yPos     = H - fraction * (H * 0.8) - H * 0.1;
+    return { value, yPos };
+  });
 
   return (
     <div className="rounded-2xl p-6" style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}>
@@ -78,50 +94,68 @@ const UserGrowthChart = ({ data = [] }) => {
             </linearGradient>
           </defs>
 
-          {/* Grid lines */}
-          {[0.25, 0.5, 0.75].map((t, i) => (
-            <line key={i}
-              x1={0} y1={H * t} x2={W} y2={H * t}
-              stroke="#e8eaf0" strokeWidth="1" strokeDasharray="4 4"/>
-          ))}
-
-          {/* Area fill */}
-          <path d={area} fill="url(#areaGrad)"/>
-
-          {/* Line */}
-          <path d={line} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-
-          {/* Hover points */}
-          {xs.map((x, i) => (
+          {/* ── Y-axis labels + grid lines ── */}
+          {yTicks.map(({ value, yPos }, i) => (
             <g key={i}>
-              <rect
-                x={x - 10} y={0} width={20} height={H}
-                fill="transparent"
-                onMouseEnter={() => setHovered(i)}
+              {/* Dashed grid line across chart area */}
+              <line
+                x1={LABEL_W} y1={yPos} x2={W} y2={yPos}
+                stroke="#e8eaf0" strokeWidth="1" strokeDasharray="4 4"
               />
-              {hovered === i && (
-                <>
-                  <line x1={x} y1={0} x2={x} y2={H} stroke="#2563eb" strokeWidth="1" strokeDasharray="3 3" opacity="0.5"/>
-                  <circle cx={x} cy={ys[i]} r="5" fill="#2563eb" stroke="white" strokeWidth="2"/>
-                  {/* Tooltip */}
-                  <g transform={`translate(${Math.min(x, W - 80)}, ${Math.max(ys[i] - 36, 4)})`}>
-                    <rect x="0" y="0" width="75" height="28" rx="6" fill="#1e293b"/>
-                    <text x="8" y="11" fill="white" fontSize="9" fontFamily="DM Mono, monospace" fontWeight="500">
-                      {sliced[i]?.label || `Day ${i + 1}`}
-                    </text>
-                    <text x="8" y="22" fill="#93c5fd" fontSize="10" fontFamily="DM Mono, monospace" fontWeight="500">
-                      {values[i]} users
-                    </text>
-                  </g>
-                </>
-              )}
+              {/* Label to the left */}
+              <text
+                x={LABEL_W - 6}
+                y={yPos + 4}
+                textAnchor="end"
+                fill="#94a3b8"
+                fontSize="9"
+                fontFamily="'DM Mono', monospace"
+              >
+                {value}
+              </text>
             </g>
           ))}
+
+          {/* Chart group shifted right by LABEL_W */}
+          <g transform={`translate(${LABEL_W}, 0)`}>
+            {/* Area fill */}
+            <path d={area} fill="url(#areaGrad)"/>
+
+            {/* Line */}
+            <path d={line} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+
+            {/* Hover points */}
+            {xs.map((x, i) => (
+              <g key={i}>
+                <rect
+                  x={x - 10} y={0} width={20} height={H}
+                  fill="transparent"
+                  onMouseEnter={() => setHovered(i)}
+                />
+                {hovered === i && (
+                  <>
+                    <line x1={x} y1={0} x2={x} y2={H} stroke="#2563eb" strokeWidth="1" strokeDasharray="3 3" opacity="0.5"/>
+                    <circle cx={x} cy={ys[i]} r="5" fill="#2563eb" stroke="white" strokeWidth="2"/>
+                    {/* Tooltip */}
+                    <g transform={`translate(${Math.min(x, CHART_W - 80)}, ${Math.max(ys[i] - 36, 4)})`}>
+                      <rect x="0" y="0" width="75" height="28" rx="6" fill="#1e293b"/>
+                      <text x="8" y="11" fill="white" fontSize="9" fontFamily="DM Mono, monospace" fontWeight="500">
+                        {sliced[i]?.label || `Day ${i + 1}`}
+                      </text>
+                      <text x="8" y="22" fill="#93c5fd" fontSize="10" fontFamily="DM Mono, monospace" fontWeight="500">
+                        {values[i]} users
+                      </text>
+                    </g>
+                  </>
+                )}
+              </g>
+            ))}
+          </g>
         </svg>
       </div>
 
-      {/* X-axis labels */}
-      <div className="flex justify-between mt-2 px-1">
+      {/* X-axis labels — offset to align with chart area */}
+      <div className="flex justify-between mt-2" style={{ paddingLeft: LABEL_W, paddingRight: 4 }}>
         {sliced
           .filter((_, i) => i % Math.ceil(sliced.length / 6) === 0 || i === sliced.length - 1)
           .map((d, i) => (
@@ -134,21 +168,6 @@ const UserGrowthChart = ({ data = [] }) => {
   );
 };
 
-// Mock data generator for when real data isn't available yet
-const generateMockData = (n) => {
-  const result = [];
-  let val = 40;
-  const now = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    val = Math.max(5, val + Math.floor((Math.random() - 0.4) * 15));
-    result.push({
-      label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      count: val,
-    });
-  }
-  return result;
-};
+
 
 export default UserGrowthChart;

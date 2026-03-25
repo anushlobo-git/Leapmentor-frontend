@@ -122,7 +122,7 @@ const AdminLayout = ({ children }) => {
       >
 
         {/* Logo row */}
-        <div className="flex items-center justify-between px-5 py-5 border-b flex-shrink-0"
+        <div className="flex items-center justify-between px-3 py-3 border-b flex-shrink-0"
           style={{ borderColor: "#e8eaf0" }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -149,40 +149,43 @@ const AdminLayout = ({ children }) => {
             </svg>
           </button>
         </div>
-
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-          {NAV_ITEMS.map((section) => (
-            <div key={section.group}>
-              <p className="text-[9px] tracking-widest px-3 mb-2"
-                style={{ color: "#94a3b8", fontWeight: 700, letterSpacing: "0.12em" }}>
-                {section.group}
-              </p>
-              <div className="space-y-0.5">
-                {section.links.map((link) => (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    onClick={closeSidebar}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all
-                      ${isActive
-                        ? "text-blue-700"
-                        : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`
-                    }
-                    style={({ isActive }) => ({
-                      fontWeight: isActive ? 600 : 500,
-                      background: isActive ? "#eff6ff" : undefined,
-                    })}
-                  >
-                    {link.icon}
-                    {link.label}
-                  </NavLink>
-                ))}
+       {/*sidebar*/}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+            {NAV_ITEMS.map((section) => (
+              <div key={section.group}>
+                <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 px-3 mb-2">
+                  {section.group}
+                </p>
+                <div className="space-y-1">
+                  {section.links.map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      onClick={closeSidebar}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150
+                        ${isActive
+                          ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
+                          : "text-slate-600 hover:bg-slate-50"
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <span className={`shrink-0 transition-colors duration-150 ${isActive ? "text-white" : "text-slate-400"}`}>
+                            {link.icon}
+                          </span>
+                          <span className={`truncate ${isActive ? "text-white" : "text-slate-700"}`}>
+                            {link.label}
+                          </span>
+                        </>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </nav>
+            ))}
+          </nav>
 
         {/* Admin info + logout */}
         <div className="px-4 py-4 border-t flex-shrink-0" style={{ borderColor: "#e8eaf0" }}>
