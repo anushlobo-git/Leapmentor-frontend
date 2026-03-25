@@ -88,7 +88,9 @@ const AdminUserManagement = () => {
   const [loading,   setLoading]   = useState(true);
   const [toDelete,  setToDelete]  = useState(null);
   const [deleting,  setDeleting]  = useState(false);
+
   const [toast,     setToast]     = useState(null);
+  const [growthData, setGrowthData] = useState([]);
   const searchTimer = useRef(null);
 
   // ── Show toast ────────────────────────────────────────────
@@ -96,13 +98,26 @@ const AdminUserManagement = () => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+  //-----growth data--------------
+  const fetchGrowthData = useCallback(async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/api/admin/user-growth`, { headers: authHeader() });
+    setGrowthData(res.data);
+  } catch (err) {
+    console.error("Failed to fetch growth data", err);
+  }
+}, []);
+
+useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
 
   // ── Fetch stats ───────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/admin/stats`, { headers: authHeader() });
       setStats(res.data);
-    } catch {}
+    } catch(err) {
+      console.error("Error fetching stats",err);
+     }
   }, []);
 
   // ── Fetch users ───────────────────────────────────────────
@@ -208,7 +223,7 @@ const AdminUserManagement = () => {
         </div>
 
         {/* ── Growth Chart ──────────────────────────────────── */}
-        <UserGrowthChart data={[]} />
+         <UserGrowthChart data={growthData} />
 
         {/* ── User List ─────────────────────────────────────── */}
         <div className="rounded-2xl overflow-hidden" style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}>
