@@ -899,9 +899,14 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
   const [successSlot, setSuccessSlot] = useState(null);
   const [paymentSlot, setPaymentSlot] = useState(null); // { slot, slotId } — triggers payment modal
 
-  const { slots, saving, addSlot } = useSessions(connect?._id);
+  const { slots, additionalSlots, saving, addSlot } = useSessions(connect?._id);
 
-  const existingSlotDates = slots.map((s) => ({
+  // ✅ Merge selectedSlots + additionalSlots so already-booked additional slots
+  //    show as "Already booked" — same as slotLock for normal sessions
+  const existingSlotDates = [
+    ...slots,
+    ...(additionalSlots || []),
+  ].map((s) => ({
     date: s.date,
     startTime: s.startTime,
     endTime: s.endTime,

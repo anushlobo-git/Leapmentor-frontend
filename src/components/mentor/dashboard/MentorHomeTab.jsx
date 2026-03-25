@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import LeapBuddy from "../../LeapBuddy";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
@@ -474,6 +475,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
 
       </div>
       {/* ── END Two Column ── */}
+      <LeapBuddy role="mentor" user={user} profile={profile} />
 
     </div>
   );
