@@ -1,7 +1,7 @@
 // src/components/shared-dashboard/tabs/SharedReportTab.jsx
 import { useState } from "react";
 import useReport from "../../../hooks/useReport";
-import ReportModal        from "./ReportModal";
+import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
 
 // ── Star Rating Input ─────────────────────────────────────────
@@ -19,7 +19,7 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
           fill={star <= value ? "#f59e0b" : "none"}
           stroke={star <= value ? "#f59e0b" : "#cbd5e1"}
           strokeWidth="1.5">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
       </button>
     ))}
@@ -39,7 +39,7 @@ const StarRatingDisplay = ({ value }) => (
         fill={star <= value ? "#f59e0b" : "none"}
         stroke={star <= value ? "#f59e0b" : "#cbd5e1"}
         strokeWidth="1.5">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
     ))}
     <span className="text-xs font-bold text-slate-600 ml-1">{value}/5</span>
@@ -74,9 +74,9 @@ const NotCompletedState = () => (
       flex items-center justify-center">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
         stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
     </div>
     <div>
@@ -89,21 +89,21 @@ const NotCompletedState = () => (
 );
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedReportTab = ({ connect }) => {
-  const [rating,       setRating]       = useState(0);
-  const [comment,      setComment]      = useState("");
-  const [success,      setSuccess]      = useState(false);
-  const [showReport,   setShowReport]   = useState(false);
-  const [reportDone,   setReportDone]   = useState(false);
+const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: reportRefreshKey
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reportDone, setReportDone] = useState(false);
 
   const {
     myFeedback, theirFeedback, sessionStatus,
     loading, submitting, error,
     submitFeedback,
-  } = useReport(connect?._id);
+  } = useReport(connect?._id, reportRefreshKey);  // 👈 ADDED: pass reportRefreshKey
 
   const isCompleted = sessionStatus === "completed";
-  const otherName   = connect?.viewerRole === "mentee"
+  const otherName = connect?.viewerRole === "mentee"
     ? connect?.mentor?.name || "Mentor"
     : connect?.mentee?.name || "Mentee";
 
@@ -147,14 +147,14 @@ const SharedReportTab = ({ connect }) => {
             onClick={() => setShowReport(true)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl
               bg-red-50 border border-red-200 text-red-600 text-xs font-bold
-              hover:bg-red-100 hover:border-red-300 transition-all flex-shrink-0"
+              hover:bg-red-100 hover:border-red-300 transition-all shrink"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0
                 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
             Report
           </button>
@@ -220,8 +220,8 @@ const SharedReportTab = ({ connect }) => {
                     <>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="22" y1="2" x2="11" y2="13"/>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
                       </svg>
                       Submit Feedback
                     </>
@@ -236,8 +236,8 @@ const SharedReportTab = ({ connect }) => {
                 border border-emerald-200 rounded-2xl text-sm font-semibold text-emerald-700">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
                 Feedback submitted successfully!
               </div>
