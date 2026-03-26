@@ -1,5 +1,6 @@
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -19,9 +20,6 @@ const GRID_7 = { display:"grid", gridTemplateColumns:"repeat(7, minmax(0, 1fr))"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Returns the overlapping busy periods for a given slot, or [] if none.
- */
 const getOverlappingBusy = (dateStr, slot, busySlots) => {
   if (!busySlots?.length) return [];
   const slotStart = new Date(`${dateStr}T${slot.startTime}:00`);
@@ -33,41 +31,18 @@ const getOverlappingBusy = (dateStr, slot, busySlots) => {
   });
 };
 
-const isSlotBusy = (dateStr, slot, busySlots) =>
-  getOverlappingBusy(dateStr, slot, busySlots).length > 0;
-
-/**
- * Format an ISO datetime to a short local time string, e.g. "10:30 AM"
- */
 const formatTime = (isoStr) => {
   if (!isoStr || !isoStr.includes("T")) return "";
   const d = new Date(isoStr);
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 };
 
-/**
- * Convert an ISO datetime to HH:MM (24h) for use as <input type="time"> min/max.
- */
 const isoToHHMM = (isoStr) => {
   if (!isoStr) return "";
   const d = new Date(isoStr);
   return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 };
 
-/**
- * Given a slot and its busy overlaps, compute the allowed min/max for
- * startTime and endTime inputs so the user cannot extend into busy time.
- *
- * Strategy:
- *  - Find all busy periods that overlap or are adjacent to the slot's date.
- *  - The startTime must be ≤ the start of the first overlapping busy period.
- *  - The endTime must be ≥ the end of the last overlapping busy period,
- *    but we instead BLOCK editing entirely and show a warning.
- *
- * Simpler approach used here:
- *  - Collect ALL busy windows for the date (not just overlapping ones).
- *  - Disable the inputs when the slot is busy, and show what time ranges are blocked.
- */
 const getBusyWindowsForDate = (dateStr, busySlots) => {
   if (!busySlots?.length) return [];
   return busySlots
@@ -84,13 +59,26 @@ const getBusyWindowsForDate = (dateStr, busySlots) => {
     }));
 };
 
-// Returns true if end - start < minDuration (in minutes)
+const timeToMins = (t) => {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+
 const isSlotTooShort = (startTime, endTime, minDuration) => {
   if (!startTime || !endTime) return false;
-  const [sh, sm] = startTime.split(":").map(Number);
-  const [eh, em] = endTime.split(":").map(Number);
-  const diffMins = (eh * 60 + em) - (sh * 60 + sm);
+  const diffMins = timeToMins(endTime) - timeToMins(startTime);
   return diffMins > 0 && diffMins < minDuration;
+};
+
+// null = valid, otherwise returns an error string
+const getSlotError = (startTime, endTime, minDuration) => {
+  if (!startTime || !endTime) return null;
+  const diff = timeToMins(endTime) - timeToMins(startTime);
+  if (diff === 0)   return "Start and end time cannot be the same";
+  if (diff < 0)     return "End time must be after start time";
+  if (minDuration && diff < minDuration) return `Minimum slot duration is ${minDuration} min`;
+  return null;
 };
 
 const getEventsForDate = (dateStr, events) => {
@@ -98,11 +86,27 @@ const getEventsForDate = (dateStr, events) => {
   return events.filter((e) => {
     if (!e.start) return false;
     if (e.allDay) return e.start === dateStr;
-    const localDate = new Date(e.start).toLocaleDateString("en-CA", {
-      timeZone: "Asia/Kolkata",
-    });
+    const localDate = new Date(e.start).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
     return localDate === dateStr;
   });
+};
+
+// ─── Parse / format "HH:MM" (24h) ────────────────────────────────────────────
+
+/** "14:30" → { hour12: 2, minute: 30, period: "PM" } */
+const parse24 = (timeStr) => {
+  if (!timeStr) return { hour12: 9, minute: 0, period: "AM" };
+  const [h, m] = timeStr.split(":").map(Number);
+  const period  = h >= 12 ? "PM" : "AM";
+  const hour12  = h % 12 || 12;
+  return { hour12, minute: m, period };
+};
+
+/** { hour12, minute, period } → "14:30" */
+const format24 = ({ hour12, minute, period }) => {
+  let h = hour12 % 12;
+  if (period === "PM") h += 12;
+  return `${String(h).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
 };
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -136,29 +140,193 @@ const WarnIcon = () => (
   </svg>
 );
 
-// ─── TimeInput ────────────────────────────────────────────────────────────────
-const snapToQuarter = (timeStr) => {
-  if (!timeStr) return timeStr;
-  const [hh, mm] = timeStr.split(":");
-  const mins = parseInt(mm, 10);
-  const snapped = Math.round(mins / 15) * 15;
-  if (snapped === 60) {
-    const newHour = (parseInt(hh, 10) + 1) % 24;
-    return `${String(newHour).padStart(2, "0")}:00`;
-  }
-  return `${hh}:${String(snapped).padStart(2, "0")}`;
-};
-
-const TimeInput = ({ value, onChange }) => (
-  <input
-    type="time"
-    value={value}
-    onChange={(e) => onChange(snapToQuarter(e.target.value))}
-    className="text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150 cursor-pointer hover:border-slate-300"
-    style={{ width: "100px" }}
-  />
+const ClockIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
 );
 
+// ─── Custom Time Picker ───────────────────────────────────────────────────────
+const HOURS   = [1,2,3,4,5,6,7,8,9,10,11,12];
+const MINUTES = [0, 15, 30, 45]; // quarter-hours only
+
+const parseTyped = (raw) => {
+  const s = raw.trim();
+  const match = s.match(/^(\d{1,2})[:.]?(\d{2})?\s*(am|pm)?$/i);
+  if (!match) return null;
+  let hh  = parseInt(match[1], 10);
+  let mm  = match[2] ? parseInt(match[2], 10) : 0;
+  const meridian = match[3]?.toLowerCase();
+
+  if (hh > 23 || mm > 59) return null;
+
+  if (meridian === "pm" && hh < 12) hh += 12;
+  if (meridian === "am" && hh === 12) hh = 0;
+
+  mm = Math.round(mm / 15) * 15;
+  if (mm === 60) { mm = 0; hh = Math.min(hh + 1, 23); }
+
+  return `${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}`;
+};
+
+const TimePicker = ({ value, onChange, hasError = false }) => {
+  const [open, setOpen]           = useState(false);
+  const [h, setH]                 = useState(1);
+  const [m, setM]                 = useState(0);
+  const [p, setP]                 = useState("AM");
+  const [inputVal, setInputVal]   = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const wrapperRef                = useRef(null);
+  const inputRef                  = useRef(null);
+  const dropdownRef               = useRef(null);
+  const [pos, setPos]             = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (isEditing) return;
+    const parsed = parse24(value);
+    setH(parsed.hour12);
+    setM(parsed.minute);
+    setP(parsed.period);
+    const dh = String(parsed.hour12).padStart(2,"0");
+    const dm = String(parsed.minute).padStart(2,"0");
+    setInputVal(`${dh}:${dm} ${parsed.period}`);
+  }, [value, isEditing]);
+
+  useEffect(() => {
+    if (!open || !wrapperRef.current) return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    setPos({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX });
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (
+        wrapperRef.current  && !wrapperRef.current.contains(e.target) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target)
+      ) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const commitParts = (newH, newM, newP) => {
+    onChange(format24({ hour12: newH, minute: newM, period: newP }));
+  };
+
+  const selectHour = (val) => { setH(val); commitParts(val, m, p); };
+  const selectMin  = (val) => { setM(val); commitParts(h, val, p); };
+  const selectPer  = (val) => { setP(val); commitParts(h, m, val); };
+
+  const handleInputFocus  = () => { setIsEditing(true); setOpen(false); };
+  const handleInputChange = (e) => setInputVal(e.target.value);
+  const handleInputBlur   = () => {
+    setIsEditing(false);
+    const parsed = parseTyped(inputVal);
+    if (parsed) {
+      onChange(parsed);
+    } else {
+      const cur = parse24(value);
+      setInputVal(`${String(cur.hour12).padStart(2,"0")}:${String(cur.minute).padStart(2,"0")} ${cur.period}`);
+    }
+  };
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter")  { e.preventDefault(); inputRef.current?.blur(); }
+    if (e.key === "Escape") { setIsEditing(false); inputRef.current?.blur(); }
+  };
+
+  const displayH   = String(h).padStart(2, "0");
+  const displayMin = String(m).padStart(2, "0");
+
+  const dropdown = (
+    <div
+      ref={dropdownRef}
+      style={{ position: "absolute", top: pos.top, left: pos.left, width: 172, zIndex: 9999 }}
+      className="bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden select-none"
+    >
+      <div className="grid grid-cols-3 border-b border-slate-100">
+        <div className="flex items-center justify-center py-2 bg-blue-900 text-white">
+          <span className="text-sm font-bold">{displayH}</span>
+        </div>
+        <div className="flex items-center justify-center py-2 bg-blue-900 text-white border-l border-blue-800">
+          <span className="text-sm font-bold">{displayMin}</span>
+        </div>
+        <div className="flex items-center justify-center py-2 bg-blue-900 text-white border-l border-blue-800">
+          <span className="text-sm font-bold">{p}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 divide-x divide-slate-100" style={{ maxHeight: "192px" }}>
+        <div className="overflow-y-auto" style={{ maxHeight: "192px" }}>
+          {HOURS.map((hr) => (
+            <button key={hr} type="button" onClick={() => selectHour(hr)}
+              className={`w-full text-center text-sm py-1.5 transition-colors duration-100
+                ${hr === h ? "bg-blue-50 text-blue-900 font-bold" : "text-slate-600 hover:bg-slate-50 font-medium"}`}>
+              {String(hr).padStart(2, "0")}
+            </button>
+          ))}
+        </div>
+        <div className="overflow-y-auto" style={{ maxHeight: "192px" }}>
+          {MINUTES.map((mn) => (
+            <button key={mn} type="button" onClick={() => selectMin(mn)}
+              className={`w-full text-center text-sm py-1.5 transition-colors duration-100
+                ${mn === m ? "bg-blue-50 text-blue-900 font-bold" : "text-slate-600 hover:bg-slate-50 font-medium"}`}>
+              {String(mn).padStart(2, "0")}
+            </button>
+          ))}
+        </div>
+        <div className="overflow-y-auto" style={{ maxHeight: "192px" }}>
+          {["AM", "PM"].map((per) => (
+            <button key={per} type="button" onClick={() => selectPer(per)}
+              className={`w-full text-center text-sm py-1.5 transition-colors duration-100
+                ${per === p ? "bg-blue-50 text-blue-900 font-bold" : "text-slate-600 hover:bg-slate-50 font-medium"}`}>
+              {per}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <div
+        ref={wrapperRef}
+        className={`flex items-center bg-white border rounded-lg transition-all duration-150
+          ${hasError
+            ? "border-red-400 ring-2 ring-red-100"
+            : isEditing
+              ? "border-blue-400 ring-2 ring-blue-100"
+              : "border-slate-200 hover:border-slate-300"
+          }`}
+        style={{ width: "120px" }}
+      >
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputVal}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          onKeyDown={handleInputKeyDown}
+          placeholder="09:00 AM"
+          className="w-0 flex-1 text-xs font-medium text-slate-700 bg-transparent outline-none pl-2.5 pr-0 py-1.5"
+        />
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => { setOpen((v) => !v); setIsEditing(false); }}
+          className={`flex items-center justify-center px-2 py-1.5 rounded-r-lg border-l border-slate-200 transition-colors duration-150
+            ${open ? "bg-blue-900 text-white" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600"}`}
+        >
+          <ClockIcon />
+        </button>
+      </div>
+      {open && createPortal(dropdown, document.body)}
+    </>
+  );
+};
 
 // ─── EventTooltip ─────────────────────────────────────────────────────────────
 const EventTooltip = ({ events, isBusyOnly }) => (
@@ -175,22 +343,17 @@ const EventTooltip = ({ events, isBusyOnly }) => (
       <div className="space-y-2">
         {events.map((e, i) => (
           <div key={i} className="flex flex-col gap-0.5">
-            <span className="text-xs font-semibold text-white leading-tight truncate">
-              {e.summary}
-            </span>
+            <span className="text-xs font-semibold text-white leading-tight truncate">{e.summary}</span>
             {!e.allDay && e.start && (
               <span className="text-[10px] text-slate-400">
                 {formatTime(e.start)}{e.end ? ` – ${formatTime(e.end)}` : ""}
               </span>
             )}
-            {e.allDay && (
-              <span className="text-[10px] text-slate-400">All day</span>
-            )}
+            {e.allDay && <span className="text-[10px] text-slate-400">All day</span>}
           </div>
         ))}
       </div>
     )}
-    {/* Arrow pointing up */}
     <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-slate-900" />
   </div>
 );
@@ -208,37 +371,28 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
 
   return (
     <div>
-      {/* Month navigation */}
       <div className="flex items-center justify-between mb-4">
-        <button
-          type="button"
-          onClick={onNavPrev}
-          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600"
-        >
+        <button type="button" onClick={onNavPrev}
+          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
         <p className="text-sm font-bold text-slate-800 tracking-wide">{MONTHS[month]} {year}</p>
-        <button
-          type="button"
-          onClick={onNavNext}
-          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600"
-        >
+        <button type="button" onClick={onNavNext}
+          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
       </div>
 
-      {/* Day headers */}
       <div style={GRID_7} className="mb-1">
         {DAY_LABELS.map((d) => (
           <div key={d} className="text-center text-[10px] font-bold text-slate-700 py-1 uppercase tracking-wide">{d}</div>
         ))}
       </div>
 
-      {/* Date cells */}
       <div style={{ ...GRID_7, gap: "3px", overflow: "visible" }}>
         {cells.map((day, idx) => {
           if (!day) return <div key={`e-${idx}`} />;
@@ -256,45 +410,25 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
           const isHovered    = hoveredDate === dateStr;
 
           return (
-            <div
-              key={dateStr}
-              className="relative"
+            <div key={dateStr} className="relative"
               onMouseEnter={() => hasIndicator && setHoveredDate(dateStr)}
-              onMouseLeave={() => setHoveredDate(null)}
-            >
-              <button
-                type="button"
-                disabled={isPast}
-                onClick={() => !isPast && onToggleDate(dateStr)}
+              onMouseLeave={() => setHoveredDate(null)}>
+              <button type="button" disabled={isPast} onClick={() => !isPast && onToggleDate(dateStr)}
                 style={{ aspectRatio: "1 / 1", width: "100%" }}
                 className={`relative rounded-lg text-[11px] font-semibold flex flex-col items-center justify-center transition-all duration-150
-                  ${isPast
-                    ? "text-slate-200 cursor-not-allowed"
-                    : isSelected
-                    ? "bg-blue-900 text-white shadow-sm scale-105"
-                    : isToday
-                    ? "bg-blue-50 text-blue-900 ring-1 ring-blue-300 font-bold hover:bg-blue-100"
+                  ${isPast ? "text-slate-200 cursor-not-allowed"
+                    : isSelected ? "bg-blue-900 text-white shadow-sm scale-105"
+                    : isToday ? "bg-blue-50 text-blue-900 ring-1 ring-blue-300 font-bold hover:bg-blue-100"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-                  }`}
-              >
+                  }`}>
                 {day}
-                {/* Dot indicators */}
                 <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5">
-                  {isSelected && (
-                    <span className="w-1 h-1 bg-white/70 rounded-full" />
-                  )}
+                  {isSelected && <span className="w-1 h-1 bg-white/70 rounded-full" />}
                   {hasIndicator && (
-                    <span className={`w-1 h-1 rounded-full ${
-                      isPast
-                        ? "bg-orange-200"
-                        : isSelected
-                        ? "bg-yellow-300"
-                        : "bg-orange-400"
-                    }`} />
+                    <span className={`w-1 h-1 rounded-full ${isPast ? "bg-orange-200" : isSelected ? "bg-yellow-300" : "bg-orange-400"}`} />
                   )}
                 </div>
               </button>
-
               {isHovered && hasIndicator && (
                 <EventTooltip events={dayEvents} isBusyOnly={!hasEvents && hasBusy} />
               )}
@@ -303,7 +437,6 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
         })}
       </div>
 
-      {/* Legend — only show "Has events" */}
       {calendarEvents?.length > 0 && (
         <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
           <div className="flex items-center gap-1.5">
@@ -317,46 +450,16 @@ const CalendarGrid = ({ year, month, specificDates, onToggleDate, onNavPrev, onN
 };
 
 // ─── BusyBadge ────────────────────────────────────────────────────────────────
-/**
- * Shows "Busy · 10:30 AM – 11:00 AM" for each overlapping busy window.
- * If multiple windows overlap the slot they are stacked.
- */
 const BusyBadge = ({ overlaps }) => {
   if (!overlaps?.length) return null;
   return (
     <div className="flex flex-col gap-1">
       {overlaps.map((b, i) => (
-        <span
-          key={i}
-          className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-300 rounded-lg px-2.5 py-1 leading-none whitespace-nowrap"
-        >
+        <span key={i} className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-300 rounded-lg px-2.5 py-1 leading-none whitespace-nowrap">
           <WarnIcon />
           Busy&nbsp;·&nbsp;{formatTime(b.start)}–{formatTime(b.end)}
         </span>
       ))}
-    </div>
-  );
-};
-
-// ─── BlockedTimeInfo ──────────────────────────────────────────────────────────
-/**
- * Shown below the time row when the slot is busy — explains which windows are
- * blocked and that the inputs are locked.
- */
-const BlockedTimeInfo = ({ busyWindows }) => {
-  if (!busyWindows?.length) return null;
-  return (
-    <div className="mt-1.5 flex flex-wrap gap-1.5 items-center">
-      <span className="text-[10px] font-semibold text-orange-600">Blocked:</span>
-      {busyWindows.map((w, i) => (
-        <span
-          key={i}
-          className="text-[10px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-2 py-0.5 leading-none"
-        >
-          {w.label}
-        </span>
-      ))}
-      <span className="text-[10px] text-slate-500 italic">— adjust times to avoid conflict</span>
     </div>
   );
 };
@@ -367,9 +470,6 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
     weekday: "short", month: "short", day: "numeric",
   });
 
-  // All busy windows for this date (for the blocked-time info strip)
-  const busyWindowsForDate = getBusyWindowsForDate(dateEntry.date, busySlots);
-
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       {/* Date header row */}
@@ -379,23 +479,13 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
           <span className="text-xs font-bold text-slate-700">{displayStr}</span>
         </div>
         <div className="flex items-center gap-1">
-          {/* Add slot button */}
-          <button
-            type="button"
-            onClick={() => onAddSlot(dateEntry.date)}
-            title="Add time slot"
-            className="flex items-center gap-1 text-[11px] font-semibold text-white bg-blue-900 hover:bg-blue-800 border border-blue-900 rounded-lg px-2.5 py-1 transition-all duration-150"
-          >
+          <button type="button" onClick={() => onAddSlot(dateEntry.date)} title="Add time slot"
+            className="flex items-center gap-1 text-[11px] font-semibold text-white bg-blue-900 hover:bg-blue-800 border border-blue-900 rounded-lg px-2.5 py-1 transition-all duration-150">
             <PlusIcon />
             Add slot
           </button>
-          {/* Remove date button */}
-          <button
-            type="button"
-            onClick={() => onRemoveDate(dateEntry.date)}
-            title="Remove this date"
-            className="flex items-center gap-1 text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 border border-red-600 rounded-lg px-2.5 py-1 transition-all duration-150"
-          >
+          <button type="button" onClick={() => onRemoveDate(dateEntry.date)} title="Remove this date"
+            className="flex items-center gap-1 text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 border border-red-600 rounded-lg px-2.5 py-1 transition-all duration-150">
             <XIcon size={10} />
             Remove
           </button>
@@ -405,43 +495,50 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
       {/* Slots */}
       <div className="px-3.5 py-2.5 space-y-3">
         {dateEntry.slots.map((slot, index) => {
-          const overlaps = getOverlappingBusy(dateEntry.date, slot, busySlots);
-          const isBusy   = overlaps.length > 0;
-          const tooShort = minDuration && isSlotTooShort(slot.startTime, slot.endTime, minDuration);
+          const overlaps  = getOverlappingBusy(dateEntry.date, slot, busySlots);
+          const isBusy    = overlaps.length > 0;
+          const slotError = getSlotError(slot.startTime, slot.endTime, minDuration);
+
+          const handleStartChange = (val) => {
+            onUpdateSlot(dateEntry.date, index, "startTime", val);
+            const endMins   = timeToMins(slot.endTime);
+            const startMins = timeToMins(val);
+            if (startMins >= endMins) {
+              const newEnd = startMins + (minDuration || 60);
+              const eh = Math.floor(newEnd / 60) % 24;
+              const em = newEnd % 60;
+              onUpdateSlot(dateEntry.date, index, "endTime",
+                `${String(eh).padStart(2,"0")}:${String(em).padStart(2,"0")}`);
+            }
+          };
+
+          const handleEndChange = (val) => {
+            onUpdateSlot(dateEntry.date, index, "endTime", val);
+          };
 
           return (
-            <div key={index} className="flex items-center gap-2 flex-wrap">
-              <TimeInput
-                value={slot.startTime}
-                onChange={(val) => onUpdateSlot(dateEntry.date, index, "startTime", val)}
-              />
-              <span className="text-slate-400 text-xs font-bold select-none">→</span>
-              <TimeInput
-                value={slot.endTime}
-                onChange={(val) => onUpdateSlot(dateEntry.date, index, "endTime", val)}
-              />
+            <div key={index} className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <TimePicker value={slot.startTime} onChange={handleStartChange} />
+                <span className="text-slate-400 text-xs font-bold select-none">→</span>
+                <TimePicker value={slot.endTime} onChange={handleEndChange} hasError={!!slotError} />
 
-              {/* Busy badge with conflict time */}
-              {isBusy && <BusyBadge overlaps={overlaps} />}
+                {isBusy && <BusyBadge overlaps={overlaps} />}
 
-              {/* Slot too short warning */}
-              {tooShort && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 rounded-lg px-2.5 py-1 leading-none whitespace-nowrap">
+                {dateEntry.slots.length > 1 && (
+                  <button type="button" onClick={() => onRemoveSlot(dateEntry.date, index)} title="Remove this slot"
+                    className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-500 bg-slate-100 border border-slate-300 hover:text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-150 ml-auto">
+                    <XIcon size={10} />
+                  </button>
+                )}
+              </div>
+
+              {/* Inline slot-level error — unchanged */}
+              {slotError && (
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg px-2.5 py-1 w-fit">
                   <WarnIcon />
-                  Too short — needs {minDuration} min
-                </span>
-              )}
-
-              {/* Remove slot — only when multiple slots exist */}
-              {dateEntry.slots.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => onRemoveSlot(dateEntry.date, index)}
-                  title="Remove this slot"
-                  className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-500 bg-slate-100 border border-slate-300 hover:text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-150 ml-auto"
-                >
-                  <XIcon size={10} />
-                </button>
+                  {slotError}
+                </div>
               )}
             </div>
           );
@@ -452,13 +549,22 @@ const DateSlotEditor = ({ dateEntry, onAddSlot, onRemoveSlot, onUpdateSlot, onRe
 };
 
 // ─── CalendarAvailabilitySection ──────────────────────────────────────────────
-const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCalendarConnected, onBusySlotsChange, sessionDurations }) => {
+const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCalendarConnected, onBusySlotsChange, sessionDurations, onValidationChange }) => {
   const now = new Date();
   const minDuration = sessionDurations?.length ? Math.min(...sessionDurations) : 30;
-  const [calYear,         setCalYear]         = useState(now.getFullYear());
-  const [calMonth,        setCalMonth]        = useState(now.getMonth());
-  const [busySlots,       setBusySlots]       = useState([]);
-  const [calendarEvents,  setCalendarEvents]  = useState([]);
+  const [calYear,        setCalYear]        = useState(now.getFullYear());
+  const [calMonth,       setCalMonth]       = useState(now.getMonth());
+  const [busySlots,      setBusySlots]      = useState([]);
+  const [calendarEvents, setCalendarEvents] = useState([]);
+
+  // Compute validity and notify parent on every change
+  const hasInvalidSlots = specificDates.some((d) =>
+    d.slots.some((s) => getSlotError(s.startTime, s.endTime, minDuration) !== null)
+  );
+
+  useEffect(() => {
+    onValidationChange?.(!hasInvalidSlots);
+  }, [hasInvalidSlots, minDuration]);
 
   const updateBusySlots = (slots) => {
     setBusySlots(slots);
@@ -473,7 +579,6 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
       setCalendarEvents([]);
       return;
     }
-
     const token    = localStorage.getItem("token");
     const firstDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-01`;
     const lastDay  = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${new Date(calYear, calMonth + 1, 0).getDate()}`;
@@ -558,7 +663,6 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
         {/* ── Date slot editor ── */}
         <div className="flex-1 min-w-0">
 
-          {/* Google Calendar sync badge */}
           {googleCalendarConnected && (
             <div className="flex items-center gap-1.5 mb-3 px-3 py-2 rounded-xl bg-green-50 border border-green-200 w-fit">
               <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
@@ -585,16 +689,12 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Header with count + clear all */}
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-slate-700">
                   {futureDates.length} date{futureDates.length > 1 ? "s" : ""} selected
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setSpecificDates([])}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-red-600 bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-300 rounded-lg px-3 py-1.5 transition-all duration-150"
-                >
+                <button type="button" onClick={() => setSpecificDates([])}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-red-600 bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-300 rounded-lg px-3 py-1.5 transition-all duration-150">
                   <TrashIcon />
                   Clear all
                 </button>
