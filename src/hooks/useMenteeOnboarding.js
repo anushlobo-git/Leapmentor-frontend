@@ -1,30 +1,42 @@
 // src/hooks/useMenteeOnboarding.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { useDispatch, useSelector } from "react-redux";
+import { submitMenteeOnboarding, clearOnboardingMessages } from "../store/slices/menteeOnboardingSlice";
 
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
+  const token                          = useSelector((state) => state.auth.token);
 
   const [form, setForm] = useState({
-    profilePicture: "",
-    bio: "",
-    currentRole: "",
-    company: "",
-    industry: "",
-    yearsOfExperience: "",
-    interestedFields: [],
-    skills: [],
+    profilePicture:           "",
+    bio:                      "",
+    currentRole:              "",
+    company:                  "",
+    industry:                 "",
+    yearsOfExperience:        "",
+    interestedFields:         [],
+    skills:                   [],
     communicationPreferences: [],
-    languages: [],
-    linkedInUrl: "",
-    portfolioUrl: "",
+    languages:                [],
+    linkedInUrl:              "",
+    portfolioUrl:             "",
   });
 
-  const [loading, setLoading] = useState(false);
+  // local msg for validation errors (client-side only, not from Redux)
   const [msg, setMsg] = useState({ type: "", text: "" });
+
+  // sync Redux error/successMsg → local msg
+  useEffect(() => {
+    if (error)      setMsg({ type: "error",   text: error });
+    if (successMsg) {
+      setMsg({ type: "success", text: successMsg });
+      setTimeout(() => navigate("/dashboard/mentee"), 1000);
+    }
+  }, [error, successMsg]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,8 +46,9 @@ const useMenteeOnboarding = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
+    dispatch(clearOnboardingMessages());
 
-    // ✅ Required field validations
+    // ── Client-side validations ──
     if (!form.currentRole.trim())
       return setMsg({ type: "error", text: "Current Role is required." });
     if (!form.yearsOfExperience)
@@ -63,32 +76,10 @@ const useMenteeOnboarding = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    const token = localStorage.getItem("token");
+    // ── No token → redirect to login ──
     if (!token) { navigate("/login"); return; }
 
-    try {
-      setLoading(true);
-      const payload = {
-        ...form,
-        yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
-        interestedFields: form.interestedFields,
-        skills: form.skills,
-        communicationPreferences: form.communicationPreferences,
-        languages: form.languages,
-      };
-
-      await axios.post(`${BASE_URL}/api/mentee-profile`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setMsg({ type: "success", text: "Profile created! Redirecting to dashboard..." });
-      setTimeout(() => navigate("/dashboard/mentee"), 1000);
-    } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Something went wrong.";
-      setMsg({ type: "error", text: apiMsg });
-    } finally {
-      setLoading(false);
-    }
+    dispatch(submitMenteeOnboarding({ ...form }));
   };
 
   return { form, loading, msg, handleChange, handleSubmit };
