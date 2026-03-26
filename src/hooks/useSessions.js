@@ -57,6 +57,8 @@ const useSessions = (connectRequestId, onAllComplete) => {
       console.log("📅 session_slots_updated — syncing instantly");
       applySlotUpdate(data);
 
+      // ✅ Socket handler still uses the ref — prevents double-firing
+      // when the other party completes and socket arrives after API response
       if (data.allComplete && onAllComplete && !allCompleteFiredRef.current) {
         allCompleteFiredRef.current = true;
         setTimeout(() => {
@@ -136,16 +138,16 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setCompletedSlots(res.data.completedSlots);
         setProgress(res.data.progress);
 
-        if (
-          res.data.allComplete &&
-          onAllComplete &&
-          !allCompleteFiredRef.current
-        ) {
-          allCompleteFiredRef.current = true;
+        // 👇 CHANGED: API response always triggers onAllComplete directly
+        // without checking the ref — ref is only used by socket to prevent
+        // double-firing. This fixes mentor side not unlocking Report tab.
+        if (res.data.allComplete && onAllComplete) {
+          allCompleteFiredRef.current = true; // block socket from double-firing
           setTimeout(() => {
             onAllComplete();
           }, 2000);
         }
+
         return { success: true, ...res.data };
       } catch (err) {
         setError(

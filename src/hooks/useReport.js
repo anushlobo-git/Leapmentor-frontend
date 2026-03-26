@@ -5,13 +5,13 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-const useReport = (connectRequestId) => {
-  const [myFeedback,    setMyFeedback]    = useState(null);
+const useReport = (connectRequestId, refreshKey = 0) => {  // 👈 ADDED: refreshKey param
+  const [myFeedback, setMyFeedback] = useState(null);
   const [theirFeedback, setTheirFeedback] = useState(null);
   const [sessionStatus, setSessionStatus] = useState(null);
-  const [loading,       setLoading]       = useState(true);
-  const [submitting,    setSubmitting]    = useState(false);
-  const [error,         setError]         = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   // ── Fetch feedback ────────────────────────────────────────
   const fetchFeedback = useCallback(async () => {
@@ -23,7 +23,7 @@ const useReport = (connectRequestId) => {
         `${BASE_URL}/api/feedback/${connectRequestId}`,
         { headers: authHeader() }
       );
-      setMyFeedback(res.data.myFeedback       || null);
+      setMyFeedback(res.data.myFeedback || null);
       setTheirFeedback(res.data.theirFeedback || null);
       setSessionStatus(res.data.sessionStatus || null);
     } catch (err) {
@@ -33,7 +33,8 @@ const useReport = (connectRequestId) => {
     }
   }, [connectRequestId]);
 
-  useEffect(() => { fetchFeedback(); }, [fetchFeedback]);
+  // 👇 CHANGED: added refreshKey to dependency array so it re-fetches on completion
+  useEffect(() => { fetchFeedback(); }, [fetchFeedback, refreshKey]);
 
   // ── Submit feedback ───────────────────────────────────────
   const submitFeedback = useCallback(async (rating, comment) => {

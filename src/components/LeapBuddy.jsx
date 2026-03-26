@@ -5,33 +5,33 @@ import { useState, useRef, useEffect } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-const INDIGO       = "#4f46e5";
+const INDIGO = "#4f46e5";
 const INDIGO_LIGHT = "#eef2ff";
-const INDIGO_BORDER= "#c7d2fe";
+const INDIGO_BORDER = "#c7d2fe";
 
 // ─── FAQ Knowledge Base ───────────────────────────────────────────────────────
 
 const mentorFaqs = [
-  { q: "How do I accept a session request?",       a: "Go to Requests in your sidebar. You'll see pending requests with mentee details and preferred time slots. Click Accept to confirm — the mentee will be notified and prompted to complete payment." },
+  { q: "How do I accept a session request?", a: "Go to Requests in your sidebar. You'll see pending requests with mentee details and preferred time slots. Click Accept to confirm — the mentee will be notified and prompted to complete payment." },
   { q: "What happens after a session is accepted?", a: "The session moves to Active Sessions with an Awaiting Payment status. Once the mentee pays, the status updates to Ongoing and you'll see an Open Dashboard button to start the session." },
-  { q: "Can I reschedule or cancel a session?",    a: "Yes. Open the session card and choose Reschedule or Cancel. Cancellations made less than 2 hours before the session may affect your rating." },
-  { q: "When do I receive my earnings?",           a: "Earnings are released immediately after a session completes and the mentee has paid. Track all pending and received payments in the Track Earnings section." },
-  { q: "What payout methods are supported?",       a: "Only token payments are supported right now." },
-  { q: "How do I set my availability?",            a: "Navigate to Availability in the sidebar. Set recurring weekly slots or block specific dates. Changes take effect immediately for new bookings." },
-  { q: "How do I update my mentor profile?",       a: "Go to Profile from the sidebar. Update your bio, skills, hourly rate, and photo. A complete profile gets 3x more session requests." },
-  { q: "The session dashboard is not loading.",    a: "Try refreshing or clearing your browser cache. Use Chrome, Firefox, or Edge. If it persists, contact support with your session ID." },
-  { q: "I am not receiving notifications.",        a: "Check Settings then Notifications and ensure your browser allows notifications from leapmentor.com." },
+  { q: "Can I reschedule or cancel a session?", a: "Yes. Open the session card and choose Reschedule or Cancel. Cancellations made less than 2 hours before the session may affect your rating." },
+  { q: "When do I receive my earnings?", a: "Earnings are released immediately after a session completes and the mentee has paid. Track all pending and received payments in the Track Earnings section." },
+  { q: "What payout methods are supported?", a: "Only token payments are supported right now." },
+  { q: "How do I set my availability?", a: "Navigate to Availability in the sidebar. Set recurring weekly slots or block specific dates. Changes take effect immediately for new bookings." },
+  { q: "How do I update my mentor profile?", a: "Go to Profile from the sidebar. Update your bio, skills, hourly rate, and photo. A complete profile gets 3x more session requests." },
+  { q: "The session dashboard is not loading.", a: "Try refreshing or clearing your browser cache. Use Chrome, Firefox, or Edge. If it persists, contact support with your session ID." },
+  { q: "I am not receiving notifications.", a: "Check Settings then Notifications and ensure your browser allows notifications from leapmentor.com." },
 ];
 
 const menteeFaqs = [
-  { q: "How do I book a session with a mentor?",         a: "Browse mentors from the Explore page, open a mentor's profile, and select an available time slot. You'll be prompted to confirm and complete payment to finalize the booking." },
-  { q: "Can I get a refund if I cancel?",                a: "Cancellations made 24+ hours before the session are fully refunded. Cancellations within 24 hours receive a 50% refund. No-shows are non-refundable." },
-  { q: "How do I join a session?",                       a: "When your session is active, an Open Dashboard button will appear on the session card. Click it to enter the video call and shared workspace with your mentor." },
-  { q: "What happens if a mentor cancels?",              a: "You'll receive a full refund immediately and a notification. You can rebook with the same mentor or choose a different one." },
-  { q: "What payment methods are accepted?",             a: "We currently accept only token payments." },
+  { q: "How do I book a session with a mentor?", a: "Browse mentors from the Explore page, open a mentor's profile, and select an available time slot. You'll be prompted to confirm and complete payment to finalize the booking." },
+  { q: "Can I get a refund if I cancel?", a: "Cancellations made 24+ hours before the session are fully refunded. Cancellations within 24 hours receive a 50% refund. No-shows are non-refundable." },
+  { q: "How do I join a session?", a: "When your session is active, an Open Dashboard button will appear on the session card. Click it to enter the video call and shared workspace with your mentor." },
+  { q: "What happens if a mentor cancels?", a: "You'll receive a full refund immediately and a notification. You can rebook with the same mentor or choose a different one." },
+  { q: "What payment methods are accepted?", a: "We currently accept only token payments." },
   { q: "I paid but my session still shows Awaiting Confirmation.", a: "This usually resolves within a few minutes as the mentor confirms. If it has been over 1 hour, contact support with your booking ID and payment confirmation." },
-  { q: "Can I book multiple sessions at once?",          a: "Yes! You can book multiple sessions with the same or different mentors. All upcoming sessions are visible in your dashboard under Active Sessions." },
-  { q: "The session is not loading.",                    a: "Refresh the page and check your internet connection. Make sure your browser has permission to access your camera and microphone. Try Chrome or Firefox." },
+  { q: "Can I book multiple sessions at once?", a: "Yes! You can book multiple sessions with the same or different mentors. All upcoming sessions are visible in your dashboard under Active Sessions." },
+  { q: "The session is not loading.", a: "Refresh the page and check your internet connection. Make sure your browser has permission to access your camera and microphone. Try Chrome or Firefox." },
 ];
 
 // ─── Build System Prompt WITH user context ────────────────────────────────────
@@ -39,13 +39,13 @@ const menteeFaqs = [
 // We pass user info so the AI gives personalized answers
 
 function buildSystemPrompt(role, userContext) {
-  const faqs    = role === "mentor" ? mentorFaqs : menteeFaqs;
+  const faqs = role === "mentor" ? mentorFaqs : menteeFaqs;
   const faqText = faqs.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n");
 
   // Build a context block from whatever user info is available
   const contextLines = [];
-  if (userContext?.name)     contextLines.push(`- User's name: ${userContext.name}`);
-  if (userContext?.email)    contextLines.push(`- User's email: ${userContext.email}`);
+  if (userContext?.name) contextLines.push(`- User's name: ${userContext.name}`);
+  if (userContext?.email) contextLines.push(`- User's email: ${userContext.email}`);
   if (userContext?.skills?.length)
     contextLines.push(`- Skills: ${userContext.skills.join(", ")}`);
   if (userContext?.interestedFields?.length)
@@ -102,19 +102,19 @@ function TypingDots() {
 export default function LeapBuddy({ role = "mentee", user = null, profile = null }) {
   // Merge user + profile into one context object for the AI
   const userContext = {
-    name:             user?.name             || null,
-    email:            user?.email            || null,
-    skills:           profile?.skills        || [],
+    name: user?.name || null,
+    email: user?.email || null,
+    skills: profile?.skills || [],
     interestedFields: profile?.interestedFields || [],
-    currentRole:      profile?.currentRole   || null,
-    company:          profile?.company       || null,
+    currentRole: profile?.currentRole || null,
+    company: profile?.company || null,
   };
 
   const firstName = user?.name?.split(" ")[0] || null;
 
-  const [open, setOpen]             = useState(false);
+  const [open, setOpen] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
-  const [messages, setMessages]     = useState([
+  const [messages, setMessages] = useState([
     {
       role: "ai",
       text: firstName
@@ -122,10 +122,10 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
         : `Hey there! 👋 I'm LeapBuddy, your AI assistant. Ask me anything about your ${role} account — I'll help instantly!`,
     },
   ]);
-  const [history, setHistory]       = useState([]);
-  const [input, setInput]           = useState("");
-  const [loading, setLoading]       = useState(false);
-  const [ticketForms, setTicketForms]   = useState({});
+  const [history, setHistory] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [ticketForms, setTicketForms] = useState({});
   const [ticketStatus, setTicketStatus] = useState({});
 
   const bottomRef = useRef(null);
@@ -149,7 +149,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
 
   const sendMessage = async (text) => {
     if (!text?.trim() || loading) return;
-    const userMsg    = { role: "user", text };
+    const userMsg = { role: "user", text };
     const newHistory = [...history, { role: "user", content: text }];
     setMessages((p) => [...p, userMsg]);
     setHistory(newHistory);
@@ -157,25 +157,25 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     setLoading(true);
 
     try {
-      const res  = await fetch(`${API_BASE}/api/ai/chat`, {
-        method:  "POST",
+      const res = await fetch(`${API_BASE}/api/ai/chat`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({
-          messages:     newHistory,
+        body: JSON.stringify({
+          messages: newHistory,
           systemPrompt: buildSystemPrompt(role, userContext),  // ← context passed here
         }),
       });
       const data = await res.json();
-      const raw  = data.content?.[0]?.text || "Sorry, I couldn't process that.";
+      const raw = data.content?.[0]?.text || "Sorry, I couldn't process that.";
       const needsEscalation = raw.includes("[ESCALATE]");
       const clean = raw.replace("[ESCALATE]", "").trim();
       const msgIdx = messages.length + 1;
 
       setMessages((p) => [...p, { role: "ai", text: clean, escalate: needsEscalation, msgIdx }]);
-      setHistory((p)  => [...p, { role: "assistant", content: clean }]);
+      setHistory((p) => [...p, { role: "assistant", content: clean }]);
 
       if (needsEscalation) {
-        setTicketForms((p)  => ({ ...p, [msgIdx]: { email: user?.email || "", subject: text.slice(0, 80), message: text } }));
+        setTicketForms((p) => ({ ...p, [msgIdx]: { email: user?.email || "", subject: text.slice(0, 80), message: text } }));
         setTicketStatus((p) => ({ ...p, [msgIdx]: "idle" }));
       }
     } catch {
@@ -191,7 +191,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/api/support/messages`, {
-        method:  "POST",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -259,7 +259,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
         onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.1)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
       >
-        {open ? "✕" : "🤖"}
+        {open ? "✕" : "⬡"}
       </button>
 
       {/* ── Chat window ── */}
@@ -287,7 +287,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
               background: "rgba(255,255,255,0.2)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 18, flexShrink: 0,
-            }}>🤖</div>
+            }}>AI</div>
             <div>
               <div style={{ fontWeight: 700, fontSize: 14, color: "#fff" }}>LeapBuddy</div>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: 4 }}>
@@ -446,7 +446,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
                 transition: "border-color 0.15s",
               }}
               onFocus={(e) => { e.target.style.borderColor = INDIGO; }}
-              onBlur={(e)  => { e.target.style.borderColor = "#e2e8f0"; }}
+              onBlur={(e) => { e.target.style.borderColor = "#e2e8f0"; }}
             />
             <button
               onClick={() => sendMessage(input)}

@@ -1,30 +1,37 @@
 // src/components/shared-dashboard/SharedDashboardLayout.jsx
 import { useState } from "react";
-import SharedTopbar               from "./SharedTopbar";
-import SharedSidebar              from "./SharedSidebar";
-import SharedHomeTab              from "./tabs/SharedHomeTab";
-import SharedChatTab              from "./tabs/SharedChatTab";
-import SharedGoalsTab             from "./tabs/SharedGoalsTab";
-import SharedNotesTab             from "./tabs/SharedNotesTab";
-import SharedReportTab            from "./tabs/SharedReportTab";
+import SharedTopbar from "./SharedTopbar";
+import SharedSidebar from "./SharedSidebar";
+import SharedHomeTab from "./tabs/SharedHomeTab";
+import SharedChatTab from "./tabs/SharedChatTab";
+import SharedGoalsTab from "./tabs/SharedGoalsTab";
+import SharedNotesTab from "./tabs/SharedNotesTab";
+import SharedReportTab from "./tabs/SharedReportTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
-import useSocketToast             from "../../hooks/useSocketToast";
+import useSocketToast from "../../hooks/useSocketToast";
 
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
-  const activeTab = activeTabProp || "overview"; 
+  const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [reportRefreshKey, setReportRefreshKey] = useState(0); // 👈 ADDED
 
   useSocketToast();
 
   const viewerRole = connect?.viewerRole || "mentee";
 
+  // 👇 ADDED: wrap onAllComplete to also bump the report refresh key
+  const handleAllComplete = () => {
+    setReportRefreshKey(k => k + 1);
+    onAllComplete?.();
+  };
+
   return (
     <div style={{
-      height: "100vh",          // ← was minHeight; needs to be fixed height so children can fill it
+      height: "100vh",
       backgroundColor: "#f8fafc",
       display: "flex",
       flexDirection: "column",
-      overflow: "hidden",       // ← prevent outer page scroll; each section manages its own
+      overflow: "hidden",
     }}>
 
       {/* Topbar — fixed height, never shrinks */}
@@ -34,7 +41,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
       />
 
       {/* Body — fills remaining height below topbar */}
-      <div style={{ display: "flex", flex: 1, minHeight: 0 /* critical for nested scroll */ }}>
+      <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
 
         {/* Sidebar */}
         <SharedSidebar
@@ -44,47 +51,30 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
           onClose={() => setSidebarOpen(false)}
         />
 
-        {/*
-          Main content
-          ─────────────────────────────────────────────────────────
-          CHANGES from original:
-          1. Removed `maxWidth: "900px"` — this was the root cause of
-             the right-side dead whitespace on all tabs including chat.
-          2. Changed `overflowY: "auto"` → conditional per tab.
-             Non-chat tabs scroll normally. Chat tab must NOT scroll
-             here — the chat component manages its own internal scroll.
-          3. Added `minHeight: 0` — required so flex children that use
-             `flex: 1` can properly constrain their height and scroll.
-          4. Chat wrapper uses `height: "100%"` + `display: flex` so
-             SharedChatTab's `flex: 1` has a real height to fill.
-          ─────────────────────────────────────────────────────────
-        */}
         <main style={{
           flex: 1,
-          minHeight: 0,        // ← essential: lets children scroll within flex
-          minWidth: 0,         // ← prevents horizontal overflow from long content
+          minHeight: 0,
+          minWidth: 0,
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden",  // ← each tab manages its own scroll
+          overflow: "hidden",
         }}>
 
           {/* Home */}
           <div style={{
-           display: activeTab === "overview" ? "block" : "none",
+            display: activeTab === "overview" ? "block" : "none",
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
             <SharedHomeTab connect={connect} onTabChange={setActiveTab} />
           </div>
 
-          {/* Chat — always mounted so socket stays alive
-              No padding here — chat has its own internal spacing
-              height: 100% + display flex lets SharedChatTab fill fully */}
+          {/* Chat — always mounted so socket stays alive */}
           <div style={{
             display: activeTab === "chat" ? "flex" : "none",
             flexDirection: "column",
-            height: "100%",    // ← fills the main area completely
-            padding: "24px 32px", // ← equal breathing room on all sides
+            height: "100%",
+            padding: "24px 32px",
             boxSizing: "border-box",
           }}>
             <SharedChatTab connect={connect} />
@@ -98,7 +88,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
           }}>
             <SharedGoalsTab
               connect={connect}
-              onAllComplete={onAllComplete}
+              onAllComplete={handleAllComplete}  // 👈 CHANGED: use wrapped handler
             />
           </div>
 
@@ -126,7 +116,10 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedReportTab connect={connect} />
+            <SharedReportTab
+              connect={connect}
+              reportRefreshKey={reportRefreshKey}  // 👈 ADDED
+            />
           </div>
 
         </main>

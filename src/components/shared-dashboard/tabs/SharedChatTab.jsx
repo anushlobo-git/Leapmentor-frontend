@@ -23,11 +23,11 @@ const formatTime = (dateStr) => {
 };
 
 const formatDateSeparator = (dateStr) => {
-  const date      = new Date(dateStr);
-  const today     = new Date();
+  const date = new Date(dateStr);
+  const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
-  if (date.toDateString() === today.toDateString())     return "Today";
+  if (date.toDateString() === today.toDateString()) return "Today";
   if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
@@ -105,12 +105,12 @@ const ReadReceipt = ({ readAt }) => (
   <span style={{ marginLeft: "4px", color: readAt ? "#2563eb" : "#94a3b8" }}>
     {readAt ? (
       <svg width="14" height="9" viewBox="0 0 16 10" fill="none">
-        <path d="M1 5l3.5 3.5L11 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M5 5l3.5 3.5L15 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 5l3.5 3.5L11 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5 5l3.5 3.5L15 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ) : (
       <svg width="10" height="9" viewBox="0 0 10 10" fill="none">
-        <path d="M1 5l3 3L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M1 5l3 3L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )}
   </span>
@@ -202,7 +202,7 @@ const EmptyState = ({ otherName }) => (
     }}>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
         stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
     </div>
     <p style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b" }}>No messages yet</p>
@@ -214,8 +214,8 @@ const EmptyState = ({ otherName }) => (
 
 // ── Chat Input ────────────────────────────────────────────────
 const ChatInput = ({ onSend, onTyping, disabled }) => {
-  const [value, setValue]   = useState("");
-  const textareaRef         = useRef(null);
+  const [value, setValue] = useState("");
+  const textareaRef = useRef(null);
 
   const handleSend = () => {
     if (!value.trim()) return;
@@ -264,7 +264,7 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
           fontFamily: "inherit", overflow: "hidden",
         }}
         onFocus={(e) => e.target.style.borderColor = "#93c5fd"}
-        onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
+        onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
       />
       <button
         onClick={handleSend}
@@ -280,8 +280,8 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke={value.trim() ? "white" : "#94a3b8"}
           strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
         </svg>
       </button>
     </div>
@@ -296,9 +296,9 @@ const SharedChatTab = ({ connect }) => {
     sendMessage, loadMore, handleTyping, markRead,
   } = useChat(connect?._id);
 
-  const messagesEndRef     = useRef(null);
+  const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
-  const prevScrollHeight   = useRef(0);
+  const prevScrollHeight = useRef(0);
 
   // ── Determine other person ──────────────────────────────
   const viewerRole = connect?.viewerRole;
@@ -311,9 +311,9 @@ const SharedChatTab = ({ connect }) => {
     return sid === myId;
   };
 
-  const otherName    = viewerRole === "mentee"
-    ? connect?.mentor?.name         || "Mentor"
-    : connect?.mentee?.name         || "Mentee";
+  const otherName = viewerRole === "mentee"
+    ? connect?.mentor?.name || "Mentor"
+    : connect?.mentee?.name || "Mentee";
   const otherPicture = viewerRole === "mentee"
     ? connect?.mentorProfile?.profilePicture || ""
     : connect?.menteeProfile?.profilePicture || "";
@@ -409,13 +409,14 @@ const SharedChatTab = ({ connect }) => {
     <div style={{
       display: "flex",
       flexDirection: "column",
-      flex: 1,           // ← fills all available height from parent
-      width: "100%",     // ← fills all available width — no right dead zone
-      minHeight: 0,      // ← essential: lets flex children scroll correctly
+      flex: 1,
+      width: "80%",
+      minHeight: 0,
       backgroundColor: "white",
       border: "1px solid #e2e8f0",
       borderRadius: "20px",
       overflow: "hidden",
+      margin: "0 auto",   // ← centers the div, giving equal left & right spacing
     }}>
       <ChatHeader name={otherName} picture={otherPicture} otherOnline={otherOnline} />
 
@@ -442,7 +443,7 @@ const SharedChatTab = ({ connect }) => {
         {messages.length === 0 && <EmptyState otherName={otherName} />}
 
         {messages.map((msg, index) => {
-          const prev    = messages[index - 1];
+          const prev = messages[index - 1];
           const showSep = !prev || !isSameDay(prev.createdAt, msg.createdAt);
           return (
             <div key={msg._id}>
