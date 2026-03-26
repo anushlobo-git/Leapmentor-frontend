@@ -5,6 +5,16 @@ import CalendarAvailabilitySection from "./CalendarAvailabilitySection";
 import TimezoneDurationSection from "./TimezoneDurationSection";
 import IntegrationsSection from "./IntegrationsSection";
 
+// ─── Helper: convert "HH:MM" 24h to "h:MM AM/PM" ─────────────────────────────
+const formatSlotTime = (timeStr) => {
+  if (!timeStr) return "";
+  const [hhStr, mm] = timeStr.split(":");
+  let hh = parseInt(hhStr, 10);
+  const period = hh >= 12 ? "PM" : "AM";
+  hh = hh % 12 || 12;
+  return `${hh}:${mm} ${period}`;
+};
+
 // ─── Busy Conflict Confirmation Modal ────────────────────────────────────────
 const BusyConflictModal = ({ conflicts, onConfirm, onCancel }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
@@ -92,8 +102,8 @@ const collectBusyConflicts = (specificDates, busySlots) => {
 
           conflicts.push({
             dateLabel,
-            slotTime:  `${slot.startTime} – ${slot.endTime}`,
-            busyTime:  `${fmt(busy.start)} – ${fmt(busy.end)}`,
+            slotTime: `${formatSlotTime(slot.startTime)} – ${formatSlotTime(slot.endTime)}`,
+            busyTime: `${fmt(busy.start)} – ${fmt(busy.end)}`,
           });
           break; // one conflict per slot is enough
         }
@@ -120,16 +130,21 @@ const AvailabilityTab = () => {
   } = useAvailability();
 
   // busySlots are lifted up from CalendarAvailabilitySection via callback
-  const [busySlots,      setBusySlots]      = useState([]);
-  const [showModal,      setShowModal]      = useState(false);
-  const [pendingConflicts, setPendingConflicts] = useState([]);
+  const [busySlots,          setBusySlots]          = useState([]);
+  const [showModal,          setShowModal]          = useState(false);
+  const [pendingConflicts,   setPendingConflicts]   = useState([]);
+  // ── NEW: track whether all calendar slots pass validation ──────────────────
+  const [isAvailabilityValid, setIsAvailabilityValid] = useState(true);
 
   const handleConnectionChange = (connected) => {
     setAvailability((prev) => ({ ...prev, googleCalendarConnected: connected }));
   };
 
-  // Intercept save — check for conflicts first
+  // Intercept save — block if slot errors exist, then check for busy conflicts
   const handleSave = () => {
+    // ── Guard: do not save when there are slot validation errors ──────────────
+    if (!isAvailabilityValid) return;
+
     const today = new Date().toISOString().split("T")[0];
     const futureDates = (availability.specificDates || []).filter((d) => d.date >= today);
     const conflicts = collectBusyConflicts(futureDates, busySlots);
@@ -188,7 +203,7 @@ const AvailabilityTab = () => {
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || !isAvailabilityValid}
             className="w-26 flex items-center justify-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-900 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200"
           >
             {saving ? (
@@ -231,6 +246,7 @@ const AvailabilityTab = () => {
         googleCalendarConnected={availability.googleCalendarConnected}
         onBusySlotsChange={setBusySlots}
         sessionDurations={availability.sessionDurations}
+        onValidationChange={setIsAvailabilityValid}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
