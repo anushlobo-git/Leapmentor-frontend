@@ -2,14 +2,24 @@ import { useState, useEffect } from "react";
 
 const images = [
   "/images/mentor3.webp",
-  "/images/mentor4.png",
-  "/images/mentor2.jpg",
-  "/images/mentor4.png",
+  "/images/mentor4.webp",
+  "/images/mentor2.webp",
+  "/images/mentor4.webp",
 ];
 
 export default function Hero() {
   const [current, setCurrent] = useState(0);
   const [fade, setFade] = useState(true);
+
+  // Preload the first image so LCP is fast
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = images[0];
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,9 +50,6 @@ export default function Hero() {
             career path with 1-on-1 sessions.
           </p>
 
-          {/* CTA Button */}
-         
-
           {/* Social Proof */}
           <div className="flex items-center gap-3 mt-2">
             <div className="flex -space-x-2">
@@ -70,12 +77,18 @@ export default function Hero() {
               key={current}
               src={images[current]}
               alt={`Slide ${current + 1}`}
-              style={{ opacity: fade ? 1 : 0, transition: "opacity 0.4s ease-in-out" }}
+              width={896}
+              height={768}
+              style={{
+                opacity: fade ? 1 : 0,
+                transition: fade ? "opacity 0.4s ease-in-out" : "none"
+              }}
               className="absolute inset-0 w-full h-full object-cover"
+              fetchPriority={current === 0 ? "high" : "auto"}
+              loading={current === 0 ? "eager" : "lazy"}
             />
-
             {/* Subtle overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
 
             {/* Floating Success Card */}
             <div className="absolute bottom-6 right-4 bg-white rounded-2xl shadow-xl p-4 w-52 border border-gray-100">
@@ -86,11 +99,11 @@ export default function Hero() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Success Rate</p>
+                  <p className="text-xs text-gray-600 uppercase tracking-wide font-medium">Success Rate</p>
                   <p className="text-2xl font-extrabold text-gray-900 leading-none">98%</p>
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Mentee satisfaction rise across all verified programs.</p>
+              <p className="text-xs text-gray-600 mt-1">Mentee satisfaction rise across all verified programs.</p>
             </div>
           </div>
         </div>

@@ -20,11 +20,14 @@ export default function Navbar() {
           }}
         >
           <img
-            src="/images/logo.png"
-            alt="Leapmentor logo"
-            className="h-8 w-auto"
+            src="/images/logo.webp"
+            alt="LeapMentor logo"
+            className="h-8 w-8"
+            width={32}
+            height={32}
+
           />
-          <span className="text-xl font-bold text-gray-900 tracking-tight">Leapmentor</span>
+          <span className="text-xl font-bold text-gray-900 tracking-tight">LeapMentor</span>
         </div>
 
         {/* Desktop Buttons */}

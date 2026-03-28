@@ -1,9 +1,12 @@
 // src/components/auth/LoginForm.jsx
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
+import AuthSSOButtons from "./AuthSSOButtons";
+import { AuthBrand } from "./AuthUI";
+import { LeapMentorLogo } from "./AuthIcons";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -60,6 +63,11 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
+  // Reset loading state on unmount
+  useEffect(() => {
+    return () => setLoading(false);
+  }, []);
+
   useGoogleAuth({
     btnRef: googleBtnRef,
     termsAcceptedRef: null,
@@ -105,19 +113,18 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
       setMsg({ type: "success", text: "Login successful! Redirecting..." });
       setTimeout(() => redirectByRole(res.data?.user?.roles || [], role, navigate), 800);
     } catch (err) {
-      const status   = err?.response?.status;
-      const data     = err?.response?.data;
-      const apiMsg   = data?.message || err?.message || "Invalid credentials";
+      const status = err?.response?.status;
+      const data = err?.response?.data;
+      const apiMsg = data?.message || err?.message || "Invalid credentials";
 
-      // ✅ Redirect to verify email if not verified
       if (status === 403 && data?.isEmailVerified === false) {
-         setMsg({ type: "error", text: "Please verify your email first. Redirecting..." });
-         setTimeout(() => {
-         navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
-         }, 1000);
-         return;
-     }
-     setMsg({ type: "error", text: apiMsg });
+        setMsg({ type: "error", text: "Please verify your email first. Redirecting..." });
+        setTimeout(() => {
+          navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
+        }, 1000);
+        return;
+      }
+      setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);
     }
@@ -125,7 +132,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto px-4">
-
+      <AuthBrand logo={<LeapMentorLogo />} />
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h1>
         <p className="text-sm text-slate-500 mt-1.5">{subtitle}</p>
@@ -158,11 +165,11 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
               type={showPw ? "text" : "password"} name="password" value={form.password}
               onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
               placeholder="••••••••" required
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-9
-              00 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
             />
             <button type="button" onClick={() => setShowPw((p) => !p)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+              aria-label={showPw ? "Hide password" : "Show password"}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-2">
               {showPw ? (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
@@ -178,7 +185,6 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
             </button>
           </div>
 
-          {/* ✅ UPDATED — now navigates to /forgot-password?role=mentor|mentee */}
           <div className="text-right mt-1.5">
             <span
               onClick={() => navigate(`/forgot-password?role=${role}`)}
@@ -205,24 +211,17 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
 
       <div className="flex items-center gap-3 my-6">
         <div className="h-px bg-slate-200 flex-1" />
-        <span className="text-xs text-slate-400 font-medium">Or continue with</span>
+        <span className="text-xs text-slate-500 font-medium">Or continue with</span>
         <div className="h-px bg-slate-200 flex-1" />
       </div>
 
-      <div className="flex items-center justify-center gap-4">
-        <div className={`relative w-12 h-12 rounded-xl border border-slate-200 overflow-hidden hover:bg-slate-50 transition-all duration-150 shrink-0 ${loading ? "opacity-60 pointer-events-none" : ""}`}>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"><GoogleIcon /></div>
-          <div ref={googleBtnRef} className="absolute inset-0 opacity-0 scale-150 z-20" />
-        </div>
-        <button type="button" onClick={() => handleClerkSSO("linkedin")} disabled={loading || !clerkLoaded}
-          className="w-12 h-12 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-60 transition-all duration-150 shrink-0">
-          <LinkedInIcon />
-        </button>
-        <button type="button" onClick={() => handleClerkSSO("apple")} disabled={loading || !clerkLoaded}
-          className="w-12 h-12 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-60 transition-all duration-150 shrink-0">
-          <AppleIcon />
-        </button>
-      </div>
+      <AuthSSOButtons
+        googleBtnRef={googleBtnRef}
+        loading={loading}
+        clerkLoaded={clerkLoaded}
+        onLinkedIn={() => handleClerkSSO("linkedin")}
+        onApple={() => handleClerkSSO("apple")}
+      />
 
       <p className="text-sm text-slate-500 text-center mt-8">
         Don't have an account?{" "}

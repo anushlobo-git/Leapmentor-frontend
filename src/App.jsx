@@ -17,6 +17,8 @@ const VerifyEmail    = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const SSOCallback    = lazy(() => import("./pages/SSOCallback"));
 const SSOSync        = lazy(() => import("./pages/SSOSync"));
+// In App.jsx - lazy load pages
+
 
 // ── Onboarding ────────────────────────────────────────────────
 const MentorOnboarding = lazy(() => import("./pages/MentorOnboarding"));

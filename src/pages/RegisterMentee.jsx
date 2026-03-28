@@ -20,7 +20,7 @@ const RegisterMentee = () => {
         stats={MENTEE_STATS}
       />
       <div className="flex flex-1 items-center justify-center px-6 py-10 overflow-y-auto">
-        <div className="w-full max-w-[420px]">
+        <div className="w-full max-w-105">
           <RegisterForm role="mentee" />
         </div>
       </div>

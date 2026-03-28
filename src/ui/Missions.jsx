@@ -41,7 +41,7 @@ export default function Missions() {
         {/* Section Header */}
         <div className="text-center mb-14">
           <p className="text-blue-900 text-sm font-semibold uppercase tracking-widest mb-3">
-            Why Choose Leapmentor?
+            Why Choose LeapMentor?
           </p>
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
             Designed for your career success
