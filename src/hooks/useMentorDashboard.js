@@ -20,7 +20,7 @@ const useMentorDashboard = () => {
   const refetchProfile = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get(`${BASE_URL}/api/mentor-profile/me`, {
+    const res = await axios.get(`${BASE_URL}/mentor-profile/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setProfile(res.data);
@@ -46,7 +46,7 @@ const useMentorDashboard = () => {
         setLoading(true);
 
         // 2) Fetch basic user info
-        const userRes = await axios.get(`${BASE_URL}/api/users/me`, {
+        const userRes = await axios.get(`${BASE_URL}/users/me`, {
           headers: authHeader,
         });
         const userData = userRes.data;
@@ -60,7 +60,7 @@ const useMentorDashboard = () => {
         setUser(userData);
 
         // 4) Fetch mentor profile
-        const profileRes = await axios.get(`${BASE_URL}/api/mentor-profile/me`, {
+        const profileRes = await axios.get(`${BASE_URL}/mentor-profile/me`, {
           headers: authHeader,
         });
 

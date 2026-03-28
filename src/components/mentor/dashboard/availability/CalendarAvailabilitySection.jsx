@@ -587,11 +587,11 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
       const headers = { Authorization: `Bearer ${token}` };
       const params  = { startDate: firstDay, endDate: lastDay };
 
-      axios.get(`${BASE_URL}/api/google-calendar/busy`, { params, headers })
+      axios.get(`${BASE_URL}/google-calendar/busy`, { params, headers })
         .then(({ data }) => updateBusySlots(data.busy || []))
         .catch((err) => console.error("Failed to fetch busy slots:", err));
 
-      axios.get(`${BASE_URL}/api/google-calendar/events`, { params, headers })
+      axios.get(`${BASE_URL}/google-calendar/events`, { params, headers })
         .then(({ data }) => setCalendarEvents(data.events || []))
         .catch((err) => console.error("Failed to fetch events:", err));
     });

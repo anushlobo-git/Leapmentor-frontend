@@ -51,7 +51,7 @@ const useMentorSearch = () => {
       params.set("limit", LIMIT);
 
       const res = await axios.get(
-        `${BASE_URL}/api/mentors/search?${params.toString()}`,
+        `${BASE_URL}/mentors/search?${params.toString()}`,
         { headers: authHeader }
       );
 

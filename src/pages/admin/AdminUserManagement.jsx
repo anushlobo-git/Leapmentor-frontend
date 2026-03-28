@@ -101,7 +101,7 @@ const AdminUserManagement = () => {
   //-----growth data--------------
   const fetchGrowthData = useCallback(async () => {
   try {
-    const res = await axios.get(`${BASE_URL}/api/admin/user-growth`, { headers: authHeader() });
+    const res = await axios.get(`${BASE_URL}/admin/user-growth`, { headers: authHeader() });
     setGrowthData(res.data);
   } catch (err) {
     console.error("Failed to fetch growth data", err);
@@ -113,7 +113,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
   // ── Fetch stats ───────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/stats`, { headers: authHeader() });
+      const res = await axios.get(`${BASE_URL}/admin/stats`, { headers: authHeader() });
       setStats(res.data);
     } catch(err) {
       console.error("Error fetching stats",err);
@@ -127,7 +127,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
       const params = { page, limit: 15 };
       if (q)    params.search = q;
       if (role) params.role   = role;
-      const res = await axios.get(`${BASE_URL}/api/admin/users`, { headers: authHeader(), params });
+      const res = await axios.get(`${BASE_URL}/admin/users`, { headers: authHeader(), params });
       setUsers(res.data.users);
       setPagination(res.data.pagination);
     } catch {
@@ -156,7 +156,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
     if (!toDelete) return;
     setDeleting(true);
     try {
-      await axios.delete(`${BASE_URL}/api/admin/users/${toDelete._id}`, { headers: authHeader() });
+      await axios.delete(`${BASE_URL}/admin/users/${toDelete._id}`, { headers: authHeader() });
       showToast(`${toDelete.name} has been permanently deleted.`);
       setToDelete(null);
       fetchStats();

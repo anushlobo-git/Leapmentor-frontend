@@ -18,7 +18,7 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post(`${BASE_URL}/api/admin/auth/login`, { email, password });
+      const res = await axios.post(`${BASE_URL}/admin/auth/login`, { email, password });
       localStorage.setItem("adminToken", res.data.token);
       localStorage.setItem("adminUser",  JSON.stringify(res.data.admin));
       navigate("/admin/users");

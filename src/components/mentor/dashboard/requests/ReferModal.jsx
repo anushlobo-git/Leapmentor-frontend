@@ -20,7 +20,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
         setLoading(true);
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          `${BASE_URL}/api/connect-requests/${request._id}/similar-mentors`,
+          `${BASE_URL}/connect-requests/${request._id}/similar-mentors`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMentors(res.data.mentors || []);
@@ -42,7 +42,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
       setError("");
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${BASE_URL}/api/connect-requests/${request._id}/refer`,
+        `${BASE_URL}/connect-requests/${request._id}/refer`,
         { referToMentorId: selected.user._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );

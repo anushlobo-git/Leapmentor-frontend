@@ -31,7 +31,7 @@ const useMenteeDashboard = () => {
         setLoading(true);
 
         // 2) Fetch basic user info
-        const userRes = await axios.get(`${BASE_URL}/api/users/me`, {
+        const userRes = await axios.get(`${BASE_URL}/users/me`, {
           headers: authHeader,
         });
         const userData = userRes.data;
@@ -45,7 +45,7 @@ const useMenteeDashboard = () => {
         setUser(userData);
 
         // 4) Fetch mentee profile
-        const profileRes = await axios.get(`${BASE_URL}/api/mentee-profile/me`, {
+        const profileRes = await axios.get(`${BASE_URL}/mentee-profile/me`, {
           headers: authHeader,
         });
 

@@ -150,7 +150,7 @@ export default function HelpCenter() {
     setSubmitError("");
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/support/messages`, {
+      const res = await fetch(`${API_BASE}/support/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

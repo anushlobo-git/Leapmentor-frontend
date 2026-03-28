@@ -15,7 +15,7 @@ const useOngoingConnects = () => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/api/connect-requests/ongoing`, {
+      const res = await axios.get(`${BASE_URL}/connect-requests/ongoing`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

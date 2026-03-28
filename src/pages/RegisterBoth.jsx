@@ -52,7 +52,7 @@ const RegisterBoth = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(`${BASE_URL}/api/auth/register`, {
+      const res = await axios.post(`${BASE_URL}/auth/register`, {
         name: form.name.trim(),
         email: form.email.trim(),
         password: form.password,

@@ -19,7 +19,7 @@ const useRequestHistory = () => {
     try {
       setLoading(true);
       const res = await axios.get(
-        `${BASE_URL}/api/connect-requests/my-requests`,
+        `${BASE_URL}/connect-requests/my-requests`,
         { headers: authHeader() }
       );
       setRequests(res.data.requests || []);
@@ -39,7 +39,7 @@ const useRequestHistory = () => {
   const deleteRequest = useCallback(async (id) => {
     try {
       await axios.delete(
-        `${BASE_URL}/api/connect-requests/${id}`,
+        `${BASE_URL}/connect-requests/${id}`,
         { headers: authHeader() }
       );
       setRequests((prev) => prev.filter((r) => r._id !== id));

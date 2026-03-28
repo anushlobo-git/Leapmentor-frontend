@@ -18,7 +18,7 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ name, email, password, roles, termsAccepted }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/register`, {
+      const res = await axios.post(`${BASE_URL}/auth/register`, {
         name, email, password, roles, termsAccepted,
       });
       if (res.data?.token) localStorage.setItem("token", res.data.token);
@@ -33,7 +33,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
+      const res = await axios.post(`${BASE_URL}/auth/login`, { email, password });
       if (res.data?.token) localStorage.setItem("token", res.data.token);
       return res.data;
     } catch (err) {
@@ -46,7 +46,7 @@ export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/verification/send`, { email: email.trim() });
+      const res = await axios.post(`${BASE_URL}/verification/send`, { email: email.trim() });
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to send OTP.");
@@ -58,7 +58,7 @@ export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/verification/verify-otp`, {
+      const res = await axios.post(`${BASE_URL}/verification/verify-otp`, {
         email: email.trim(),
         otp,
       });
@@ -74,7 +74,7 @@ export const verifyMagicLink = createAsyncThunk(
   async ({ token, email }, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/verification/verify/${token}?email=${encodeURIComponent(email)}`
+        `${BASE_URL}/verification/verify/${token}?email=${encodeURIComponent(email)}`
       );
       return res.data;
     } catch (err) {
@@ -87,7 +87,7 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/forgot-password`, { email: email.trim() });
+      const res = await axios.post(`${BASE_URL}/auth/forgot-password`, { email: email.trim() });
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to send OTP.");
@@ -99,7 +99,7 @@ export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/verify-reset-otp`, {
+      const res = await axios.post(`${BASE_URL}/auth/verify-reset-otp`, {
         email: email.trim(),
         otp,
       });
@@ -114,7 +114,7 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/api/auth/reset-password`, {
+      const res = await axios.post(`${BASE_URL}/auth/reset-password`, {
         email: email.trim(),
         otp,
         newPassword,

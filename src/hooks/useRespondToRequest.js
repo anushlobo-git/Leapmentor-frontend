@@ -16,7 +16,7 @@ const useRespondToRequest = () => {
       setResponding(true);
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${BASE_URL}/api/connect-requests/${requestId}`,
+        `${BASE_URL}/connect-requests/${requestId}`,
         { status, confirmedSlot },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -50,7 +50,7 @@ const useRespondToRequest = () => {
       setReferring(true);
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${BASE_URL}/api/connect-requests/${requestId}/refer`,
+        `${BASE_URL}/connect-requests/${requestId}/refer`,
         { referToMentorId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

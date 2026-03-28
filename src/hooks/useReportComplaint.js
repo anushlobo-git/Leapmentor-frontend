@@ -23,7 +23,7 @@ const useReportComplaint = (connectRequestId) => {
       formData.append("description",      description);
       if (screenshot) formData.append("screenshot", screenshot);
 
-      await axios.post(`${BASE_URL}/api/reports`, formData, {
+      await axios.post(`${BASE_URL}/reports`, formData, {
         headers: {
           ...authHeader(),
           "Content-Type": "multipart/form-data",

@@ -18,7 +18,7 @@ const useSlotLock = (mentorId) => {
   const lockSlot = useCallback(async (date, startTime, endTime) => {
     try {
       const res = await axios.post(
-        `${BASE_URL}/api/slot-locks/lock`,
+        `${BASE_URL}/slot-locks/lock`,
         { mentorId, date, startTime, endTime },
         { headers: getHeaders() }
       );
@@ -37,7 +37,7 @@ const useSlotLock = (mentorId) => {
   const unlockSlot = useCallback(async (date, startTime, endTime) => {
     try {
       await axios.post(
-        `${BASE_URL}/api/slot-locks/unlock`,
+        `${BASE_URL}/slot-locks/unlock`,
         { mentorId, date, startTime, endTime },
         { headers: getHeaders() }
       );
@@ -54,7 +54,7 @@ const useSlotLock = (mentorId) => {
   const unlockAll = useCallback(async () => {
     try {
       await axios.post(
-        `${BASE_URL}/api/slot-locks/unlock-all`,
+        `${BASE_URL}/slot-locks/unlock-all`,
         { mentorId },
         { headers: getHeaders() }
       );

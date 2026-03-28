@@ -62,7 +62,7 @@ const useMentorSettings = (initialProfile) => {
     try {
       setFetching(true);
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/api/mentor-profile/me`, {
+      const res = await axios.get(`${BASE_URL}/mentor-profile/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const p = res.data;
@@ -86,7 +86,7 @@ const useMentorSettings = (initialProfile) => {
       setMsg({ type: "", text: "" });
       const token = localStorage.getItem("token");
       await axios.put(
-        `${BASE_URL}/api/mentor-profile/me`,
+        `${BASE_URL}/mentor-profile/me`,
         {
           hourlyRate: Number(hourlyRate) || 0,
           emailNotifications,

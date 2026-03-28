@@ -23,7 +23,7 @@ const useMenteeEditProfile = () => {
     const token = localStorage.getItem("token");
     const fetchProfile = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/api/mentee-profile/me`, {
+        const { data } = await axios.get(`${BASE_URL}/mentee-profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setForm({
@@ -93,7 +93,7 @@ const useMenteeEditProfile = () => {
         ...form,
         yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
       };
-      await axios.put(`${BASE_URL}/api/mentee-profile/me`, payload, {
+      await axios.put(`${BASE_URL}/mentee-profile/me`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMsg({ type: "success", text: "Profile updated successfully!" });

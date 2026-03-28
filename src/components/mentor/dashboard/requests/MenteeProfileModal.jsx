@@ -39,7 +39,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
       const token = localStorage.getItem("token");
       const body  = { status, ...(confirmedSlot ? { confirmedSlot } : {}) };
       await axios.patch(
-        `${BASE_URL}/api/connect-requests/${request._id}`,
+        `${BASE_URL}/connect-requests/${request._id}`,
         body,
         { headers: { Authorization: `Bearer ${token}` } }
       );

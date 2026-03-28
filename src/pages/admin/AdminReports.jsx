@@ -114,7 +114,7 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
       setSaving(true);
       setError("");
       const res = await axios.patch(
-        `${BASE_URL}/api/admin/reports/${report.id}`,
+        `${BASE_URL}/admin/reports/${report.id}`,
         { status: selectedStatus, adminNote },
         { headers: authHeader() }
       );
@@ -131,7 +131,7 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
     try {
       setActionLoading(true);
       await axios.post(
-        `${BASE_URL}/api/admin/reports/${report.id}/refund`,
+        `${BASE_URL}/admin/reports/${report.id}/refund`,
         { adminNote },
         { headers: authHeader() }
       );
@@ -149,7 +149,7 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
     try {
       setActionLoading(true);
       await axios.delete(
-        `${BASE_URL}/api/admin/reports/${report.id}/session`,
+        `${BASE_URL}/admin/reports/${report.id}/session`,
         { headers: authHeader(), data: { adminNote } }
       );
       onDeleteSession(report.id);
@@ -423,7 +423,7 @@ const AdminReports = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/reports/stats`, { headers: authHeader() });
+      const res = await axios.get(`${BASE_URL}/admin/reports/stats`, { headers: authHeader() });
       setStats(res.data);
     } catch { showToast("Failed to load stats.", "error"); }
   }, []);
@@ -434,7 +434,7 @@ const AdminReports = () => {
       const params = { page, limit: 10 };
       if (q)      params.search = q;
       if (status) params.status = status;
-      const res = await axios.get(`${BASE_URL}/api/admin/reports`, { headers: authHeader(), params });
+      const res = await axios.get(`${BASE_URL}/admin/reports`, { headers: authHeader(), params });
       setReports(res.data.reports || []);
       setPagination(res.data.pagination);
     } catch { showToast("Failed to load reports.", "error"); }

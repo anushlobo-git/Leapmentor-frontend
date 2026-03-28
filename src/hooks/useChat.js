@@ -3,7 +3,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_URL    = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL   || "http://localhost:5000";
 const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
 
@@ -21,21 +22,16 @@ const useChat = (connectRequestId) => {
   const typingTimerRef = useRef(null);
   const isTypingRef    = useRef(false);
 
-  // ── Stable ref for connectRequestId ──────────────────────
-  // Using a ref avoids stale closures inside socket listeners
   const connectRequestIdRef = useRef(connectRequestId);
   useEffect(() => {
     connectRequestIdRef.current = connectRequestId;
   }, [connectRequestId]);
 
   // ── Fetch message history (REST) ──────────────────────────
-  // NOTE: No dependency on connectRequestId directly — uses ref
-  // so this function reference never changes and won't trigger
-  // the socket effect to re-run.
   const fetchHistory = useCallback(async (roomId, pageNum = 1) => {
     const token = localStorage.getItem("token");
     const res = await axios.get(
-      `${BASE_URL}/api/messages/${roomId}`,
+      `${API_URL}/messages/${roomId}`,
       {
         params:  { page: pageNum, limit: PAGE_LIMIT },
         headers: { Authorization: `Bearer ${token}` },
@@ -71,17 +67,14 @@ const useChat = (connectRequestId) => {
     return () => { cancelled = true; };
   }, [connectRequestId, fetchHistory]);
 
-  // ── Socket setup — runs ONCE per connectRequestId ─────────
-  // Completely separated from the history fetch effect so that
-  // fetchHistory changing (it won't) or history state changing
-  // never tears down the socket.
+  // ── Socket setup ──────────────────────────────────────────
   useEffect(() => {
     if (!connectRequestId) return;
 
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const socket = io(BASE_URL, {
+    const socket = io(SOCKET_URL, {  // ✅ plain domain, no /api/v1
       auth:                 { token },
       reconnection:         true,
       reconnectionAttempts: 5,
@@ -91,7 +84,6 @@ const useChat = (connectRequestId) => {
 
     socketRef.current = socket;
 
-    // ── join room ───────────────────────────────────────────
     const joinRoom = () => {
       socket.emit("join_room", { connectRequestId });
     };
@@ -111,7 +103,6 @@ const useChat = (connectRequestId) => {
       setError("Connection error. Retrying...");
     });
 
-    // uses a functional state updater — no stale closure issues.
     socket.on("new_message", (message) => {
       setMessages((prev) => {
         if (prev.some((m) => m._id === message._id)) return prev;
@@ -136,14 +127,13 @@ const useChat = (connectRequestId) => {
       setError(message);
     });
 
-    // ── Cleanup: only on connectRequestId change or unmount ─
     return () => {
       console.log("🧹 Cleaning up socket for room:", connectRequestId);
       clearTimeout(typingTimerRef.current);
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [connectRequestId]); // Only reconnects when the room changes
+  }, [connectRequestId]);
 
   // ── Load more (older messages) ────────────────────────────
   const loadMore = useCallback(async () => {
@@ -177,7 +167,7 @@ const useChat = (connectRequestId) => {
       isTypingRef.current = false;
       clearTimeout(typingTimerRef.current);
     }
-  }, []); // stable — uses refs, no deps needed
+  }, []);
 
   // ── Typing indicator ──────────────────────────────────────
   const handleTyping = useCallback(() => {
@@ -196,7 +186,7 @@ const useChat = (connectRequestId) => {
         socketRef.current?.emit("typing_stop", { connectRequestId: roomId });
       }
     }, TYPING_DEBOUNCE_MS);
-  }, []); // stable — uses refs
+  }, []);
 
   // ── Mark messages as read ─────────────────────────────────
   const markRead = useCallback(() => {
@@ -204,7 +194,7 @@ const useChat = (connectRequestId) => {
     socketRef.current.emit("mark_read", {
       connectRequestId: connectRequestIdRef.current,
     });
-  }, []); // stable — uses refs
+  }, []);
 
   return {
     messages,

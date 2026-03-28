@@ -97,8 +97,8 @@ const AdminSettings = () => {
     const fetchData = async () => {
       try {
         const [ovRes, cmRes] = await Promise.all([
-          axios.get(`${BASE_URL}/api/admin/settings/overview`,   { headers: authHeader() }),
-          axios.get(`${BASE_URL}/api/admin/settings/commission`, { headers: authHeader() }),
+          axios.get(`${BASE_URL}/admin/settings/overview`,   { headers: authHeader() }),
+          axios.get(`${BASE_URL}/admin/settings/commission`, { headers: authHeader() }),
         ]);
         setOverview({ totalUsers: ovRes.data.totalUsers, activeSessions: ovRes.data.activeSessions });
         setCommission(String(cmRes.data.commissionRate));
@@ -117,7 +117,7 @@ const AdminSettings = () => {
       setAddingAdmin(true);
       setTempPw("");
       const res = await axios.post(
-        `${BASE_URL}/api/admin/settings/add-admin`,
+        `${BASE_URL}/admin/settings/add-admin`,
         { name: adminName.trim(), email: adminEmail.trim() },
         { headers: authHeader() }
       );
@@ -139,7 +139,7 @@ const AdminSettings = () => {
     try {
       setSavingCommission(true);
       await axios.put(
-        `${BASE_URL}/api/admin/settings/commission`,
+        `${BASE_URL}/admin/settings/commission`,
         { commissionRate: rate },
         { headers: authHeader() }
       );

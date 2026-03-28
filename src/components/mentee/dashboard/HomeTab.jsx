@@ -26,14 +26,14 @@ const useHomeData = (profile) => {
           profile?.interestedFields?.[0] ||
           "";
 
-        const mentorRes = await axios.get(`${BASE_URL}/api/mentors/search`, {
+        const mentorRes = await axios.get(`${BASE_URL}/mentors/search`, {
           params: { skill: skillTerm, limit: 3 },
           headers: authHeader(),
         });
         setMentors(mentorRes.data.mentors || []);
 
         const sessionRes = await axios.get(
-          `${BASE_URL}/api/connect-requests/my-requests`,
+          `${BASE_URL}/connect-requests/my-requests`,
           { headers: authHeader() }
         );
         const allRequests = sessionRes.data.requests || [];
@@ -47,7 +47,7 @@ const useHomeData = (profile) => {
         setSessions(upcoming);
 
         // Fetch wallet
-        const walletRes = await axios.get(`${BASE_URL}/api/escrow/wallet`, {
+        const walletRes = await axios.get(`${BASE_URL}/escrow/wallet`, {
           headers: authHeader(),
         });
         setBalance(walletRes.data.balance ?? 0);

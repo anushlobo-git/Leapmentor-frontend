@@ -144,7 +144,7 @@ const badges = BADGES.map((badge) => ({
       setActiveDayIndex(0);
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${BASE_URL}/api/availability/${mentor.user._id}/slots?duration=${duration}`,
+        `${BASE_URL}/availability/${mentor.user._id}/slots?duration=${duration}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setGroupedSlots(res.data.slots || []);

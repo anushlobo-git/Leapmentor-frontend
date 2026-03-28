@@ -23,7 +23,7 @@ const SharedDashboardPage = () => {
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
       const res = await axios.get(
-        `${BASE_URL}/api/connect-requests/${connectRequestId}/detail`,
+        `${BASE_URL}/connect-requests/${connectRequestId}/detail`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setConnect(res.data.connect);

@@ -35,7 +35,7 @@ const SSOSync = () => {
         const role = localStorage.getItem("sso_role");
         const termsAccepted = localStorage.getItem("sso_terms") === "true";
 
-        const res = await axios.post(`${BASE_URL}/api/auth/clerk-sso`, {
+        const res = await axios.post(`${BASE_URL}/auth/clerk-sso`, {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
           termsAccepted: role !== "existing" ? termsAccepted : true,
