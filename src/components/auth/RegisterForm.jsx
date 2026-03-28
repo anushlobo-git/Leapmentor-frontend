@@ -15,16 +15,16 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
-  apple:    "oauth_apple",
+  apple: "oauth_apple",
 };
 
 const RegisterForm = ({ role }) => {
-  const navigate    = useNavigate();
-  const dispatch    = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { signOut } = useClerk();
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
 
-  const googleBtnRef     = useRef(null);
+  const googleBtnRef = useRef(null);
   const termsAcceptedRef = useRef(false);
 
   const { loading, error, successMsg } = useSelector((state) => state.auth);
@@ -32,13 +32,13 @@ const RegisterForm = ({ role }) => {
   const [form, setForm] = useState({
     name: "", email: "", password: "", termsAccepted: false,
   });
-  const [showPassword,  setShowPassword]  = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [localMsg, setLocalMsg] = useState({ type: "", text: "" });
 
   // Sync Redux error/success into localMsg for display
   useEffect(() => {
-    if (error)      setLocalMsg({ type: "error",   text: error });
+    if (error) setLocalMsg({ type: "error", text: error });
     if (successMsg) setLocalMsg({ type: "success", text: successMsg });
   }, [error, successMsg]);
 
@@ -78,11 +78,11 @@ const RegisterForm = ({ role }) => {
     if (!clerkLoaded) return;
     try {
       await signOut({ redirectUrl: window.location.href });
-      localStorage.setItem("sso_role",  role);
+      localStorage.setItem("sso_role", role);
       localStorage.setItem("sso_terms", "true");
       await signIn.authenticateWithRedirect({
-        strategy:            CLERK_STRATEGY[provider],
-        redirectUrl:         `${window.location.origin}/sso-callback`,
+        strategy: CLERK_STRATEGY[provider],
+        redirectUrl: `${window.location.origin}/sso-callback`,
         redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
       });
     } catch (err) {
@@ -98,10 +98,10 @@ const RegisterForm = ({ role }) => {
     if (!form.termsAccepted) return setLocalMsg({ type: "error", text: "Please accept the terms to continue." });
 
     const result = await dispatch(registerUser({
-      name:          form.name.trim(),
-      email:         form.email.trim(),
-      password:      form.password,
-      roles:         [role],
+      name: form.name.trim(),
+      email: form.email.trim(),
+      password: form.password,
+      roles: [role],
       termsAccepted: true,
     }));
 
@@ -151,7 +151,7 @@ const RegisterForm = ({ role }) => {
 
         {/* Password */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Password</label>
           <div className="relative">
             <input
               name="password"
@@ -161,31 +161,44 @@ const RegisterForm = ({ role }) => {
               placeholder="••••••••"
               minLength={6}
               required
-              className="w-full border border-slate-200 rounded-lg px-3.5 py-2.5 pr-11 text-sm text-slate-900 bg-white outline-none focus:border-blue-900 transition-colors"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
             />
             <button
               type="button"
               tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword((p) => !p)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-base bg-transparent border-none cursor-pointer p-0 leading-none"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-2"
             >
-              {showPassword ? "🙈" : "👁️"}
+              {showPassword ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
             </button>
           </div>
-          <p className="text-xs text-slate-400">Minimum 6 characters with a mix of letters and numbers.</p>
+          <p className="text-xs text-slate-500">Minimum 6 characters with a mix of letters and numbers.</p>
+
         </div>
 
         {/* Terms */}
         <div className="flex items-start gap-2">
           <input
             type="checkbox"
+            id="termsAccepted"
             name="termsAccepted"
             checked={form.termsAccepted}
             onChange={handleChange}
             className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer"
           />
-          <span className="text-sm text-slate-600 leading-relaxed">
-            I agree to the{" "}
+          <label htmlFor="termsAccepted" className="text-sm text-slate-600 leading-relaxed">            I agree to the{" "}
             <button type="button" onClick={() => setShowTermsModal(true)}
               className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">
               Terms
@@ -195,7 +208,7 @@ const RegisterForm = ({ role }) => {
               className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">
               Privacy Policy
             </button>.
-          </span>
+          </label>
         </div>
 
         <button
@@ -209,13 +222,37 @@ const RegisterForm = ({ role }) => {
 
       <AuthDivider />
 
-      <AuthSSOButtons
-        googleBtnRef={googleBtnRef}
-        loading={loading}
-        clerkLoaded={clerkLoaded}
-        onLinkedIn={() => handleClerkSSO("linkedin")}
-        onApple={() => handleClerkSSO("apple")}
-      />
+
+      {/* Google button interceptor */}
+      <div className="relative">
+        <AuthSSOButtons
+          googleBtnRef={googleBtnRef}
+          loading={loading}
+          clerkLoaded={clerkLoaded}
+          onLinkedIn={() => handleClerkSSO("linkedin")}
+          onApple={() => handleClerkSSO("apple")}
+          termsAccepted={form.termsAccepted}               // pass it down
+          onTermsNotAccepted={() =>
+            setLocalMsg({ type: "error", text: "Please accept the terms to continue." })
+          }
+        />
+
+        {/* Transparent overlay blocks Google click when terms not accepted */}
+        {!form.termsAccepted && (
+          <>
+            <div
+              className="absolute inset-0 cursor-pointer z-10"
+              onClick={() =>
+                setLocalMsg({ type: "error", text: "Please accept the terms to continue." })
+              }
+            />
+            <p className="sr-only" aria-live="polite">
+              Accept the terms and conditions to enable social sign-in.
+            </p>
+          </>
+        )}
+      </div>
+     
 
       <p className="text-sm text-slate-500 text-center mt-5">
         Already have an account?{" "}

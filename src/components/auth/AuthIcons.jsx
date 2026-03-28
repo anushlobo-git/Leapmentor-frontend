@@ -23,8 +23,10 @@ export const GoogleIcon = () => (
 
 export const LeapMentorLogo = () => (
   <img
-    src="/images/logo.png"
+    src="/images/logo.webp"
     alt="LeapMentor logo"
-    className="h-8 w-auto"
+    className="h-8 w-8"
+    width={32}
+    height={32}
   />
 );

@@ -7,24 +7,24 @@ const LoginLeftPanel = ({ role }) => {
     <div className="relative w-full h-full min-h-screen overflow-hidden">
       {/* Background image */}
       <img
-        src="/images/login.png"
+        src="/images/login.webp"
         alt="Login visual"
         className="absolute inset-0 w-full h-full object-cover"
       />
 
       {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-8">
           <img
-            src="/images/logo.png"
+            src="/images/logo.webp"
             alt="Leapmentor logo"
-            className="h-8 w-auto"
+            className="h-8 w-8"
           />
-          <span className="text-lg font-bold tracking-tight">Leapmentor</span>
+          <span className="text-lg font-bold tracking-tight">LeapMentor</span>
         </div>
 
         {/* Headline */}
