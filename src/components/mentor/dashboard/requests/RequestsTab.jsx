@@ -29,7 +29,7 @@ const RequestsTab = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/api/connect-requests/incoming`, {
+      const res = await axios.get(`${BASE_URL}/connect-requests/incoming`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRequests(res.data.requests || []);

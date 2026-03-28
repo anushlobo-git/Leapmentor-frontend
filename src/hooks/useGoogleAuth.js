@@ -29,7 +29,7 @@ const useGoogleAuth = ({ btnRef, termsAcceptedRef, roles, onSuccess, onError, on
               return;
             }
             onLoadingChange?.(true);
-            const res = await axios.post(`${BASE_URL}/api/auth/google`, {
+            const res = await axios.post(`${BASE_URL}/auth/google`, {
               credential: response.credential,
               roles: rolesRef.current,
               termsAccepted: true,

@@ -118,7 +118,7 @@ const OngoingContent = ({ request, onClose }) => {
       setDownloading(true);
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${BASE_URL}/api/invoices/${request._id}`,
+        `${BASE_URL}/invoices/${request._id}`,
         { headers: { Authorization: `Bearer ${token}` }, responseType: "blob" }
       );
       const url  = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));

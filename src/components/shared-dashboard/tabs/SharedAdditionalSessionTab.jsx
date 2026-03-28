@@ -701,7 +701,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
       try {
         setFetching(true);
         const res = await axios.get(
-          `${BASE_URL}/api/escrow/status/${connect._id}`,
+          `${BASE_URL}/escrow/status/${connect._id}`,
           { headers: authHeader() },
         );
         setWalletBalance(res.data?.wallet?.balance ?? null);
@@ -918,7 +918,7 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
       setAvailLoading(true);
       setAvailError("");
       const res = await axios.get(
-        `${BASE_URL}/api/sessions/${connect._id}/mentor-availability?duration=${dur}`,
+        `${BASE_URL}/sessions/${connect._id}/mentor-availability?duration=${dur}`,
         { headers: authHeader() },
       );
       setAvailability(res.data.slots || []);

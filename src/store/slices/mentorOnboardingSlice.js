@@ -9,7 +9,7 @@ export const submitMentorOnboarding = createAsyncThunk(
   async (payload, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const res = await axios.post(`${BASE_URL}/api/mentor-profile`, payload, {
+      const res = await axios.post(`${BASE_URL}/mentor-profile`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;

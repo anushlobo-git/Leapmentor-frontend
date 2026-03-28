@@ -288,7 +288,7 @@ const NotificationsTab = ({ setActiveTab }) => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/api/notifications`, { headers: authHeader });
+      const res = await axios.get(`${BASE_URL}/notifications`, { headers: authHeader });
       const apiNotifs = (res.data.notifications || []).map(normalizeApiNotif);
       setNotifications(apiNotifs);
       setUseStatic(false);
@@ -315,22 +315,22 @@ const NotificationsTab = ({ setActiveTab }) => {
   }).length;
 
   const markAllRead = async () => {
-    if (!useStatic) await axios.patch(`${BASE_URL}/api/notifications/mark-all-read`, {}, { headers: authHeader });
+    if (!useStatic) await axios.patch(`${BASE_URL}/notifications/mark-all-read`, {}, { headers: authHeader });
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const clearAll = async () => {
-    if (!useStatic) await axios.delete(`${BASE_URL}/api/notifications/clear-all`, { headers: authHeader });
+    if (!useStatic) await axios.delete(`${BASE_URL}/notifications/clear-all`, { headers: authHeader });
     setNotifications([]);
   };
 
   const markRead = async (id) => {
-    if (!useStatic) await axios.patch(`${BASE_URL}/api/notifications/${id}/read`, {}, { headers: authHeader });
+    if (!useStatic) await axios.patch(`${BASE_URL}/notifications/${id}/read`, {}, { headers: authHeader });
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const deleteOne = async (id) => {
-    if (!useStatic) await axios.delete(`${BASE_URL}/api/notifications/${id}`, { headers: authHeader });
+    if (!useStatic) await axios.delete(`${BASE_URL}/notifications/${id}`, { headers: authHeader });
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 

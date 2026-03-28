@@ -34,7 +34,7 @@ const PersonalInfoSection = ({ form, handleChange }) => {
       formData.append("profilePicture", file);
 
       const res = await axios.post(
-        `${BASE_URL}/api/upload/profile-picture`,
+        `${BASE_URL}/upload/profile-picture`,
         formData,
         {
           headers: {

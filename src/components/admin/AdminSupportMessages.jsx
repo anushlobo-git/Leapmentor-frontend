@@ -22,7 +22,7 @@ export default function AdminSupportMessages() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/api/support/messages`, {
+      const res = await fetch(`${API_BASE}/support/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to load messages");
@@ -41,7 +41,7 @@ export default function AdminSupportMessages() {
     if (resolving === id) return;
     setResolving(id);
     try {
-      await fetch(`${API_BASE}/api/support/messages/${id}/resolve`, {
+      await fetch(`${API_BASE}/support/messages/${id}/resolve`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });

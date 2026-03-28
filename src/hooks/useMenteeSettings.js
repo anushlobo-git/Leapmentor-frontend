@@ -37,7 +37,7 @@ const useMenteeSettings = (initialProfile) => {
       try {
         setFetching(true);
         const token = localStorage.getItem("token");
-        const res = await axios.get(`${BASE_URL}/api/mentee-profile/me`, {
+        const res = await axios.get(`${BASE_URL}/mentee-profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const p = res.data;
@@ -59,7 +59,7 @@ const useMenteeSettings = (initialProfile) => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`${BASE_URL}/api/users/me`, {
+        const res = await axios.get(`${BASE_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPasswordChangedAt(res.data.passwordChangedAt || null);
@@ -76,7 +76,7 @@ useEffect(() => {
   const fetchWallet = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/api/escrow/wallet`, {
+      const res = await axios.get(`${BASE_URL}/escrow/wallet`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBalance(res.data.balance);
@@ -95,7 +95,7 @@ useEffect(() => {
       setMsg({ type: "", text: "" });
       const token = localStorage.getItem("token");
       await axios.put(
-        `${BASE_URL}/api/mentee-profile/me`,
+        `${BASE_URL}/mentee-profile/me`,
         { emailNotifications, marketingPreferences },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -126,7 +126,7 @@ useEffect(() => {
       setChangingPw(true);
       const token = localStorage.getItem("token");
       await axios.put(
-        `${BASE_URL}/api/auth/change-password`,
+        `${BASE_URL}/auth/change-password`,
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

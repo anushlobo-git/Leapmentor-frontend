@@ -11,7 +11,7 @@ const useUnreadCount = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const res = await axios.get(`${BASE_URL}/api/notifications`, {
+      const res = await axios.get(`${BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const count = (res.data.notifications || []).filter((n) => !n.read).length;

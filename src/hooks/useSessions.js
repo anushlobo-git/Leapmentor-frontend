@@ -32,7 +32,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       if (!silent) setLoading(true);
       setError(null);
       const res = await axios.get(
-        `${BASE_URL}/api/sessions/${connectRequestId}/slots`,
+        `${BASE_URL}/sessions/${connectRequestId}/slots`,
         { headers: authHeader() },
       );
       applySlotUpdate(res.data);
@@ -96,7 +96,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSaving(true);
         setError(null);
         const res = await axios.patch(
-          `${BASE_URL}/api/sessions/${connectRequestId}/slots/${slotIndex}/meeting-link`,
+          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/meeting-link`,
           { meetingLink },
           { headers: authHeader() },
         );
@@ -126,7 +126,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSaving(true);
         setError(null);
         const res = await axios.patch(
-          `${BASE_URL}/api/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
+          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
           {},
           { headers: authHeader() },
         );
@@ -167,7 +167,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSaving(true);
         setError(null);
         const res = await axios.post(
-          `${BASE_URL}/api/sessions/${connectRequestId}/add-slot`,
+          `${BASE_URL}/sessions/${connectRequestId}/add-slot`,
           { day, date, startTime, endTime },
           { headers: authHeader() },
         );

@@ -44,7 +44,7 @@ const useTrackEarnings = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoadingStats(true);
-      const res = await axios.get(`${BASE_URL}/api/mentor/earnings`, {
+      const res = await axios.get(`${BASE_URL}/mentor/earnings`, {
         headers: authHeader(),
       });
       setStats({
@@ -66,7 +66,7 @@ const useTrackEarnings = () => {
     try {
       setLoadingChart(true);
       const res = await axios.get(
-        `${BASE_URL}/api/mentor/earnings/chart?period=${period}`,
+        `${BASE_URL}/mentor/earnings/chart?period=${period}`,
         { headers: authHeader() }
       );
       setChartData(res.data.data || []);
@@ -87,7 +87,7 @@ const useTrackEarnings = () => {
         ...(currentSearch ? { search: currentSearch } : {}),
       });
       const res = await axios.get(
-        `${BASE_URL}/api/mentor/earnings/payouts?${params.toString()}`,
+        `${BASE_URL}/mentor/earnings/payouts?${params.toString()}`,
         { headers: authHeader() }
       );
       const newPayouts = res.data.payouts || [];
@@ -150,7 +150,7 @@ const useTrackEarnings = () => {
       setWithdrawing(true);
       setWithdrawMsg({ type: "", text: "" });
       const res = await axios.post(
-        `${BASE_URL}/api/mentor/earnings/withdraw`,
+        `${BASE_URL}/mentor/earnings/withdraw`,
         {},
         { headers: authHeader() }
       );

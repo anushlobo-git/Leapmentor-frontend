@@ -222,7 +222,7 @@ const NotificationsTab = ({ setActiveTab }) => {
       const t       = localStorage.getItem("token");
       const payload = JSON.parse(atob(t.split(".")[1]));
       console.log("🔍 Token user ID:", payload.id || payload._id || payload.userId);
-      const res = await axios.get(`${BASE_URL}/api/notifications`, {
+      const res = await axios.get(`${BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${t}` },
       });
       setNotifications(res.data.notifications || []);
@@ -239,22 +239,22 @@ const NotificationsTab = ({ setActiveTab }) => {
   const thisWeekCount = notifications.length; // all fetched are recent from API
 
   const markAllRead = async () => {
-    await axios.patch(`${BASE_URL}/api/notifications/mark-all-read`, {}, { headers: authHeader });
+    await axios.patch(`${BASE_URL}/notifications/mark-all-read`, {}, { headers: authHeader });
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const clearAll = async () => {
-    await axios.delete(`${BASE_URL}/api/notifications/clear-all`, { headers: authHeader });
+    await axios.delete(`${BASE_URL}/notifications/clear-all`, { headers: authHeader });
     setNotifications([]);
   };
 
   const markRead = async (id) => {
-    await axios.patch(`${BASE_URL}/api/notifications/${id}/read`, {}, { headers: authHeader });
+    await axios.patch(`${BASE_URL}/notifications/${id}/read`, {}, { headers: authHeader });
     setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)));
   };
 
   const deleteOne = async (id) => {
-    await axios.delete(`${BASE_URL}/api/notifications/${id}`, { headers: authHeader });
+    await axios.delete(`${BASE_URL}/notifications/${id}`, { headers: authHeader });
     setNotifications((prev) => prev.filter((n) => n._id !== id));
   };
 

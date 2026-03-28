@@ -157,7 +157,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/ai/chat`, {
+      const res = await fetch(`${API_BASE}/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -190,7 +190,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     setTicketStatus((p) => ({ ...p, [idx]: "sending" }));
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/api/support/messages`, {
+      const res = await fetch(`${API_BASE}/support/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

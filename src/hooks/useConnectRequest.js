@@ -29,7 +29,7 @@ const useConnectRequest = () => {
       setSending(true);
       const token = localStorage.getItem("token");
       await axios.post(
-        `${BASE_URL}/api/connect-requests`,
+        `${BASE_URL}/connect-requests`,
         { mentorId, message, selectedSlots, sessionRate, sessionCount },
         { headers: { Authorization: `Bearer ${token}` } },
       );

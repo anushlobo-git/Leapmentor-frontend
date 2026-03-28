@@ -20,7 +20,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {  // 👈 ADDED: refres
       setLoading(true);
       setError(null);
       const res = await axios.get(
-        `${BASE_URL}/api/feedback/${connectRequestId}`,
+        `${BASE_URL}/feedback/${connectRequestId}`,
         { headers: authHeader() }
       );
       setMyFeedback(res.data.myFeedback || null);
@@ -43,7 +43,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {  // 👈 ADDED: refres
       setSubmitting(true);
       setError(null);
       const res = await axios.post(
-        `${BASE_URL}/api/feedback`,
+        `${BASE_URL}/feedback`,
         { connectRequestId, rating, comment },
         { headers: authHeader() }
       );

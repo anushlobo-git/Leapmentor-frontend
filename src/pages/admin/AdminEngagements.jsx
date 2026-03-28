@@ -146,7 +146,7 @@ const AdminEngagements = () => {
   // ── Fetch stats ───────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/engagements/stats`, { headers: authHeader() });
+      const res = await axios.get(`${BASE_URL}/admin/engagements/stats`, { headers: authHeader() });
       setStats(res.data);
     } catch { showToast("Failed to load stats."); }
   }, []);
@@ -166,7 +166,7 @@ const AdminEngagements = () => {
       if (status) params.status   = status;
       if (from)   params.dateFrom = from;
       if (to)     params.dateTo   = to;
-      const res = await axios.get(`${BASE_URL}/api/admin/engagements`, { headers: authHeader(), params });
+      const res = await axios.get(`${BASE_URL}/admin/engagements`, { headers: authHeader(), params });
       setEngagements(res.data.engagements);
       setPagination(res.data.pagination);
     } catch {

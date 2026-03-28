@@ -9,7 +9,7 @@ export const submitMenteeOnboarding = createAsyncThunk(
   async (payload, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const res = await axios.post(`${BASE_URL}/api/mentee-profile`, payload, {
+      const res = await axios.post(`${BASE_URL}/mentee-profile`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;

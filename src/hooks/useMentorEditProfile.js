@@ -31,7 +31,7 @@ const useMentorEditProfile = () => {
     const token = localStorage.getItem("token");
     const fetchProfile = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/api/mentor-profile/me`, {
+        const { data } = await axios.get(`${BASE_URL}/mentor-profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setForm({
@@ -97,7 +97,7 @@ const useMentorEditProfile = () => {
           : form.languages,
       };
 
-      await axios.put(`${BASE_URL}/api/mentor-profile/me`, payload, {
+      await axios.put(`${BASE_URL}/mentor-profile/me`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

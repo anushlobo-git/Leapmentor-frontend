@@ -32,7 +32,7 @@ const SyncWithBackend = () => {
         const termsAccepted = localStorage.getItem("sso_terms") === "true";
         console.log("Role:", role);
 
-        const res = await axios.post(`${BASE_URL}/api/auth/clerk-sso`, {
+        const res = await axios.post(`${BASE_URL}/auth/clerk-sso`, {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
           termsAccepted: role !== "existing" ? termsAccepted : true,

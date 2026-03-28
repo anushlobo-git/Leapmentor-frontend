@@ -208,7 +208,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
       try {
         setLoadingSessions(true);
         const res = await axios.get(
-          `${BASE_URL}/api/connect-requests/incoming`,
+          `${BASE_URL}/connect-requests/incoming`,
           { headers: authHeader() }
         );
         const all = res.data.requests || [];
@@ -235,7 +235,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
       try {
         setLoadingEarnings(true);
         const res = await axios.get(
-          `${BASE_URL}/api/mentor/earnings`,
+          `${BASE_URL}/mentor/earnings`,
           { headers: authHeader() }
         );
         setEarnings({

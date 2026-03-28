@@ -200,7 +200,7 @@ const AdminPayments = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/payments/stats`, { headers: authHeader() });
+      const res = await axios.get(`${BASE_URL}/admin/payments/stats`, { headers: authHeader() });
       setStats(res.data);
     } catch { showToast("Failed to load payment stats."); }
   }, []);
@@ -208,7 +208,7 @@ const AdminPayments = () => {
   const fetchChart = useCallback(async () => {
     try {
       setLoadingChart(true);
-      const res = await axios.get(`${BASE_URL}/api/admin/payments/chart`, { headers: authHeader() });
+      const res = await axios.get(`${BASE_URL}/admin/payments/chart`, { headers: authHeader() });
       setChartData(res.data.data || []);
     } catch { showToast("Failed to load chart."); }
     finally { setLoadingChart(false); }
@@ -220,7 +220,7 @@ const AdminPayments = () => {
       const params = { page, limit: 10 };
       if (q)    params.search = q;
       if (type) params.type   = type;
-      const res = await axios.get(`${BASE_URL}/api/admin/payments/transactions`, {
+      const res = await axios.get(`${BASE_URL}/admin/payments/transactions`, {
         headers: authHeader(), params,
       });
       setTransactions(res.data.transactions || []);

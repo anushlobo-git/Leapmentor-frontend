@@ -24,7 +24,7 @@ const useAvailability = () => {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${BASE_URL}/api/availability/me`, {
+        const res = await axios.get(`${BASE_URL}/availability/me`, {
           headers: authHeader,
         });
         const { ...data } = res.data;
@@ -77,7 +77,7 @@ const useAvailability = () => {
     try {
       setSaving(true);
       await axios.patch(
-        `${BASE_URL}/api/availability/me`,
+        `${BASE_URL}/availability/me`,
         {
           timezone:         availability.timezone,
           sessionDurations: availability.sessionDurations,
@@ -98,7 +98,7 @@ const useAvailability = () => {
   const cancelChanges = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/api/availability/me`, {
+      const res = await axios.get(`${BASE_URL}/availability/me`, {
         headers: authHeader,
       });
       const { ...data } = res.data;
