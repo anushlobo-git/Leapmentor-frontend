@@ -8,6 +8,14 @@ import SocialPresenceCard from "./SocialPresenceCard";
 const ProfileTab = ({ user, profile }) => {
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+<div>
+<h1 className="text-2xl font-bold text-slate-800">Mentee Dashboard</h1>
+<p className="text-sm text-blue-900 mt-0.5">
+Manage your professional identity and preferences.
+</p>
+</div>
+</div>
       {/* Hero Card */}
       <ProfileHeroCard user={user} profile={profile} />
 

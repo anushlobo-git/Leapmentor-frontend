@@ -192,34 +192,64 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
       <div className="space-y-6">
 
         {/* ── Page Header ───────────────────────────────────── */}
-        <div>
-          <h1 className="text-2xl font-700 text-slate-800" style={{ fontWeight: 700 }}>User Management</h1>
-          <p className="text-sm text-slate-400 mt-0.5">Manage, verify, and monitor all platform participants.</p>
-        </div>
+       <div>
+  <h1 className="text-3xl text-slate-900" style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>User Management</h1>
+  <p className="text-sm text-slate-700 mt-1">Manage, verify, and monitor all platform participants.</p>
+       </div>
 
         {/* ── Stat Cards ────────────────────────────────────── */}
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard
-            label="Total Users"
-            value={stats?.totalUsers}
-            sub={`+${stats?.newUsersThisMonth ?? 0} this month`}
-            accent="#2563eb"
-            icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
-          />
-          <StatCard
-            label="Active Mentors"
-            value={stats?.totalMentors}
-            sub={`+${stats?.newMentorsThisMonth ?? 0} this month`}
-            accent="#7c3aed"
-            icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-          />
-          <StatCard
-            label="Active Mentees"
-            value={stats?.totalMentees}
-            sub={`+${stats?.newMenteesThisMonth ?? 0} this month`}
-            accent="#059669"
-            icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-          />
+<div className="grid grid-cols-3 gap-4">
+  <StatCard
+    label="Total Users"
+    value={stats?.totalUsers}
+    sub={`+${stats?.newUsersThisMonth ?? 0} this month`}
+    accent="#2563eb"
+    icon={
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Back person - filled subtle */}
+        <circle cx="15" cy="8" r="3" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.2"/>
+        <path d="M18.5 19.5v-1a4 4 0 0 0-4-4h-0.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.4"/>
+        {/* Front person - fully filled */}
+        <circle cx="9" cy="8" r="3.5" fill="currentColor" fillOpacity="0.9" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M2 20v-1.5A5 5 0 0 1 7 13.5h4A5 5 0 0 1 16 19v1" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.5"/>
+      </svg>
+        }
+       />
+
+      <StatCard
+        label="Active Mentors"
+    value={stats?.totalMentors}
+    sub={`+${stats?.newMentorsThisMonth ?? 0} this month`}
+    accent="#7c3aed"
+    icon={
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Person */}
+        <circle cx="10" cy="7" r="3.5" fill="currentColor" fillOpacity="0.9" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M2.5 20v-1.5A5.5 5.5 0 0 1 8 13h4a5.5 5.5 0 0 1 5.5 5.5V20" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.5"/>
+        {/* Checkmark badge bottom right */}
+        <circle cx="18.5" cy="17.5" r="3.5" fill="currentColor" fillOpacity="0.9" stroke="currentColor" strokeWidth="1.2"/>
+        <polyline points="16.8 17.5 18 18.8 20.2 16.2" fill="none" stroke="white" strokeWidth="1.4"/>
+      </svg>
+        }
+      />
+
+       <StatCard
+          label="Active Mentees"
+    value={stats?.totalMentees}
+    sub={`+${stats?.newMenteesThisMonth ?? 0} this month`}
+    accent="#059669"
+    icon={
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Person */}
+        <circle cx="10" cy="7" r="3.5" fill="currentColor" fillOpacity="0.9" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M2.5 20v-1.5A5.5 5.5 0 0 1 8 13h4a5.5 5.5 0 0 1 5.5 5.5V20" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.5"/>
+        {/* Plus badge bottom right */}
+        <circle cx="18.5" cy="17.5" r="3.5" fill="currentColor" fillOpacity="0.9" stroke="currentColor" strokeWidth="1.2"/>
+        <line x1="18.5" y1="15.5" x2="18.5" y2="19.5" stroke="white" strokeWidth="1.5"/>
+        <line x1="16.5" y1="17.5" x2="20.5" y2="17.5" stroke="white" strokeWidth="1.5"/>
+      </svg>
+          }
+        />
         </div>
 
         {/* ── Growth Chart ──────────────────────────────────── */}
@@ -232,7 +262,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
           <div className="flex items-center justify-between gap-4 px-6 py-4 border-b" style={{ borderColor: "#e8eaf0" }}>
             <div>
               <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>User List</p>
-              <p className="text-xs text-slate-400 mt-0.5">{pagination.total} total users</p>
+              <p className="text-xs text-slate-600 mt-0.5">{pagination.total} total users</p>
             </div>
             <div className="flex items-center gap-3">
               {/* Role filter pills */}
@@ -243,7 +273,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
                     style={{
                       fontWeight:  600,
                       background:  roleFilter === r ? "#2563eb" : "#f1f5f9",
-                      color:       roleFilter === r ? "white" : "#64748b",
+                      color:       roleFilter === r ? "white" : "#475569",
                     }}>
                     {r === "" ? "All" : r.charAt(0).toUpperCase() + r.slice(1)}
                   </button>
@@ -272,10 +302,10 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
           <div className="overflow-x-auto">
             <table className="w-full" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
-                  {["User", "Role", "Email Verified", "Joined", "Sessions", "Actions"].map((h) => (
-                    <th key={h} className="text-left px-6 py-3 text-[10px] font-700 uppercase tracking-widest"
-                      style={{ color: "#94a3b8", fontWeight: 700, letterSpacing: "0.1em" }}>
+                <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
+                   {["User", "Role", "Email Verified", "Joined", "Actions"].map((h) => (
+                    <th key={h} className="text-left px-6 py-3 text-[10px] uppercase tracking-widest"
+                      style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
                       {h}
                     </th>
                   ))}
@@ -310,36 +340,31 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
                         <div className="flex items-center gap-3">
                           <Avatar name={user.name} picture={user.profile?.profilePicture} />
                           <div>
-                            <p className="text-sm font-600 text-slate-700" style={{ fontWeight: 600 }}>{user.name}</p>
-                            <p className="text-[10px] text-slate-400" style={{ fontFamily: "'DM Mono', monospace" }}>{user.email}</p>
+                            <p className="text-sm font-600 text-slate-900" style={{ fontWeight: 600 }}>{user.name}</p>
+                            <p className="text-[10px] text-slate-600" style={{ fontFamily: "'DM Mono', monospace" }}>{user.email}</p>
                           </div>
                         </div>
                       </td>
 
                       {/* Role */}
-                      <td className="px-6 py-4"><RoleBadge roles={user.roles}/></td>
+                      <td className="px-3 py-3"><RoleBadge roles={user.roles}/></td>
 
                       {/* Email verified */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full" style={{ background: user.isEmailVerified ? "#22c55e" : "#f59e0b" }}/>
-                          <span className="text-xs text-slate-500">{user.isEmailVerified ? "Verified" : "Pending"}</span>
+                          <span className="text-xs text-slate-900">{user.isEmailVerified ? "Verified" : "Pending"}</span>
                         </div>
                       </td>
 
                       {/* Joined */}
                       <td className="px-6 py-4">
-                        <span className="text-xs text-slate-500" style={{ fontFamily: "'DM Mono', monospace" }}>
+                        <span className="text-xs text-slate-900" style={{ fontFamily: "'DM Mono', monospace" }}>
                           {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </span>
                       </td>
 
-                      {/* Sessions */}
-                      <td className="px-6 py-4">
-                        <span className="text-xs font-600 text-slate-600" style={{ fontWeight: 600 }}>
-                          {user.profile?.totalSessions ?? "—"}
-                        </span>
-                      </td>
+                      
 
                       {/* Actions */}
                       <td className="px-6 py-4">
@@ -348,7 +373,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
                           style={{ background: "#fef2f2", color: "#dc2626", fontWeight: 600, border: "1px solid #fecaca" }}
                           onMouseEnter={(e) => { e.currentTarget.style.background = "#fee2e2"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.background = "#fef2f2"; }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                          <svg width="10" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
                           </svg>
                           Delete
@@ -364,7 +389,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
           {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: "#e8eaf0" }}>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600">
                 Page {pagination.page} of {pagination.totalPages} · {pagination.total} users
               </p>
               <div className="flex gap-2">

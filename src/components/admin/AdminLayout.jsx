@@ -236,11 +236,6 @@ const AdminLayout = ({ children }) => {
                 <line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
             </button>
-
-            {/* Date — hidden on small screens */}
-            <p className="hidden sm:block text-xs text-slate-400" style={{ fontFamily: "'DM Mono', monospace" }}>
-              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-            </p>
           </div>
 
           {/* System Online */}

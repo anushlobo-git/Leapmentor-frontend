@@ -64,7 +64,7 @@ export default function AdminSupportMessages() {
 
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: "0 0 4px" }}>Support Messages</h1>
-        <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>Messages sent by mentors and mentees from the Help Center.</p>
+        <p style={{ color: "#475569", fontSize: 14, margin: 0 }}>Messages sent by mentors and mentees from the Help Center.</p>
       </div>
 
       <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
@@ -87,7 +87,7 @@ export default function AdminSupportMessages() {
             cursor: "pointer", border: "1.5px solid",
             borderColor: filter === f ? "#2563eb" : "#e2e8f0",
             background:  filter === f ? "#2563eb" : "#fff",
-            color:       filter === f ? "#fff"    : "#64748b",
+            color:       filter === f ? "#fff"    : "#475569",
             textTransform: "capitalize", transition: "all 0.15s",
           }}>
             {f}
@@ -140,7 +140,7 @@ export default function AdminSupportMessages() {
                     <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {msg.subject}
                     </p>
-                    <p style={{ margin: 0, fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{msg.email}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#475569", marginTop: 2 }}>{msg.email}</p>
                   </div>
 
                   <span style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0 }}>
