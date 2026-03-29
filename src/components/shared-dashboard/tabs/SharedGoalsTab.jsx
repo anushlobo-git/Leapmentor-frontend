@@ -1,5 +1,5 @@
 // src/components/shared-dashboard/tabs/SharedGoalsTab.jsx
-import { useState, useEffect, useRef } from "react";  // 👈 added useEffect, useRef
+import { useState, useEffect, useRef } from "react";
 import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
 import GoalForm from "./goals/GoalForm";
@@ -131,14 +131,13 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
 
 // ── Main ──────────────────────────────────────────────────────
 const SharedGoalsTab = ({ connect, onAllComplete }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [isEditing,         setIsEditing]         = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal]  = useState(false);
 
-  // 👇 Track whether modal has already been shown this session
-  // so it doesn't re-fire every time progress is read as 100 on mount
-  const modalShownRef = useRef(false);
+  const modalShownRef   = useRef(false);
+  const prevProgressRef = useRef(null);
 
-  const viewerRole = connect?.viewerRole || "mentee";
+  const viewerRole       = connect?.viewerRole || "mentee";
   const connectRequestId = connect?._id;
 
   const otherName = viewerRole === "mentee"
@@ -153,32 +152,31 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
     addMilestone, toggleMilestone, deleteMilestone,
   } = useGoals(connectRequestId);
 
-  // ── Sessions — pass onAllComplete directly, modal is driven by progress
+  // ── Sessions ──────────────────────────────────────────────
   const {
     slots, loading: slotsLoading, saving: slotsSaving, error: slotsError,
     completedSlots, totalSlots, progress,
     setMeetingLink, markSlotComplete,
-  } = useSessions(connectRequestId, onAllComplete);  // 👈 back to original
+    cancelSlot,     // ✅ NEW
+    rescheduleSlot, // ✅ NEW
+  } = useSessions(connectRequestId, onAllComplete);
 
-  // 👇 CORE FIX: watch progress directly — fires for BOTH parties
-  // regardless of who clicked last or who was waiting for socket
-  // modalShownRef prevents re-showing on every re-render once already shown
-  // loading guard prevents it from firing on initial mount if already 100%
-  const prevProgressRef = useRef(null);
-
+  // Watch progress — fires feedback modal when it crosses 100
   useEffect(() => {
-    if (slotsLoading) return;                          // wait until data is loaded
+    if (slotsLoading) return;
     if (progress >= 100) {
-      if (prevProgressRef.current !== null             // not the very first load
-        && prevProgressRef.current < 100               // actually just crossed 100
-        && !modalShownRef.current) {                   // not shown yet
+      if (
+        prevProgressRef.current !== null &&
+        prevProgressRef.current < 100 &&
+        !modalShownRef.current
+      ) {
         modalShownRef.current = true;
         setShowFeedbackModal(true);
         onAllComplete?.();
       }
     }
     prevProgressRef.current = progress;
-  }, [progress, slotsLoading]);                        // eslint-disable-line
+  }, [progress, slotsLoading]); // eslint-disable-line
 
   const handleCreateGoal = async (fields) => {
     const result = await createGoal(fields);
@@ -191,6 +189,9 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
   };
 
   if (goalsLoading || slotsLoading) return <LoadingSkeleton />;
+
+  // Only count active (non-cancelled) slots for the sessions header
+  const activeSlots = slots.filter((s) => !s.status || s.status !== "cancelled");
 
   return (
     <div className="flex flex-col gap-5">
@@ -210,7 +211,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         </div>
       )}
 
-      {/* Timeline — only if goal exists */}
+      {/* Timeline */}
       {goal && (
         <TimelineTracker
           goal={goal}
@@ -246,8 +247,8 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         />
       )}
 
-      {/* Overall progress bar */}
-      {slots.length > 0 && (
+      {/* Overall progress bar — based on active slots only */}
+      {activeSlots.length > 0 && (
         <OverallProgress
           completedSlots={completedSlots}
           totalSlots={totalSlots}
@@ -255,11 +256,12 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         />
       )}
 
-      {/* Sessions */}
+      {/* Sessions — show ALL slots (cancelled ones appear greyed out) */}
       {slots.length > 0 && (
         <div className="flex flex-col gap-4">
           <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-            Sessions ({slots.length})
+            Sessions ({activeSlots.length} active
+            {slots.length > activeSlots.length ? `, ${slots.length - activeSlots.length} cancelled` : ""})
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {slots.map((slot, index) => (
@@ -272,13 +274,17 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 saving={slotsSaving}
                 onSetLink={setMeetingLink}
                 onMarkComplete={markSlotComplete}
+                onCancelSlot={cancelSlot}         
+                onRescheduleSlot={rescheduleSlot} 
+                allSlots={slots}                  
+                connectRequestId={connectRequestId} 
               />
             ))}
           </div>
         </div>
       )}
 
-      {/* Feedback modal — fires when progress crosses 100 for either party */}
+      {/* Feedback modal */}
       {showFeedbackModal && (
         <FeedbackModal
           connect={connect}
