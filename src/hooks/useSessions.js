@@ -17,19 +17,17 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const [progress, setProgress] = useState(0);
 
   const allCompleteFiredRef = useRef(false);
-  const onAllCompleteRef = useRef(onAllComplete);        // 👈 ADDED
+  const onAllCompleteRef = useRef(onAllComplete);
 
-  // 👇 ADDED: keep ref in sync with latest callback on every render
   useEffect(() => {
     onAllCompleteRef.current = onAllComplete;
   }, [onAllComplete]);
 
   const applySlotUpdate = useCallback((data) => {
     if (data.slots) setSlots(data.slots);
-    if (data.completedSlots !== undefined)
-      setCompletedSlots(data.completedSlots);
-    if (data.totalSlots !== undefined) setTotalSlots(data.totalSlots);
-    if (data.progress !== undefined) setProgress(data.progress);
+    if (data.completedSlots !== undefined) setCompletedSlots(data.completedSlots);
+    if (data.totalSlots    !== undefined) setTotalSlots(data.totalSlots);
+    if (data.progress      !== undefined) setProgress(data.progress);
   }, []);
 
   const fetchSlots = useCallback(async (silent = false) => {
@@ -62,7 +60,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
       console.log("📅 session_slots_updated — syncing instantly");
       applySlotUpdate(data);
 
-      // 👇 CHANGED: use ref so socket always calls the latest onAllComplete
       if (data.allComplete && !allCompleteFiredRef.current) {
         allCompleteFiredRef.current = true;
         setTimeout(() => {
@@ -71,17 +68,36 @@ const useSessions = (connectRequestId, onAllComplete) => {
       }
     };
 
+    // ✅ NEW — listen for slot_cancelled toast/notification
+    const handleSlotCancelled = (data) => {
+      if (data.connectRequestId !== connectRequestId) return;
+      console.log("🚫 slot_cancelled received", data);
+      // The full slot list will arrive via session_slots_updated
+      // This event is mainly used by NotificationContext / ToastContext
+    };
+
+    // ✅ NEW — listen for slot_rescheduled toast/notification
+    const handleSlotRescheduled = (data) => {
+      if (data.connectRequestId !== connectRequestId) return;
+      console.log("🔄 slot_rescheduled received", data);
+      // The full slot list will arrive via session_slots_updated
+    };
+
     const waitForSocket = setInterval(() => {
       if (window.__leapSocket?.connected) {
         window.__leapSocket.on("session_slots_updated", handleSlotUpdate);
+        window.__leapSocket.on("slot_cancelled",        handleSlotCancelled);
+        window.__leapSocket.on("slot_rescheduled",      handleSlotRescheduled);
         clearInterval(waitForSocket);
-        console.log("📅 Registered session_slots_updated on shared socket");
+        console.log("📅 Registered session socket listeners on shared socket");
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
       window.__leapSocket?.off("session_slots_updated", handleSlotUpdate);
+      window.__leapSocket?.off("slot_cancelled",        handleSlotCancelled);
+      window.__leapSocket?.off("slot_rescheduled",      handleSlotRescheduled);
     };
   }, [connectRequestId, applySlotUpdate]);
 
@@ -92,6 +108,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     return () => clearInterval(interval);
   }, [connectRequestId, fetchSlots]);
 
+  // ── setMeetingLink ────────────────────────────────────────────
   const setMeetingLink = useCallback(
     async (slotIndex, meetingLink) => {
       if (!meetingLink?.trim()) return { success: false };
@@ -112,9 +129,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         );
         return { success: true };
       } catch (err) {
-        setError(
-          err?.response?.data?.message || "Failed to save meeting link.",
-        );
+        setError(err?.response?.data?.message || "Failed to save meeting link.");
         return { success: false, message: err?.response?.data?.message };
       } finally {
         setSaving(false);
@@ -123,6 +138,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     [connectRequestId],
   );
 
+  // ── markSlotComplete ──────────────────────────────────────────
   const markSlotComplete = useCallback(
     async (slotIndex) => {
       try {
@@ -134,14 +150,11 @@ const useSessions = (connectRequestId, onAllComplete) => {
           { headers: authHeader() },
         );
         setSlots((prev) =>
-          prev.map((s, i) =>
-            i === slotIndex ? { ...s, ...res.data.slot } : s,
-          ),
+          prev.map((s, i) => (i === slotIndex ? { ...s, ...res.data.slot } : s)),
         );
         setCompletedSlots(res.data.completedSlots);
         setProgress(res.data.progress);
 
-        // 👇 CHANGED: use ref so API path also calls the latest onAllComplete
         if (res.data.allComplete) {
           allCompleteFiredRef.current = true;
           setTimeout(() => {
@@ -151,17 +164,16 @@ const useSessions = (connectRequestId, onAllComplete) => {
 
         return { success: true, ...res.data };
       } catch (err) {
-        setError(
-          err?.response?.data?.message || "Failed to mark session complete.",
-        );
+        setError(err?.response?.data?.message || "Failed to mark session complete.");
         return { success: false, message: err?.response?.data?.message };
       } finally {
         setSaving(false);
       }
     },
-    [connectRequestId],  // 👈 CHANGED: removed onAllComplete from deps
+    [connectRequestId],
   );
 
+  // ── addSlot ───────────────────────────────────────────────────
   const addSlot = useCallback(
     async ({ day, date, startTime, endTime }) => {
       try {
@@ -185,6 +197,54 @@ const useSessions = (connectRequestId, onAllComplete) => {
     [connectRequestId, applySlotUpdate],
   );
 
+  // ── ✅ NEW — cancelSlot ───────────────────────────────────────
+  const cancelSlot = useCallback(
+    async (slotIndex, reason = "") => {
+      try {
+        setSaving(true);
+        setError(null);
+        const res = await axios.patch(
+          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/cancel`,
+          { reason },
+          { headers: authHeader() },
+        );
+        applySlotUpdate(res.data);
+        return { success: true, ...res.data };
+      } catch (err) {
+        const msg = err?.response?.data?.message || "Failed to cancel slot.";
+        setError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setSaving(false);
+      }
+    },
+    [connectRequestId, applySlotUpdate],
+  );
+
+  // ── ✅ NEW — rescheduleSlot ───────────────────────────────────
+  const rescheduleSlot = useCallback(
+    async (slotIndex, { date, startTime, endTime }) => {
+      try {
+        setSaving(true);
+        setError(null);
+        const res = await axios.patch(
+          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/reschedule`,
+          { date, startTime, endTime },
+          { headers: authHeader() },
+        );
+        applySlotUpdate(res.data);
+        return { success: true, ...res.data };
+      } catch (err) {
+        const msg = err?.response?.data?.message || "Failed to reschedule slot.";
+        setError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setSaving(false);
+      }
+    },
+    [connectRequestId, applySlotUpdate],
+  );
+
   return {
     slots,
     loading,
@@ -196,6 +256,8 @@ const useSessions = (connectRequestId, onAllComplete) => {
     setMeetingLink,
     markSlotComplete,
     addSlot,
+    cancelSlot,       // ✅ NEW
+    rescheduleSlot,   // ✅ NEW
     refetch: fetchSlots,
   };
 };

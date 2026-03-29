@@ -1,6 +1,13 @@
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const authHeader = () => ({
+  Authorization: `Bearer ${localStorage.getItem("token")}`,
+});
+
+// ── Helpers ───────────────────────────────────────────────────
 const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
   return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
@@ -16,12 +23,377 @@ const formatTime = (t) => {
   return `${hour % 12 || 12}:${m} ${ampm}`;
 };
 
-// ── Meeting Link Section — exactly same as original ───────────
+// A slot is "active" if it hasn't been cancelled
+// Existing DB slots without a status field are treated as booked
+const isActive = (slot) => !slot?.status || slot?.status !== "cancelled";
+
+// ── Cancel Confirm Modal ──────────────────────────────────────
+const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
+  const [reason, setReason] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-5">
+        {/* Icon + Title */}
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-base font-bold text-slate-800">Cancel this session?</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {formatSlotDate(slot)} &bull; {formatTime(slot?.startTime)} – {formatTime(slot?.endTime)}
+            </p>
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-600 leading-relaxed">
+          This session slot will be permanently cancelled. The other party will be notified immediately.
+        </p>
+
+        {/* Optional reason */}
+        <div>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">
+            Reason <span className="font-normal normal-case">(optional)</span>
+          </label>
+          <textarea
+            rows={2}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="e.g. Schedule conflict, emergency..."
+            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700
+              bg-white outline-none focus:border-red-300 transition-colors placeholder:text-slate-400
+              resize-none"
+          />
+        </div>
+
+        <div className="flex gap-2.5">
+          <button
+            onClick={onClose}
+            disabled={saving}
+            className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-white text-sm
+              font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            Keep Session
+          </button>
+          <button
+            onClick={() => onConfirm(slotIndex, reason)}
+            disabled={saving}
+            className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold
+              hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+              flex items-center justify-center gap-2"
+          >
+            {saving
+              ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Cancelling...</>
+              : "Yes, Cancel It"
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Slot Picker (reused from SharedAdditionalSessionTab) ──────
+const formatTimeShort = (t) => {
+  if (!t) return "";
+  const [h, m] = t.split(":");
+  const hour = parseInt(h);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  return `${hour % 12 || 12}:${m} ${ampm}`;
+};
+
+const SlotPickerDateCard = ({ group, onSelect, bookedSlots }) => {
+  const [expanded, setExpanded] = useState(false);
+  const freeCount = group.slots.filter(
+    (s) => !bookedSlots.some(
+      (b) => b.date === group.date && b.startTime === s.startTime && b.endTime === s.endTime
+    )
+  ).length;
+
+  return (
+    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white">
+      <button
+        type="button"
+        onClick={() => setExpanded((p) => !p)}
+        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          {/* Date badge */}
+          <div className="w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0"
+            style={{ background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 12px rgba(37,99,235,0.3)" }}>
+            <span className="text-[10px] font-bold text-white/80 leading-none">
+              {new Date(group.date + "T00:00:00").toLocaleDateString("en-US", { month: "short" }).toUpperCase()}
+            </span>
+            <span className="text-lg font-extrabold text-white leading-none">
+              {new Date(group.date + "T00:00:00").getDate()}
+            </span>
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-bold text-slate-800">
+              {group.day}, {new Date(group.date + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}
+            </p>
+            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 mt-0.5
+              ${freeCount > 0 ? "bg-green-50 border-green-200 text-green-700" : "bg-slate-50 border-slate-200 text-slate-400"}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${freeCount > 0 ? "bg-green-500" : "bg-slate-300"}`} />
+              {freeCount} slot{freeCount !== 1 ? "s" : ""} free
+            </span>
+          </div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-slate-100 p-3 grid grid-cols-2 gap-2">
+          {group.slots.map((s, i) => {
+            const booked = bookedSlots.some(
+              (b) => b.date === group.date && b.startTime === s.startTime && b.endTime === s.endTime
+            );
+            return (
+              <button
+                key={i}
+                type="button"
+                disabled={booked}
+                onClick={() => !booked && onSelect({ day: group.day, date: group.date, startTime: s.startTime, endTime: s.endTime })}
+                className={`text-left px-3 py-2.5 rounded-xl border text-xs font-semibold transition-all
+                  ${booked
+                    ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60"
+                    : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+                  }`}
+              >
+                <span className="block">{formatTimeShort(s.startTime)}</span>
+                <span className="block text-[10px] opacity-70">to {formatTimeShort(s.endTime)}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Reschedule Modal ──────────────────────────────────────────
+const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onConfirm, onClose, saving }) => {
+  const [duration, setDuration] = useState(60);
+  const [availability, setAvailability] = useState([]);
+  const [sessionDurations, setSessionDurations] = useState([30, 60]);
+  const [availLoading, setAvailLoading] = useState(true);
+  const [availError, setAvailError] = useState(null);
+  const [selectedNewSlot, setSelectedNewSlot] = useState(null);
+
+  // Slots already booked (excluding the one being rescheduled so its time is freed up)
+  const bookedSlots = existingSlots
+    .filter((s, i) => i !== slotIndex && isActive(s))
+    .map((s) => ({ date: s.date, startTime: s.startTime, endTime: s.endTime }));
+
+  const fetchAvailability = async (dur) => {
+    try {
+      setAvailLoading(true);
+      setAvailError(null);
+      const res = await axios.get(
+        `${BASE_URL}/sessions/${connectRequestId}/mentor-availability?duration=${dur}`,
+        { headers: authHeader() }
+      );
+      setAvailability(res.data.slots || []);
+      if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);
+    } catch (err) {
+      setAvailError(err?.response?.data?.message || "Failed to load availability.");
+    } finally {
+      setAvailLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchAvailability(duration); }, [duration]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-800">Reschedule Session</p>
+              <p className="text-xs text-slate-500">
+                {formatSlotDate(slot)} &bull; {formatTime(slot?.startTime)} – {formatTime(slot?.endTime)}
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
+
+          {/* Info banner */}
+          <div className="flex items-start gap-2.5 px-3.5 py-3 bg-blue-50 border border-blue-100 rounded-xl">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p className="text-xs text-blue-700 font-medium leading-relaxed">
+              The current slot will be cancelled and replaced with the new one you pick below.
+              Your mentor will be notified immediately.
+            </p>
+          </div>
+
+          {/* Duration picker */}
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+              Session Duration
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {sessionDurations.map((dur) => (
+                <button
+                  key={dur}
+                  type="button"
+                  onClick={() => { setDuration(dur); setSelectedNewSlot(null); }}
+                  className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
+                    ${duration === dur
+                      ? "text-white shadow-md"
+                      : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  style={duration === dur ? { background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 14px rgba(37,99,235,0.3)" } : {}}
+                >
+                  {dur} min
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Slot picker */}
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+              Pick a New Time Slot
+            </p>
+            {availLoading ? (
+              <div className="flex flex-col gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 rounded-2xl bg-slate-100 animate-pulse" />
+                ))}
+              </div>
+            ) : availError ? (
+              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {availError}
+              </div>
+            ) : availability.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 py-10 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <p className="text-sm font-semibold text-slate-600">No slots available</p>
+                <p className="text-xs text-slate-400 max-w-xs">
+                  Your mentor hasn't set availability for {duration}-min sessions yet.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {availability.map((group, i) => (
+                  <SlotPickerDateCard
+                    key={i}
+                    group={group}
+                    onSelect={setSelectedNewSlot}
+                    bookedSlots={bookedSlots}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer — confirm selected slot */}
+        {selectedNewSlot && (
+          <div className="border-t border-slate-100 px-6 py-4 shrink-0">
+            <div className="flex items-center justify-between gap-3 mb-3 px-3.5 py-3 bg-blue-50 border border-blue-200 rounded-xl">
+              <div>
+                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">New Slot</p>
+                <p className="text-sm font-bold text-blue-800">
+                  {new Date(selectedNewSlot.date + "T00:00:00").toLocaleDateString("en-US", {
+                    weekday: "short", month: "short", day: "numeric"
+                  })}
+                </p>
+                <p className="text-xs font-semibold text-blue-600">
+                  {formatTime(selectedNewSlot.startTime)} – {formatTime(selectedNewSlot.endTime)}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedNewSlot(null)}
+                className="text-xs text-blue-400 hover:text-blue-600 font-semibold"
+              >
+                Change
+              </button>
+            </div>
+            <div className="flex gap-2.5">
+              <button
+                onClick={onClose}
+                disabled={saving}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-white text-sm
+                  font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => onConfirm(slotIndex, selectedNewSlot)}
+                disabled={saving}
+                className="flex-1 py-2.5 rounded-xl text-white text-sm font-bold
+                  transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                  flex items-center justify-center gap-2"
+                style={{ background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 14px rgba(37,99,235,0.25)" }}
+              >
+                {saving
+                  ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Rescheduling...</>
+                  : <>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Confirm Reschedule
+                    </>
+                }
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ── Meeting Link Section ──────────────────────────────────────
 const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
   const [editing, setEditing] = useState(false);
   const [linkVal, setLinkVal] = useState(slot?.meetingLink || "");
   const [linkErr, setLinkErr] = useState("");
-
   const isMentor = viewerRole === "mentor";
 
   const handleSave = async () => {
@@ -36,7 +408,6 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
         Meeting Link
       </p>
-
       {editing ? (
         <div className="flex flex-col gap-2">
           <input
@@ -82,7 +453,6 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
             </svg>
             <span className="truncate">{slot.meetingLink}</span>
           </a>
-          {/* Only mentor can edit the meeting link */}
           {isMentor && (
             <button
               onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
@@ -114,72 +484,51 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
   );
 };
 
-// ── Completion Section — exactly same as original ─────────────
+// ── Completion Section ────────────────────────────────────────
 const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, saving }) => {
-  const isMentee = viewerRole === "mentee";
-  const iMenteeMarked = slot?.menteeMarked || false;
-  const iMentorMarked = slot?.mentorMarked || false;
-  const myMark = isMentee ? iMenteeMarked : iMentorMarked;
-  const otherMark = isMentee ? iMentorMarked : iMenteeMarked;
-  const bothDone = iMenteeMarked && iMentorMarked;
+  const isMentee       = viewerRole === "mentee";
+  const iMenteeMarked  = slot?.menteeMarked || false;
+  const iMentorMarked  = slot?.mentorMarked || false;
+  const myMark         = isMentee ? iMenteeMarked : iMentorMarked;
+  const otherMark      = isMentee ? iMentorMarked : iMenteeMarked;
+  const bothDone       = iMenteeMarked && iMentorMarked;
 
   return (
     <div className="border-t border-slate-100 pt-3">
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">
         Completion
       </p>
-
       <div className="flex flex-col gap-1.5 mb-3">
-        {/* My status */}
-        <div className={`w-75 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
-          ${myMark
-            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-            : "bg-slate-50 border-slate-200 text-slate-500"}`}>
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
+          ${myMark ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-200 text-slate-500"}`}>
           <span>{myMark ? "✓" : "○"}</span>
           <span>{myMark ? "You marked this session complete" : "You haven't marked this session complete yet"}</span>
         </div>
-
-        {/* Other person's status */}
-        <div className={`w-75 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
-          ${otherMark
-            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-            : "bg-amber-50 border-amber-200 text-amber-700"}`}>
+        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold
+          ${otherMark ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-amber-50 border-amber-200 text-amber-700"}`}>
           <span>{otherMark ? "✓" : "○"}</span>
           <span>
-            {otherMark
-              ? `${otherName} marked this session complete`
-              : `Waiting for ${otherName} to confirm`}
+            {otherMark ? `${otherName} marked this session complete` : `Waiting for ${otherName} to confirm`}
           </span>
         </div>
       </div>
-
-      {/* Mark complete button */}
       {!myMark && !bothDone && (
         <button
           onClick={() => onMarkComplete(slotIndex)}
           disabled={saving}
-          className="w-40 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold
+          className="w-full py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold
             hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed
             flex items-center justify-center gap-2"
         >
-          {saving ? (
-            <>
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-              Marking...
-            </>
-          ) : (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+          {saving
+            ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Marking...</>
+            : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Mark Session Complete
-            </>
-          )}
+              </svg>Mark Session Complete</>
+          }
         </button>
       )}
-
-      {/* Both done badge */}
       {bothDone && (
         <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl
           bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
@@ -195,7 +544,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
   );
 };
 
-// ── Main SessionCard — SessionMilestones removed, rest unchanged
+// ── Main SessionCard ──────────────────────────────────────────
 const SessionCard = ({
   slot,
   slotIndex,
@@ -204,58 +553,184 @@ const SessionCard = ({
   saving,
   onSetLink,
   onMarkComplete,
+  onCancelSlot,
+  onRescheduleSlot,
+  allSlots,
+  connectRequestId,
 }) => {
-  const bothDone = slot?.menteeMarked && slot?.mentorMarked;
-  const statusLabel = bothDone
-    ? "Completed"
-    : (slot?.menteeMarked || slot?.mentorMarked)
-      ? "In Progress"
-      : "Pending";
+  const [showCancelModal,    setShowCancelModal]    = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
 
-  const statusClass = bothDone
-    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-    : (slot?.menteeMarked || slot?.mentorMarked)
-      ? "bg-amber-50 text-amber-600 border-amber-200"
-      : "bg-slate-100 text-slate-500 border-slate-200";
+  const cancelled  = slot?.status === "cancelled";
+  const bothDone   = slot?.menteeMarked && slot?.mentorMarked;
+  const isMentee   = viewerRole === "mentee";
+
+  // Don't show Cancel/Reschedule on completed or already cancelled slots
+  const canCancel     = !cancelled && !bothDone;
+  const canReschedule = isMentee && !cancelled && !bothDone;
+
+  // Status label + colour
+  const statusLabel = cancelled
+    ? "Cancelled"
+    : bothDone
+      ? "Completed"
+      : (slot?.menteeMarked || slot?.mentorMarked)
+        ? "In Progress"
+        : "Pending";
+
+  const statusClass = cancelled
+    ? "bg-red-50 text-red-500 border-red-200"
+    : bothDone
+      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+      : (slot?.menteeMarked || slot?.mentorMarked)
+        ? "bg-amber-50 text-amber-600 border-amber-200"
+        : "bg-slate-100 text-slate-500 border-slate-200";
+
+  const handleCancel = async (idx, reason) => {
+    const result = await onCancelSlot(idx, reason);
+    if (result?.success) setShowCancelModal(false);
+  };
+
+  const handleReschedule = async (idx, newSlot) => {
+    const result = await onRescheduleSlot(idx, newSlot);
+    if (result?.success) setShowRescheduleModal(false);
+  };
 
   return (
-    <div className={`bg-white border rounded-2xl p-4 flex flex-col gap-3
-      ${bothDone ? "border-emerald-200" : "border-slate-200"}`}>
+    <>
+      <div className={`bg-white border rounded-2xl p-4 flex flex-col gap-3 transition-opacity
+        ${cancelled ? "opacity-60 border-red-100" : bothDone ? "border-emerald-200" : "border-slate-200"}`}>
 
-      {/* Session header */}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-            Session {slotIndex + 1}
-          </p>
-          <p className="text-sm font-bold text-slate-800">{formatSlotDate(slot)}</p>
-          <p className="text-xs font-semibold text-blue-600 mt-0.5">
-            {formatTime(slot?.startTime)} – {formatTime(slot?.endTime)}
-          </p>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Session {slotIndex + 1}
+              </p>
+              {/* Rescheduled badge */}
+              {slot?.isRescheduled && !cancelled && (
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-600 uppercase tracking-wide">
+                  Rescheduled
+                </span>
+              )}
+            </div>
+            <p className="text-sm font-bold text-slate-800">{formatSlotDate(slot)}</p>
+            <p className="text-xs font-semibold text-blue-600 mt-0.5">
+              {formatTime(slot?.startTime)} – {formatTime(slot?.endTime)}
+            </p>
+          </div>
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${statusClass}`}>
+            {statusLabel}
+          </span>
         </div>
-        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${statusClass}`}>
-          {statusLabel}
-        </span>
+
+        {/* Cancelled state — show who cancelled + reason */}
+        {cancelled ? (
+          <div className="border-t border-red-100 pt-3">
+            <div className="flex items-start gap-2.5 px-3 py-2.5 bg-red-50 border border-red-100 rounded-xl">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              <div>
+                <p className="text-xs font-bold text-red-600">
+                  Cancelled by {slot?.cancelledBy === viewerRole ? "you" : otherName}
+                </p>
+                {slot?.cancellationReason && slot.cancellationReason !== "rescheduled" && (
+                  <p className="text-xs text-red-500 mt-0.5 italic">"{slot.cancellationReason}"</p>
+                )}
+                {slot?.isRescheduled && (
+                  <p className="text-xs text-blue-500 mt-0.5 font-medium">↳ Rescheduled to a new slot</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Meeting link — only for active slots */}
+            <MeetingLinkSection
+              slot={slot}
+              viewerRole={viewerRole}
+              onSetLink={(link) => onSetLink(slotIndex, link)}
+              saving={saving}
+            />
+
+            {/* Completion — only for active slots */}
+            <CompletionSection
+              slot={slot}
+              viewerRole={viewerRole}
+              otherName={otherName}
+              slotIndex={slotIndex}
+              onMarkComplete={onMarkComplete}
+              saving={saving}
+            />
+          </>
+        )}
+
+        {/* ✅ Cancel + Reschedule action buttons */}
+        {(canCancel || canReschedule) && (
+          <div className="border-t border-slate-100 pt-3 flex gap-2">
+            {canReschedule && (
+              <button
+                onClick={() => setShowRescheduleModal(true)}
+                disabled={saving}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-blue-200
+                  bg-blue-50 text-xs font-bold text-blue-600 hover:bg-blue-100 transition-colors
+                  disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 4v6h-6" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+                Reschedule
+              </button>
+            )}
+            {canCancel && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                disabled={saving}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200
+                  bg-red-50 text-xs font-bold text-red-500 hover:bg-red-100 transition-colors
+                  disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                Cancel Session
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Meeting link — mentor can add/edit, mentee can only view */}
-      <MeetingLinkSection
-        slot={slot}
-        viewerRole={viewerRole}
-        onSetLink={(link) => onSetLink(slotIndex, link)}
-        saving={saving}
-      />
+      {/* Modals — rendered outside the card div to avoid clipping */}
+      {showCancelModal && (
+        <CancelModal
+          slot={slot}
+          slotIndex={slotIndex}
+          onConfirm={handleCancel}
+          onClose={() => setShowCancelModal(false)}
+          saving={saving}
+        />
+      )}
 
-      {/* Completion — both roles can mark their own side */}
-      <CompletionSection
-        slot={slot}
-        viewerRole={viewerRole}
-        otherName={otherName}
-        slotIndex={slotIndex}
-        onMarkComplete={onMarkComplete}
-        saving={saving}
-      />
-    </div>
+      {showRescheduleModal && (
+        <RescheduleModal
+          slot={slot}
+          slotIndex={slotIndex}
+          connectRequestId={connectRequestId}
+          existingSlots={allSlots}
+          onConfirm={handleReschedule}
+          onClose={() => setShowRescheduleModal(false)}
+          saving={saving}
+        />
+      )}
+    </>
   );
 };
 
