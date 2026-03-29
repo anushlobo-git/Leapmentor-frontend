@@ -28,8 +28,8 @@ const UserCell = ({ user }) => (
   <div className="flex items-center gap-2.5">
     <Avatar name={user?.name} />
     <div>
-      <p className="text-xs font-600 text-slate-700 leading-none" style={{ fontWeight: 600 }}>{user?.name || "—"}</p>
-      <p className="text-[10px] text-slate-400 mt-0.5" style={{ fontFamily: MONO }}>{user?.email || "—"}</p>
+      <p className="text-xs font-600 text-slate-800 leading-none" style={{ fontWeight: 600 }}>{user?.name || "—"}</p>
+      <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: MONO }}>{user?.email || "—"}</p>
     </div>
   </div>
 );
@@ -47,7 +47,7 @@ const SlotPill = ({ slot, confirmed }) => (
       </svg>
     )}
     <span className="text-[10px] font-600"
-      style={{ color: confirmed ? "#1d4ed8" : "#64748b", fontWeight: 600, fontFamily: MONO }}>
+      style={{ color: confirmed ? "#1d4ed8" : "#475569", fontWeight: 500, fontFamily: MONO }}>
       {slot.date} · {slot.startTime}–{slot.endTime}
     </span>
   </div>
@@ -76,7 +76,7 @@ const ExpandedDetail = ({ eng }) => (
 
         {/* Session details grid */}
         <div>
-          <p className="text-[10px] font-700 uppercase tracking-widest text-slate-400 mb-2"
+          <p className="text-[10px] font-700 uppercase tracking-widest text-slate-600 mb-2"
             style={{ fontWeight: 700, letterSpacing: "0.1em" }}>Session Details</p>
           <div className="grid grid-cols-2 gap-2">
             {[
@@ -90,7 +90,7 @@ const ExpandedDetail = ({ eng }) => (
               { label: "Completed At",   value: eng.completedAt  ? new Date(eng.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
             ].map(({ label, value }) => (
               <div key={label} className="px-3 py-2 rounded-xl" style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}>
-                <p className="text-[9px] font-700 uppercase tracking-widest text-slate-400 mb-0.5"
+                <p className="text-[9px] font-700 uppercase tracking-widest text-slate-600 mb-0.5"
                   style={{ fontWeight: 700, letterSpacing: "0.08em" }}>{label}</p>
                 <div className="text-xs font-600 text-slate-700" style={{ fontWeight: 600 }}>{value}</div>
               </div>
@@ -221,7 +221,7 @@ const AdminEngagements = () => {
         {/* ── Header ───────────────────────────────────────── */}
         <div>
           <h1 className="text-2xl font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>Engagements</h1>
-          <p className="text-sm text-slate-400 mt-0.5">Track all mentorship sessions across the platform.</p>
+          <p className="text-sm text-slate-600 mt-0.5">Track all mentorship sessions across the platform.</p>
         </div>
 
         {/* ── Stat Cards ────────────────────────────────────── */}
@@ -239,7 +239,7 @@ const AdminEngagements = () => {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>All Engagements</p>
-                <p className="text-xs text-slate-400 mt-0.5">{pagination.total} total records</p>
+                <p className="text-xs text-slate-600 mt-0.5">{pagination.total} total records</p>
               </div>
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
@@ -264,7 +264,7 @@ const AdminEngagements = () => {
                     style={{
                       fontWeight: 600, fontFamily: FONT,
                       background: statusFilter === s ? "#2563eb" : "#f1f5f9",
-                      color:      statusFilter === s ? "white"   : "#64748b",
+                      color:      statusFilter === s ? "white"   : "#475569",
                     }}>
                     {s === "" ? "All" : s}
                   </button>
@@ -273,16 +273,16 @@ const AdminEngagements = () => {
 
               {/* Date range */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400" style={{ fontFamily: MONO }}>From</span>
+                <span className="text-xs text-slate-600" style={{ fontFamily: MONO }}>From</span>
                 <input type="date" value={dateFrom}
                   onChange={(e) => handleDateFilter(e.target.value, dateTo)}
                   className="px-3 py-1.5 rounded-xl text-xs outline-none"
-                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color: "#334155" }} />
-                <span className="text-xs text-slate-400" style={{ fontFamily: MONO }}>To</span>
+                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color:  "#94a3b8" }} />
+                <span className="text-xs text-slate-600" style={{ fontFamily: MONO }}>To</span>
                 <input type="date" value={dateTo}
                   onChange={(e) => handleDateFilter(dateFrom, e.target.value)}
                   className="px-3 py-1.5 rounded-xl text-xs outline-none"
-                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color: "#334155" }} />
+                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color: "#94a3b8"}} />
                 {(dateFrom || dateTo) && (
                   <button onClick={() => handleDateFilter("", "")}
                     className="px-2.5 py-1.5 rounded-xl text-xs font-600"
@@ -298,10 +298,10 @@ const AdminEngagements = () => {
           <div className="overflow-x-auto">
             <table className="w-full" style={{ fontFamily: FONT }}>
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
-                  {["Mentor", "Mentee", "Status", "Payment", "Amount", "Requested", ""].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-[10px] font-700 uppercase tracking-widest"
-                      style={{ color: "#94a3b8", fontWeight: 700, letterSpacing: "0.1em" }}>
+                <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
+                   {["Mentor", "Mentee", "Status", "Payment", "Amount", "Requested", ""].map((h) => (
+                    <th key={h} className="text-left px-5 py-3 text-[10px] uppercase tracking-widest"
+                     style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
                       {h}
                     </th>
                   ))}
@@ -347,7 +347,7 @@ const AdminEngagements = () => {
                           </span>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-xs text-slate-500" style={{ fontFamily: MONO }}>
+                          <span className="text-xs   text-slate-800" style={{ fontFamily: MONO }}>
                             {eng.requestedAt
                               ? new Date(eng.requestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                               : "—"}

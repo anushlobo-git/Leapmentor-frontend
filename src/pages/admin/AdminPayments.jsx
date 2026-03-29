@@ -297,7 +297,7 @@ const AdminPayments = () => {
           <h1 className="text-2xl font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
             Payment Tracking
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm text-slate-600 mt-0.5">
             Monitor platform revenue and financial transactions across all departments.
           </p>
         </div>
@@ -316,7 +316,7 @@ const AdminPayments = () => {
               <h3 className="text-sm font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
                 Revenue Overview
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">Monthly growth trajectory (Jan–Jun)</p>
+              <p className="text-xs text-slate-600 mt-0.5">Monthly growth trajectory (Jan–Jun)</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-blue-600"/>
@@ -339,7 +339,7 @@ const AdminPayments = () => {
                 <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
                   Transaction History
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5">
                   {pagination.totalCount} total transactions
                 </p>
               </div>
@@ -370,7 +370,7 @@ const AdminPayments = () => {
                   style={{
                     fontWeight: 600, fontFamily: FONT,
                     background: typeFilter === key ? "#2563eb" : "#f1f5f9",
-                    color:      typeFilter === key ? "white"   : "#64748b",
+                    color: typeFilter === key ?      "white"   : "#475569",
                   }}>
                   {label}
                 </button>
@@ -382,10 +382,10 @@ const AdminPayments = () => {
           <div className="overflow-x-auto">
             <table className="w-full" style={{ fontFamily: FONT }}>
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
-                  {["TRANSACTION ID", "USER", "AMOUNT", "TYPE", "DATE", "STATUS"].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-[10px] font-700 uppercase tracking-widest"
-                      style={{ color: "#94a3b8", fontWeight: 700, letterSpacing: "0.1em" }}>
+                <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
+                    {["TRANSACTION ID", "USER", "AMOUNT", "TYPE", "DATE", "STATUS"].map((h) => (
+                    <th key={h} className="text-left px-5 py-3 text-[10px] uppercase tracking-widest"
+                     style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
                       {h}
                     </th>
                   ))}
@@ -418,29 +418,29 @@ const AdminPayments = () => {
                       onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                     >
                       <td className="px-5 py-4">
-                        <span className="text-xs font-600 text-slate-500"
-                          style={{ fontFamily: MONO, fontWeight: 600 }}>{tx.txId}</span>
+                        <span className="text-xs font-100 text-slate-800"
+                          style={{ fontFamily: MONO, fontWeight: 500 }}>{tx.txId}</span>
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2.5">
                           <Avatar name={tx.user?.name} />
                           <div>
-                            <p className="text-xs font-600 text-slate-700 leading-none"
+                            <p className="text-xs font-600 text-slate-900 leading-none"
                               style={{ fontWeight: 600 }}>{tx.user?.name}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5"
+                            <p className="text-[10px] text-slate-600 mt-0.5"
                               style={{ fontFamily: MONO }}>{tx.user?.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-sm font-700 text-slate-800"
-                          style={{ fontFamily: MONO, fontWeight: 700 }}>
+                        <span className="text-xs font-500 text-slate-800"
+                          style={{ fontFamily: MONO, fontWeight: 500 }}>
                           ${tx.amount?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </td>
                       <td className="px-5 py-4"><TypeBadge type={tx.type} /></td>
                       <td className="px-5 py-4">
-                        <span className="text-xs text-slate-500" style={{ fontFamily: MONO }}>{tx.date}</span>
+                        <span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{tx.date}</span>
                       </td>
                       <td className="px-5 py-4"><TxStatusBadge status={tx.status} /></td>
                     </tr>
@@ -452,7 +452,7 @@ const AdminPayments = () => {
 
           {/* Pagination */}
           <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: "#e8eaf0" }}>
-            <p className="text-xs text-slate-400" style={{ fontFamily: MONO }}>
+            <p className="text-xs text-slate-600" style={{ fontFamily: MONO }}>
               Showing {transactions.length} of {pagination.totalCount} transactions
             </p>
             <div className="flex items-center gap-1.5">

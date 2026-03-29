@@ -172,8 +172,8 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
           <div className="flex items-center justify-between px-6 py-5 border-b flex-shrink-0"
             style={{ borderColor: "#e8eaf0" }}>
             <div>
-              <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>Handle Report</p>
-              <p className="text-xs text-slate-400 mt-0.5">Update status and take action</p>
+              <p className="text-sm font-600 text-slate-800" style={{ fontWeight: 700 }}>Handle Report</p>
+              <p className="text-xs text-slate-600 mt-0.5">Update status and take action</p>
             </div>
             <button type="button" onClick={onClose}
               className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
@@ -509,7 +509,7 @@ const AdminReports = () => {
           <h1 className="text-2xl font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
             Reports &amp; Complaints
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">Manage and resolve mentor-mentee disputes efficiently.</p>
+          <p className="text-sm text-slate-600 mt-0.5">Manage and resolve mentor-mentee disputes efficiently.</p>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
@@ -541,7 +541,7 @@ const AdminReports = () => {
               {STATUS_FILTERS.map(({ key, label }) => (
                 <button key={key} onClick={() => handleStatusFilter(key)}
                   className="px-3 py-1.5 rounded-xl text-xs font-600 transition-all"
-                  style={{ fontWeight: 600, fontFamily: FONT, background: statusFilter === key ? "#2563eb" : "#f1f5f9", color: statusFilter === key ? "white" : "#64748b" }}>
+                  style={{ fontWeight: 600, fontFamily: FONT, background: statusFilter === key ? "#2563eb" : "#f1f5f9", color: statusFilter === key ? "white" : "#475569" }}>
                   {label}
                 </button>
               ))}
@@ -551,10 +551,10 @@ const AdminReports = () => {
           <div className="overflow-x-auto">
             <table className="w-full" style={{ fontFamily: FONT }}>
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
-                  {["MENTEE", "MENTOR", "CATEGORY", "DATE", "STATUS", "ACTIONS"].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-[10px] font-700 uppercase tracking-widest"
-                      style={{ color: "#94a3b8", fontWeight: 700, letterSpacing: "0.1em" }}>{h}</th>
+                <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
+                 {["MENTEE", "MENTOR", "CATEGORY", "DATE", "STATUS", "ACTIONS"].map((h) => (
+                 <th key={h} className="text-left px-5 py-3 text-[10px] uppercase tracking-widest"
+                  style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -578,15 +578,15 @@ const AdminReports = () => {
                       onMouseEnter={(e) => e.currentTarget.style.background = "#fafbfc"}
                       onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                       <td className="px-5 py-4">
-                        <p className="text-xs font-600 text-slate-700" style={{ fontWeight: 600 }}>{report.mentee || "—"}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5" style={{ fontFamily: MONO }}>{report.menteeEmail}</p>
+                        <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentee || "—"}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5" style={{ fontFamily: MONO }}>{report.menteeEmail}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-xs font-600 text-slate-700" style={{ fontWeight: 600 }}>{report.mentor || "—"}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5" style={{ fontFamily: MONO }}>{report.mentorEmail}</p>
+                        <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentor || "—"}</p>
+                        <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: MONO }}>{report.mentorEmail}</p>
                       </td>
                       <td className="px-5 py-4"><CategoryBadge category={report.category} /></td>
-                      <td className="px-5 py-4"><span className="text-xs text-slate-500" style={{ fontFamily: MONO }}>{report.date}</span></td>
+                      <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{report.date}</span></td>
                       <td className="px-5 py-4"><StatusBadge status={report.status} /></td>
                       <td className="px-5 py-4">
                         <button type="button" onClick={() => setSelected(report)}

@@ -35,8 +35,8 @@ const StatCard = ({ label, value, sub, icon, accent = "#2563eb", trend }) => (
       <p className="text-2xl font-700 text-slate-800 leading-none" style={{ fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
         {value?.toLocaleString() ?? "—"}
       </p>
-      <p className="text-xs font-500 text-slate-500 mt-1" style={{ fontWeight: 500 }}>{label}</p>
-      {sub && <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-xs font-500 text-slate-700 mt-1" style={{ fontWeight: 500 }}>{label}</p>
+      {sub && <p className="text-[10px] text-slate-500 mt-0.5">{sub}</p>}
     </div>
   </div>
 );

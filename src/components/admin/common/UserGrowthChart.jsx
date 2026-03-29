@@ -64,7 +64,7 @@ const UserGrowthChart = ({ data = [] }) => {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>User Growth</h3>
-          <p className="text-xs text-slate-400 mt-0.5">New registrations over time</p>
+          <p className="text-xs text-slate-600 mt-0.5">New registrations over time</p>
         </div>
         <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: "#f1f5f9" }}>
           {RANGES.map((r) => (
@@ -159,7 +159,7 @@ const UserGrowthChart = ({ data = [] }) => {
         {sliced
           .filter((_, i) => i % Math.ceil(sliced.length / 6) === 0 || i === sliced.length - 1)
           .map((d, i) => (
-            <span key={i} className="text-[10px] text-slate-400" style={{ fontFamily: "'DM Mono', monospace" }}>
+            <span key={i} className="text-[10px] text-slate-500" style={{ fontFamily: "'DM Mono', monospace" }}>
               {d.label}
             </span>
           ))}

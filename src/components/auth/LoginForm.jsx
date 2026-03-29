@@ -15,18 +15,28 @@ const CLERK_STRATEGY = {
   apple: "oauth_apple",
 };
 
-const redirectByRole = (roles = [], targetRole, navigate) => {
-  if (targetRole === "mentor" && roles.includes("mentor")) {
-    navigate("/dashboard/mentor");
-  } else if (targetRole === "mentee" && roles.includes("mentee")) {
-    navigate("/dashboard/mentee");
-  } else if (roles.includes("mentor")) {
-    navigate("/dashboard/mentor");
-  } else if (roles.includes("mentee")) {
-    navigate("/dashboard/mentee");
-  } else {
-    navigate("/login");
+const redirectByRole = (roles = [], targetRole, navigate, setMsg) => {
+  if (targetRole === "mentee") {
+    if (roles.includes("mentee")) {
+      setMsg({ type: "success", text: "Login successful! Redirecting..." });
+      setTimeout(() => navigate("/dashboard/mentee"), 800);
+    } else {
+      setMsg({ type: "error", text: "This account is not registered as a mentee." });
+    }
+    return;
   }
+
+  if (targetRole === "mentor") {
+    if (roles.includes("mentor")) {
+      setMsg({ type: "success", text: "Login successful! Redirecting..." });
+      setTimeout(() => navigate("/dashboard/mentor"), 800);
+    } else {
+      setMsg({ type: "error", text: "This account is not registered as a mentor." });
+    }
+    return;
+  }
+
+  navigate("/login");
 };
 
 const GoogleIcon = () => (
@@ -73,8 +83,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
     termsAcceptedRef: null,
     roles: [],
     onSuccess: (data) => {
-      setMsg({ type: "success", text: "Google login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(data?.user?.roles || [], role, navigate), 700);
+      redirectByRole(data?.user?.roles || [], role, navigate, setMsg);
     },
     onError: (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
@@ -84,7 +93,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
     if (!clerkLoaded) return;
     try {
       setLoading(true);
-      await signOut({ redirectUrl: window.location.href });
+      await signOut({ Url: window.location.href });
       localStorage.setItem("sso_role", "existing");
       localStorage.setItem("sso_terms", "true");
       await signIn.authenticateWithRedirect({
@@ -104,14 +113,19 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
     try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("adminToken");
       setLoading(true);
       const res = await axios.post(`${BASE_URL}/auth/login`, {
         email: form.email.trim(),
         password: form.password,
       });
+
       if (res.data?.token) localStorage.setItem("token", res.data.token);
-      setMsg({ type: "success", text: "Login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(res.data?.user?.roles || [], role, navigate), 800);
+
+      // ✅ FIXED — role is checked first, success message only shows if role matches
+      redirectByRole(res.data?.user?.roles || [], role, navigate, setMsg);
+
     } catch (err) {
       const status = err?.response?.status;
       const data = err?.response?.data;
@@ -142,7 +156,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
         <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
           : "bg-red-50 text-red-600 border-red-200"
-          }`}>
+        }`}>
           {msg.text}
         </div>
       )}

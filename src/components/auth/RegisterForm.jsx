@@ -105,14 +105,26 @@ const RegisterForm = ({ role }) => {
       termsAccepted: true,
     }));
 
-    if (registerUser.fulfilled.match(result)) {
-      if (!result.payload?.isNewUser) {
-        return setLocalMsg({ type: "error", text: "Email already exists. Please login instead." });
-      }
-      setTimeout(() => navigate("/verify-email", {
-        state: { email: form.email.trim(), role },
-      }), 800);
+ if (registerUser.fulfilled.match(result)) {
+  const { isNewUser, user } = result.payload;
+
+  if (!isNewUser) {
+    // role was added to existing account → redirect to verify or dashboard
+    if (user?.roles?.includes(role)) {
+      // ✅ role successfully added
+      setTimeout(() => navigate(`/dashboard/${role}`), 800);
+    } else {
+      // ✅ already had this exact role
+      return setLocalMsg({ type: "error", text: `You are already registered as a ${role}. Please login.` });
     }
+    return;
+  }
+
+  // ✅ brand new user → verify email first
+  setTimeout(() => navigate("/verify-email", {
+    state: { email: form.email.trim(), role },
+  }), 800);
+}
   };
 
   return (

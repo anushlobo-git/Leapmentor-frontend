@@ -39,7 +39,7 @@ const SectionCard = ({ title, subtitle, icon, children, accent = "#2563eb" }) =>
       </div>
       <div>
         <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>{title}</p>
-        {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-slate-600 mt-0.5">{subtitle}</p>}
       </div>
     </div>
     <div className="p-6">{children}</div>
@@ -69,11 +69,11 @@ const OverviewCard = ({ label, value, icon, accent, sub }) => (
       <span style={{ color: accent }}>{icon}</span>
     </div>
     <div>
-      <p className="text-2xl font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
+      <p className="text-2xl font-700 text-slate-900" style={{ fontWeight: 700, fontFamily: FONT }}>
         {value?.toLocaleString() ?? "—"}
       </p>
-      <p className="text-xs text-slate-500 mt-0.5">{label}</p>
-      {sub && <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>}
+      <p className="text-xs text-slate-600 mt-0.5">{label}</p>
+      {sub && <p className="text-[10px] text-slate-600 mt-0.5">{sub}</p>}
     </div>
   </div>
 );
@@ -160,16 +160,17 @@ const AdminSettings = () => {
 
       <Toast toast={toast} />
 
-      <div className="space-y-6 max-w-4xl">
+      <div className="space-y-6">
 
         <div>
-          <h1 className="text-2xl font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
+          <h1 className="text-2xl font-700 text-slate-900" style={{ fontWeight: 700, fontFamily: FONT }}>
             Admin Settings
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm text-slate-600 mt-0.5">
             Manage platform configurations, users, and preferences.
           </p>
         </div>
+
 
         {/* ── Platform Overview ── */}
         <SectionCard title="Platform Overview" subtitle="Live platform statistics" accent="#2563eb"
@@ -201,8 +202,8 @@ const AdminSettings = () => {
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.background = "#f8fafc"; }}
               >
                 <div>
-                  <p className="text-sm font-600 text-slate-700" style={{ fontWeight: 600, fontFamily: FONT }}>{item.label}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
+                  <p className="text-sm font-600 text-slate-900" style={{ fontWeight: 600, fontFamily: FONT }}>{item.label}</p>
+                  <p className="text-xs text-slate-600 mt-0.5">{item.desc}</p>
                 </div>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
@@ -219,7 +220,7 @@ const AdminSettings = () => {
           {/* ✅ Fixed layout — input + button side by side, button aligned to input height */}
           <div className="flex gap-3" style={{ alignItems: "flex-start" }}>
             <div style={{ width: 240 }}>
-              <label className="text-xs font-600 text-slate-500 block mb-1.5"
+              <label className="text-xs font-600 text-slate-900 block mb-1.5"
                 style={{ fontWeight: 600, fontFamily: FONT }}>
                 Commission Rate (%)
               </label>
@@ -238,7 +239,7 @@ const AdminSettings = () => {
                 onFocus={(e) => e.target.style.borderColor = "#fed7aa"}
                 onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
               />
-              <p className="text-[10px] text-slate-400 mt-1">
+              <p className="text-[10px] text-slate-600 mt-1">
                 Applied to every mentor payout. Must be between 0–100.
               </p>
             </div>
@@ -261,7 +262,7 @@ const AdminSettings = () => {
         >
           <div className="grid grid-cols-2 gap-4 max-w-lg">
             <div>
-              <label className="text-xs font-600 text-slate-500 block mb-1.5"
+              <label className="text-xs font-600 text-slate-900 block mb-1.5"
                 style={{ fontWeight: 600, fontFamily: FONT }}>Full Name</label>
               <input
                 type="text"
@@ -275,7 +276,7 @@ const AdminSettings = () => {
               />
             </div>
             <div>
-              <label className="text-xs font-600 text-slate-500 block mb-1.5"
+              <label className="text-xs font-600 text-slate-900 block mb-1.5"
                 style={{ fontWeight: 600, fontFamily: FONT }}>Email Address</label>
               <input
                 type="email"
@@ -287,7 +288,7 @@ const AdminSettings = () => {
                 onFocus={(e) => e.target.style.borderColor = "#93c5fd"}
                 onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
               />
-              <p className="text-[10px] text-slate-400 mt-1">A temporary password will be generated.</p>
+              <p className="text-[10px] text-slate-600 mt-1">A temporary password will be generated.</p>
             </div>
           </div>
 
