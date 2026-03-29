@@ -17,6 +17,12 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const [progress, setProgress] = useState(0);
 
   const allCompleteFiredRef = useRef(false);
+  const onAllCompleteRef = useRef(onAllComplete);        // 👈 ADDED
+
+  // 👇 ADDED: keep ref in sync with latest callback on every render
+  useEffect(() => {
+    onAllCompleteRef.current = onAllComplete;
+  }, [onAllComplete]);
 
   const applySlotUpdate = useCallback((data) => {
     if (data.slots) setSlots(data.slots);
@@ -48,7 +54,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
   }, [fetchSlots]);
 
   // ✅ Listen on the SHARED global socket (window.__leapSocket)
-  // so we don't create a competing socket that overwrites userSockets map
   useEffect(() => {
     if (!connectRequestId) return;
 
@@ -57,17 +62,15 @@ const useSessions = (connectRequestId, onAllComplete) => {
       console.log("📅 session_slots_updated — syncing instantly");
       applySlotUpdate(data);
 
-      // ✅ Socket handler still uses the ref — prevents double-firing
-      // when the other party completes and socket arrives after API response
-      if (data.allComplete && onAllComplete && !allCompleteFiredRef.current) {
+      // 👇 CHANGED: use ref so socket always calls the latest onAllComplete
+      if (data.allComplete && !allCompleteFiredRef.current) {
         allCompleteFiredRef.current = true;
         setTimeout(() => {
-          onAllComplete();
+          onAllCompleteRef.current?.();
         }, 2000);
       }
     };
 
-    // ✅ Register listener on the shared global socket
     const waitForSocket = setInterval(() => {
       if (window.__leapSocket?.connected) {
         window.__leapSocket.on("session_slots_updated", handleSlotUpdate);
@@ -80,7 +83,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       clearInterval(waitForSocket);
       window.__leapSocket?.off("session_slots_updated", handleSlotUpdate);
     };
-  }, [connectRequestId, applySlotUpdate, onAllComplete]);
+  }, [connectRequestId, applySlotUpdate]);
 
   // ✅ Fallback polling every 30s
   useEffect(() => {
@@ -138,13 +141,11 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setCompletedSlots(res.data.completedSlots);
         setProgress(res.data.progress);
 
-        // 👇 CHANGED: API response always triggers onAllComplete directly
-        // without checking the ref — ref is only used by socket to prevent
-        // double-firing. This fixes mentor side not unlocking Report tab.
-        if (res.data.allComplete && onAllComplete) {
-          allCompleteFiredRef.current = true; // block socket from double-firing
+        // 👇 CHANGED: use ref so API path also calls the latest onAllComplete
+        if (res.data.allComplete) {
+          allCompleteFiredRef.current = true;
           setTimeout(() => {
-            onAllComplete();
+            onAllCompleteRef.current?.();
           }, 2000);
         }
 
@@ -158,7 +159,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSaving(false);
       }
     },
-    [connectRequestId, onAllComplete],
+    [connectRequestId],  // 👈 CHANGED: removed onAllComplete from deps
   );
 
   const addSlot = useCallback(
@@ -172,7 +173,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
           { headers: authHeader() },
         );
         applySlotUpdate(res.data);
-        // Forward slotId so the payment modal knows which additionalSlot to charge for
         return { success: true, slotId: res.data.slotId ?? null };
       } catch (err) {
         const msg = err?.response?.data?.message || "Failed to add session.";

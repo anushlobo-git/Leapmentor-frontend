@@ -1,11 +1,12 @@
 // src/components/shared-dashboard/tabs/SharedGoalsTab.jsx
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";  // 👈 added useEffect, useRef
 import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
 import GoalForm from "./goals/GoalForm";
 import TimelineTracker from "./goals/TimelineTracker";
-import MilestoneList from "./goals/MilestoneList";   // ← added
+import MilestoneList from "./goals/MilestoneList";
 import SessionCard from "./goals/SessionCard";
+import FeedbackModal from "./FeedbackModal";
 
 // ── Loading Skeleton ──────────────────────────────────────────
 const LoadingSkeleton = () => (
@@ -131,6 +132,11 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
 // ── Main ──────────────────────────────────────────────────────
 const SharedGoalsTab = ({ connect, onAllComplete }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+  // 👇 Track whether modal has already been shown this session
+  // so it doesn't re-fire every time progress is read as 100 on mount
+  const modalShownRef = useRef(false);
 
   const viewerRole = connect?.viewerRole || "mentee";
   const connectRequestId = connect?._id;
@@ -139,7 +145,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
     ? connect?.mentor?.name || "Mentor"
     : connect?.mentee?.name || "Mentee";
 
-  // ── Goals + milestones (flat array, goal-level only) ──────
+  // ── Goals + milestones ────────────────────────────────────
   const {
     goal, milestones,
     loading: goalsLoading, error: goalsError, saving: goalsSaving,
@@ -147,12 +153,32 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
     addMilestone, toggleMilestone, deleteMilestone,
   } = useGoals(connectRequestId);
 
-  // ── Sessions (slots) — completely unchanged ───────────────
+  // ── Sessions — pass onAllComplete directly, modal is driven by progress
   const {
     slots, loading: slotsLoading, saving: slotsSaving, error: slotsError,
     completedSlots, totalSlots, progress,
     setMeetingLink, markSlotComplete,
-  } = useSessions(connectRequestId, onAllComplete);
+  } = useSessions(connectRequestId, onAllComplete);  // 👈 back to original
+
+  // 👇 CORE FIX: watch progress directly — fires for BOTH parties
+  // regardless of who clicked last or who was waiting for socket
+  // modalShownRef prevents re-showing on every re-render once already shown
+  // loading guard prevents it from firing on initial mount if already 100%
+  const prevProgressRef = useRef(null);
+
+  useEffect(() => {
+    if (slotsLoading) return;                          // wait until data is loaded
+    if (progress >= 100) {
+      if (prevProgressRef.current !== null             // not the very first load
+        && prevProgressRef.current < 100               // actually just crossed 100
+        && !modalShownRef.current) {                   // not shown yet
+        modalShownRef.current = true;
+        setShowFeedbackModal(true);
+        onAllComplete?.();
+      }
+    }
+    prevProgressRef.current = progress;
+  }, [progress, slotsLoading]);                        // eslint-disable-line
 
   const handleCreateGoal = async (fields) => {
     const result = await createGoal(fields);
@@ -208,7 +234,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         <NoGoalState onSetGoal={() => setIsEditing(true)} />
       )}
 
-      {/* ── Milestones — goal-level, shown under goal card ── */}
+      {/* Milestones */}
       {goal && (
         <MilestoneList
           goal={goal}
@@ -229,27 +255,35 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         />
       )}
 
-      {/* Sessions — meeting link + completion only, NO milestones */}
+      {/* Sessions */}
       {slots.length > 0 && (
-  <div className="flex flex-col gap-4">
-    <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-      Sessions ({slots.length})
-    </p>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {slots.map((slot, index) => (
-            <SessionCard
-              key={index}
-              slot={slot}
-              slotIndex={index}
-              viewerRole={viewerRole}
-              otherName={otherName}
-              saving={slotsSaving}
-              onSetLink={setMeetingLink}
-              onMarkComplete={markSlotComplete}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">
+            Sessions ({slots.length})
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {slots.map((slot, index) => (
+              <SessionCard
+                key={index}
+                slot={slot}
+                slotIndex={index}
+                viewerRole={viewerRole}
+                otherName={otherName}
+                saving={slotsSaving}
+                onSetLink={setMeetingLink}
+                onMarkComplete={markSlotComplete}
+              />
+            ))}
           </div>
         </div>
+      )}
+
+      {/* Feedback modal — fires when progress crosses 100 for either party */}
+      {showFeedbackModal && (
+        <FeedbackModal
+          connect={connect}
+          onClose={() => setShowFeedbackModal(false)}
+        />
       )}
 
     </div>
