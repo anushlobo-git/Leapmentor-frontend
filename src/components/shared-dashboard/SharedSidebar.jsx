@@ -7,16 +7,14 @@ import {
   Paperclip,
   CalendarPlus,
   X,
-  ClipboardList,
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { key: "overview",          label: "Overview",        icon: LayoutDashboard },
-  { key: "chat",              label: "Chat",             icon: MessageSquare },
-  { key: "goals",             label: "Goals",            icon: Target },
-  { key: "notes",             label: "Notes",            icon: Paperclip },
-  { key: "addSession",        label: "Add Session",      icon: CalendarPlus },
-  { key: "report", label: "Review & Report", icon:ClipboardList },
+  { key: "overview",   label: "Overview",    icon: LayoutDashboard },
+  { key: "chat",       label: "Chat",        icon: MessageSquare },
+  { key: "goals",      label: "Goals",       icon: Target },
+  { key: "notes",      label: "Notes",       icon: Paperclip },
+  { key: "addSession", label: "Add Session", icon: CalendarPlus },
 ];
 
 const sidebarBg = "linear-gradient(170deg, #eef4ff 0%, #f5f0ff 50%, #edfcf4 100%)";

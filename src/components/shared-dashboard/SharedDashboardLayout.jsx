@@ -6,24 +6,16 @@ import SharedHomeTab from "./tabs/SharedHomeTab";
 import SharedChatTab from "./tabs/SharedChatTab";
 import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
-import SharedReportTab from "./tabs/SharedReportTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import useSocketToast from "../../hooks/useSocketToast";
 
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
   const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [reportRefreshKey, setReportRefreshKey] = useState(0); // 👈 ADDED
 
   useSocketToast();
 
   const viewerRole = connect?.viewerRole || "mentee";
-
-  // 👇 ADDED: wrap onAllComplete to also bump the report refresh key
-  const handleAllComplete = () => {
-    setReportRefreshKey(k => k + 1);
-    onAllComplete?.();
-  };
 
   return (
     <div style={{
@@ -34,13 +26,13 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
       overflow: "hidden",
     }}>
 
-      {/* Topbar — fixed height, never shrinks */}
+      {/* Topbar */}
       <SharedTopbar
         viewerRole={viewerRole}
         onMenuToggle={() => setSidebarOpen(true)}
       />
 
-      {/* Body — fills remaining height below topbar */}
+      {/* Body */}
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
 
         {/* Sidebar */}
@@ -88,7 +80,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
           }}>
             <SharedGoalsTab
               connect={connect}
-              onAllComplete={handleAllComplete}  // 👈 CHANGED: use wrapped handler
+              onAllComplete={onAllComplete}
             />
           </div>
 
@@ -108,18 +100,6 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             padding: "24px 32px",
           }}>
             <SharedAdditionalSessionTab connect={connect} onTabChange={setActiveTab} />
-          </div>
-
-          {/* Report */}
-          <div style={{
-            display: activeTab === "report" ? "block" : "none",
-            height: "100%", overflowY: "auto",
-            padding: "24px 32px",
-          }}>
-            <SharedReportTab
-              connect={connect}
-              reportRefreshKey={reportRefreshKey}  // 👈 ADDED
-            />
           </div>
 
         </main>
