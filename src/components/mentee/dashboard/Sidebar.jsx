@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import {
   Home, User, Search, Bell, History,
-  Users, Settings, HelpCircle, X
+  Users, HelpCircle, X
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -11,7 +11,6 @@ const NAV_ITEMS = [
   { key: "notifications", label: "Notifications", icon: <Bell size={16} /> },
   { key: "history", label: "History", icon: <History size={16} /> },
   { key: "connects", label: "Connects", icon: <Users size={16} /> },
-  { key: "settings", label: "Settings", icon: <Settings size={16} /> },
 ];
 
 const Badge = ({ count }) => {

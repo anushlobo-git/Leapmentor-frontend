@@ -15,7 +15,6 @@ const AvailabilityTab = lazy(() => import("./availability/AvailabilityTab"));
 const RequestsTab = lazy(() => import("./requests/RequestsTab"));
 const MentorConnectsTab = lazy(() => import("./connects/MentorConnectsTab"));
 const NotificationsTab = lazy(() => import("./notifications/NotificationsTab"));
-const SettingsTab = lazy(() => import("./settings/SettingsTab"));
 const TrackEarningsTab = lazy(() => import("./earnings/TrackEarningsTab"));
 const HelpCenter = lazy(() => import("../../common/HelpCenter"));
 
@@ -52,11 +51,7 @@ const DashboardLayout = () => {
     setSidebarOpen(false);
   };
 
-  // LCP FIX: removed the `if (loading) return <spinner>` gate that was
-  // blocking the entire render — including the <h1> — for 920ms.
-  // The shell (Topbar + Sidebar + h1) now renders immediately.
-  // Each tab handles its own loading state internally via skeletons.
-  // Error state is kept since it means auth/network truly failed.
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -90,7 +85,6 @@ const DashboardLayout = () => {
             {activeTab === "requests" && <RequestsTab />}
             {activeTab === "connects" && <MentorConnectsTab />}
             {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
-            {activeTab === "settings" && <SettingsTab profile={profile} user={user} />}
             {activeTab === "earnings" && <TrackEarningsTab />}
             {activeTab === "help" && <HelpCenter />}
           </Suspense>

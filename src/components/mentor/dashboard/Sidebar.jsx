@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import {
   Home, User, Calendar, Bell, MessageSquare,
-  Users, DollarSign, Settings, HelpCircle, X
+  Users, DollarSign, HelpCircle, X
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { key: "requests",      label: "Requests",      icon: <MessageSquare size={16} /> },
   { key: "connects",      label: "Connects",      icon: <Users size={16} /> },
   { key: "earnings",      label: "Track Earnings",icon: <DollarSign size={16} /> },
-  { key: "settings",      label: "Settings",      icon: <Settings size={16} /> },
 ];
 
 const Badge = ({ count }) => {

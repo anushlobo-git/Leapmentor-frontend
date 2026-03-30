@@ -86,19 +86,16 @@ const TrackEarningsTab = () => {
 
   return (
     <>
-      <div className="space-y-6 max-w-5xl">
+      <div className="space-y-5">
 
         {/* ── Header ── */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Track Earnings</h1>
             <p className="text-sm text-blue-900 mt-0.5">
               Monitor your mentorship income and session performance.
             </p>
           </div>
-
-          {/* FIXED: properly closed this div */}
-          <div className="flex items-center gap-2"></div>
         </div>
 
         {/* ── Error ── */}
@@ -108,10 +105,7 @@ const TrackEarningsTab = () => {
           </div>
         )}
 
-        {/* ── Rest of your code remains EXACTLY SAME */}
-
-        
-        {/* ── Stat Cards ── */}
+        {/* ── Stat Cards — 2 cols mobile, 4 cols large ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {loadingStats ? (
             [1,2,3,4].map((i) => <Skeleton key={i} className="h-24" />)
@@ -165,13 +159,13 @@ const TrackEarningsTab = () => {
         </div>
 
         {/* ── Earnings Chart ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <div className="flex items-start justify-between mb-1 flex-wrap gap-3">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
             <div>
               <h2 className="text-base font-bold text-slate-800">Earnings Over Last 6 Months</h2>
               <p className="text-xs text-blue-900 mt-0.5">Revenue growth from Jan 2024 to Jun 2024</p>
             </div>
-            <div className="flex items-center gap-1 bg-slate-50 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-slate-50 rounded-xl p-1 self-start sm:self-auto shrink-0">
               {["monthly", "weekly"].map((p) => (
                 <button
                   key={p}
@@ -190,9 +184,9 @@ const TrackEarningsTab = () => {
           </div>
 
           {loadingChart ? (
-            <Skeleton className="h-52 mt-4" />
+            <Skeleton className="h-64" />
           ) : (
-            <div className="mt-4 h-52">
+            <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                   <defs>
@@ -230,11 +224,11 @@ const TrackEarningsTab = () => {
         </div>
 
         {/* ── Payout History ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <h2 className="text-base font-bold text-slate-800">Payout History</h2>
             {/* Search */}
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -245,14 +239,14 @@ const TrackEarningsTab = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search mentee..."
-                className="pl-8 pr-4 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all w-48"
+                className="pl-8 pr-4 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all w-full sm:w-52"
               />
             </div>
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-5 px-5">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="border-b border-slate-100">
                   {["DATE", "MENTEE NAME", "SESSION TYPE", "DURATION", "AMOUNT", "STATUS"].map((h) => (
@@ -301,7 +295,7 @@ const TrackEarningsTab = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-50">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4 pt-4 border-t border-slate-50">
             <p className="text-xs text-slate-500">
               Showing {payouts.length} of {totalCount} records
             </p>
@@ -310,24 +304,21 @@ const TrackEarningsTab = () => {
                 type="button"
                 onClick={goPrev}
                 disabled={page === 1}
-               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-800 hover:bg-slate-50 disabled:opacity-40 disabled:text-slate-400 disabled:cursor-not-allowed transition-all">
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-800 hover:bg-slate-50 disabled:opacity-40 disabled:text-slate-400 disabled:cursor-not-allowed transition-all">
                 Previous
               </button>
               <button
                 type="button"
                 onClick={goNext}
-                disabled={false}
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-800 hover:bg-slate-50 disabled:opacity-40 disabled:text-slate-400 disabled:cursor-not-allowed transition-all">
-                   Next
+                disabled={!hasMore}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-800 hover:bg-slate-50 disabled:opacity-40 disabled:text-slate-400 disabled:cursor-not-allowed transition-all">
+                Next
               </button>
             </div>
           </div>
         </div>
 
       </div>
-
-      {/* ── Withdraw Modal ── */}
-      
     </>
   );
 };

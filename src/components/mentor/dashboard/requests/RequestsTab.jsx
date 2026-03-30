@@ -81,14 +81,23 @@ const RequestsTab = () => {
 
   return (
     <>
-      <div className="max-w-6xl w-full space-y-5">
+      {/* ✅ removed max-w-6xl — full width on all screens */}
+      <div className="w-full space-y-5">
 
         {/* ── Header ── */}
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">Mentee Requests</h1>
-          <p className="text-sm text-blue-900 mt-0.5">
-            Manage your incoming and active mentorship connections.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">Mentee Requests</h1>
+            <p className="text-sm text-blue-900 mt-0.5">
+              Manage your incoming and active mentorship connections.
+            </p>
+          </div>
+          {/* total count pill */}
+          {requests.length > 0 && (
+            <span className="self-start sm:self-auto text-xs font-bold text-blue-900 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full shrink-0">
+              {requests.length} total
+            </span>
+          )}
         </div>
 
         {/* ── Error ── */}
@@ -98,15 +107,15 @@ const RequestsTab = () => {
           </div>
         )}
 
-        {/* ── Tabs — full width ── */}
+        {/* ── Tabs — scrollable on mobile, full width on desktop ── */}
         <div className="w-full border-b border-slate-100">
-          <div className="flex w-full">
+          <div className="flex overflow-x-auto scrollbar-none">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${
+                className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${
                   activeTab === tab.key
                     ? "text-blue-900 border-blue-900 bg-blue-50/50"
                     : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
@@ -151,7 +160,8 @@ const RequestsTab = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          // ✅ 1 col mobile, 2 col tablet, 3 col large, 4 col monitor
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((request) => (
               <RequestCard
                 key={request._id}
