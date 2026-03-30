@@ -11,15 +11,7 @@ export default function Hero() {
   const [current, setCurrent] = useState(0);
   const [fade, setFade] = useState(true);
 
-  // Preload the first image so LCP is fast
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "image";
-    link.href = images[0];
-    document.head.appendChild(link);
-    return () => document.head.removeChild(link);
-  }, []);
+  // NO useEffect preload — handled via <link rel="preload"> in index.html
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,25 +60,33 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right — Auto Image Slider (no controls, no dots) */}
+        {/* Right — Auto Image Slider */}
         <div className="relative flex justify-center">
           <div className="w-full max-w-md h-80 md:h-96 rounded-3xl overflow-hidden shadow-2xl relative bg-blue-50">
 
-            {/* Sliding Image */}
-            <img
-              key={current}
-              src={images[current]}
-              alt={`Slide ${current + 1}`}
-              width={896}
-              height={768}
-              style={{
-                opacity: fade ? 1 : 0,
-                transition: fade ? "opacity 0.4s ease-in-out" : "none"
-              }}
-              className="absolute inset-0 w-full h-full object-cover"
-              fetchPriority={current === 0 ? "high" : "auto"}
-              loading={current === 0 ? "eager" : "lazy"}
-            />
+            {images.map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt={`Slide ${i + 1}`}
+                width={896}
+                height={768}
+                // First image: high priority + eager, rest: lazy + low priority
+                fetchPriority={i === 0 ? "high" : "low"}
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding={i === 0 ? "sync" : "async"}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: current === i ? (fade ? 1 : 0) : 0,
+                  transition: current === i && fade ? "opacity 0.4s ease-in-out" : "none",
+                }}
+              />
+            ))}
+
             {/* Subtle overlay gradient */}
             <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
 
