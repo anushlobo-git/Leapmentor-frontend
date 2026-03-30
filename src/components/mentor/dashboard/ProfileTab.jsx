@@ -54,10 +54,7 @@ const ProfileTab = ({ user, profile }) => {
             ? new Date(profile.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
             : "—"}
         </p>
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-600">
-          <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-          Profile Status: {profile?.isProfilePublished ? "Visible" : "Hidden"}
-        </span>
+        
       </div>
     </div>
   );
