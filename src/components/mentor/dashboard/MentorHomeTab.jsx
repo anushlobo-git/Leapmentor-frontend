@@ -1,18 +1,13 @@
 // src/components/mentor/dashboard/MentorHomeTab.jsx
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-// LCP FIX: lazy import so LeapBuddy JS is excluded from critical path
-const LeapBuddy = lazy(() => import("../../LeapBuddy"));
+import LeapBuddy from "../../LeapBuddy";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-// ── Helpers ───────────────────────────────────────────────────
-// CONTRAST FIX: replaced bright-500 colors with -700/-800 shades so
-// white text always passes WCAG AA (4.5:1) on every accent background
-const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
+const ACCENT_COLORS = ["#3b82f6", "#22c55e", "#a855f7", "#f97316", "#ec4899"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
 
 const formatSlotDate = (slot) => {
@@ -35,15 +30,13 @@ const formatTime = (t) => {
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// ── Badges ────────────────────────────────────────────────────
 const BADGES = [
-  { key: "newcomer", label: "Newcomer", icon: "👋", desc: "Joined LeapMentor", condition: () => true },
-  { key: "ten_sessions", label: "10 Sessions", icon: "🎯", desc: "Completed 10 sessions", condition: (p) => (p?.totalSessions || 0) >= 10 },
-  { key: "top_rated", label: "Top Rated", icon: "⭐", desc: "Achieved 4.5+ rating", condition: (p) => (p?.avgRating || 0) >= 4.5 },
-  { key: "expert_guide", label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed", condition: (p) => (p?.totalSessions || 0) >= 50 },
+  { key: "newcomer",    label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",          condition: () => true },
+  { key: "ten_sessions",label: "10 Sessions",  icon: "🎯", desc: "Completed 10 sessions",      condition: (p) => (p?.totalSessions || 0) >= 10 },
+  { key: "top_rated",   label: "Top Rated",    icon: "⭐", desc: "Achieved 4.5+ rating",       condition: (p) => (p?.avgRating || 0) >= 4.5 },
+  { key: "expert_guide",label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed",     condition: (p) => (p?.totalSessions || 0) >= 50 },
 ];
 
-// ── Profile Completion ────────────────────────────────────────
 const getProfileCompletion = (profile) => {
   if (!profile) return 0;
   const fields = [
@@ -59,7 +52,6 @@ const getProfileCompletion = (profile) => {
   return Math.round((fields.filter(Boolean).length / fields.length) * 100);
 };
 
-// ── SVG Icons ─────────────────────────────────────────────────
 const IconSessions = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -89,7 +81,6 @@ const IconInbox = () => (
   </svg>
 );
 
-// ── Stat Card ─────────────────────────────────────────────────
 const StatCard = ({ label, value, sub, icon }) => (
   <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
     <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
@@ -97,14 +88,12 @@ const StatCard = ({ label, value, sub, icon }) => (
     </div>
     <div className="min-w-0">
       <p className="text-xl font-extrabold text-slate-800 leading-none truncate">{value}</p>
-      {/* FONT SIZE: text-[14px] → text-sm (standardised) */}
-      {sub && <p className="text-sm text-blue-900 mt-0.5">{sub}</p>}
+      {sub && <p className="text-[14px] text-blue-900 mt-0.5">{sub}</p>}
       <p className="text-xs font-bold text-blue-900 mt-1">{label}</p>
     </div>
   </div>
 );
 
-// ── Session Card ──────────────────────────────────────────────
 const SessionCard = ({ request, index, navigate }) => {
   const slot = request.confirmedSlot || request.selectedSlots?.[0];
   const { dateNum, dateMonth, fullDate } = formatSlotDate(slot);
@@ -114,15 +103,10 @@ const SessionCard = ({ request, index, navigate }) => {
   const accent = getAccent(index);
 
   return (
-    // RESPONSIVE: flex-wrap on mobile so button doesn't crush middle content
-    <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 shadow-sm hover:shadow-md transition-all flex flex-wrap sm:flex-nowrap items-center gap-3">
-      {/* CONTRAST FIX: accent is now a dark shade — white text passes without textShadow hack */}
-      <div
-        style={{ backgroundColor: accent }}
-        className="w-11 h-14 rounded-xl flex flex-col items-center justify-center shrink-0"
-      >
-        {/* FONT SIZE: text-[9px] → text-[10px] for OS font scaling */}
-        <span className="text-[10px] font-bold text-white tracking-widest">{dateMonth}</span>
+    <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+      <div style={{ backgroundColor: accent }}
+        className="w-11 h-14 rounded-xl flex flex-col items-center justify-center shrink-0">
+        <span className="text-[9px] font-bold text-white tracking-widest">{dateMonth}</span>
         <span className="text-xl font-bold text-white leading-none">{dateNum}</span>
       </div>
       <div className="flex-1 min-w-0">
@@ -131,7 +115,7 @@ const SessionCard = ({ request, index, navigate }) => {
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0
             ${isOngoing
               ? "bg-blue-50 text-blue-900 border border-blue-100"
-              : "bg-emerald-50 text-emerald-700 border border-emerald-100"}`}>
+              : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
             {isOngoing ? "Ongoing" : "Accepted"}
           </span>
         </div>
@@ -156,7 +140,6 @@ const SessionCard = ({ request, index, navigate }) => {
   );
 };
 
-// ── Session Skeleton ──────────────────────────────────────────
 const SessionSkeleton = () => (
   <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 flex items-center gap-3 animate-pulse">
     <div className="w-11 h-14 rounded-xl bg-slate-200 shrink-0" />
@@ -168,7 +151,6 @@ const SessionSkeleton = () => (
   </div>
 );
 
-// ── Earnings Skeleton ─────────────────────────────────────────
 const EarningsSkeleton = () => (
   <div className="space-y-3 animate-pulse">
     {[1, 2, 3, 4].map((i) => (
@@ -183,7 +165,6 @@ const EarningsSkeleton = () => (
   </div>
 );
 
-// ── Main ──────────────────────────────────────────────────────
 const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "there";
@@ -196,9 +177,6 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
 
   const [earnings, setEarnings] = useState(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
-
-  // LCP FIX: LeapBuddy mounts 2s after load — never competes with LCP element
-  const [showBuddy, setShowBuddy] = useState(false);
 
   const completionPct = getProfileCompletion(profile);
 
@@ -213,25 +191,15 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
     if (refetchProfile) refetchProfile();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // LCP FIX: delay buddy mount
-  useEffect(() => {
-    const t = setTimeout(() => setShowBuddy(true), 2000);
-    return () => clearTimeout(t);
-  }, []);
-
   useEffect(() => {
     const fetchSessions = async () => {
       try {
         setLoadingSessions(true);
-        const res = await axios.get(
-          `${BASE_URL}/connect-requests/incoming`,
-          { headers: authHeader() }
-        );
+        const res = await axios.get(`${BASE_URL}/connect-requests/incoming`, { headers: authHeader() });
         const all = res.data.requests || [];
         const active = all.filter((r) => r.status === "ongoing" || r.status === "accepted");
         const pending = all.filter((r) => r.status === "pending");
         const completed = all.filter((r) => r.status === "completed");
-
         setSessions(active);
         setPendingCount(pending.length);
         setActualSessionCount(completed.length + active.filter((r) => r.status === "ongoing").length);
@@ -248,10 +216,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
     const fetchEarnings = async () => {
       try {
         setLoadingEarnings(true);
-        const res = await axios.get(
-          `${BASE_URL}/mentor/earnings`,
-          { headers: authHeader() }
-        );
+        const res = await axios.get(`${BASE_URL}/mentor/earnings`, { headers: authHeader() });
         setEarnings({
           totalEarnings: res.data.totalEarnings || 0,
           sessionsThisMonth: res.data.sessionsThisMonth || 0,
@@ -269,13 +234,12 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
   }, []);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 flex flex-col gap-6">
+    // ✅ removed max-w-7xl — now matches AvailabilityTab pattern (space-y-5, full width)
+    <div className="space-y-5">
 
-      {/* ── Welcome ── */}
-      {/* RESPONSIVE: flex-wrap so profile circle wraps on narrow screens */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* ── Welcome row ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          {/* LCP FIX: h1 has no loading gate — renders immediately, becomes LCP anchor */}
           <h1 className="text-2xl font-bold text-slate-800">
             {isFirstLogin ? `Welcome, ${firstName}! 👋` : `Welcome back, ${firstName}! 👋`}
           </h1>
@@ -288,6 +252,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           </p>
         </div>
 
+        {/* Profile completion pill */}
         {completionPct < 100 && (
           <div
             className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
@@ -309,9 +274,8 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
         )}
       </div>
 
-      {/* ── Quick Stats Row ── */}
-      {/* RESPONSIVE: md:grid-cols-4 instead of lg — fills space on 768–1024px screens */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* ── Quick Stats — 2 cols on mobile, 4 on large ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           label="Total Sessions"
           value={loadingSessions ? "—" : (actualSessionCount ?? 0)}
@@ -338,11 +302,10 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
         />
       </div>
 
-      {/* ── Main Two Column Layout ── */}
-      {/* RESPONSIVE: md:grid-cols-2 — side by side from 768px, not 1024px */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+      {/* ── Main two-column layout — stacks on mobile ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
-        {/* ── LEFT — Active Sessions ── */}
+        {/* LEFT — Active Sessions */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-700">Active Sessions</h2>
@@ -361,12 +324,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           ) : sessions.length > 0 ? (
             <div className="flex flex-col gap-3">
               {sessions.map((request, idx) => (
-                <SessionCard
-                  key={request._id}
-                  request={request}
-                  index={idx}
-                  navigate={navigate}
-                />
+                <SessionCard key={request._id} request={request} index={idx} navigate={navigate} />
               ))}
             </div>
           ) : (
@@ -390,20 +348,18 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           )}
         </div>
 
-        {/* ── RIGHT — Badges + Earnings ── */}
+        {/* RIGHT — Badges + Earnings */}
         <div className="flex flex-col gap-4">
 
           {/* Badges */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-bold text-slate-700">Your Badges</p>
-              {/* FONT SIZE: text-[11px] → text-xs */}
-              <span className="text-xs font-semibold text-blue-800 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-full">
+              <span className="text-[11px] font-semibold text-blue-800 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-full">
                 {unlockedCount}/{badges.length} unlocked
               </span>
             </div>
-            {/* RESPONSIVE: 2 cols on mobile/tablet, 4 on sm+ */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {badges.map((badge) => (
                 <div
                   key={badge.key}
@@ -411,15 +367,13 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                   className={`relative flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border transition-all duration-200
                     ${badge.unlocked
                       ? "bg-blue-50 border-blue-200 shadow-md shadow-blue-200"
-                      : "bg-slate-100 border-slate-600 border-dashed opacity-90 grayscale"
-                    }`}
+                      : "bg-slate-100 border-slate-600 border-dashed opacity-90 grayscale"}`}
                 >
                   {!badge.unlocked && (
                     <span className="absolute top-1 left-1 text-[10px]" style={{ filter: "none" }}>🔒</span>
                   )}
                   <span className="text-xl relative">{badge.icon}</span>
-                  {/* FONT SIZE: text-[9px] → text-[10px] */}
-                  <span className={`text-[10px] font-bold text-center leading-tight
+                  <span className={`text-[9px] font-bold text-center leading-tight
                     ${badge.unlocked ? "text-blue-700" : "text-slate-800"}`}>
                     {badge.label}
                   </span>
@@ -432,8 +386,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-bold text-slate-700">Earnings Summary</p>
-              {/* FONT SIZE: text-[11px] → text-xs; CONTRAST: emerald-700 on emerald-50 */}
-              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
+              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
                 Leap Points
               </span>
             </div>
@@ -445,31 +398,29 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-blue-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">Total Earnings</p>
-                    {/* FONT SIZE: text-[10px] → text-xs */}
-                    <p className="text-xs text-slate-800 font-semibold mt-0.5">from completed sessions</p>
+                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">from completed sessions</p>
                   </div>
                   <p className="text-sm font-extrabold text-slate-800">
                     {fmt(earnings?.totalEarnings)}
-                    <span className="text-xs font-bold text-blue-700 ml-1">LP</span>
+                    <span className="text-xs font-bold text-blue-500 ml-1">LP</span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-amber-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">Pending Payout</p>
-                    <p className="text-xs text-slate-800 font-semibold mt-0.5">locked in escrow</p>
+                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">locked in escrow</p>
                   </div>
-                  {/* CONTRAST: amber-700 on white passes (7.2:1); amber-400 failed */}
-                  <p className="text-sm font-extrabold text-amber-700">
+                  <p className="text-sm font-extrabold text-amber-600">
                     {fmt(earnings?.pendingPayout)}
-                    <span className="text-xs font-bold text-amber-700 ml-1">LP</span>
+                    <span className="text-xs font-bold text-amber-400 ml-1">LP</span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-indigo-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">This Month</p>
-                    <p className="text-xs text-slate-800 font-semibold mt-0.5">completed sessions</p>
+                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">completed sessions</p>
                   </div>
                   <p className="text-sm font-extrabold text-blue-900">
                     {earnings?.sessionsThisMonth ?? 0}
@@ -480,12 +431,11 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                 <div className="flex items-center justify-between py-2.5 border-l-4 border-l-emerald-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">Available Balance</p>
-                    <p className="text-xs text-slate-800 font-semibold mt-0.5">ready to withdraw</p>
+                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">ready to withdraw</p>
                   </div>
-                  {/* CONTRAST: emerald-700 on white passes (5.9:1); emerald-400 failed */}
-                  <p className="text-sm font-extrabold text-emerald-700">
+                  <p className="text-sm font-extrabold text-emerald-600">
                     {fmt(earnings?.walletBalance)}
-                    <span className="text-xs font-bold text-emerald-700 ml-1">LP</span>
+                    <span className="text-xs font-bold text-emerald-400 ml-1">LP</span>
                   </p>
                 </div>
               </div>
@@ -493,17 +443,12 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           </div>
 
         </div>
-        {/* ── END RIGHT ── */}
+        {/* END RIGHT */}
 
       </div>
-      {/* ── END Two Column ── */}
+      {/* END Two Column */}
 
-      {/* LCP FIX: lazy + delayed 2s — never the LCP element, JS excluded from critical path */}
-      {showBuddy && (
-        <Suspense fallback={null}>
-          <LeapBuddy role="mentor" user={user} profile={profile} />
-        </Suspense>
-      )}
+      <LeapBuddy role="mentor" user={user} profile={profile} />
 
     </div>
   );
