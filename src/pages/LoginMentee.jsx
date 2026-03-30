@@ -12,8 +12,6 @@ const LoginMentee = () => {
       <main className="flex-1 flex items-center justify-center bg-white px-6 py-12">
         <LoginForm
           role="mentee"
-          title="Login as Mentee"
-          subtitle="Login to your mentee account"
           placeholder="mentee@example.com"
           registerPath="/register/mentee"
         />

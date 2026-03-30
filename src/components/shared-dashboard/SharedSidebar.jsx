@@ -9,12 +9,14 @@ import {
   X,
 } from "lucide-react";
 
-const NAV_ITEMS = [
+const getNavItems = (viewerRole) => [
   { key: "overview",   label: "Overview",    icon: LayoutDashboard },
   { key: "chat",       label: "Chat",        icon: MessageSquare },
   { key: "goals",      label: "Goals",       icon: Target },
   { key: "notes",      label: "Notes",       icon: Paperclip },
-  { key: "addSession", label: "Add Session", icon: CalendarPlus },
+  ...(viewerRole === "mentee"
+    ? [{ key: "addSession", label: "Add Session", icon: CalendarPlus }]
+    : []),
 ];
 
 const sidebarBg = "linear-gradient(170deg, #eef4ff 0%, #f5f0ff 50%, #edfcf4 100%)";
@@ -69,10 +71,10 @@ const Blobs = () => (
   </>
 );
 
-const SidebarContent = ({ activeTab, setActiveTab, onClose }) => (
+const SidebarContent = ({ activeTab, setActiveTab, onClose, viewerRole }) => (
   <div style={{ position: "relative", zIndex: 1, flex: 1 }}>
     <nav style={{ display: "flex", flexDirection: "column", gap: "2px", padding: "16px 10px 0" }}>
-      {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
+      {getNavItems(viewerRole).map(({ key, label, icon: Icon }) => {
         const isActive = activeTab === key;
         return (
           <button
@@ -95,7 +97,7 @@ const SidebarContent = ({ activeTab, setActiveTab, onClose }) => (
   </div>
 );
 
-const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
+const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole }) => {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -125,7 +127,7 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
       {/* Desktop */}
       <aside className="shared-sidebar-desktop" style={asideStyle}>
         <Blobs />
-        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} />
+        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} viewerRole={viewerRole} />
       </aside>
 
       {/* Mobile backdrop */}
@@ -173,7 +175,7 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose }) => {
             <X size={16} />
           </button>
         </div>
-        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} />
+        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} viewerRole={viewerRole} />
       </aside>
     </>
   );
