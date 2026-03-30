@@ -41,6 +41,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
           setActiveTab={setActiveTab}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          viewerRole={viewerRole}  
         />
 
         <main style={{
