@@ -148,7 +148,10 @@ const LoginForm = ({ role, placeholder, registerPath }) => {
     <div className="w-full max-w-sm mx-auto px-4">
       <AuthBrand logo={<LeapMentorLogo />} />
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Login</h1>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1.5">Login</h1>
+        <h2 className="text-sm text-slate-500 leading-relaxed mb-6">
+          Enter your credentials to securely access your account.
+        </h2>
       </div>
 
       {msg.text && (

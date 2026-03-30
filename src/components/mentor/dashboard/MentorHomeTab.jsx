@@ -7,7 +7,7 @@ import LeapBuddy from "../../LeapBuddy";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-const ACCENT_COLORS = ["#3b82f6", "#22c55e", "#a855f7", "#f97316", "#ec4899"];
+const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
 
 const formatSlotDate = (slot) => {
@@ -31,10 +31,10 @@ const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const BADGES = [
-  { key: "newcomer",    label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",          condition: () => true },
-  { key: "ten_sessions",label: "10 Sessions",  icon: "🎯", desc: "Completed 10 sessions",      condition: (p) => (p?.totalSessions || 0) >= 10 },
-  { key: "top_rated",   label: "Top Rated",    icon: "⭐", desc: "Achieved 4.5+ rating",       condition: (p) => (p?.avgRating || 0) >= 4.5 },
-  { key: "expert_guide",label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed",     condition: (p) => (p?.totalSessions || 0) >= 50 },
+  { key: "newcomer", label: "Newcomer", icon: "👋", desc: "Joined LeapMentor", condition: () => true },
+  { key: "ten_sessions", label: "10 Sessions", icon: "🎯", desc: "Completed 10 sessions", condition: (p) => (p?.totalSessions || 0) >= 10 },
+  { key: "top_rated", label: "Top Rated", icon: "⭐", desc: "Achieved 4.5+ rating", condition: (p) => (p?.avgRating || 0) >= 4.5 },
+  { key: "expert_guide", label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed", condition: (p) => (p?.totalSessions || 0) >= 50 },
 ];
 
 const getProfileCompletion = (profile) => {
@@ -104,9 +104,11 @@ const SessionCard = ({ request, index, navigate }) => {
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+      {/* darker accent colors (ACCENT_COLORS updated above) ensure white text passes 4.5:1 contrast */}
       <div style={{ backgroundColor: accent }}
         className="w-11 h-14 rounded-xl flex flex-col items-center justify-center shrink-0">
-        <span className="text-[9px] font-bold text-white tracking-widest">{dateMonth}</span>
+        {/*  text-[11px] instead of text-[9px] — small text needs higher contrast ratio (4.5:1 vs 3:1) */}
+        <span className="text-[11px] font-bold text-white tracking-widest">{dateMonth}</span>
         <span className="text-xl font-bold text-white leading-none">{dateNum}</span>
       </div>
       <div className="flex-1 min-w-0">
@@ -114,8 +116,9 @@ const SessionCard = ({ request, index, navigate }) => {
           <p className="text-sm font-semibold text-slate-800 truncate">{menteeName}</p>
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0
             ${isOngoing
-              ? "bg-blue-50 text-blue-900 border border-blue-100"
-              : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
+              ? "bg-blue-100 text-blue-900 border border-blue-200"
+              : "bg-emerald-100 text-emerald-800 border border-emerald-200"}`}>
+            {/* bg-emerald-100 + text-emerald-800 instead of bg-emerald-50 + text-emerald-600 */}
             {isOngoing ? "Ongoing" : "Accepted"}
           </span>
         </div>
@@ -131,7 +134,7 @@ const SessionCard = ({ request, index, navigate }) => {
             Open Dashboard
           </button>
         ) : (
-          <span className="text-xs text-blue-800 border border-slate-200 px-3 py-1.5 rounded-lg font-medium whitespace-nowrap">
+          <span className="text-xs text-blue-900 border border-slate-200 px-3 py-1.5 rounded-lg font-medium whitespace-nowrap">
             Awaiting Payment
           </span>
         )}
@@ -234,7 +237,6 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
   }, []);
 
   return (
-    // ✅ removed max-w-7xl — now matches AvailabilityTab pattern (space-y-5, full width)
     <div className="space-y-5">
 
       {/* ── Welcome row ── */}
@@ -265,7 +267,8 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                   strokeDasharray={`${completionPct} ${100 - completionPct}`}
                   strokeLinecap="round" />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[9px] font-extrabold text-blue-900">
+              {/* ✅ FIX: text-[10px] instead of text-[9px], color text-blue-900 on white bg passes contrast */}
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-blue-900">
                 {completionPct}%
               </span>
             </div>
@@ -274,7 +277,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
         )}
       </div>
 
-      {/* ── Quick Stats — 2 cols on mobile, 4 on large ── */}
+      {/* ── Quick Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           label="Total Sessions"
@@ -302,7 +305,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
         />
       </div>
 
-      {/* ── Main two-column layout — stacks on mobile ── */}
+      {/* ── Main two-column layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
         {/* LEFT — Active Sessions */}
@@ -310,7 +313,8 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-700">Active Sessions</h2>
             {sessions.length > 0 && (
-              <span className="text-xs font-bold text-blue-900 bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full">
+              // ✅ FIX: text-blue-900 on bg-blue-100 passes contrast (was text-blue-500 on bg-blue-50)
+              <span className="text-xs font-bold text-blue-900 bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-full">
                 {sessions.length} active
               </span>
             )}
@@ -355,7 +359,8 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-bold text-slate-700">Your Badges</p>
-              <span className="text-[11px] font-semibold text-blue-800 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-full">
+              {/* ✅ FIX: text-blue-900 on bg-slate-100 passes contrast (was text-blue-800 on bg-slate-50) */}
+              <span className="text-[11px] font-semibold text-blue-900 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
                 {unlockedCount}/{badges.length} unlocked
               </span>
             </div>
@@ -367,14 +372,15 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                   className={`relative flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border transition-all duration-200
                     ${badge.unlocked
                       ? "bg-blue-50 border-blue-200 shadow-md shadow-blue-200"
-                      : "bg-slate-100 border-slate-600 border-dashed opacity-90 grayscale"}`}
+                      : "bg-slate-100 border-slate-400 border-dashed opacity-90 grayscale"}`}
                 >
                   {!badge.unlocked && (
                     <span className="absolute top-1 left-1 text-[10px]" style={{ filter: "none" }}>🔒</span>
                   )}
                   <span className="text-xl relative">{badge.icon}</span>
-                  <span className={`text-[9px] font-bold text-center leading-tight
-                    ${badge.unlocked ? "text-blue-700" : "text-slate-800"}`}>
+                  {/* ✅ FIX: text-blue-900 / text-slate-700 both pass on their backgrounds */}
+                  <span className={`text-[10px] font-bold text-center leading-tight
+                    ${badge.unlocked ? "text-blue-900" : "text-slate-700"}`}>
                     {badge.label}
                   </span>
                 </div>
@@ -386,7 +392,8 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-bold text-slate-700">Earnings Summary</p>
-              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
+              {/* ✅ FIX: text-emerald-800 on bg-emerald-100 passes contrast (was text-emerald-600 on bg-emerald-50) */}
+              <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-full">
                 Leap Points
               </span>
             </div>
@@ -398,29 +405,31 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-blue-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">Total Earnings</p>
-                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">from completed sessions</p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">from completed sessions</p>
                   </div>
                   <p className="text-sm font-extrabold text-slate-800">
                     {fmt(earnings?.totalEarnings)}
-                    <span className="text-xs font-bold text-blue-500 ml-1">LP</span>
+                    {/* ✅ FIX: text-blue-800 instead of text-blue-500 — passes on white bg */}
+                    <span className="text-xs font-bold text-blue-800 ml-1">LP</span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-amber-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">Pending Payout</p>
-                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">locked in escrow</p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">locked in escrow</p>
                   </div>
-                  <p className="text-sm font-extrabold text-amber-600">
+                  {/* ✅ FIX: text-amber-800 instead of text-amber-600, text-amber-700 instead of text-amber-400 */}
+                  <p className="text-sm font-extrabold text-amber-800">
                     {fmt(earnings?.pendingPayout)}
-                    <span className="text-xs font-bold text-amber-400 ml-1">LP</span>
+                    <span className="text-xs font-bold text-amber-700 ml-1">LP</span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-indigo-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">This Month</p>
-                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">completed sessions</p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">completed sessions</p>
                   </div>
                   <p className="text-sm font-extrabold text-blue-900">
                     {earnings?.sessionsThisMonth ?? 0}
@@ -431,11 +440,12 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
                 <div className="flex items-center justify-between py-2.5 border-l-4 border-l-emerald-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">Available Balance</p>
-                    <p className="text-[10px] text-slate-800 font-semibold mt-0.5">ready to withdraw</p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">ready to withdraw</p>
                   </div>
-                  <p className="text-sm font-extrabold text-emerald-600">
+                  {/* ✅ FIX: text-emerald-800 instead of text-emerald-600, text-emerald-700 instead of text-emerald-400 */}
+                  <p className="text-sm font-extrabold text-emerald-800">
                     {fmt(earnings?.walletBalance)}
-                    <span className="text-xs font-bold text-emerald-400 ml-1">LP</span>
+                    <span className="text-xs font-bold text-emerald-700 ml-1">LP</span>
                   </p>
                 </div>
               </div>
@@ -443,10 +453,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           </div>
 
         </div>
-        {/* END RIGHT */}
-
       </div>
-      {/* END Two Column */}
 
       <LeapBuddy role="mentor" user={user} profile={profile} />
 

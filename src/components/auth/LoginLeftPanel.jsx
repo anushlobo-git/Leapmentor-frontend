@@ -17,15 +17,7 @@ const LoginLeftPanel = ({ role }) => {
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-8">
-          <img
-            src="/images/logo.webp"
-            alt="Leapmentor logo"
-            className="h-8 w-8"
-          />
-          <span className="text-lg font-bold tracking-tight">LeapMentor</span>
-        </div>
+        
 
         {/* Headline */}
         <h2 className="text-4xl font-extrabold leading-tight mb-4 tracking-tight">

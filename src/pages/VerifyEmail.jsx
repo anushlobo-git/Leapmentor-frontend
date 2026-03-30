@@ -15,7 +15,6 @@ const VerifyEmail = () => {
   const [email, setEmail] = useState(location.state?.email || "");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
-  // local msg mirrors redux messages for timed transitions
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const role = location.state?.role || "mentor";
@@ -24,15 +23,14 @@ const VerifyEmail = () => {
   const hasSentRef = useRef(false);
   const hasVerifiedRef = useRef(false);
 
-  // sync redux messages → local msg
   useEffect(() => {
-    if (error)      setMsg({ type: "error",   text: error });
+    if (error) setMsg({ type: "error", text: error });
     if (successMsg) setMsg({ type: "success", text: successMsg });
   }, [error, successMsg]);
 
   // ── Magic link auto-verify ────────────────────────────────
   useEffect(() => {
-    const token      = searchParams.get("token");
+    const token = searchParams.get("token");
     const emailParam = searchParams.get("email");
 
     if (token && emailParam && !hasVerifiedRef.current) {
@@ -130,15 +128,15 @@ const VerifyEmail = () => {
       {/* ── Left image panel ── */}
       <div className="relative hidden lg:flex lg:w-[48%] overflow-hidden bg-slate-900">
         <img
-          src="/images/imageverify.png"
-          alt="Verify your account"
+          src="/images/imageverify.webp"
+          alt="A mentor and mentee in a professional setting"
           className="absolute inset-0 w-full h-full object-cover object-top"
+          fetchPriority="high"
+          loading="eager"
+          decoding="sync"
           onError={(e) => { e.target.style.display = "none"; }}
         />
         <div className="absolute bottom-0 left-0 right-0 p-10 text-white z-10">
-          <div className="flex items-center gap-2.5 mb-6">
-            <span className="text-lg font-bold tracking-tight">Leapmentor</span>
-          </div>
           <h2 className="text-3xl font-extrabold leading-tight mb-3">
             Empowering the next<br />generation of leaders.
           </h2>
@@ -149,65 +147,100 @@ const VerifyEmail = () => {
       </div>
 
       {/* ── Right form panel ── */}
-      <div className="flex flex-1 items-center justify-center px-8 overflow-hidden bg-white">
+      <main className="flex flex-1 items-center justify-center px-8 overflow-hidden bg-white min-h-screen lg:min-h-0">
         <div className="w-full max-w-[400px]">
+          <div className="flex items-center gap-2.5 mb-8 justify-center">
+            <img
+              src="/images/logo.webp"
+              alt="LeapMentor logo"
+              className="h-8 w-8"
+              width={32}
+              height={32}
+            />
+            <span className="text-lg font-bold text-slate-800 tracking-tight">LeapMentor</span>
+          </div>
 
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
             Verify your email
           </h1>
-          <p className="text-sm text-slate-500 mb-6">
+          <p className="text-sm text-slate-600 mb-6">
             {isMagicLinkPending
               ? "Verifying your magic link, please wait..."
-              : <>Enter the 6-digit OTP sent to{" "}<span className="font-semibold text-slate-700">{email || "your email"}</span></>
+              : <>Enter the 6-digit OTP sent to{" "}<span className="font-semibold text-slate-800">{email || "your email"}</span></>
             }
           </p>
 
-          {/* Message banner */}
+          {/* Message banner
+              FIX: text-emerald-800 on bg-emerald-100 (~5.2:1) passes
+                      text-red-800 on bg-red-100 (~5.9:1) passes
+                      (previous emerald-700/emerald-50 and red-600/red-50 both failed 4.5:1) */}
           {msg.text && (
-            <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-              : "bg-red-50 text-red-600 border-red-200"
-              }`}>
+            <div
+              role="alert"
+              aria-live="polite"
+              className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
+                ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                : "bg-red-100 text-red-800 border-red-300"
+                }`}
+            >
               {msg.text}
             </div>
           )}
 
-          {/* OTP form — hidden during magic link processing */}
+          {/* OTP form */}
           {!isMagicLinkPending && (
             <form onSubmit={verifyOtp} className="space-y-5">
 
               {!location.state?.email && !searchParams.get("email") && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email Address</label>
+                  <label
+                    htmlFor="verify-email-input"
+                    className="block text-xs font-semibold text-slate-700 mb-1.5"
+                  >
+                    Email Address
+                  </label>
                   <input
-                    type="email" value={email}
+                    id="verify-email-input"
+                    type="email"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com" required
+                    placeholder="you@example.com"
+                    required
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all"
                   />
                 </div>
               )}
 
-              <div className="flex gap-2 justify-between" onPaste={handleOtpPaste}>
-                {otp.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    id={`votp-${idx}`}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(e.target.value, idx)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
-                    className="w-12 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all text-slate-800"
-                  />
-                ))}
-              </div>
+              <fieldset>
+                <legend className="block text-xs font-semibold text-slate-700 mb-2">
+                  One-time passcode
+                </legend>
+                <div className="flex gap-2 justify-between" onPaste={handleOtpPaste}>
+                  {otp.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      id={`votp-${idx}`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(e.target.value, idx)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                      aria-label={`OTP digit ${idx + 1} of 6`}
+                      autoComplete={idx === 0 ? "one-time-code" : "off"}
+                      className="w-12 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all text-slate-800"
+                    />
+                  ))}
+                </div>
+              </fieldset>
 
-              <button type="submit" disabled={loading}
-                className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-900 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-800 disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+              >
                 {loading
-                  ? <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Verifying...</>
+                  ? <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden="true" />Verifying...</>
                   : "Verify Email"}
               </button>
             </form>
@@ -216,19 +249,26 @@ const VerifyEmail = () => {
           {/* Resend + Back to Login */}
           {!isMagicLinkPending && (
             <div className="flex items-center justify-between mt-5">
-              <button type="button" onClick={handleSendOtp} disabled={sending}
-                className="text-xs text-blue-900 font-semibold hover:underline disabled:opacity-60">
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={sending}
+                className="text-xs text-blue-900 font-semibold hover:underline disabled:opacity-60"
+              >
                 {sending ? "Sending..." : "Resend OTP"}
               </button>
-              <button type="button" onClick={() => navigate(loginPath)}
-                className="text-xs text-slate-400 hover:text-slate-900 hover:underline">
+              <button
+                type="button"
+                onClick={() => navigate(loginPath)}
+                className="text-xs text-slate-600 hover:text-slate-900 hover:underline"
+              >
                 Back to Login
               </button>
             </div>
           )}
 
         </div>
-      </div>
+      </main>
     </div>
   );
 };
