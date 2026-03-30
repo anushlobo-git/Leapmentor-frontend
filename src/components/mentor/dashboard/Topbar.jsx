@@ -28,9 +28,11 @@ const Topbar = ({ onMenuToggle }) => {
 
         {/* Logo */}
         <img
-          src="/images/logo.png"
-          alt="Leapmentor logo"
-          className="h-8 w-auto"
+          src="/images/logo.webp"
+          alt="LeapMentor logo"
+          className="h-8 w-8"
+          width={32}
+          height={32}
         />
         <span className="text-sm font-bold text-slate-800">Leapmentor</span>
       </div>

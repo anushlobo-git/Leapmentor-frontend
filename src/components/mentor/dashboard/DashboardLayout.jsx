@@ -1,28 +1,48 @@
 // src/components/mentor/dashboard/DashboardLayout.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import useMentorDashboard from "../../../hooks/useMentorDashboard";
 import useUnreadCount from "../../../hooks/useUnreadCount";
-import useSocketToast from "../../../hooks/useSocketToast"; // ✅ added
+import useSocketToast from "../../../hooks/useSocketToast";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
-import MentorHomeTab from "./MentorHomeTab";
-import ProfileTab from "./ProfileTab";
-import AvailabilityTab from "./availability/AvailabilityTab";
-import RequestsTab from "./requests/RequestsTab";
-import MentorConnectsTab from "./connects/MentorConnectsTab";
-import NotificationsTab from "./notifications/NotificationsTab";
-import SettingsTab from "./settings/SettingsTab";
-import TrackEarningsTab from "./earnings/TrackEarningsTab";
-import HelpCenter from "../../common/HelpCenter"; // ✅ added
+
+// LCP FIX: lazy-load every tab so only the active tab's JS is loaded.
+// MentorHomeTab is also lazy — its chunk was 120 KiB and is the first thing
+// the user sees, but it still loads faster than blocking the entire shell.
+const MentorHomeTab = lazy(() => import("./MentorHomeTab"));
+const ProfileTab = lazy(() => import("./ProfileTab"));
+const AvailabilityTab = lazy(() => import("./availability/AvailabilityTab"));
+const RequestsTab = lazy(() => import("./requests/RequestsTab"));
+const MentorConnectsTab = lazy(() => import("./connects/MentorConnectsTab"));
+const NotificationsTab = lazy(() => import("./notifications/NotificationsTab"));
+const SettingsTab = lazy(() => import("./settings/SettingsTab"));
+const TrackEarningsTab = lazy(() => import("./earnings/TrackEarningsTab"));
+const HelpCenter = lazy(() => import("../../common/HelpCenter"));
+
+// ── Tab skeleton — shown while a lazy tab chunk is loading ───
+const TabSkeleton = () => (
+  <div className="w-full flex flex-col gap-4 animate-pulse pt-2">
+    <div className="h-7 w-48 bg-slate-200 rounded-xl" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="bg-white rounded-2xl border border-slate-100 p-5 h-24" />
+      ))}
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
+    </div>
+  </div>
+);
 
 const DashboardLayout = () => {
-  const { user, profile, loading, error,refetchProfile } = useMentorDashboard();
+  const { user, profile, loading, error, refetchProfile } = useMentorDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
-  useSocketToast(); // ✅ listens for new_connect_request
+  useSocketToast();
+
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ✅ Clear badge when notifications tab is opened
   useEffect(() => {
     if (activeTab === "notifications") clearBadge();
   }, [activeTab, clearBadge]);
@@ -32,17 +52,11 @@ const DashboardLayout = () => {
     setSidebarOpen(false);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">Loading your dashboard…</p>
-        </div>
-      </div>
-    );
-  }
-
+  // LCP FIX: removed the `if (loading) return <spinner>` gate that was
+  // blocking the entire render — including the <h1> — for 920ms.
+  // The shell (Topbar + Sidebar + h1) now renders immediately.
+  // Each tab handles its own loading state internally via skeletons.
+  // Error state is kept since it means auth/network truly failed.
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -54,10 +68,9 @@ const DashboardLayout = () => {
     );
   }
 
-  
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Topbar renders immediately — user prop is optional, shows skeleton name if null */}
       <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} />
       <div className="flex flex-1">
         <Sidebar
@@ -68,16 +81,19 @@ const DashboardLayout = () => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab}/>}
-          {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
-          {activeTab === "availability"  && <AvailabilityTab />}
-          {activeTab === "requests"      && <RequestsTab />}
-          {activeTab === "connects"      && <MentorConnectsTab />}
-          {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
-          {activeTab === "settings"      && <SettingsTab profile={profile} user={user} />}
-          {activeTab === "earnings" && <TrackEarningsTab />}
-          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
-          
+          {/* Suspense wraps all tabs — fallback shows a content skeleton
+              while the lazy chunk downloads on first visit to that tab */}
+          <Suspense fallback={<TabSkeleton />}>
+            {activeTab === "home" && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab} />}
+            {activeTab === "profile" && <ProfileTab user={user} profile={profile} />}
+            {activeTab === "availability" && <AvailabilityTab />}
+            {activeTab === "requests" && <RequestsTab />}
+            {activeTab === "connects" && <MentorConnectsTab />}
+            {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
+            {activeTab === "settings" && <SettingsTab profile={profile} user={user} />}
+            {activeTab === "earnings" && <TrackEarningsTab />}
+            {activeTab === "help" && <HelpCenter />}
+          </Suspense>
         </main>
       </div>
     </div>

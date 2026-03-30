@@ -125,7 +125,10 @@ const MentorCard = ({ mentor, onViewProfile }) => {
   const skills = mentor.skills?.slice(0, 2) || [];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
+    <div
+      onClick={() => onViewProfile(mentor)}
+      className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+    >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           {mentor.profilePicture ? (
@@ -164,13 +167,6 @@ const MentorCard = ({ mentor, onViewProfile }) => {
           )}
         </div>
       )}
-
-      <button
-        onClick={() => onViewProfile(mentor)}
-        className="w-20 bg-blue-100 hover:bg-blue-300 text-slate-800 text-xs font-semibold py-2 rounded-xl transition-colors"
-      >
-        View Profile
-      </button>
     </div>
   );
 };

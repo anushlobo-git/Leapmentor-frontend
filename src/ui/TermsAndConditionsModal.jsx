@@ -1,4 +1,3 @@
-// src/ui/TermsAndConditionsModal.jsx
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -9,8 +8,9 @@ import { useEffect, useRef, useState } from "react";
  *  - onClose       {function}  — called when modal is dismissed without accepting
  *  - onAccept      {function}  — called when user checks the box and clicks "Accept & Continue"
  *  - role          {string}    — "mentor" | "mentee" (optional, affects heading copy)
+ *  - readOnly      {boolean}   — if true, hides the checkbox and action buttons (view-only mode)
  */
-const TermsAndConditionsModal = ({ isOpen, onClose, onAccept, role = "mentor" }) => {
+const TermsAndConditionsModal = ({ isOpen, onClose, onAccept, role = "mentor", readOnly = false }) => {
     const [agreed, setAgreed] = useState(false);
     const overlayRef = useRef(null);
 
@@ -62,7 +62,9 @@ const TermsAndConditionsModal = ({ isOpen, onClose, onAccept, role = "mentor" })
                             Terms & Conditions
                         </h2>
                         <p className="text-xs text-slate-400 mt-0.5">
-                            Please read the full agreement before registering as a {role}.
+                            {readOnly
+                                ? "LeapMentor Terms & Conditions"
+                                : `Please read the full agreement before registering as a ${role}.`}
                         </p>
                     </div>
                     <button
@@ -162,48 +164,55 @@ const TermsAndConditionsModal = ({ isOpen, onClose, onAccept, role = "mentor" })
                         <h3 className="font-semibold text-slate-800 mb-1">10. Contact</h3>
                         <p>
                             If you have any questions about these Terms, please contact us at{" "}
-                            <a href="mailto:legal@leapmentor.com" className="text-blue-900 underline">
-                                legal@leapmentor.com
+                            <a
+                                href="https://mail.google.com/mail/?view=cm&to=leapmentor2026@gmail.com"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-900 underline"
+                            >
+                                leapmentor2026@gmail.com
                             </a>
                             .
                         </p>
                     </section>
                 </div>
 
-                {/* ── Footer: checkbox + action buttons ── */}
-                <div className="px-6 py-5 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 space-y-4">
-                    <label className="flex items-start gap-2.5 cursor-pointer group">
-                        <input
-                            type="checkbox"
-                            checked={agreed}
-                            onChange={(e) => setAgreed(e.target.checked)}
-                            className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer"
-                        />
-                        <span className="text-sm text-slate-600 leading-relaxed group-hover:text-slate-800 transition-colors">
-                            I have read and agree to the <span className="font-medium text-slate-800">Terms & Conditions</span> and{" "}
-                            <span className="font-medium text-slate-800">Privacy Policy</span>.
-                        </span>
-                    </label>
+                {/* ── Footer: hidden in readOnly mode ── */}
+                {!readOnly && (
+                    <div className="px-6 py-5 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 space-y-4">
+                        <label className="flex items-start gap-2.5 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                checked={agreed}
+                                onChange={(e) => setAgreed(e.target.checked)}
+                                className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer"
+                            />
+                            <span className="text-sm text-slate-600 leading-relaxed group-hover:text-slate-800 transition-colors">
+                                I have read and agree to the <span className="font-medium text-slate-800">Terms & Conditions</span> and{" "}
+                                <span className="font-medium text-slate-800">Privacy Policy</span>.
+                            </span>
+                        </label>
 
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onClose}
-                            className="flex-1 border border-slate-200 text-slate-600 text-sm font-medium rounded-lg py-2.5 hover:bg-slate-100 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleAccept}
-                            disabled={!agreed}
-                            className="flex-1 bg-blue-900 hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg py-2.5 transition-colors"
-                        >
-                            Accept & Continue
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={onClose}
+                                className="flex-1 border border-slate-200 text-slate-600 text-sm font-medium rounded-lg py-2.5 hover:bg-slate-100 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAccept}
+                                disabled={!agreed}
+                                className="flex-1 bg-blue-900 hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg py-2.5 transition-colors"
+                            >
+                                Accept & Continue
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
-            {/* Keyframe animation injected once */}
+            {/* Keyframe animation */}
             <style>{`
         @keyframes modal-in {
           from { opacity: 0; transform: translateY(16px) scale(0.97); }

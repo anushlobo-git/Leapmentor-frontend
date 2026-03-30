@@ -1,21 +1,58 @@
+import { useState } from "react";
+import TermsAndConditionsModal from "./TermsAndConditionsModal";
+
 const footerLinks = {
-  "For Mentees": ["Find a Mentor", "How It Works", "Mentorship Costs", "Career Resources"],
-  "For Mentors": ["Become a Mentor", "Mentor Guidelines", "Benefits", "Success Stories"],
-  Company: ["About Us", "Careers", "Contact", "Privacy Policy"],
+  "For Mentees": ["Find a Mentor"],
+  "For Mentors": ["Become a Mentor"],
+  Company: ["Contact"],
 };
 
 export default function Footer() {
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
   return (
-    <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 px-6">
-      <div className="max-w-6xl mx-auto">
+    <>
+      <footer
+        style={{
+          background: "linear-gradient(135deg, #0d1117 0%, #0f1923 50%, #0d1117 100%)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        className="text-gray-300 pt-8 pb-5 px-6"
+      >
+        {/* Subtle glow accents */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-80px",
+            left: "20%",
+            width: "400px",
+            height: "300px",
+            background: "radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: "0",
+            right: "10%",
+            width: "300px",
+            height: "200px",
+            background: "radial-gradient(ellipse, rgba(59,130,246,0.06) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
 
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div className="max-w-6xl mx-auto" style={{ position: "relative", zIndex: 1 }}>
 
-          {/* Brand */}
-          <div className="col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex items-center gap-2 cursor-pointer">
+          {/* Top section */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
+
+            {/* Brand */}
+            <div className="col-span-1">
+              <div className="flex items-center gap-2 mb-2">
                 <img
                   src="/images/logo.webp"
                   alt="LeapMentor logo"
@@ -23,64 +60,233 @@ export default function Footer() {
                   width={32}
                   height={32}
                 />
+                <span className="text-white font-bold text-xl tracking-tight">LeapMentor</span>
               </div>
-              <span className="text-white font-bold text-xl tracking-tight">LeapMentor</span>
+              <p className="text-gray-400 text-sm leading-relaxed mb-0">
+                The world's leading mentorship platform for professional career growth and leadership development.
+              </p>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed mb-5">
-              The world's leading mentorship platform for professional career growth and leadership development.
+
+            {/* Link Columns */}
+            {Object.entries(footerLinks).map(([heading, links]) => (
+              <div key={heading}>
+                <h4
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "#6366f1",
+                    marginBottom: "14px",
+                  }}
+                >
+                  {heading}
+                </h4>
+                <ul className="space-y-3">
+                  {links.map((link) => (
+                    <li key={link}>
+                      {link === "Contact" ? (
+                        <button
+                          onClick={() => setIsContactOpen(true)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            padding: 0,
+                            fontSize: "14px",
+                            color: "#9ca3af",
+                            cursor: "pointer",
+                            transition: "color 0.2s ease",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.color = "#fff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = "#9ca3af"; }}
+                        >
+                          {link}
+                        </button>
+                      ) : (
+                        <a
+                          href="#"
+                          style={{
+                            fontSize: "14px",
+                            color: "#9ca3af",
+                            textDecoration: "none",
+                            transition: "color 0.2s ease",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.color = "#fff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = "#9ca3af"; }}
+                        >
+                          {link}
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Divider + Bottom bar */}
+          <div
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.07)",
+              paddingTop: "24px",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px",
+            }}
+          >
+            <p style={{ color: "#4b5563", fontSize: "12px" }}>
+              © 2026 LeapMentor Inc. All rights reserved.
             </p>
-            {/* Social Icons */}
-            <div className="flex items-center gap-4">
-              <a href="#" aria-label="Follow us on X (Twitter)" className="text-gray-300 hover:text-white transition-colors duration-200">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-              <a href="#" aria-label="Follow us on Instagram" className="text-gray-300 hover:text-white transition-colors duration-200">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                </svg>
-              </a>
-              <a href="#" aria-label="Follow us on LinkedIn" className="text-gray-300 hover:text-white transition-colors duration-200">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
-                  <circle cx="4" cy="4" r="2" />
-                </svg>
-              </a>
+            <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+              <button
+                onClick={() => setIsTermsOpen(true)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  color: "#4b5563",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = "#9ca3af"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "#4b5563"; }}
+              >
+                Terms & Conditions
+              </button>
             </div>
           </div>
 
-          {/* Link Columns */}
-          {Object.entries(footerLinks).map(([heading, links]) => (
-            <div key={heading}>
-              <h4 className="text-white font-semibold text-sm mb-4 tracking-wide">{heading}</h4>
-              <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a href="#"
-                      className="text-gray-300 text-sm hover:text-white transition-colors duration-200"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+        </div>
+      </footer>
+
+      {/* Terms & Conditions Modal */}
+      <TermsAndConditionsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        onAccept={() => setIsTermsOpen(false)}
+        role="mentor"
+        readOnly={true}
+      />
+
+      {/* Contact Modal */}
+      {isContactOpen && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setIsContactOpen(false); }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="contact-modal-title"
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "16px",
+              boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+              width: "100%",
+              maxWidth: "420px",
+              padding: "32px",
+              animation: "modal-in 0.22s ease both",
+              textAlign: "center",
+            }}
+          >
+            {/* Icon */}
+            <div
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 18px",
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
             </div>
-          ))}
-        </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-gray-400 text-xs">© 2026 LeapMentor Inc. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-400 text-xs hover:text-gray-300 transition-colors">Terms of Service</a>
-            <a href="#" className="text-gray-400 text-xs hover:text-gray-300 transition-colors">Cookie Policy</a>
+            {/* Title */}
+            <h2
+              id="contact-modal-title"
+              style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a", marginBottom: "6px" }}
+            >
+              Contact Us
+            </h2>
+            <p style={{ fontSize: "13px", color: "#94a3b8", marginBottom: "20px" }}>
+              Have questions? We'd love to hear from you.
+            </p>
+
+            {/* Email pill */}
+            <a
+              href="https://mail.google.com/mail/?view=cm&to=leapmentor2026@gmail.com"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#f1f5f9",
+                border: "1px solid #e2e8f0",
+                borderRadius: "10px",
+                padding: "12px 20px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#4f46e5",
+                textDecoration: "none",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "#ede9fe";
+                e.currentTarget.style.borderColor = "#a5b4fc";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "#f1f5f9";
+                e.currentTarget.style.borderColor = "#e2e8f0";
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              leapmentor2026@gmail.com
+            </a>
+
+            {/* Close button */}
+            <div style={{ marginTop: "24px" }}>
+              <button
+                onClick={() => setIsContactOpen(false)}
+                style={{
+                  background: "none",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  padding: "8px 24px",
+                  fontSize: "13px",
+                  color: "#64748b",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#f8fafc"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </div>
 
-      </div>
-    </footer >
+          <style>{`
+            @keyframes modal-in {
+              from { opacity: 0; transform: translateY(16px) scale(0.97); }
+              to   { opacity: 1; transform: translateY(0) scale(1); }
+            }
+          `}</style>
+        </div>
+      )}
+    </>
   );
 }
