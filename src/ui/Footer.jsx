@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TermsAndConditionsModal from "./TermsAndConditionsModal";
 
 const footerLinks = {
@@ -8,8 +9,15 @@ const footerLinks = {
 };
 
 export default function Footer() {
-  const [isTermsOpen, setIsTermsOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isTermsOpen,    setIsTermsOpen]    = useState(false);
+  const [isContactOpen,  setIsContactOpen]  = useState(false);
+  const navigate = useNavigate();
+
+  // Same routes the navbar uses
+  const handleLinkClick = (link) => {
+    if (link === "Find a Mentor")    return navigate("/register/mentee");
+    if (link === "Become a Mentor")  return navigate("/register/mentor");
+  };
 
   return (
     <>
@@ -103,19 +111,23 @@ export default function Footer() {
                           {link}
                         </button>
                       ) : (
-                        <a
-                          href="#"
+                        // ✅ Find a Mentor + Become a Mentor now use navigate
+                        <button
+                          onClick={() => handleLinkClick(link)}
                           style={{
+                            background: "none",
+                            border: "none",
+                            padding: 0,
                             fontSize: "14px",
                             color: "#9ca3af",
-                            textDecoration: "none",
+                            cursor: "pointer",
                             transition: "color 0.2s ease",
                           }}
                           onMouseEnter={e => { e.currentTarget.style.color = "#fff"; }}
                           onMouseLeave={e => { e.currentTarget.style.color = "#9ca3af"; }}
                         >
                           {link}
-                        </a>
+                        </button>
                       )}
                     </li>
                   ))}
@@ -192,7 +204,6 @@ export default function Footer() {
               textAlign: "center",
             }}
           >
-            {/* Icon */}
             <div
               style={{
                 width: "52px",
@@ -211,7 +222,6 @@ export default function Footer() {
               </svg>
             </div>
 
-            {/* Title */}
             <h2
               id="contact-modal-title"
               style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a", marginBottom: "6px" }}
@@ -222,7 +232,6 @@ export default function Footer() {
               Have questions? We'd love to hear from you.
             </p>
 
-            {/* Email pill */}
             <a
               href="https://mail.google.com/mail/?view=cm&to=leapmentor2026@gmail.com"
               target="_blank"
@@ -257,7 +266,6 @@ export default function Footer() {
               leapmentor2026@gmail.com
             </a>
 
-            {/* Close button */}
             <div style={{ marginTop: "24px" }}>
               <button
                 onClick={() => setIsContactOpen(false)}
