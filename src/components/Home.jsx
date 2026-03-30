@@ -1,6 +1,7 @@
 import Navbar from "../ui/Navbar";
 import Hero from "../ui/Hero";
 import Missions from "../ui/Missions";
+import Testimonials from "../ui/Testimonials";
 import Footer from "../ui/Footer";
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <Missions />
+        <Testimonials />
       </main>
       <Footer />
     </div>
