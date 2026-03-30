@@ -27,7 +27,7 @@ const useHomeData = (profile) => {
           "";
 
         const mentorRes = await axios.get(`${BASE_URL}/mentors/search`, {
-          params: { skill: skillTerm, limit: 3 },
+          params: { skill: skillTerm, limit: 4 }, // ✅ changed from 3 to 4
           headers: authHeader(),
         });
         setMentors(mentorRes.data.mentors || []);
@@ -46,7 +46,6 @@ const useHomeData = (profile) => {
           });
         setSessions(upcoming);
 
-        // Fetch wallet
         const walletRes = await axios.get(`${BASE_URL}/escrow/wallet`, {
           headers: authHeader(),
         });
@@ -317,7 +316,6 @@ const HomeTab = ({ user, profile }) => {
             </p>
           </div>
 
-          {/* ── Circular profile completion pill ── */}
           {completionPct < 100 && (
             <div
               className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
@@ -359,9 +357,11 @@ const HomeTab = ({ user, profile }) => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* ✅ Changed to 4-column grid, skeleton also shows 4 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {loading ? (
               <>
+                <MentorCardSkeleton />
                 <MentorCardSkeleton />
                 <MentorCardSkeleton />
                 <MentorCardSkeleton />
@@ -375,7 +375,7 @@ const HomeTab = ({ user, profile }) => {
                 />
               ))
             ) : (
-              <div className="col-span-3 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center">
+              <div className="col-span-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center">
                 <p className="text-sm text-slate-700">No mentor recommendations yet.</p>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "findMentors" }))}
