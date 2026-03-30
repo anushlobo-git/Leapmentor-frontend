@@ -36,13 +36,11 @@ const RegisterForm = ({ role }) => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [localMsg, setLocalMsg] = useState({ type: "", text: "" });
 
-  // Sync Redux error/success into localMsg for display
   useEffect(() => {
     if (error) setLocalMsg({ type: "error", text: error });
     if (successMsg) setLocalMsg({ type: "success", text: successMsg });
   }, [error, successMsg]);
 
-  // Clear Redux messages on unmount
   useEffect(() => {
     return () => dispatch(clearMessages());
   }, [dispatch]);
@@ -92,6 +90,7 @@ const RegisterForm = ({ role }) => {
     }
   };
 
+  // ✅ only this function changed — everything else is same
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalMsg({ type: "", text: "" });
@@ -105,26 +104,27 @@ const RegisterForm = ({ role }) => {
       termsAccepted: true,
     }));
 
- if (registerUser.fulfilled.match(result)) {
-  const { isNewUser, user } = result.payload;
+    if (registerUser.fulfilled.match(result)) {
+      const { isNewUser, message } = result.payload;
 
-  if (!isNewUser) {
-    // role was added to existing account → redirect to verify or dashboard
-    if (user?.roles?.includes(role)) {
-      // ✅ role successfully added
-      setTimeout(() => navigate(`/dashboard/${role}`), 800);
-    } else {
-      // ✅ already had this exact role
-      return setLocalMsg({ type: "error", text: `You are already registered as a ${role}. Please login.` });
+      if (!isNewUser) {
+        // already had this exact role — show error
+        if (message === "Already registered with this role") {
+          return setLocalMsg({
+            type: "error",
+            text: `You are already registered as a ${role}. Please login.`,
+          });
+        }
+        // role was newly added — redirect to dashboard
+        setTimeout(() => navigate(`/dashboard/${role}`), 800);
+        return;
+      }
+
+      // brand new user → verify email first
+      setTimeout(() => navigate("/verify-email", {
+        state: { email: form.email.trim(), role },
+      }), 800);
     }
-    return;
-  }
-
-  // ✅ brand new user → verify email first
-  setTimeout(() => navigate("/verify-email", {
-    state: { email: form.email.trim(), role },
-  }), 800);
-}
   };
 
   return (
@@ -197,7 +197,6 @@ const RegisterForm = ({ role }) => {
             </button>
           </div>
           <p className="text-xs text-slate-500">Minimum 6 characters with a mix of letters and numbers.</p>
-
         </div>
 
         {/* Terms */}
@@ -210,7 +209,8 @@ const RegisterForm = ({ role }) => {
             onChange={handleChange}
             className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer"
           />
-          <label htmlFor="termsAccepted" className="text-sm text-slate-600 leading-relaxed">            I agree to the{" "}
+          <label htmlFor="termsAccepted" className="text-sm text-slate-600 leading-relaxed">
+            I agree to the{" "}
             <button type="button" onClick={() => setShowTermsModal(true)}
               className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">
               Terms
@@ -234,7 +234,6 @@ const RegisterForm = ({ role }) => {
 
       <AuthDivider />
 
-
       {/* Google button interceptor */}
       <div className="relative">
         <AuthSSOButtons
@@ -243,13 +242,12 @@ const RegisterForm = ({ role }) => {
           clerkLoaded={clerkLoaded}
           onLinkedIn={() => handleClerkSSO("linkedin")}
           onApple={() => handleClerkSSO("apple")}
-          termsAccepted={form.termsAccepted}               // pass it down
+          termsAccepted={form.termsAccepted}
           onTermsNotAccepted={() =>
             setLocalMsg({ type: "error", text: "Please accept the terms to continue." })
           }
         />
 
-        {/* Transparent overlay blocks Google click when terms not accepted */}
         {!form.termsAccepted && (
           <>
             <div
@@ -264,7 +262,6 @@ const RegisterForm = ({ role }) => {
           </>
         )}
       </div>
-     
 
       <p className="text-sm text-slate-500 text-center mt-5">
         Already have an account?{" "}

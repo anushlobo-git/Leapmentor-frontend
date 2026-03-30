@@ -62,7 +62,7 @@ const AppleIcon = () => (
   </svg>
 );
 
-const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
+const LoginForm = ({ role, placeholder, registerPath }) => {
   const navigate = useNavigate();
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
@@ -148,8 +148,7 @@ const LoginForm = ({ role, title, subtitle, placeholder, registerPath }) => {
     <div className="w-full max-w-sm mx-auto px-4">
       <AuthBrand logo={<LeapMentorLogo />} />
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h1>
-        <p className="text-sm text-slate-500 mt-1.5">{subtitle}</p>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Login</h1>
       </div>
 
       {msg.text && (

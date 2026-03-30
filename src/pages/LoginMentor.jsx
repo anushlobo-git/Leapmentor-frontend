@@ -12,8 +12,6 @@ const LoginMentor = () => {
       <main className="flex-1 flex items-center justify-center bg-white px-6 py-12">
         <LoginForm
           role="mentor"
-          title="Login as Mentor"
-          subtitle="Login to your mentor account"
           placeholder="mentor@example.com"
           registerPath="/register/mentor"
         />
