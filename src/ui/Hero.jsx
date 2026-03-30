@@ -4,7 +4,7 @@ const images = [
   "/images/mentor3.webp",
   "/images/mentor4.webp",
   "/images/mentor2.webp",
-  "/images/mentor4.webp",
+  "/images/mentor1.webp",
 ];
 
 export default function Hero() {
