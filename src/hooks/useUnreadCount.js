@@ -14,24 +14,31 @@ const useUnreadCount = () => {
       const res = await axios.get(`${BASE_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const count = (res.data.notifications || []).filter((n) => !n.read).length;
+      const count = (res.data.notifications || []).filter(
+        (n) => !n.read,
+      ).length;
       setUnreadCount(count);
     } catch {
-      // silently fail — badge is non-critical
+      // silently fail
     }
   }, []);
 
+  // ✅ fetch once on mount only
   useEffect(() => {
-    fetchUnreadCount();
-    // ✅ Poll every 30 seconds to keep badge fresh
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+  const load = async () => {
+    await fetchUnreadCount();
+  };
+  load();
+}, [fetchUnreadCount]);
 
-  // ✅ Call this when user opens notifications tab to clear the badge
+  // ✅ increment badge when socket/push notification arrives
+  const incrementBadge = useCallback(() => {
+    setUnreadCount((prev) => prev + 1);
+  }, []);
+
   const clearBadge = useCallback(() => setUnreadCount(0), []);
 
-  return { unreadCount, clearBadge, refetch: fetchUnreadCount };
+  return { unreadCount, clearBadge, refetch: fetchUnreadCount, incrementBadge };
 };
 
 export default useUnreadCount;
