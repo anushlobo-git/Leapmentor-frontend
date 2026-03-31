@@ -284,6 +284,8 @@ const RegisterForm = ({ role }) => {
         onClose={handleTermsClose}
         onAccept={handleTermsAccept}
         role={role}
+        termsAccepted={form.termsAccepted}  
+
       />
     </>
   );
