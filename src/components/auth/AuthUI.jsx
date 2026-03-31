@@ -53,6 +53,6 @@ export const AuthField = ({ label, hint, ...inputProps }) => (
 export const AuthBrand = ({ logo }) => (
   <div className="flex items-center gap-2.5 mb-7">
     {logo}
-    <span className="text-lg font-bold text-slate-900 tracking-tight">LeapMentor</span>
+    <span className="text-xl font-bold text-slate-900 tracking-tight">LeapMentor</span>
   </div>
 );

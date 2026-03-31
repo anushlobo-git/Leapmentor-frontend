@@ -136,7 +136,7 @@ const ForgotPassword = () => {
             width={32}
             height={32}
           />
-          <span className="text-lg font-bold text-slate-800 tracking-tight">Leapmentor</span>
+          <span className="text-xl font-bold text-slate-800 tracking-tight">Leapmentor</span>
         </div>
 
         {/* ── Step progress dots ── */}

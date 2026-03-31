@@ -29,7 +29,7 @@ const Topbar = ({ onMenuToggle }) => {
             className="h-8 w-8"
           />
       
-        <span className="text-sm font-bold text-slate-800">Leapmentor</span>
+        <span className="text-xl font-bold text-slate-800">Leapmentor</span>
       </div>
 
       <button
