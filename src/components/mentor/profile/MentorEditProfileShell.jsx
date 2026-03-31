@@ -37,7 +37,7 @@ const MentorEditProfileShell = () => {
           <button
             type="button"
             onClick={() => navigate("/dashboard/mentor")}
-            className="text-xs font-semibold text-[#94a3b8] hover:text-[#475569] transition-colors"
+            className="text-xs font-semibold text-slate-500 hover:text-[#475569] transition-colors"
           >
             ← Back to Dashboard
           </button>
@@ -46,7 +46,7 @@ const MentorEditProfileShell = () => {
 
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
         <h1 className="text-2xl font-bold text-[#0f172a]">Update Your Profile</h1>
-        <p className="text-sm text-[#64748b] mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           Make changes to your profile and save when done.
         </p>
       </div>
@@ -86,7 +86,7 @@ const MentorEditProfileShell = () => {
             )}
           </button>
 
-          <p className="text-center text-xs text-[#94a3b8] pb-8">
+          <p className="text-center text-xs text-slate-500 pb-8">
             You can always edit your profile from the dashboard.
           </p>
         </form>

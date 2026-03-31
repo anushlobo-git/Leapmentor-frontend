@@ -45,6 +45,12 @@ const RegisterForm = ({ role }) => {
     return () => dispatch(clearMessages());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (form.termsAccepted && localMsg.text === "Please accept the terms to continue.") {
+      setLocalMsg({ type: "", text: "" });
+    }
+
+  }, [form.termsAccepted]);
   useGoogleAuth({
     btnRef: googleBtnRef,
     termsAcceptedRef,

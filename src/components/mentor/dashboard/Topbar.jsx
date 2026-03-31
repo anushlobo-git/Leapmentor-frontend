@@ -34,7 +34,7 @@ const Topbar = ({ onMenuToggle }) => {
           width={32}
           height={32}
         />
-        <span className="text-sm font-bold text-slate-800">Leapmentor</span>
+        <span className="text-sm font-bold text-slate-800">LeapMentor</span>
       </div>
 
       <button
