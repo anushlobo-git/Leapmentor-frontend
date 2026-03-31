@@ -48,7 +48,7 @@ const ProfileTab = ({ user, profile }) => {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2 pb-4">
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-600">
           Last profile update:{" "}
           {profile?.updatedAt
             ? new Date(profile.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })

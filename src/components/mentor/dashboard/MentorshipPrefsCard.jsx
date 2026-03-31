@@ -27,9 +27,9 @@ const MentorshipPrefsCard = ({ profile }) => {
       <div className="space-y-4">
         {/* Communication Channels */}
         <div>
-          <p className="text-xs text-slate-400 font-medium mb-2">Communication Channels</p>
+          <p className="text-xs text-slate-500 font-medium mb-2">Communication Channels</p>
           {commPrefs.length === 0 ? (
-            <p className="text-sm text-slate-400">—</p>
+            <p className="text-sm text-slate-500">—</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {commPrefs.map((pref) => (
@@ -47,7 +47,7 @@ const MentorshipPrefsCard = ({ profile }) => {
 
         {/* Languages */}
         <div>
-          <p className="text-xs text-slate-400 font-medium mb-1">Languages</p>
+          <p className="text-xs text-slate-500 font-medium mb-1">Languages</p>
           <p className="text-sm font-semibold text-slate-700">
             {languages.length > 0 ? languages.join(", ") : "—"}
           </p>

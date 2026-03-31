@@ -5,7 +5,7 @@ const INDUSTRY_OPTIONS = [
   "Marketing", "Legal", "Consulting", "Media", "Engineering", "Other",
 ];
 
-const inputClass = "w-full text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 outline-none placeholder:text-[#94a3b8] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150";
+const inputClass = "w-full text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-500 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150";
 
 const ProfessionalInfoSection = ({ form, onChange }) => {
   return (
@@ -39,17 +39,18 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
 
           {/* Industry */}
           <div>
-            <label className="block text-xs font-semibold text-[#475569] mb-1.5">
+            <label htmlFor="industry" className="block text-xs font-semibold text-[#475569] mb-1.5">
               Industry <span className="text-blue-900">*</span>
             </label>
             <select
+              id="industry"
               name="industry"
               value={form.industry}
               onChange={onChange}
               className={inputClass}
               required
             >
-              <option value="">Select industry</option>
+              <option value="" disabled className="text-slate-500">Select industry</option>
               {INDUSTRY_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
@@ -94,7 +95,7 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
               Hourly Rate (USD)
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94a3b8] text-sm font-semibold">$</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">$</span>
               <input
                 name="hourlyRate"
                 type="number"

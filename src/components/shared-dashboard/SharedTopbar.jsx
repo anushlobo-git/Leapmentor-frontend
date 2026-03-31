@@ -43,25 +43,25 @@ const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="6"  x2="21" y2="6" />
+            <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="12" x2="21" y2="12" />
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
 
         {/* Logo */}
-         <div
+        <div
           className="flex items-center gap-2 cursor-pointer"
-          
+
         >
-         <img
+          <img
             src="/images/logo.webp"
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}
             height={32}
           />
-          <span className="text-xl font-bold text-gray-900 tracking-tight">Leapmentor</span>
+          <span className="text-xl font-bold text-gray-900 tracking-tight">LeapMentor</span>
         </div>
 
         {/* Session badge */}
@@ -91,16 +91,16 @@ const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
       <button
         onClick={() => navigate(backPath)}
         style={{
-  display: "flex", alignItems: "center", gap: "6px",
-  padding: "7px 12px", borderRadius: "10px",
-  border: "1px solid #1e3a8a",
-  backgroundColor: "#1e3a8a", cursor: "pointer",
-  fontSize: "12px", fontWeight: "600", color: "white",
-  transition: "all 0.15s",
-  flexShrink: 0,
-}}
-onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1e40af"}
-onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1e3a8a"}
+          display: "flex", alignItems: "center", gap: "6px",
+          padding: "7px 12px", borderRadius: "10px",
+          border: "1px solid #1e3a8a",
+          backgroundColor: "#1e3a8a", cursor: "pointer",
+          fontSize: "12px", fontWeight: "600", color: "white",
+          transition: "all 0.15s",
+          flexShrink: 0,
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1e40af"}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#1e3a8a"}
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

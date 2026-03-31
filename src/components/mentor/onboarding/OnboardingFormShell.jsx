@@ -115,7 +115,7 @@ const OnboardingFormShell = () => {
       {/* Page title */}
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
         <h1 className="text-2xl font-bold text-[#0f172a]">Mentor Onboarding</h1>
-        <p className="text-sm text-[#64748b] mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           Complete your profile setup and help mentees find you.
         </p>
       </div>
@@ -158,7 +158,7 @@ const OnboardingFormShell = () => {
             )}
           </button>
 
-          <p className="text-center text-xs text-[#94a3b8] pb-8">
+          <p className="text-center text-xs text-slate-600 pb-8">
             You can always edit your profile from the dashboard.
           </p>
         </form>

@@ -2,7 +2,7 @@
 
 const Field = ({ label, value }) => (
   <div>
-    <p className="text-xs text-slate-400 font-medium mb-0.5">{label}</p>
+    <p className="text-xs text-slate-600 font-medium mb-0.5">{label}</p>
     <p className="text-sm font-semibold text-slate-700">{value || "—"}</p>
   </div>
 );

@@ -23,7 +23,7 @@ const SocialCard = ({ profile }) => {
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-slate-400 font-medium">Portfolio</p>
+            <p className="text-xs text-slate-600 font-medium">Portfolio</p>
             {profile?.portfolioUrl ? (
               <a
                 href={profile.portfolioUrl}
@@ -34,7 +34,7 @@ const SocialCard = ({ profile }) => {
                 {profile.portfolioUrl.replace(/^https?:\/\//, "")}
               </a>
             ) : (
-              <p className="text-sm text-slate-400">—</p>
+              <p className="text-sm text-slate-600">—</p>
             )}
           </div>
         </div>
@@ -48,7 +48,7 @@ const SocialCard = ({ profile }) => {
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-slate-400 font-medium">LinkedIn Profile</p>
+            <p className="text-xs text-slate-600 font-medium">LinkedIn Profile</p>
             {profile?.linkedInUrl ? (
               <a
                 href={profile.linkedInUrl}
@@ -59,7 +59,7 @@ const SocialCard = ({ profile }) => {
                 {profile.linkedInUrl.replace(/^https?:\/\//, "")}
               </a>
             ) : (
-              <p className="text-sm text-slate-400">—</p>
+              <p className="text-sm text-slate-600">—</p>
             )}
           </div>
         </div>

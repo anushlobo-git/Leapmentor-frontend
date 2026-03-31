@@ -70,7 +70,7 @@ const SkillsSection = ({ form, onChange }) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a skill and press enter..."
-            className="flex-1 text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 outline-none placeholder:text-[#94a3b8] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150"
+            className="flex-1 text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-500 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150"
           />
           <button
             type="button"
@@ -80,7 +80,7 @@ const SkillsSection = ({ form, onChange }) => {
             Add
           </button>
         </div>
-        <p className="text-xs text-[#94a3b8] mt-1.5">Press Enter or click Add to add a skill</p>
+        <p className="text-xs text-slate-500 mt-1.5">Press Enter or click Add to add a skill</p>
       </div>
     </div>
   );
