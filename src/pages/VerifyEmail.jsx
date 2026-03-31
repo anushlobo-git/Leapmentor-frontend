@@ -157,7 +157,7 @@ const VerifyEmail = () => {
               width={32}
               height={32}
             />
-            <span className="text-lg font-bold text-slate-800 tracking-tight">LeapMentor</span>
+            <span className="text-xl font-bold text-slate-800 tracking-tight">LeapMentor</span>
           </div>
 
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
