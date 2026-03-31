@@ -34,16 +34,18 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <button
             onClick={() => navigate("/register/mentor")}
-            className="px-5 py-2 text-sm font-semibold text-blue-900 border-2 border-blue-900 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+            className="w-42 px-5 py-2 text-sm font-semibold text-white bg-blue-900 border-2 border-transparent rounded-lg hover:bg-blue-900 transition-colors duration-200 shadow-md"
           >
             Become a Mentor
           </button>
           <button
             onClick={() => navigate("/register/mentee")}
-            className="px-5 py-2 text-sm font-semibold text-white bg-blue-900 rounded-lg hover:bg-blue-900 transition-colors duration-200 shadow-md"
+            className="w-42 px-5 py-2 text-sm font-semibold text-blue-900 border-2 border-blue-900 rounded-lg hover:bg-blue-50 transition-colors duration-200"
           >
             Find a Mentor
           </button>
+
+
         </div>
 
         {/* Mobile Hamburger */}
