@@ -101,12 +101,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
     };
   }, [connectRequestId, applySlotUpdate]);
 
-  // ✅ Fallback polling every 30s
-  useEffect(() => {
-    if (!connectRequestId) return;
-    const interval = setInterval(() => fetchSlots(true), 30000);
-    return () => clearInterval(interval);
-  }, [connectRequestId, fetchSlots]);
 
   // ── setMeetingLink ────────────────────────────────────────────
   const setMeetingLink = useCallback(

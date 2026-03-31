@@ -2,22 +2,30 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
+import useUnreadCount from "./useUnreadCount"; // ✅ add this import
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
 const useSocketToast = (onRequestChanged) => {
   const { showToast } = useToast();
+  const { incrementBadge } = useUnreadCount(); // ✅ add this
+
   const socketRef = useRef(null);
 
-  // ✅ FIX: Store showToast in a ref so the socket useEffect doesn't
-  // re-run every time showToast gets a new reference from context.
   const showToastRef = useRef(showToast);
-  useEffect(() => { showToastRef.current = showToast; }, [showToast]);
+  useEffect(() => {
+    showToastRef.current = showToast;
+  }, [showToast]);
 
-  // ✅ FIX: Store onRequestChanged in a ref so the socket useEffect doesn't
-  // re-run every time the parent passes a new inline function reference.
+  const incrementBadgeRef = useRef(incrementBadge); // ✅ add this
+  useEffect(() => {
+    incrementBadgeRef.current = incrementBadge;
+  }, [incrementBadge]); // ✅ add this
+
   const onRequestChangedRef = useRef(onRequestChanged);
-  useEffect(() => { onRequestChangedRef.current = onRequestChanged; }, [onRequestChanged]);
+  useEffect(() => {
+    onRequestChangedRef.current = onRequestChanged;
+  }, [onRequestChanged]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -32,9 +40,6 @@ const useSocketToast = (onRequestChanged) => {
     });
 
     socketRef.current = socket;
-
-    // ✅ Expose on window so useSessions and other hooks can attach listeners
-    // without creating competing sockets that overwrite userSockets map
     window.__leapSocket = socket;
 
     socket.on("connect", () => {
@@ -52,27 +57,27 @@ const useSocketToast = (onRequestChanged) => {
     // ── Toast events ────────────────────────────────────────
     socket.on("new_connect_request", ({ title, message, type }) => {
       showToastRef.current({ type: type || "info", title, message });
+      incrementBadgeRef.current(); // ✅ bump badge
     });
 
     socket.on("request_accepted", ({ title, message, type }) => {
       showToastRef.current({ type: type || "success", title, message });
+      incrementBadgeRef.current(); // ✅ bump badge
     });
 
     socket.on("request_declined", ({ title, message, type }) => {
       showToastRef.current({ type: type || "warning", title, message });
+      incrementBadgeRef.current(); // ✅ bump badge
     });
 
     socket.on("request_referred", ({ title, message, type }) => {
       showToastRef.current({ type: type || "info", title, message });
+      incrementBadgeRef.current(); // ✅ bump badge
     });
 
-    // ✅ Triggers UI refetch on both dashboards when request status changes
     socket.on("request_status_changed", (data) => {
       if (onRequestChangedRef.current) onRequestChangedRef.current(data);
     });
-
-    // ✅ session_slots_updated is handled by useSessions via window.__leapSocket
-    // No toast needed here — just real-time state sync
 
     return () => {
       console.log("🧹 Notification socket cleanup");
@@ -82,7 +87,7 @@ const useSocketToast = (onRequestChanged) => {
         window.__leapSocket = null;
       }
     };
-  }, []); // ✅ Empty array — socket is created once, refs handle the rest
+  }, []);
 };
 
 export default useSocketToast;
