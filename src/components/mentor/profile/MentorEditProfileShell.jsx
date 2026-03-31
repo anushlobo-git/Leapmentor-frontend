@@ -29,9 +29,14 @@ const MentorEditProfileShell = () => {
       <header className="sticky top-0 z-10 bg-white border-b border-[#e8edf5] shadow-sm">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#2563eb] flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              M
-            </div>
+            <img
+              src="/images/logo.webp"
+              alt="LeapMentor logo"
+              className="h-8 w-8"
+              width={32}
+              height={32}
+
+            />
             <span className="text-sm font-bold text-[#0f172a]">Edit Profile</span>
           </div>
           <button
@@ -61,11 +66,10 @@ const MentorEditProfileShell = () => {
           <SocialLinksSection form={form} onChange={handleChange} />
 
           {msg.text && (
-            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
-              msg.type === "success"
+            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
                 ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
                 : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-            }`}>
+              }`}>
               <span>{msg.type === "success" ? "✓" : "⚠"}</span>
               {msg.text}
             </div>
