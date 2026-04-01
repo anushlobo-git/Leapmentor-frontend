@@ -1,24 +1,23 @@
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // ✅ FIXED: added useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ FIXED: added
-  const isEditPage = location.pathname.includes("/edit-profile"); // ✅ FIXED: added
+  const location = useLocation();
+  const isEditPage = location.pathname.includes("/edit-profile");
 
-  const [user, setUser] = useState(null);
+  const [user, setUser]       = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError]     = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    // 1) No token → send to login
     if (!token) {
       navigate("/login");
       return;
@@ -30,13 +29,11 @@ const useMenteeDashboard = () => {
       try {
         setLoading(true);
 
-        // 2) Fetch basic user info
-        const userRes = await axios.get(`${BASE_URL}/users/me`, {
-          headers: authHeader,
-        });
+        // 1) Fetch user
+        const userRes = await axios.get(`${BASE_URL}/users/me`, { headers: authHeader });
         const userData = userRes.data;
 
-        // 3) Role guard — if not a mentee, kick out
+        // 2) Role guard
         if (!userData.roles?.includes("mentee")) {
           navigate("/dashboard/mentor");
           return;
@@ -44,41 +41,48 @@ const useMenteeDashboard = () => {
 
         setUser(userData);
 
-        // 4) Fetch mentee profile
-        const profileRes = await axios.get(`${BASE_URL}/mentee-profile/me`, {
-          headers: authHeader,
-        });
+        // 3) Fetch mentee profile
+        let profileData = null;
+        try {
+          const profileRes = await axios.get(`${BASE_URL}/mentee-profile/me`, { headers: authHeader });
+          profileData = profileRes.data;
+        } catch (profileErr) {
+          if (profileErr?.response?.status === 404) {
+            if (!isEditPage) navigate("/onboarding/mentee");
+            return;
+          }
+          if (profileErr?.response?.status === 401) {
+            localStorage.removeItem("token");
+            navigate("/login");
+            return;
+          }
+          throw profileErr;
+        }
 
-        setProfile(profileRes.data);
+        setProfile(profileData);
 
-        // 5) If profile not complete → redirect to onboarding
-        if (!profileRes.data?.isProfileComplete && !isEditPage) { // ✅ FIXED: added && !isEditPage
+        // 4) Onboarding incomplete
+        if (!profileData?.isProfileComplete && !isEditPage) {
           navigate("/onboarding/mentee");
           return;
         }
+
+        // 5) All good — show dashboard
+        setLoading(false);
 
       } catch (err) {
-        // Profile not found (404) = new mentee, send to onboarding
-        if (err?.response?.status === 404 && !isEditPage) { // ✅ FIXED: added && !isEditPage
-          navigate("/onboarding/mentee");
-          return;
-        }
-
-        // Token expired or invalid
         if (err?.response?.status === 401) {
           localStorage.removeItem("token");
           navigate("/login");
           return;
         }
-
         setError("Something went wrong. Please try again.");
-      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [navigate, location.pathname]); // ✅ FIXED: added location.pathname
+  }, [navigate, location.pathname]);
 
   return { user, profile, loading, error };
 };
