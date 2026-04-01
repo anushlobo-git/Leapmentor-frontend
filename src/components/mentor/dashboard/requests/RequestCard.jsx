@@ -48,8 +48,8 @@ const SlotsModal = ({ request, onClose }) => {
                 {initials}
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-800">{mentee?.name || "—"}</h2>
-                <p className="text-sm text-slate-500">{mentee?.email}</p>
+                {/* ✅ Large name, no email */}
+                <h2 className="text-xl font-bold text-slate-800">{mentee?.name || "—"}</h2>
               </div>
             </div>
             <button type="button" onClick={onClose}
@@ -71,7 +71,7 @@ const SlotsModal = ({ request, onClose }) => {
             </div>
           )}
 
-          {/* Referral info */}
+          {/* Referral info — no email */}
           {request.referredBy && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-amber-300 flex items-center justify-center text-amber-900 text-xs font-bold shrink-0">
@@ -79,9 +79,6 @@ const SlotsModal = ({ request, onClose }) => {
               </div>
               <div>
                 <p className="text-sm font-bold text-amber-800">Referred by {request.referredBy?.name}</p>
-                {request.referredBy?.email && (
-                  <p className="text-xs text-amber-600">{request.referredBy.email}</p>
-                )}
               </div>
             </div>
           )}
@@ -181,27 +178,25 @@ const RequestCard = ({ request, onViewProfile }) => {
     <>
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col">
 
-        {/* ── Soft blue header ── */}
+        {/* ── Header ── */}
         <div className="bg-blue-50 border-b border-blue-100 px-5 pt-5 pb-4">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
 
-            {/* Avatar + Name + Email */}
+            {/* Avatar + Name (no email) */}
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-11 h-11 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center text-blue-700 text-sm font-bold shrink-0">
+              <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-200 flex items-center justify-center text-blue-700 text-base font-bold shrink-0">
                 {initials}
               </div>
               <div className="min-w-0">
-                <p className="text-base font-bold text-slate-800 truncate leading-snug">
+                {/* ✅ Large name */}
+                <p className="text-xl font-bold text-slate-800 truncate leading-tight">
                   {mentee?.name || "—"}
-                </p>
-                <p className="text-sm text-slate-500 truncate mt-0.5">
-                  {mentee?.email || "—"}
                 </p>
               </div>
             </div>
 
             {/* Status badge */}
-            <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shrink-0 ${cfg.badge}`}>
+            <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shrink-0 mt-1 ${cfg.badge}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
               {cfg.label}
             </span>
@@ -212,12 +207,10 @@ const RequestCard = ({ request, onViewProfile }) => {
         {/* ── Card body ── */}
         <div className="px-5 pt-4 pb-5 flex flex-col gap-3 flex-1">
 
-          {/* ── Slot: stacked date + time in one unified chip ── */}
+          {/* Slot chip */}
           {displaySlot && (
             <div className="flex items-center gap-2">
-              {/* Date + time block */}
               <div className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1">
-                {/* Date row */}
                 <div className="flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                     <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -229,7 +222,6 @@ const RequestCard = ({ request, onViewProfile }) => {
                     {displaySlot.day}, {formatDate(displaySlot.date)}
                   </p>
                 </div>
-                {/* Time row */}
                 <div className="flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                     <circle cx="12" cy="12" r="10"/>
@@ -243,7 +235,6 @@ const RequestCard = ({ request, onViewProfile }) => {
                 </div>
               </div>
 
-              {/* +N more slots button */}
               {extraSlots > 0 && isPending && (
                 <button
                   type="button"
@@ -293,7 +284,6 @@ const RequestCard = ({ request, onViewProfile }) => {
             </div>
           )}
 
-          {/* Spacer */}
           <div className="flex-1" />
 
           {/* Footer */}

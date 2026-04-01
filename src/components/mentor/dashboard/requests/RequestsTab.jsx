@@ -81,7 +81,6 @@ const RequestsTab = () => {
 
   return (
     <>
-      {/* ✅ removed max-w-6xl — full width on all screens */}
       <div className="w-full space-y-5">
 
         {/* ── Header ── */}
@@ -92,7 +91,6 @@ const RequestsTab = () => {
               Manage your incoming and active mentorship connections.
             </p>
           </div>
-          {/* total count pill */}
           {requests.length > 0 && (
             <span className="self-start sm:self-auto text-xs font-bold text-blue-900 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full shrink-0">
               {requests.length} total
@@ -107,7 +105,7 @@ const RequestsTab = () => {
           </div>
         )}
 
-        {/* ── Tabs — scrollable on mobile, full width on desktop ── */}
+        {/* ── Tabs ── */}
         <div className="w-full border-b border-slate-100">
           <div className="flex overflow-x-auto scrollbar-none">
             {TABS.map((tab) => (
@@ -160,8 +158,8 @@ const RequestsTab = () => {
             </p>
           </div>
         ) : (
-          // ✅ 1 col mobile, 2 col tablet, 3 col large, 4 col monitor
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          // ✅ 1 col mobile → 2 col md+ with min card width enforced
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filtered.map((request) => (
               <RequestCard
                 key={request._id}
