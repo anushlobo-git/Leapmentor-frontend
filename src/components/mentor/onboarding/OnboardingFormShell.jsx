@@ -17,7 +17,7 @@ const OnboardingFormShell = () => {
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
-  const token                          = useSelector((state) => state.auth.token);
+  const token = localStorage.getItem("token");
 
   const [form, setForm] = useState({
     profilePicture:           "",

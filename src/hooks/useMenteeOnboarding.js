@@ -9,7 +9,7 @@ const useMenteeOnboarding = () => {
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
-  const token                          = useSelector((state) => state.auth.token);
+  const token = localStorage.getItem("token");
 
   const [form, setForm] = useState({
     profilePicture:           "",
