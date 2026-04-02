@@ -1,5 +1,5 @@
 // src/components/mentee/dashboard/findMentors/MentorProfileModal.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
@@ -119,6 +119,8 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const [fetchingSlots, setFetchingSlots] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [slotsError, setSlotsError] = useState("");
+    const sendingRef = useRef(false); // add near other refs at top of component
+
 
   const { sending, error, sendRequest, reset } = useConnectRequest();
   const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
@@ -199,17 +201,20 @@ const badges = BADGES.map((badge) => ({
   const removeSlot = (index) =>
     setSelectedSlots((prev) => prev.filter((_, i) => i !== index));
 
-  const handleSend = async () => {
-    if (selectedSlots.length === 0) return;
-    const ok = await sendRequest({
-      mentorId: mentor.user._id,
-      message,
-      selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }) => ({
-        day, date, startTime, endTime,
-      })),
-    });
-    if (ok) setShowSuccess(true);
-  };
+
+const handleSend = async () => {
+  if (sendingRef.current || selectedSlots.length === 0) return;
+  sendingRef.current = true;
+  const ok = await sendRequest({
+    mentorId: mentor.user._id,
+    message,
+    selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }) => ({
+      day, date, startTime, endTime,
+    })),
+  });
+  sendingRef.current = false;
+  if (ok) setShowSuccess(true);
+};
 
   const totalAvailable = groupedSlots.reduce(
     (acc, g) => acc + g.slots.filter((s) => !s.isBooked).length, 0
