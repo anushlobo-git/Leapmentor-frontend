@@ -49,7 +49,7 @@ export default function Navbar() {
           <div className="relative" ref={registerRef}>
             <button
               onClick={() => setRegisterOpen((o) => !o)}
-              className="flex items-center gap-1 px-5 py-2 text-sm font-semibold text-blue-900 border-2 border-blue-900 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+              className= "w-32 flex items-center gap-1 px-5 py-[9px] text-sm font-semibold text-blue-900 border-2 border-blue-900 rounded-lg hover:bg-blue-50 transition-colors duration-200"
             >
               Register
               <svg
@@ -61,19 +61,38 @@ export default function Navbar() {
             </button>
 
             {registerOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
+              <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border-2 border-blue-900/10 z-50 overflow-hidden p-2">
+
+                {/* Become a Mentor */}
                 <button
                   onClick={() => { navigate("/register/mentor"); setRegisterOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 transition-all duration-150 group text-left"
                 >
-                  🚀 Become a Mentor
+                  <div className="w-9 h-9 rounded-xl bg-blue-900 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-150">
+                    <span className="text-base">🚀</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800 group-hover:text-blue-900">Become a Mentor</p>
+                    <p className="text-xs text-slate-400">Share your expertise</p>
+                  </div>
                 </button>
+
+                <div className="h-px bg-blue-900/10 mx-3 my-1" />
+
+                {/* Find a Mentor */}
                 <button
                   onClick={() => { navigate("/register/mentee"); setRegisterOpen(false); }}
-                  className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-900 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 transition-all duration-150 group text-left"
                 >
-                  🎓 Find a Mentor
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-150">
+                    <span className="text-base">🎓</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800 group-hover:text-blue-900">Find a Mentor</p>
+                    <p className="text-xs text-slate-400">Accelerate your growth</p>
+                  </div>
                 </button>
+
               </div>
             )}
           </div>
@@ -81,7 +100,7 @@ export default function Navbar() {
           {/* Login button */}
           <button
             onClick={() => navigate("/login")}
-            className="px-5 py-2 text-sm font-semibold text-white bg-blue-900 border-2 border-transparent rounded-lg hover:bg-blue-800 transition-colors duration-200 shadow-md"
+            className= "w-32 px-5 py-[9px] text-sm font-semibold text-white bg-blue-900 border-2 border-transparent rounded-lg hover:bg-blue-800 transition-colors duration-200"
           >
             Login
           </button>
