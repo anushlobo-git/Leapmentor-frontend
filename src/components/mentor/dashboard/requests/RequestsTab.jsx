@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import RequestCard from "./RequestCard";
 import MenteeProfileModal from "./MenteeProfileModal";
-import useSocketToast from "../../../../hooks/useSocketToast";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -40,9 +39,25 @@ const RequestsTab = () => {
       setInitialLoad(false);
     }
   }, []);
+  // ✅ ADD this useEffect (make sure useEffect is already imported):
+useEffect(() => {
+  const handleRequestChanged = () => fetchRequests();
+
+  const waitForSocket = setInterval(() => {
+    if (window.__leapSocket?.connected) {
+      clearInterval(waitForSocket);
+      window.__leapSocket.on("request_status_changed", handleRequestChanged);
+    }
+  }, 200);
+
+  return () => {
+    clearInterval(waitForSocket);
+    window.__leapSocket?.off("request_status_changed", handleRequestChanged);
+  };
+}, [fetchRequests]);
 
   useEffect(() => { fetchRequests(); }, [fetchRequests]);
-  useSocketToast(fetchRequests);
+  
 
   const handleUpdate = (id, newStatus) => {
     setRequests((prev) =>
