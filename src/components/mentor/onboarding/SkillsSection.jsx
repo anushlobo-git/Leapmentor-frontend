@@ -1,8 +1,9 @@
 // components/mentor/onboarding/SkillsSection.jsx
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 
-const SkillsSection = ({ form, onChange }) => {
+const SkillsSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
   const [input, setInput] = useState("");
+  const hasError = errors.skills;
 
   const addSkill = () => {
     const trimmed = input.trim();
@@ -27,50 +28,61 @@ const SkillsSection = ({ form, onChange }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
+    // ref + data-field both attached so scrollToFirstError can find this
+    // section via either the React ref or a DOM querySelector fallback
+    <div
+      ref={ref}
+      data-field="skills"
+      className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden"
+    >
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-[#0f172a]">Skills & Expertise</h2>
+        <h2 className="text-sm font-bold text-slate-800">Skills & Expertise</h2>
       </div>
 
       <div className="px-6 py-5">
-        <label className="block text-xs font-semibold text-[#475569] mb-2">
+        <label className="block text-xs font-semibold text-slate-500 mb-2">
           Core Skills <span className="text-blue-900">*</span>
         </label>
 
-        {/* Tags display */}
-        <div className="flex flex-wrap gap-2 mb-3 min-h-8">
-          {(form.skills || []).map((skill) => (
-            <span
-              key={skill}
-              className="inline-flex items-center gap-1.5 bg-[#dbeafe] text-blue-900 text-xs font-semibold px-3 py-1.5 rounded-full"
-            >
-              {skill}
-              <button
-                type="button"
-                onClick={() => removeSkill(skill)}
-                className="w-3.5 h-3.5 rounded-full bg-[#93c5fd] hover:bg-[#2563eb] text-white flex items-center justify-center transition-colors duration-150 text-[10px] leading-none"
+        {(form.skills || []).length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(form.skills || []).map((skill) => (
+              <span
+                key={skill}
+                className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full"
               >
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
+                {skill}
+                <button
+                  type="button"
+                  onClick={() => removeSkill(skill)}
+                  className="w-3.5 h-3.5 rounded-full bg-blue-300 hover:bg-blue-900 text-white flex items-center justify-center transition-colors duration-150 text-[10px] leading-none"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
-        {/* Input */}
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onBlur={addSkill}
             placeholder="Type a skill and press enter..."
-            className="flex-1 text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-500 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150"
+            className={`flex-1 text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${
+              hasError
+                ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
+                : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
+            }`}
           />
           <button
             type="button"
@@ -80,10 +92,15 @@ const SkillsSection = ({ form, onChange }) => {
             Add
           </button>
         </div>
-        <p className="text-xs text-slate-500 mt-1.5">Press Enter or click Add to add a skill</p>
+
+        {hasError
+          ? <p className="text-xs text-red-400 mt-1.5">Please add at least one skill.</p>
+          : <p className="text-xs text-slate-500 mt-1.5">Press Enter or click Add to add a skill</p>
+        }
       </div>
     </div>
   );
-};
+});
 
+SkillsSection.displayName = "SkillsSection";
 export default SkillsSection;

@@ -1,6 +1,6 @@
 // components/mentor/onboarding/SocialLinksSection.jsx
 
-const inputClass = "w-full text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 pl-10 outline-none placeholder:text-[#94a3b8] focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150";
+const inputClass = "w-full text-sm text-slate-800 bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 pl-10 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150";
 
 const GlobeIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -18,22 +18,22 @@ const LinkedInIcon = () => (
 
 const SocialLinksSection = ({ form, onChange }) => {
   return (
-    <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-[#0f172a]">Social Links</h2>
+        <h2 className="text-sm font-bold text-slate-800">Social Links</h2>
       </div>
 
       <div className="px-6 py-5 space-y-4">
         {/* Portfolio URL */}
         <div>
-          <label className="block text-xs font-semibold text-[#475569] mb-1.5">
+          <label className="block text-xs font-semibold text-slate-500 mb-1.5">
             Portfolio or Personal Website URL
           </label>
           <div className="relative">
@@ -52,7 +52,7 @@ const SocialLinksSection = ({ form, onChange }) => {
 
         {/* LinkedIn URL */}
         <div>
-          <label className="block text-xs font-semibold text-[#475569] mb-1.5">
+          <label className="block text-xs font-semibold text-slate-500 mb-1.5">
             LinkedIn Profile URL
           </label>
           <div className="relative">

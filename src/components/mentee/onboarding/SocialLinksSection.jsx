@@ -1,6 +1,6 @@
 // components/mentee/onboarding/SocialLinksSection.jsx
 
-const inputClass = "w-full text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 pl-10 outline-none placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150";
+const inputClass = "w-full text-sm text-slate-800 bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 pl-10 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150";
 
 const SocialLinksSection = ({ form, handleChange }) => {
   return (
@@ -12,7 +12,7 @@ const SocialLinksSection = ({ form, handleChange }) => {
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-slate-800">5. Social Links</h2>
+        <h2 className="text-sm font-bold text-slate-800">Social Links</h2>
       </div>
 
       <div className="px-6 py-5 space-y-4">

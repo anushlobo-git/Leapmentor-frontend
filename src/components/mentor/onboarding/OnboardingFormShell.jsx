@@ -1,15 +1,15 @@
 // components/mentor/onboarding/OnboardingFormShell.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMentorOnboarding, clearMentorOnboardingMessages } from "../../../store/slices/mentorOnboardingSlice";
 
-import PersonalInfoSection    from "./PersonalInfoSection";
+import PersonalInfoSection     from "./PersonalInfoSection";
 import ProfessionalInfoSection from "./ProfessionalInfoSection";
-import SkillsSection          from "./SkillsSection";
-import PreferencesSection     from "./PreferencesSection";
-import SocialLinksSection     from "./SocialLinksSection";
-import OnboardingProgressBar  from "../../../ui/OnboardingProgressBar";
+import SkillsSection           from "./SkillsSection";
+import PreferencesSection      from "./PreferencesSection";
+import SocialLinksSection      from "./SocialLinksSection";
+import OnboardingProgressBar   from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const OnboardingFormShell = () => {
@@ -34,8 +34,16 @@ const OnboardingFormShell = () => {
     portfolioUrl:             "",
   });
 
+  // ── Validation errors ──
+  const [errors, setErrors] = useState({});
+
   // local msg — used for validation errors + synced from Redux
   const [msg, setMsg] = useState({ type: "", text: "" });
+
+  // ── Refs for custom section components that can't be targeted by name= ──
+  const sectionRefs = {
+    skills: useRef(null),
+  };
 
   // sync Redux error/successMsg → local msg
   useEffect(() => {
@@ -46,9 +54,42 @@ const OnboardingFormShell = () => {
     }
   }, [error, successMsg]);
 
-  // ── Universal onChange ──
+  // ── Validate required fields ──
+  const validate = () => {
+    const newErrors = {};
+    if (!form.currentRole?.trim())  newErrors.currentRole = true;
+    if (!form.yearsOfExperience)    newErrors.yearsOfExperience = true;
+    if (!form.industry?.trim())     newErrors.industry = true;
+    if (!form.skills?.length)       newErrors.skills = true;
+    return newErrors;
+  };
+
+  // ── Scroll to the first errored field ──
+  // Priority: name= attribute → data-field= attribute → React ref
+  const scrollToFirstError = (errorKeys) => {
+    if (!errorKeys.length) return;
+    const firstKey = errorKeys[0];
+
+    const el =
+      document.querySelector(`[name="${firstKey}"]`) ||
+      document.querySelector(`[data-field="${firstKey}"]`) ||
+      sectionRefs[firstKey]?.current;
+
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  // ── Universal onChange — clears error for the field being edited ──
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -57,7 +98,16 @@ const OnboardingFormShell = () => {
     setMsg({ type: "", text: "" });
     dispatch(clearMentorOnboardingMessages());
 
-    // ── Client-side validations ──
+    // ── Run client-side required-field validation first ──
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      scrollToFirstError(Object.keys(newErrors));
+      return;
+    }
+    setErrors({});
+
+    // ── Additional validations ──
     const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({ type: "error", text: "Current Role cannot be a number." });
@@ -122,13 +172,21 @@ const OnboardingFormShell = () => {
 
       {/* Form */}
       <main className="max-w-2xl mx-auto px-6 py-6">
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
-          <PersonalInfoSection    form={form} onChange={handleChange} />
-          <ProfessionalInfoSection form={form} onChange={handleChange} />
-          <SkillsSection          form={form} onChange={handleChange} />
-          <PreferencesSection     form={form} onChange={handleChange} />
-          <SocialLinksSection     form={form} onChange={handleChange} />
+          <PersonalInfoSection     form={form} onChange={handleChange} errors={errors} />
+          <ProfessionalInfoSection form={form} onChange={handleChange} errors={errors} />
+
+          {/* ref forwarded so scrollToFirstError can target this section */}
+          <SkillsSection
+            ref={sectionRefs.skills}
+            form={form}
+            onChange={handleChange}
+            errors={errors}
+          />
+
+          <PreferencesSection form={form} onChange={handleChange} />
+          <SocialLinksSection form={form} onChange={handleChange} />
 
           {/* Status message */}
           {msg.text && (
