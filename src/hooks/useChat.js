@@ -1,5 +1,6 @@
 // src/hooks/useChat.js
 import { useState, useEffect, useRef, useCallback } from "react";
+import { io } from "socket.io-client";
 import axios from "axios";
 
 const API_URL    = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -8,18 +9,18 @@ const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
 
 const useChat = (connectRequestId) => {
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [messages,    setMessages]    = useState([]);
+  const [loading,     setLoading]     = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [error, setError] = useState(null);
-  const [isTyping, setIsTyping] = useState(false);
+  const [hasMore,     setHasMore]     = useState(false);
+  const [error,       setError]       = useState(null);
+  const [isTyping,    setIsTyping]    = useState(false);
   const [otherOnline, setOtherOnline] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page,        setPage]        = useState(1);
 
-  const socketRef = useRef(null);
+  const socketRef      = useRef(null);
   const typingTimerRef = useRef(null);
-  const isTypingRef = useRef(false);
+  const isTypingRef    = useRef(false);
 
   const connectRequestIdRef = useRef(connectRequestId);
   useEffect(() => {
@@ -29,10 +30,13 @@ const useChat = (connectRequestId) => {
   // ── Fetch message history (REST) ──────────────────────────
   const fetchHistory = useCallback(async (roomId, pageNum = 1) => {
     const token = localStorage.getItem("token");
-    const res = await axios.get(`${API_URL}/messages/${roomId}`, {
-      params: { page: pageNum, limit: PAGE_LIMIT },
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(
+      `${API_URL}/messages/${roomId}`,
+      {
+        params:  { page: pageNum, limit: PAGE_LIMIT },
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return res.data;
   }, []); // ✅ stable — no dependencies
 
@@ -52,8 +56,7 @@ const useChat = (connectRequestId) => {
         setHasMore(data.hasMore);
         setPage(1);
       } catch (err) {
-        if (!cancelled)
-          setError(err?.response?.data?.message || "Failed to load messages");
+        if (!cancelled) setError(err?.response?.data?.message || "Failed to load messages");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -61,70 +64,76 @@ const useChat = (connectRequestId) => {
 
     load();
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [connectRequestId, fetchHistory]);
 
   // ── Socket setup ──────────────────────────────────────────
-  // In useChat.js — REPLACE the socket setup useEffect with this:
   useEffect(() => {
     if (!connectRequestId) return;
 
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const socket = io(SOCKET_URL, {  // ✅ plain domain, no /api/v1
+      auth:                 { token },
+      reconnection:         true,
+      reconnectionAttempts: 5,
+      reconnectionDelay:    1000,
+      transports:           ["websocket", "polling"],
+    });
+
+    socketRef.current = socket;
+
     const joinRoom = () => {
-      window.__leapSocket?.emit("join_room", { connectRequestId });
+      socket.emit("join_room", { connectRequestId });
     };
 
-    const handleNewMessage = (message) => {
+    socket.on("connect", () => {
+      console.log("🔌 Socket connected:", socket.id);
+      joinRoom();
+    });
+
+    socket.on("reconnect", () => {
+      console.log("🔄 Socket reconnected — rejoining room");
+      joinRoom();
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Socket connection error:", err.message);
+      setError("Connection error. Retrying...");
+    });
+
+    socket.on("new_message", (message) => {
       setMessages((prev) => {
         if (prev.some((m) => m._id === message._id)) return prev;
         return [...prev, message];
       });
-    };
+    });
 
-    const handleTypingStart = () => setIsTyping(true);
-    const handleTypingStop = () => setIsTyping(false);
-    const handleUserOnline = () => setOtherOnline(true);
-    const handleUserOffline = () => setOtherOnline(false);
-    const handleMessagesRead = ({ readAt }) => {
-      setMessages((prev) => prev.map((m) => (m.readAt ? m : { ...m, readAt })));
-    };
-    const handleError = ({ message }) => setError(message);
+    socket.on("typing_start", () => setIsTyping(true));
+    socket.on("typing_stop",  () => setIsTyping(false));
 
-    const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
-        clearInterval(waitForSocket);
-        socketRef.current = window.__leapSocket;
-        joinRoom();
+    socket.on("user_online",  () => setOtherOnline(true));
+    socket.on("user_offline", () => setOtherOnline(false));
 
-        window.__leapSocket.on("new_message", handleNewMessage);
-        window.__leapSocket.on("typing_start", handleTypingStart);
-        window.__leapSocket.on("typing_stop", handleTypingStop);
-        window.__leapSocket.on("user_online", handleUserOnline);
-        window.__leapSocket.on("user_offline", handleUserOffline);
-        window.__leapSocket.on("messages_read", handleMessagesRead);
-        window.__leapSocket.on("error", handleError);
-      }
-    }, 200);
+    socket.on("messages_read", ({ readAt }) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.readAt ? m : { ...m, readAt }))
+      );
+    });
+
+    socket.on("error", ({ message }) => {
+      console.error("❌ Socket error:", message);
+      setError(message);
+    });
 
     return () => {
-      clearInterval(waitForSocket);
+      console.log("🧹 Cleaning up socket for room:", connectRequestId);
       clearTimeout(typingTimerRef.current);
-      window.__leapSocket?.off("new_message", handleNewMessage);
-      window.__leapSocket?.off("typing_start", handleTypingStart);
-      window.__leapSocket?.off("typing_stop", handleTypingStop);
-      window.__leapSocket?.off("user_online", handleUserOnline);
-      window.__leapSocket?.off("user_offline", handleUserOffline);
-      window.__leapSocket?.off("messages_read", handleMessagesRead);
-      window.__leapSocket?.off("error", handleError);
+      socket.disconnect();
       socketRef.current = null;
     };
   }, [connectRequestId]);
-
-  // ✅ Remove these:
-  // import { io } from "socket.io-client"  ← remove
-  // import SOCKET_URL  ← remove
-  // The socket.on("connect") joinRoom call is now handled above
 
   // ── Load more (older messages) ────────────────────────────
   const loadMore = useCallback(async () => {
