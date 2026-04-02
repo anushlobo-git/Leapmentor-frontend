@@ -11,10 +11,12 @@ import RequestHistoryTab from "./history/RequestHistoryTab";
 import NotificationsTab from "../notifications/NotificationsTab";
 import MenteeConnectsTab from "./connects/MenteeConnectsTab";
 import HelpCenter from "../../common/HelpCenter";
+import useSocketToast from "../../../hooks/useSocketToast"; 
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMenteeDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
+  useSocketToast();
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   useEffect(() => {
@@ -67,7 +69,7 @@ useEffect(() => {
       </div>
     );
   }
-
+{/*}
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -80,6 +82,7 @@ useEffect(() => {
       </div>
     );
   }
+  */}
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">

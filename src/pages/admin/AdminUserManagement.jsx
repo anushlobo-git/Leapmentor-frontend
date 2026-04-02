@@ -128,6 +128,7 @@ useEffect(() => { fetchStats(); fetchUsers(); fetchGrowthData(); }, []);
       if (q)    params.search = q;
       if (role) params.role   = role;
       const res = await axios.get(`${BASE_URL}/admin/users`, { headers: authHeader(), params });
+      console.log("First user:", res.data.users[0]);
       setUsers(res.data.users);
       setPagination(res.data.pagination);
     } catch {

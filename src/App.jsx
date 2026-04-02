@@ -1,7 +1,6 @@
 // src/App.jsx
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import useSocketToast from "./hooks/useSocketToast"; // ✅ ADD THIS
 
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home     from "./components/Home";
@@ -18,6 +17,8 @@ const VerifyEmail    = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const SSOCallback    = lazy(() => import("./pages/SSOCallback"));
 const SSOSync        = lazy(() => import("./pages/SSOSync"));
+// In App.jsx - lazy load pages
+
 
 // ── Onboarding ────────────────────────────────────────────────
 const MentorOnboarding = lazy(() => import("./pages/MentorOnboarding"));
@@ -57,64 +58,54 @@ const PageLoader = () => (
   </div>
 );
 
-// ✅ ADD THIS NEW COMPONENT — socket lives here, never unmounts
-const AppRoutes = () => {
-  useSocketToast(); // socket created once, stays alive for all navigation
-
-  return (
-    <Routes>
-
-      {/* ── Home ──────────────────────────────────────── */}
-      <Route path="/"  element={<Home />} />
-
-      {/* ── Auth ──────────────────────────────────────── */}
-      <Route path="/register/mentee"   element={<RegisterMentee />} />
-      <Route path="/register/mentor"   element={<RegisterMentor />} />
-      <Route path="/login"             element={<LoginMentee />} />
-      <Route path="/login/mentor"      element={<LoginMentor />} />
-      <Route path="/login/mentee"      element={<LoginMentee />} />
-      <Route path="/verify-email"      element={<VerifyEmail />} />
-      <Route path="/forgot-password"   element={<ForgotPassword />} />
-      <Route path="/sso-callback"      element={<SSOCallback />} />
-      <Route path="/sso-callback-sync" element={<SSOSync />} />
-
-      {/* ── Onboarding ────────────────────────────────── */}
-      <Route path="/onboarding/mentor" element={<ProtectedRoute role="mentor"><MentorOnboarding /></ProtectedRoute>} />
-      <Route path="/onboarding/mentee" element={<ProtectedRoute role="mentee"><MenteeOnboarding /></ProtectedRoute>} />
-
-      {/* ── Edit Profile ──────────────────────────────── */}
-      <Route path="/dashboard/mentee/edit-profile" element={<ProtectedRoute role="mentee"><MenteeEditProfileShell /></ProtectedRoute>} />
-      <Route path="/dashboard/mentor/edit-profile" element={<ProtectedRoute role="mentor"><MentorEditProfileShell /></ProtectedRoute>} />
-
-      {/* ── Dashboards ────────────────────────────────── */}
-      <Route path="/dashboard/mentor"  element={<ProtectedRoute role="mentor"><MentorDashboard /></ProtectedRoute>} />
-      <Route path="/dashboard/mentee"  element={<ProtectedRoute role="mentee"><MenteeDashboard /></ProtectedRoute>} />
-
-      {/* ── Shared Dashboard ──────────────────────────── */}
-      <Route path="/shared-dashboard/:connectRequestId" element={<SharedDashboardPage />} />
-
-      {/* ── Admin ─────────────────────────────────────── */}
-      <Route path="/admin/login"       element={<AdminLogin />} />
-      <Route path="/admin/users"       element={<AdminRoute><AdminUserManagement /></AdminRoute>} />
-      <Route path="/admin/engagements" element={<AdminRoute><AdminEngagements /></AdminRoute>} />
-      <Route path="/admin/reports"     element={<AdminRoute><AdminReports /></AdminRoute>} />
-      <Route path="/admin/payments"    element={<AdminRoute><AdminPayments /></AdminRoute>} />
-      <Route path="/admin/settings"    element={<AdminRoute><AdminSettings /></AdminRoute>} />
-      <Route path="/admin/support"     element={<AdminRoute><AdminLayout><AdminSupportMessages /></AdminLayout></AdminRoute>} />
-
-      {/* ── 404 ───────────────────────────────────────── */}
-      <Route path="*" element={<NotFound />} />
-
-    </Routes>
-  );
-};
-
-// ✅ App now just wraps AppRoutes
 const App = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
-        <AppRoutes />
+        <Routes>
+
+          {/* ── Home ──────────────────────────────────────── */}
+          <Route path="/"  element={<Home />} />
+
+          {/* ── Auth ──────────────────────────────────────── */}
+          <Route path="/register/mentee"   element={<RegisterMentee />} />
+          <Route path="/register/mentor"   element={<RegisterMentor />} />
+          <Route path="/login" element={<LoginMentee />} />
+          <Route path="/login/mentor"      element={<LoginMentor />} />
+          <Route path="/login/mentee"      element={<LoginMentee />} />
+          <Route path="/verify-email"      element={<VerifyEmail />} />
+          <Route path="/forgot-password"   element={<ForgotPassword />} />
+          <Route path="/sso-callback"      element={<SSOCallback />} />
+          <Route path="/sso-callback-sync" element={<SSOSync />} />
+
+          {/* ── Onboarding ────────────────────────────────── */}
+          <Route path="/onboarding/mentor" element={<ProtectedRoute role="mentor"><MentorOnboarding /></ProtectedRoute>} />
+          <Route path="/onboarding/mentee" element={<ProtectedRoute role="mentee"><MenteeOnboarding /></ProtectedRoute>} />
+
+          {/* ── Edit Profile ──────────────────────────────── */}
+          <Route path="/dashboard/mentee/edit-profile" element={<ProtectedRoute role="mentee"><MenteeEditProfileShell /></ProtectedRoute>} />
+          <Route path="/dashboard/mentor/edit-profile" element={<ProtectedRoute role="mentor"><MentorEditProfileShell /></ProtectedRoute>} />
+
+          {/* ── Dashboards ────────────────────────────────── */}
+          <Route path="/dashboard/mentor"  element={<ProtectedRoute role="mentor"><MentorDashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/mentee"  element={<ProtectedRoute role="mentee"><MenteeDashboard /></ProtectedRoute>} />
+
+          {/* ── Shared Dashboard ──────────────────────────── */}
+          <Route path="/shared-dashboard/:connectRequestId" element={<SharedDashboardPage />} />
+
+          {/* ── Admin ─────────────────────────────────────── */}
+          <Route path="/admin/login"       element={<AdminLogin />} />
+          <Route path="/admin/users"       element={<AdminRoute><AdminUserManagement /></AdminRoute>} />
+          <Route path="/admin/engagements" element={<AdminRoute><AdminEngagements /></AdminRoute>} />
+          <Route path="/admin/reports"     element={<AdminRoute><AdminReports /></AdminRoute>} />
+          <Route path="/admin/payments"    element={<AdminRoute><AdminPayments /></AdminRoute>} />
+          <Route path="/admin/settings"    element={<AdminRoute><AdminSettings /></AdminRoute>} />
+          <Route path="/admin/support"     element={<AdminRoute><AdminLayout><AdminSupportMessages /></AdminLayout></AdminRoute>} />
+
+          {/* ── 404 ───────────────────────────────────────── */}
+          <Route path="*" element={<NotFound />} />
+
+        </Routes>
       </Suspense>
     </BrowserRouter>
   );

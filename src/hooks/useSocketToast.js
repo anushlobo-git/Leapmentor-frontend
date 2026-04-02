@@ -2,13 +2,13 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
-import useUnreadCount from "./useUnreadCount"; // ✅ add this import
+import useUnreadCount from "./useUnreadCount";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
 const useSocketToast = (onRequestChanged) => {
   const { showToast } = useToast();
-  const { incrementBadge } = useUnreadCount(); // ✅ add this
+  const { incrementBadge } = useUnreadCount();
 
   const socketRef = useRef(null);
 
@@ -17,10 +17,10 @@ const useSocketToast = (onRequestChanged) => {
     showToastRef.current = showToast;
   }, [showToast]);
 
-  const incrementBadgeRef = useRef(incrementBadge); // ✅ add this
+  const incrementBadgeRef = useRef(incrementBadge);
   useEffect(() => {
     incrementBadgeRef.current = incrementBadge;
-  }, [incrementBadge]); // ✅ add this
+  }, [incrementBadge]);
 
   const onRequestChangedRef = useRef(onRequestChanged);
   useEffect(() => {
@@ -29,12 +29,22 @@ const useSocketToast = (onRequestChanged) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) return; // ✅ no token = no socket (onboarding, login pages)
+    {
+      /*
+    // ✅ prevent duplicate socket if already connected
+    if (socketRef.current?.connected) return;*/
+    }
+
+    //the above was the past code i changed it and added below lines
+
+    if (window.__leapSocket?.connected) return; // ✅ globally shared
+    // ✅ added global socket reference to prevent duplicates across multiple hook instances (e.g. multiple pages open)
 
     const socket = io(BASE_URL, {
       auth: { token },
       reconnection: true,
-      reconnectionAttempts: 10,
+      reconnectionAttempts: 5, // ✅ reduced from 10
       reconnectionDelay: 2000,
       transports: ["websocket", "polling"],
     });
@@ -42,37 +52,35 @@ const useSocketToast = (onRequestChanged) => {
     socketRef.current = socket;
     window.__leapSocket = socket;
 
-    socket.on("connect", () => {
-      console.log("🔔 Notification socket connected:", socket.id);
-    });
+    // ✅ removed connect log
+    // ✅ removed disconnect log
+    // ✅ removed cleanup log
 
     socket.on("connect_error", (err) => {
-      console.warn("⚠️ Notification socket error:", err.message);
+      console.warn("⚠️ Socket error:", err.message);
+    });
+    socket.on("reconnect", () => {
+      window.__leapSocket = socket; // ✅ re-expose after reconnect
     });
 
-    socket.on("disconnect", () => {
-      console.log("🔔 Notification socket disconnected");
-    });
-
-    // ── Toast events ────────────────────────────────────────
     socket.on("new_connect_request", ({ title, message, type }) => {
       showToastRef.current({ type: type || "info", title, message });
-      incrementBadgeRef.current(); // ✅ bump badge
+      incrementBadgeRef.current();
     });
 
     socket.on("request_accepted", ({ title, message, type }) => {
       showToastRef.current({ type: type || "success", title, message });
-      incrementBadgeRef.current(); // ✅ bump badge
+      incrementBadgeRef.current();
     });
 
     socket.on("request_declined", ({ title, message, type }) => {
       showToastRef.current({ type: type || "warning", title, message });
-      incrementBadgeRef.current(); // ✅ bump badge
+      incrementBadgeRef.current();
     });
 
     socket.on("request_referred", ({ title, message, type }) => {
       showToastRef.current({ type: type || "info", title, message });
-      incrementBadgeRef.current(); // ✅ bump badge
+      incrementBadgeRef.current();
     });
 
     socket.on("request_status_changed", (data) => {
@@ -80,7 +88,6 @@ const useSocketToast = (onRequestChanged) => {
     });
 
     return () => {
-      console.log("🧹 Notification socket cleanup");
       socket.disconnect();
       socketRef.current = null;
       if (window.__leapSocket === socket) {
