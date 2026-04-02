@@ -7,13 +7,11 @@ import SharedChatTab from "./tabs/SharedChatTab";
 import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
-import useSocketToast from "../../hooks/useSocketToast";
 
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
   const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useSocketToast();
 
   const viewerRole = connect?.viewerRole || "mentee";
 
