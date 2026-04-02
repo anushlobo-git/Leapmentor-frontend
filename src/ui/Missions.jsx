@@ -5,20 +5,22 @@ const features = [
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
-    title: "Verified Mentors",
+    title: "Verified Mentors",  // ← keep this one, it's fine as a brand promise
     description:
-      "Every mentor undergoes a rigorous vetting process to ensure they possess real-world expertise and effective coaching skills.",
+      "Every mentor on LeapMentor creates a detailed profile with their skills, experience, and hourly rate — so you always know who you're learning from.",
   },
   {
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14" />
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
     ),
-    title: "Smart Matching",
+    title: "Flexible Scheduling",
     description:
-      "Our AI-driven algorithm connects you with mentors who align perfectly with your specific career goals and learning style.",
+      "Book sessions based on your mentor's real-time availability. Propose multiple time slots, confirm instantly, and get calendar invites automatically.",
   },
   {
     icon: (
@@ -27,9 +29,9 @@ const features = [
         <polyline points="16 7 22 7 22 13" />
       </svg>
     ),
-    title: "Curated Curriculum",
+    title: "Structured Growth",
     description:
-      "Set actionable milestones and track your growth with our integrated career tracking tools and resource library.",
+      "Set goals, break them into milestones, track session completion, share notes, and generate progress reports — all inside a shared mentor-mentee workspace.",
   },
 ];
 
