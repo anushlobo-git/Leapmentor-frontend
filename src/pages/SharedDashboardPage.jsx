@@ -1,25 +1,36 @@
 // src/pages/SharedDashboardPage.jsx
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import SharedDashboardLayout from "../components/shared-dashboard/SharedDashboardLayout";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
+const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
+
 const SharedDashboardPage = () => {
   const { connectRequestId } = useParams();
   const navigate             = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [connect, setConnect] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
 
-  // ✅ Track active tab here so it survives connect refetches
- const [activeTab, setActiveTab] = useState("overview");
+  // ── Read initial tab from URL, fallback to "overview" ──
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(
+    VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "overview"
+  );
+
+  // ── When tab changes, sync to URL ──
+  const handleSetActiveTab = useCallback((tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+  }, [setSearchParams]);
 
   const fetchConnect = useCallback(async () => {
     try {
-      // ✅ Don't show loading spinner on refetch — only on first load
       const token = localStorage.getItem("token");
       if (!token) { navigate("/login"); return; }
       const res = await axios.get(
@@ -39,10 +50,8 @@ const SharedDashboardPage = () => {
 
   useEffect(() => { fetchConnect(); }, [fetchConnect]);
 
-  // ✅ onAllComplete — refetch connect but DON'T reset the tab
   const handleAllComplete = useCallback(() => {
-    console.log("🎉 All sessions complete — refetching connect...");
-    fetchConnect(); // ✅ updates connect.status to "completed" without resetting activeTab
+    fetchConnect();
   }, [fetchConnect]);
 
   if (loading) {
@@ -79,8 +88,8 @@ const SharedDashboardPage = () => {
     <SharedDashboardLayout
       connect={connect}
       onAllComplete={handleAllComplete}
-      activeTab={activeTab}        // ✅ pass tab state down
-      setActiveTab={setActiveTab}  // ✅ pass setter down
+      activeTab={activeTab}
+      setActiveTab={handleSetActiveTab}
     />
   );
 };
