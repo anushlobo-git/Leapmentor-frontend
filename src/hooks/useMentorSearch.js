@@ -33,10 +33,6 @@ const useMentorSearch = () => {
 
       const params = new URLSearchParams();
 
-      // ── Send the search term as BOTH skill AND name ──────────
-      // Backend checks: skill → Atlas Search on skills/role/industry
-      //                 name  → regex on User.name
-      // Whichever matches returns results — union of both
       if (currentSkill.trim()) {
         params.set("skill", currentSkill.trim());
         params.set("name",  currentSkill.trim());
@@ -90,10 +86,20 @@ const useMentorSearch = () => {
     fetchMentors(skill, filters, 1, false);
   }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const updateFilter = (key, value) =>
+  // ✅ Wrapped setSkill — clears stale error on new search input
+  const handleSetSkill = (value) => {
+    setError("");
+    setSkill(value);
+  };
+
+  // ✅ updateFilter — clears stale error on any filter change
+  const updateFilter = (key, value) => {
+    setError("");
     setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const resetFilters = () => {
+    setError("");
     setFilters({ industry: "", minPrice: "", maxPrice: "", minRating: "" });
     setSkill("");
     setMentors([]);
@@ -117,7 +123,8 @@ const useMentorSearch = () => {
   return {
     skill, filters, mentors, loading, loadingMore,
     error, hasSearched, hasMore, totalCount,
-    setSkill, updateFilter, resetFilters, loadMore, searchMentors,
+    setSkill: handleSetSkill,  // ✅ wrapped
+    updateFilter, resetFilters, loadMore, searchMentors,
   };
 };
 

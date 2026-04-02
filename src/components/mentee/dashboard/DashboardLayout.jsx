@@ -28,10 +28,27 @@ const DashboardLayout = () => {
   useEffect(() => {
     if (activeTab === "notifications") clearBadge();
   }, [activeTab, clearBadge]);
-  const handleSetTab = (tab) => {
+
+  // Deep link: read ?tab= from URL on mount (e.g. from email links)
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get("tab");
+  const validTabs = ["home", "profile", "findMentors", "history", "notifications", "connects", "help"];
+  if (tab && validTabs.includes(tab)) {
     setActiveTab(tab);
-    setSidebarOpen(false);
-  };
+  }
+}, []);
+  const handleSetTab = (tab) => {
+  setActiveTab(tab);
+  setSidebarOpen(false);
+  const url = new URL(window.location.href);
+  if (tab === "home") {
+    url.searchParams.delete("tab");
+  } else {
+    url.searchParams.set("tab", tab);
+  }
+  window.history.replaceState(null, "", url.toString());
+};
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">

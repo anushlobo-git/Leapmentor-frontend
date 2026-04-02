@@ -1,5 +1,5 @@
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const INDUSTRIES = [
   "Technology", "Finance", "Healthcare", "Education", "Marketing",
@@ -13,8 +13,37 @@ const RATINGS = [
   { label: "Any",  value: "" },
 ];
 
+const PRICE_DEBOUNCE_MS = 600;
+
 const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  // ✅ Local price state — so typing doesn't fire updateFilter on every keystroke
+  const [localMin, setLocalMin] = useState(filters.minPrice);
+  const [localMax, setLocalMax] = useState(filters.maxPrice);
+
+  const minTimer = useRef(null);
+  const maxTimer = useRef(null);
+
+  // ✅ Sync local state if filters are reset externally (e.g. "Clear all filters")
+  useEffect(() => { setLocalMin(filters.minPrice); }, [filters.minPrice]);
+  useEffect(() => { setLocalMax(filters.maxPrice); }, [filters.maxPrice]);
+
+  const handleMinPrice = (value) => {
+    setLocalMin(value);
+    if (minTimer.current) clearTimeout(minTimer.current);
+    minTimer.current = setTimeout(() => {
+      updateFilter("minPrice", value);
+    }, PRICE_DEBOUNCE_MS);
+  };
+
+  const handleMaxPrice = (value) => {
+    setLocalMax(value);
+    if (maxTimer.current) clearTimeout(maxTimer.current);
+    maxTimer.current = setTimeout(() => {
+      updateFilter("maxPrice", value);
+    }, PRICE_DEBOUNCE_MS);
+  };
 
   const activeFilterCount = [
     filters.industry,
@@ -82,12 +111,13 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
               Price Range ($/hr)
             </label>
             <div className="flex items-center gap-2">
+              {/* ✅ Uses localMin/localMax — debounced before hitting updateFilter */}
               <input
                 type="number"
                 min="0"
                 placeholder="Min"
-                value={filters.minPrice}
-                onChange={(e) => updateFilter("minPrice", e.target.value)}
+                value={localMin}
+                onChange={(e) => handleMinPrice(e.target.value)}
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
               />
               <span className="text-slate-300 font-bold shrink-0">—</span>
@@ -95,8 +125,8 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
                 type="number"
                 min="0"
                 placeholder="Max"
-                value={filters.maxPrice}
-                onChange={(e) => updateFilter("maxPrice", e.target.value)}
+                value={localMax}
+                onChange={(e) => handleMaxPrice(e.target.value)}
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
               />
             </div>
