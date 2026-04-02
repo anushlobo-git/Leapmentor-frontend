@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useToast } from "../context/ToastContext";
 
 const API_URL    = import.meta.env.VITE_API_BASE_URL  || "http://localhost:5000/api/v1";
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL    || "http://localhost:5000";
+//const SOCKET_URL = import.meta.env.VITE_SOCKET_URL    || "http://localhost:5000";
 
 const getToken = () => localStorage.getItem("token");
 

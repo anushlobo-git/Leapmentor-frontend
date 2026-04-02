@@ -8,7 +8,7 @@ import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import useSocketToast from "../../hooks/useSocketToast";
-import useSessions from "../../hooks/useSessions";
+//import useSessions from "../../hooks/useSessions";
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
   const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -16,7 +16,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
   useSocketToast();
 
   const viewerRole = connect?.viewerRole || "mentee";
-  const { slots } = useSessions(connect?._id);
+  //const { slots } = useSessions(connect?._id);
   return (
     <div style={{
       height: "100vh",
