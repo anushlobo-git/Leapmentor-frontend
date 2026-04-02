@@ -41,16 +41,16 @@ const CustomTooltip = ({ active, payload, label }) => {
 // ── Status Badge ──────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const styles = {
-    paid:      "bg-emerald-50 text-emerald-600 border-emerald-200",
+    paid: "bg-emerald-50 text-emerald-600 border-emerald-200",
     completed: "bg-emerald-50 text-emerald-600 border-emerald-200",
-    pending:   "bg-amber-50 text-amber-600 border-amber-200",
-    refunded:  "bg-red-50 text-red-500 border-red-200",
+    pending: "bg-amber-50 text-amber-600 border-amber-200",
+    refunded: "bg-red-50 text-red-500 border-red-200",
   };
   const labels = {
-    paid:      "Completed",
+    paid: "Completed",
     completed: "Completed",
-    pending:   "Pending",
-    refunded:  "Refunded",
+    pending: "Pending",
+    refunded: "Refunded",
   };
   return (
     <span className={`text-xs font-bold px-3 py-1 rounded-full border capitalize ${styles[status] || styles.pending}`}>
@@ -108,7 +108,7 @@ const TrackEarningsTab = () => {
         {/* ── Stat Cards — 2 cols mobile, 4 cols large ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {loadingStats ? (
-            [1,2,3,4].map((i) => <Skeleton key={i} className="h-24" />)
+            [1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24" />)
           ) : (
             <>
               <StatCard
@@ -117,7 +117,7 @@ const TrackEarningsTab = () => {
                 sub={
                   <span className="flex items-center gap-0.5">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="18 15 12 9 6 15"/>
+                      <polyline points="18 15 12 9 6 15" />
                     </svg>
                     12%
                   </span>
@@ -128,7 +128,7 @@ const TrackEarningsTab = () => {
                 value={stats.sessionsThisMonth}
                 sub={
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                   </svg>
                 }
                 subColor="text-slate-400"
@@ -138,7 +138,7 @@ const TrackEarningsTab = () => {
                 value={`${Number(stats.avgRating || 0).toFixed(1)}/5.0`}
                 sub={
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" strokeWidth="1">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
                 }
                 subColor="text-amber-400"
@@ -148,8 +148,8 @@ const TrackEarningsTab = () => {
                 value={fmt(stats.pendingPayout)}
                 sub={
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
                   </svg>
                 }
                 subColor="text-slate-400"
@@ -162,8 +162,8 @@ const TrackEarningsTab = () => {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
             <div>
-              <h2 className="text-base font-bold text-slate-800">Earnings Over Last 6 Months</h2>
-              <p className="text-xs text-blue-900 mt-0.5">Revenue growth from Jan 2024 to Jun 2024</p>
+              <h2 className="text-base font-bold text-slate-800">Earnings</h2>
+
             </div>
             <div className="flex items-center gap-1 bg-slate-50 rounded-xl p-1 self-start sm:self-auto shrink-0">
               {["monthly", "weekly"].map((p) => (
@@ -171,11 +171,10 @@ const TrackEarningsTab = () => {
                   key={p}
                   type="button"
                   onClick={() => handleChartPeriod(p)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    chartPeriod === p
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${chartPeriod === p
                       ? "bg-white text-blue-900 shadow-sm"
                       : "text-slate-700 hover:text-slate-600"
-                  }`}
+                    }`}
                 >
                   {p.charAt(0).toUpperCase() + p.slice(1)}
                 </button>
@@ -191,7 +190,7 @@ const TrackEarningsTab = () => {
                 <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#3B82F6" stopOpacity={0.15} />
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.15} />
                       <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -231,7 +230,7 @@ const TrackEarningsTab = () => {
             <div className="relative w-full sm:w-auto">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
               </div>
               <input
@@ -258,9 +257,9 @@ const TrackEarningsTab = () => {
               </thead>
               <tbody>
                 {loadingPayouts ? (
-                  [1,2,3,4].map((i) => (
+                  [1, 2, 3, 4].map((i) => (
                     <tr key={i}>
-                      {[1,2,3,4,5,6].map((j) => (
+                      {[1, 2, 3, 4, 5, 6].map((j) => (
                         <td key={j} className="py-3 pr-4">
                           <Skeleton className="h-4 w-full" />
                         </td>

@@ -71,3 +71,10 @@ export const payAdditionalEscrow = async ({ connectRequestId, sessionRate, slotI
   );
   return res.data;
 };
+// GET /escrow/commission-rate
+export const getPlatformCommissionRate = async () => {
+  const res = await axios.get(`${BASE_URL}/escrow/commission-rate`, {
+    headers: authHeader(),
+  });
+  return res.data;
+};
