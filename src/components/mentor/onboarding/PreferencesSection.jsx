@@ -58,7 +58,8 @@ const PreferencesSection = ({ form, onChange }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
+    // ✅ Removed overflow-hidden so dropdown is not clipped by card boundary
+    <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm">
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
@@ -149,9 +150,9 @@ const PreferencesSection = ({ form, onChange }) => {
                 </svg>
               </button>
 
-              {/* Dropdown list */}
+              {/* ✅ z-[9999] so dropdown escapes any stacking context from parent containers */}
               {dropdownOpen && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-[#e2e8f0] rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                <div className="absolute z-[9999] top-full left-0 right-0 mt-1 bg-white border border-[#e2e8f0] rounded-xl shadow-lg max-h-48 overflow-y-auto">
                   {LANGUAGE_OPTIONS.map((lang) => {
                     const isSelected = languages.includes(lang);
                     return (

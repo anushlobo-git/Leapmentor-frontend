@@ -90,7 +90,7 @@ const HistoryTable = ({ requests, selected, onSelect, onDelete }) => {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800 truncate">{mentorName}</p>
-                <p className="text-[11px] text-slate-400 truncate">{mentor?.email}</p>
+                
               </div>
             </div>
 
