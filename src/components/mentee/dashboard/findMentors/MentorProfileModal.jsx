@@ -4,9 +4,7 @@ import axios from "axios";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
 const BADGES = [
   { key: "newcomer",     label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",        condition: () => true },
   { key: "ten_sessions", label: "10 Sessions",  icon: "🎯", desc: "Completed 10 sessions",    condition: (p) => (p?.totalSessions || 0) >= 10 },
@@ -20,7 +18,6 @@ const formatTime = (time) => {
   const hour = h % 12 || 12;
   return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
 };
-
 const StarRating = ({ rating, reviewCount }) => {
   const r = Number(rating) || 0;
   return (
@@ -43,9 +40,7 @@ const StarRating = ({ rating, reviewCount }) => {
     </div>
   );
 };
-
 const MAX_SLOTS = 5;
-
 // ── Slot Pill ─────────────────────────────────────────────────
 const SlotPill = ({ slot, group, selected, maxReached, onToggle }) => {
   const isDisabled = maxReached && !selected;
@@ -55,8 +50,8 @@ const SlotPill = ({ slot, group, selected, maxReached, onToggle }) => {
       onClick={() => !isDisabled && onToggle(slot, group)}
       disabled={isDisabled}
       className={`
-        relative flex flex-col items-center justify-center gap-0.5
-        rounded-2xl px-2 py-3 text-center border
+        relative flex flex-row items-center justify-center gap-1
+        rounded-2xl px-2 h-14 text-center border
         transition-all duration-200
         ${selected
           ? "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.04]"
@@ -73,16 +68,15 @@ const SlotPill = ({ slot, group, selected, maxReached, onToggle }) => {
           </svg>
         </span>
       )}
-      <span className={`text-[11px] font-bold leading-tight ${selected ? "text-white" : "text-slate-700"}`}>
-        {formatTime(slot.startTime)}
-      </span>
-      <span className={`text-[9px] font-medium ${selected ? "text-blue-100" : "text-slate-400"}`}>
-        – {formatTime(slot.endTime)}
-      </span>
+     <span className={`text-[11px] font-bold leading-tight ${selected ? "text-white" : "text-slate-700"}`}>
+  {formatTime(slot.startTime)}
+</span>
+<span className={`text-[11px] font-bold leading-tight ${selected ? "text-white" : "text-slate-700"}`}>
+  – {formatTime(slot.endTime)}
+</span>
     </button>
   );
 };
-
 // ── Selected Slot Row ─────────────────────────────────────────
 const SelectedSlotRow = ({ slot, index, onRemove }) => (
   <div className="flex items-center gap-2.5 bg-white border border-blue-100 rounded-xl px-3 py-2 shadow-sm">
@@ -107,7 +101,6 @@ const SelectedSlotRow = ({ slot, index, onRemove }) => (
     </button>
   </div>
 );
-
 // ── Main Modal ────────────────────────────────────────────────
 const MentorProfileModal = ({ mentor, onClose }) => {
   const [groupedSlots, setGroupedSlots] = useState([]);
@@ -121,23 +114,18 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const [slotsError, setSlotsError] = useState("");
     const sendingRef = useRef(false); // add near other refs at top of component
 
-
   const { sending, error, sendRequest, reset } = useConnectRequest();
   const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
   const [lockError, setLockError] = useState("");
-
 const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location, totalSessions } = mentor;
-
 const badges = BADGES.map((badge) => ({
   ...badge,
   unlocked: badge.condition({ avgRating, totalSessions }),
 }));  const initials = user?.name ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?";
-
   useEffect(() => {
     if (!mentor?.user?._id) return;
     fetchSlots(selectedDuration);
   }, [mentor, selectedDuration]);
-
   const fetchSlots = async (duration) => {
     try {
       setFetchingSlots(true);
@@ -165,22 +153,17 @@ const badges = BADGES.map((badge) => ({
       setFetchingSlots(false);
     }
   };
-
   const toggleSlot = async (slot, group) => {
     setLockError("");
     const key = `${group.date}-${slot.startTime}`;
     const exists = selectedSlots.find((s) => `${s.date}-${s.startTime}` === key);
-
     if (exists) {
       await unlockSlot(group.date, slot.startTime, slot.endTime);
       setSelectedSlots((prev) => prev.filter((s) => `${s.date}-${s.startTime}` !== key));
       return;
     }
-
     if (selectedSlots.length >= MAX_SLOTS) return;
-
     const result = await lockSlot(group.date, slot.startTime, slot.endTime);
-
     if (!result.ok) {
       setLockError(
         result.code === "SLOT_BOOKED"
@@ -190,17 +173,13 @@ const badges = BADGES.map((badge) => ({
       fetchSlots(selectedDuration);
       return;
     }
-
     const slotObj = { ...slot, date: group.date, day: group.day, displayDate: group.displayDate };
     setSelectedSlots((prev) => [...prev, slotObj]);
   };
-
   const isSlotSelected = (date, startTime) =>
     selectedSlots.some((s) => s.date === date && s.startTime === startTime);
-
   const removeSlot = (index) =>
     setSelectedSlots((prev) => prev.filter((_, i) => i !== index));
-
 
 const handleSend = async () => {
   if (sendingRef.current || selectedSlots.length === 0) return;
@@ -215,18 +194,14 @@ const handleSend = async () => {
   sendingRef.current = false;
   if (ok) setShowSuccess(true);
 };
-
   const totalAvailable = groupedSlots.reduce(
     (acc, g) => acc + g.slots.filter((s) => !s.isBooked).length, 0
   );
-
   const availableGroups = groupedSlots.filter((g) => g.slots.some((s) => !s.isBooked));
   const activeGroup = availableGroups[activeDayIndex] || null;
   const activeFreeSlots = activeGroup ? activeGroup.slots.filter((s) => !s.isBooked) : [];
-
   const selectedCountForDay = (date) =>
     selectedSlots.filter((s) => s.date === date).length;
-
   if (showSuccess) {
     return (
       <ConnectSuccessModal
@@ -235,15 +210,12 @@ const handleSend = async () => {
       />
     );
   }
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-
         {/* ── Header ── */}
         <div className="flex items-start justify-between p-6 pb-5">
           <div className="flex items-center gap-4">
-
             {/* Profile picture with green online dot */}
             <div className="relative shrink-0">
               {profilePicture ? (
@@ -260,7 +232,6 @@ const handleSend = async () => {
               {/* Online indicator */}
               <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm" />
             </div>
-
             {/* Name / role / bio / location */}
             <div className="flex-1 min-w-0">
               <h2 className="text-xl font-bold text-slate-800 leading-tight">{user?.name || "—"}</h2>
@@ -281,7 +252,6 @@ const handleSend = async () => {
               )}
             </div>
           </div>
-
           {/* Close button */}
           <button
             type="button"
@@ -293,9 +263,7 @@ const handleSend = async () => {
             </svg>
           </button>
         </div>
-
         <div className="px-6 pb-6 space-y-5">
-
           {/* ── Rate + Rating ── */}
           <div className="grid grid-cols-2 gap-3">
             {/* Hourly Rate */}
@@ -311,14 +279,12 @@ const handleSend = async () => {
                 <p className="text-3xl font-black text-slate-800">Free</p>
               )}
             </div>
-
             {/* Rating */}
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Rating</p>
               <StarRating rating={avgRating} reviewCount={reviewCount} />
             </div>
           </div>
-
           {/* ── Badges ── */}
 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Badges</p>
@@ -344,10 +310,8 @@ const handleSend = async () => {
     ))}
   </div>
 </div>
-
 {/* ── Details ── */}
 <div className="grid grid-cols-2 gap-x-6 gap-y-4"></div>
-
           {/* ── Details ── */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             {[
@@ -362,7 +326,6 @@ const handleSend = async () => {
               </div>
             ))}
           </div>
-
           {/* ── Duration picker ── */}
           {availableDurations.length > 0 && (
             <div>
@@ -380,10 +343,8 @@ const handleSend = async () => {
               </div>
             </div>
           )}
-
           {/* ══════════ SLOT SELECTION UI ══════════ */}
           <div className="rounded-2xl border border-slate-200 overflow-hidden">
-
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
               <div className="flex items-center gap-2">
@@ -410,13 +371,10 @@ const handleSend = async () => {
                 )}
               </div>
             </div>
-
             <div className="p-4 space-y-3">
-
               <p className="text-xs text-slate-400">
                 Select up to <span className="font-bold text-slate-500">{MAX_SLOTS}</span> preferred slots — mentor will confirm one.
               </p>
-
               {/* Loading skeleton */}
               {fetchingSlots && (
                 <div className="space-y-3">
@@ -432,17 +390,14 @@ const handleSend = async () => {
                   </div>
                 </div>
               )}
-
               {/* Error */}
               {!fetchingSlots && slotsError && (
                 <p className="text-xs text-slate-400 text-center py-4">{slotsError}</p>
               )}
-
               {/* Empty */}
               {!fetchingSlots && !slotsError && availableGroups.length === 0 && (
                 <p className="text-xs text-slate-400 text-center py-4">No available slots.</p>
               )}
-
               {/* Day tab switcher + slots */}
               {!fetchingSlots && !slotsError && availableGroups.length > 0 && (
                 <>
@@ -480,7 +435,6 @@ const handleSend = async () => {
                       );
                     })}
                   </div>
-
                   {/* Slot pills for active day */}
                   {activeGroup && (
                     <div>
@@ -488,7 +442,7 @@ const handleSend = async () => {
                         <span className="text-xs font-bold text-slate-600">{activeGroup.displayDate}</span>
                         <span className="text-[10px] text-slate-400 font-medium">{activeFreeSlots.length} open</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-5">
                         {activeFreeSlots.map((slot, i) => (
                           <SlotPill
                             key={i}
@@ -504,7 +458,6 @@ const handleSend = async () => {
                   )}
                 </>
               )}
-
               {/* Selected slots panel */}
               {selectedSlots.length > 0 && (
                 <div className="pt-3 border-t border-slate-100 space-y-2">
@@ -522,18 +475,16 @@ const handleSend = async () => {
                       Clear all
                     </button>
                   </div>
-                  <div className="space-y-1.5">
-                    {selectedSlots.map((s, i) => (
-                      <SelectedSlotRow key={i} slot={s} index={i} onRemove={removeSlot} />
-                    ))}
-                  </div>
+                  <div className="flex flex-col gap-3">
+  {selectedSlots.map((s, i) => (
+    <SelectedSlotRow key={i} slot={s} index={i} onRemove={removeSlot} />
+  ))}
+</div>
                 </div>
               )}
-
             </div>
           </div>
           {/* ══════════ END SLOT SELECTION UI ══════════ */}
-
           {/* ── Message ── */}
           <div>
             <p className="text-sm font-bold text-slate-700 mb-2">Write a custom message</p>
@@ -547,14 +498,12 @@ const handleSend = async () => {
             />
             <p className="text-xs text-slate-400 text-right mt-1">{message.length}/500</p>
           </div>
-
           {/* ── Error ── */}
           {(error || lockError) && (
             <div className="flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
               <span>⚠</span> {lockError || error}
             </div>
           )}
-
           {/* ── Actions ── */}
           <div className="flex gap-3 pt-1">
             <button
@@ -581,11 +530,9 @@ const handleSend = async () => {
               )}
             </button>
           </div>
-
         </div>
       </div>
     </div>
   );
 };
-
 export default MentorProfileModal;
