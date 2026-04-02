@@ -1,6 +1,6 @@
 // src/components/mentee/dashboard/history/RequestHistoryTab.jsx
 import useRequestHistory from "../../../../hooks/useRequestHistory";
-import useSocketToast from "../../../../hooks/useSocketToast";
+import { useEffect } from "react";
 import { TABS } from "./constants";
 import HistoryTable from "./HistoryTable";
 import DetailDrawer from "./DetailDrawer";
@@ -15,7 +15,21 @@ const RequestHistoryTab = () => {
     fetchRequests,
   } = useRequestHistory();
 
-  useSocketToast(fetchRequests);
+  useEffect(() => {
+  const handleRequestChanged = () => fetchRequests();
+
+  const waitForSocket = setInterval(() => {
+    if (window.__leapSocket?.connected) {
+      clearInterval(waitForSocket);
+      window.__leapSocket.on("request_status_changed", handleRequestChanged);
+    }
+  }, 200);
+
+  return () => {
+    clearInterval(waitForSocket);
+    window.__leapSocket?.off("request_status_changed", handleRequestChanged);
+  };
+}, [fetchRequests]);
 
   if (loading) {
     return (

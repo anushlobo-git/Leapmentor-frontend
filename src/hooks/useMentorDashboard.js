@@ -39,7 +39,6 @@ const useMentorDashboard = () => {
 
     const fetchData = async () => {
       try {
-        setLoading(true);
 
         // 1) Fetch user
         const userRes = await axios.get(`${BASE_URL}/users/me`, { headers: authHeader });
@@ -97,7 +96,7 @@ const useMentorDashboard = () => {
     };
 
     fetchData();
-  }, [navigate, location.pathname]);
+  }, []);
 
   return { user, profile, loading, error, refetchProfile };
 };
