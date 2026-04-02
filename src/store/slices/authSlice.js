@@ -8,6 +8,7 @@ export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
   if (targetRole === "mentee" && roles.includes("mentee")) return navigate("/dashboard/mentee");
   if (roles.includes("mentor"))  return navigate("/dashboard/mentor");
+
   if (roles.includes("mentee"))  return navigate("/dashboard/mentee");
   navigate("/");
 };
@@ -136,6 +137,7 @@ const authSlice = createSlice({
     sending:    false,   // for resend/send OTP actions
     error:      null,
     successMsg: null,
+    verifiedRole: null,
   },
   reducers: {
     logout(state) {
@@ -231,10 +233,11 @@ const authSlice = createSlice({
         state.error      = null;
         state.successMsg = null;
       })
-      .addCase(verifyMagicLink.fulfilled, (state) => {
-        state.loading    = false;
-        state.successMsg = "Email verified! Redirecting to login...";
-      })
+      .addCase(verifyMagicLink.fulfilled, (state, action) => {
+  state.loading        = false;
+  state.successMsg     = "Email verified! Redirecting to login...";
+  state.verifiedRole   = action.payload?.role || null;
+})
       .addCase(verifyMagicLink.rejected, (state, action) => {
         state.loading = false;
         state.error   = action.payload;

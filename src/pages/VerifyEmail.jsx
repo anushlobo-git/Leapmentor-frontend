@@ -39,14 +39,16 @@ const VerifyEmail = () => {
       dispatch(clearMessages());
       setMsg({ type: "", text: "" });
 
-      dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
-        if (verifyMagicLink.fulfilled.match(action)) {
-          setMsg({ type: "success", text: "Email verified! Redirecting to login..." });
-          setTimeout(() => navigate(loginPath), 1500);
-        } else {
-          setMsg({ type: "error", text: action.payload || "Magic link verification failed." });
-        }
-      });
+     dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
+  if (verifyMagicLink.fulfilled.match(action)) {
+    const userRole = action.payload?.role || "mentee";
+    const redirectPath = userRole === "mentee" ? "/login/mentee" : "/login/mentor";
+    setMsg({ type: "success", text: "Email verified! Redirecting to login..." });
+    setTimeout(() => navigate(redirectPath), 1500);
+  } else {
+    setMsg({ type: "error", text: action.payload || "Magic link verification failed." });
+  }
+});
     }
   }, []);
 
