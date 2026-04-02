@@ -1,7 +1,8 @@
 // src/components/mentee/dashboard/DashboardLayout.jsx
 import { useState, useEffect } from "react";
 import useMenteeDashboard from "../../../hooks/useMenteeDashboard";
-import useUnreadCount from "../../../hooks/useUnreadCount"; // ✅ added
+import useUnreadCount from "../../../hooks/useUnreadCount";
+import useSocketToast from "../../../hooks/useSocketToast"; // ✅ added
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import HomeTab from "./HomeTab";
@@ -15,6 +16,7 @@ import HelpCenter from "../../common/HelpCenter";
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMenteeDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
+  useSocketToast(); // ✅ listens for request_accepted, request_declined, request_referred
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   useEffect(() => {
