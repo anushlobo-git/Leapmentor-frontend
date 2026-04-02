@@ -1,4 +1,5 @@
 // components/mentee/onboarding/MenteeOnboardingShell.jsx
+import { useState, useRef } from "react";
 import useMenteeOnboarding from "../../../hooks/useMenteeOnboarding";
 import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalDetailsSection from "./ProfessionalDetailsSection";
@@ -10,6 +11,62 @@ import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
   const { form, loading, msg, handleChange, handleSubmit } = useMenteeOnboarding();
+  const [errors, setErrors] = useState({});
+
+  // ── Refs for custom tag-input sections that have no real name= in the DOM ──
+  const sectionRefs = {
+    interestedFields: useRef(null),
+    skills:           useRef(null),
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!form.currentRole?.trim())      newErrors.currentRole = true;
+    if (!form.yearsOfExperience)        newErrors.yearsOfExperience = true;
+    if (!form.industry)                 newErrors.industry = true;
+    if (!form.interestedFields?.length) newErrors.interestedFields = true;
+    if (!form.skills?.length)           newErrors.skills = true;
+    return newErrors;
+  };
+
+  // ── Scroll to the first errored field ──
+  // Priority: name= attribute → data-field= attribute → React ref
+  const scrollToFirstError = (errorKeys) => {
+    if (!errorKeys.length) return;
+    const firstKey = errorKeys[0];
+    const el =
+      document.querySelector(`[name="${firstKey}"]`) ||
+      document.querySelector(`[data-field="${firstKey}"]`) ||
+      sectionRefs[firstKey]?.current;
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  // Clears the error for a field as soon as the user starts filling it
+  const onChange = (e) => {
+    const { name } = e.target;
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
+    handleChange(e);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      scrollToFirstError(Object.keys(newErrors));
+      return;
+    }
+    setErrors({});
+    handleSubmit(e);
+  };
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]">
@@ -27,16 +84,14 @@ const MenteeOnboardingShell = () => {
             />
             <span className="text-sm font-bold text-slate-800">Leapmentor</span>
           </div>
-
         </div>
       </header>
 
-
-      {/* Page title */}
+      {/* Progress bar */}
       <OnboardingProgressBar form={form} fields={MENTEE_ONBOARDING_FIELDS} />
 
       {/* Page title */}
-      <div className="max-w-2xl mx-auto px-6 pt-8 pb-2 ">
+      <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
         <h1 className="text-2xl font-bold text-slate-900">Mentee Onboarding</h1>
         <p className="text-sm text-slate-400 mt-1">
           Complete your profile and find the perfect mentor to accelerate your career.
@@ -45,21 +100,36 @@ const MenteeOnboardingShell = () => {
 
       {/* Form */}
       <main className="max-w-2xl mx-auto px-6 py-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} noValidate className="space-y-4">
 
-          <PersonalInfoSection form={form} handleChange={handleChange} />
-          <ProfessionalDetailsSection form={form} handleChange={handleChange} />
-          <InterestedFieldsSection form={form} handleChange={handleChange} />
-          <MentorshipPrefsSection form={form} handleChange={handleChange} />
-          <SocialLinksSection form={form} handleChange={handleChange} />
+          <PersonalInfoSection        form={form} handleChange={onChange} errors={errors} />
+          <ProfessionalDetailsSection  form={form} handleChange={onChange} errors={errors} />
+
+          {/*
+            Both interestedFields and skills live inside this one section.
+            We pass the interestedFields ref — it points to the section wrapper,
+            so the page scrolls to the top of the section regardless of which
+            field triggered the error. The skills input also gets data-field
+            so if skills is the only error, the DOM query finds it directly.
+          */}
+          <InterestedFieldsSection
+            ref={sectionRefs.interestedFields}
+            form={form}
+            handleChange={onChange}
+            errors={errors}
+          />
+
+          <MentorshipPrefsSection form={form} handleChange={onChange} />
+          <SocialLinksSection     form={form} handleChange={onChange} />
 
           {/* Status message */}
           {msg.text && (
-            <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-              : "bg-red-50 border-red-200 text-red-600"
-              }`}>
-              <span>{msg.type === "success" ? "✓" : ":warning:"}</span>
+            <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
+              msg.type === "success"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                : "bg-red-50 border-red-200 text-red-600"
+            }`}>
+              <span>{msg.type === "success" ? "✓" : "⚠️"}</span>
               {msg.text}
             </div>
           )}

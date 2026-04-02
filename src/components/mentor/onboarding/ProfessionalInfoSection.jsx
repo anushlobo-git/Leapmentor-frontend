@@ -1,79 +1,108 @@
 // components/mentor/onboarding/ProfessionalInfoSection.jsx
+import { forwardRef } from "react";
 
 const INDUSTRY_OPTIONS = [
   "Technology", "Finance", "Healthcare", "Education", "Design",
   "Marketing", "Legal", "Consulting", "Media", "Engineering", "Other",
 ];
 
-const inputClass = "w-full text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0] rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-500 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20] transition-all duration-150";
+const inputClass = (hasError) =>
+  `w-full text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${
+    hasError
+      ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
+      : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
+  }`;
 
-const ProfessionalInfoSection = ({ form, onChange }) => {
+const selectClass = (hasError, hasValue) =>
+  `w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 ${
+    hasError
+      ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100 text-slate-800"
+      : `border-slate-300 focus:border-blue-400 focus:ring-blue-100 ${hasValue ? "text-slate-800" : "text-slate-400"}`
+  }`;
+
+const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
   return (
-    <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
+    <div
+      ref={ref}
+      className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden"
+    >
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-[#0f172a]">Professional Info</h2>
+        <h2 className="text-sm font-bold text-slate-800">Professional Info</h2>
       </div>
 
       <div className="px-6 py-5">
         <div className="grid grid-cols-2 gap-4">
+
           {/* Current Role */}
           <div>
-            <label className="block text-xs font-semibold text-[#475569] mb-1.5">
+            <label className="block text-xs font-semibold text-slate-500 mb-2">
               Current Role <span className="text-blue-900">*</span>
             </label>
             <input
               name="currentRole"
               value={form.currentRole}
               onChange={onChange}
-              className={inputClass}
+              className={inputClass(errors.currentRole)}
               placeholder="e.g. Senior Product Designer"
-              required
             />
+            {errors.currentRole && (
+              <p className="text-xs text-red-400 mt-1">Current role is required.</p>
+            )}
           </div>
 
           {/* Industry */}
           <div>
-            <label htmlFor="industry" className="block text-xs font-semibold text-[#475569] mb-1.5">
+            <label htmlFor="industry" className="block text-xs font-semibold text-slate-500 mb-2">
               Industry <span className="text-blue-900">*</span>
             </label>
-            <select
-              id="industry"
-              name="industry"
-              value={form.industry}
-              onChange={onChange}
-              className={inputClass}
-              required
-            >
-              <option value="" disabled className="text-slate-500">Select industry</option>
-              {INDUSTRY_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="industry"
+                name="industry"
+                value={form.industry}
+                onChange={onChange}
+                className={selectClass(errors.industry, !!form.industry)}
+              >
+                <option value="" disabled className="text-slate-400">Select industry</option>
+                {INDUSTRY_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt} className="text-slate-800">{opt}</option>
+                ))}
+              </select>
+              {/* Custom arrow — sits inset from right edge */}
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+            </div>
+            {errors.industry && (
+              <p className="text-xs text-red-400 mt-1">Please select an industry.</p>
+            )}
           </div>
 
           {/* Company */}
           <div>
-            <label className="block text-xs font-semibold text-[#475569] mb-1.5">
+            <label className="block text-xs font-semibold text-slate-500 mb-2">
               Company
             </label>
             <input
               name="company"
               value={form.company}
               onChange={onChange}
-              className={inputClass}
+              className={inputClass(false)}
               placeholder="e.g. Google, Startup Inc."
             />
           </div>
 
           {/* Years of Experience */}
           <div>
-            <label className="block text-xs font-semibold text-[#475569] mb-1.5">
+            <label className="block text-xs font-semibold text-slate-500 mb-2">
               Years of Experience <span className="text-blue-900">*</span>
             </label>
             <input
@@ -83,34 +112,38 @@ const ProfessionalInfoSection = ({ form, onChange }) => {
               max="60"
               value={form.yearsOfExperience}
               onChange={onChange}
-              className={inputClass}
+              className={inputClass(errors.yearsOfExperience)}
               placeholder="e.g. 8"
-              required
             />
+            {errors.yearsOfExperience && (
+              <p className="text-xs text-red-400 mt-1">Years of experience is required.</p>
+            )}
           </div>
 
-          {/* Hourly Rate */}
+          {/* Session Rate */}
           <div className="col-span-2">
-            <label className="block text-xs font-semibold text-[#475569] mb-1.5">
-              Hourly Rate (USD)
+            <label className="block text-xs font-semibold text-slate-500 mb-2">
+              Session Rate
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">$</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold"></span>
               <input
                 name="hourlyRate"
                 type="number"
                 min="0"
                 value={form.hourlyRate}
                 onChange={onChange}
-                className={inputClass + " pl-7"}
+                className={inputClass(false) + " pl-7"}
                 placeholder="e.g. 50"
               />
             </div>
           </div>
+
         </div>
       </div>
     </div>
   );
-};
+});
 
+ProfessionalInfoSection.displayName = "ProfessionalInfoSection";
 export default ProfessionalInfoSection;

@@ -62,7 +62,7 @@ const MentorshipPrefsSection = ({ form, handleChange }) => {
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-slate-800">4. Mentorship Preferences</h2>
+        <h2 className="text-sm font-bold text-slate-800">Mentorship Preferences</h2>
       </div>
 
       <div className="px-6 py-5">
@@ -133,7 +133,7 @@ const MentorshipPrefsSection = ({ form, handleChange }) => {
               <button
                 type="button"
                 onClick={() => setDropdownOpen((prev) => !prev)}
-                className="w-full text-sm text-left bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150 flex items-center justify-between"
+                className="w-full text-sm text-left bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150 flex items-center justify-between"
               >
                 <span className={languages.length === 0 ? "text-slate-300" : "text-slate-700"}>
                   {languages.length === 0 ? "Select languages..." : `${languages.length} selected`}

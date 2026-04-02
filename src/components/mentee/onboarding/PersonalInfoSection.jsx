@@ -13,7 +13,6 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ Client-side validation before uploading
     if (!file.type.startsWith("image/")) {
       setUploadErr("Only image files are allowed.");
       return;
@@ -29,7 +28,6 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     try {
       const token = localStorage.getItem("token");
 
-      // ✅ Send as multipart/form-data — NOT Base64
       const formData = new FormData();
       formData.append("profilePicture", file);
 
@@ -44,7 +42,6 @@ const PersonalInfoSection = ({ form, handleChange }) => {
         }
       );
 
-      // ✅ Store the Cloudinary URL in form state — not the Base64 string
       handleChange({
         target: {
           name:  "profilePicture",
@@ -57,14 +54,13 @@ const PersonalInfoSection = ({ form, handleChange }) => {
       );
     } finally {
       setUploading(false);
-      // ✅ Reset input so same file can be re-selected if needed
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
+    <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -72,7 +68,7 @@ const PersonalInfoSection = ({ form, handleChange }) => {
             <circle cx="12" cy="7" r="4"/>
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-slate-800">1. Profile Picture & Bio</h2>
+        <h2 className="text-sm font-bold text-slate-800">Profile Picture & Bio</h2>
       </div>
 
       <div className="px-6 py-5 flex items-start gap-6">
@@ -88,10 +84,8 @@ const PersonalInfoSection = ({ form, handleChange }) => {
               transition-all duration-200 overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {uploading ? (
-              /* ✅ Spinner while uploading to Cloudinary */
               <div className="w-6 h-6 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
             ) : form.profilePicture ? (
-              /* ✅ Shows Cloudinary URL — fast CDN delivery */
               <img
                 src={form.profilePicture}
                 alt="Profile"
@@ -116,7 +110,6 @@ const PersonalInfoSection = ({ form, handleChange }) => {
 
           <p className="text-[10px] text-slate-400">PNG, JPG · Max 5MB</p>
 
-          {/* ✅ Error message */}
           {uploadErr && (
             <p className="text-[10px] text-red-500 text-center max-w-[90px] leading-tight">
               {uploadErr}
@@ -134,16 +127,17 @@ const PersonalInfoSection = ({ form, handleChange }) => {
 
         {/* Bio */}
         <div className="flex-1">
-          <label className="block text-xs font-semibold text-slate-500 mb-1.5">Bio</label>
+          <label className="block text-xs font-semibold text-[#475569] mb-2">Bio</label>
           <textarea
             name="bio"
             value={form.bio}
             onChange={handleChange}
             rows={4}
             placeholder="Tell us about your background, career aspirations, and what you're looking for in a mentor..."
-            className="w-full text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-xl
-              px-3.5 py-2.5 outline-none placeholder:text-slate-300 focus:border-blue-400
-              focus:ring-2 focus:ring-blue-100 resize-none transition-all duration-150"
+            className="w-full text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0]
+              rounded-xl px-3.5 py-2.5 outline-none placeholder:text-[#94a3b8]
+              focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20]
+              resize-none transition-all duration-150"
           />
         </div>
       </div>
