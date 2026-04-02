@@ -23,8 +23,6 @@ const formatTime = (t) => {
   return `${hour % 12 || 12}:${m} ${ampm}`;
 };
 
-// A slot is "active" if it hasn't been cancelled
-// Existing DB slots without a status field are treated as booked
 const isActive = (slot) => !slot?.status || slot?.status !== "cancelled";
 
 // ── Cancel Confirm Modal ──────────────────────────────────────
@@ -35,7 +33,6 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-5">
-        {/* Icon + Title */}
         <div className="flex items-start gap-4">
           <div className="w-11 h-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -57,7 +54,6 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
           This session slot will be permanently cancelled. The other party will be notified immediately.
         </p>
 
-        {/* Optional reason */}
         <div>
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">
             Reason <span className="font-normal normal-case">(optional)</span>
@@ -100,7 +96,7 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
   );
 };
 
-// ── Slot Picker (reused from SharedAdditionalSessionTab) ──────
+// ── Slot Picker ───────────────────────────────────────────────
 const formatTimeShort = (t) => {
   if (!t) return "";
   const [h, m] = t.split(":");
@@ -125,7 +121,6 @@ const SlotPickerDateCard = ({ group, onSelect, bookedSlots }) => {
         className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          {/* Date badge */}
           <div className="w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0"
             style={{ background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 12px rgba(37,99,235,0.3)" }}>
             <span className="text-[10px] font-bold text-white/80 leading-none">
@@ -191,7 +186,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
   const [availError, setAvailError] = useState(null);
   const [selectedNewSlot, setSelectedNewSlot] = useState(null);
 
-  // Slots already booked (excluding the one being rescheduled so its time is freed up)
   const bookedSlots = existingSlots
     .filter((s, i) => i !== slotIndex && isActive(s))
     .map((s) => ({ date: s.date, startTime: s.startTime, endTime: s.endTime }));
@@ -220,7 +214,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
       style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
@@ -248,10 +241,7 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
-
-          {/* Info banner */}
           <div className="flex items-start gap-2.5 px-3.5 py-3 bg-blue-50 border border-blue-100 rounded-xl">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
               stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
@@ -263,7 +253,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
             </p>
           </div>
 
-          {/* Duration picker */}
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
               Session Duration
@@ -287,7 +276,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
             </div>
           </div>
 
-          {/* Slot picker */}
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
               Pick a New Time Slot
@@ -331,7 +319,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
           </div>
         </div>
 
-        {/* Footer — confirm selected slot */}
         {selectedNewSlot && (
           <div className="border-t border-slate-100 px-6 py-4 shrink-0">
             <div className="flex items-center justify-between gap-3 mb-3 px-3.5 py-3 bg-blue-50 border border-blue-200 rounded-xl">
@@ -373,12 +360,12 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                 {saving
                   ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Rescheduling...</>
                   : <>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      Confirm Reschedule
-                    </>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Confirm Reschedule
+                  </>
                 }
               </button>
             </div>
@@ -486,12 +473,12 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
 
 // ── Completion Section ────────────────────────────────────────
 const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, saving }) => {
-  const isMentee       = viewerRole === "mentee";
-  const iMenteeMarked  = slot?.menteeMarked || false;
-  const iMentorMarked  = slot?.mentorMarked || false;
-  const myMark         = isMentee ? iMenteeMarked : iMentorMarked;
-  const otherMark      = isMentee ? iMentorMarked : iMenteeMarked;
-  const bothDone       = iMenteeMarked && iMentorMarked;
+  const isMentee = viewerRole === "mentee";
+  const iMenteeMarked = slot?.menteeMarked || false;
+  const iMentorMarked = slot?.mentorMarked || false;
+  const myMark = isMentee ? iMenteeMarked : iMentorMarked;
+  const otherMark = isMentee ? iMentorMarked : iMenteeMarked;
+  const bothDone = iMenteeMarked && iMentorMarked;
 
   return (
     <div className="border-t border-slate-100 pt-3">
@@ -523,9 +510,9 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
           {saving
             ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Marking...</>
             : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>Mark Session Complete</>
+              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>Mark Session Complete</>
           }
         </button>
       )}
@@ -550,7 +537,7 @@ const SessionCard = ({
   slotIndex,
   viewerRole,
   otherName,
-  saving,
+  savingSlots,
   onSetLink,
   onMarkComplete,
   onCancelSlot,
@@ -558,18 +545,18 @@ const SessionCard = ({
   allSlots,
   connectRequestId,
 }) => {
-  const [showCancelModal,    setShowCancelModal]    = useState(false);
+  const saving = savingSlots.has(slotIndex); 
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
 
-  const cancelled  = slot?.status === "cancelled";
-  const bothDone   = slot?.menteeMarked && slot?.mentorMarked;
-  const isMentee   = viewerRole === "mentee";
+  const cancelled = slot?.status === "cancelled";
+  const bothDone = slot?.menteeMarked && slot?.mentorMarked;
+  const isMentee = viewerRole === "mentee";
 
-  // Don't show Cancel/Reschedule on completed or already cancelled slots
-  const canCancel     = !cancelled && !bothDone;
+  const canCancel = !cancelled && !bothDone;
   const canReschedule = isMentee && !cancelled && !bothDone;
 
-  // Status label + colour
   const statusLabel = cancelled
     ? "Cancelled"
     : bothDone
@@ -601,14 +588,12 @@ const SessionCard = ({
       <div className={`bg-white border rounded-2xl p-4 flex flex-col gap-3 transition-opacity
         ${cancelled ? "opacity-60 border-red-100" : bothDone ? "border-emerald-200" : "border-slate-200"}`}>
 
-        {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Session {slotIndex + 1}
               </p>
-              {/* Rescheduled badge */}
               {slot?.isRescheduled && !cancelled && (
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-600 uppercase tracking-wide">
                   Rescheduled
@@ -625,7 +610,6 @@ const SessionCard = ({
           </span>
         </div>
 
-        {/* Cancelled state — show who cancelled + reason */}
         {cancelled ? (
           <div className="border-t border-red-100 pt-3">
             <div className="flex items-start gap-2.5 px-3 py-2.5 bg-red-50 border border-red-100 rounded-xl">
@@ -649,7 +633,6 @@ const SessionCard = ({
           </div>
         ) : (
           <>
-            {/* Meeting link — only for active slots */}
             <MeetingLinkSection
               slot={slot}
               viewerRole={viewerRole}
@@ -657,7 +640,6 @@ const SessionCard = ({
               saving={saving}
             />
 
-            {/* Completion — only for active slots */}
             <CompletionSection
               slot={slot}
               viewerRole={viewerRole}
@@ -669,7 +651,6 @@ const SessionCard = ({
           </>
         )}
 
-        {/* ✅ Cancel + Reschedule action buttons */}
         {(canCancel || canReschedule) && (
           <div className="border-t border-slate-100 pt-3 flex gap-2">
             {canReschedule && (
@@ -708,7 +689,6 @@ const SessionCard = ({
         )}
       </div>
 
-      {/* Modals — rendered outside the card div to avoid clipping */}
       {showCancelModal && (
         <CancelModal
           slot={slot}

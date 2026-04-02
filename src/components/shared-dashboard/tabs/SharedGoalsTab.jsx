@@ -154,7 +154,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
 
   // ── Sessions ──────────────────────────────────────────────
   const {
-    slots, loading: slotsLoading, saving: slotsSaving, error: slotsError,
+    slots, loading: slotsLoading, savingSlots, error: slotsError,
     completedSlots, totalSlots, progress,
     setMeetingLink, markSlotComplete,
     cancelSlot,     // ✅ NEW
@@ -271,7 +271,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 slotIndex={index}
                 viewerRole={viewerRole}
                 otherName={otherName}
-                saving={slotsSaving}
+                savingSlots={savingSlots}
                 onSetLink={setMeetingLink}
                 onMarkComplete={markSlotComplete}
                 onCancelSlot={cancelSlot}         
