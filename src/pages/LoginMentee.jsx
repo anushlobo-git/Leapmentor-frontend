@@ -8,13 +8,8 @@ const LoginMentee = () => {
       <div className="hidden lg:block lg:w-[45%] shrink-0">
         <LoginLeftPanel role="mentee" />
       </div>
-
       <main className="flex-1 flex items-center justify-center bg-white px-6 py-12">
-        <LoginForm
-          role="mentee"
-          placeholder="mentee@example.com"
-          registerPath="/register/mentee"
-        />
+        <LoginForm placeholder="you@example.com" registerPath="/register/mentee" />
       </main>
     </div>
   );

@@ -70,6 +70,7 @@ const App = () => {
           {/* ── Auth ──────────────────────────────────────── */}
           <Route path="/register/mentee"   element={<RegisterMentee />} />
           <Route path="/register/mentor"   element={<RegisterMentor />} />
+          <Route path="/login" element={<LoginMentee />} />
           <Route path="/login/mentor"      element={<LoginMentor />} />
           <Route path="/login/mentee"      element={<LoginMentee />} />
           <Route path="/verify-email"      element={<VerifyEmail />} />
