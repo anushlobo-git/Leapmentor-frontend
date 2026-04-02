@@ -1,17 +1,7 @@
 // src/components/auth/AuthSSOButtons.jsx
-import { GoogleIcon, LinkedInIcon, AppleIcon } from "./AuthIcons";
+import { GoogleIcon, LinkedInIcon } from "./AuthIcons";
 
-/**
- * Reusable SSO button row (Google, LinkedIn, Apple).
- *
- * Props:
- *  - googleBtnRef   : ref forwarded to the hidden Google button div
- *  - loading        : boolean — disables all buttons when true
- *  - clerkLoaded    : boolean — disables LinkedIn/Apple until Clerk is ready
- *  - onLinkedIn     : click handler for LinkedIn
- *  - onApple        : click handler for Apple
- */
-const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn, onApple }) => {
+const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn }) => {
   return (
     <div className="flex gap-2.5">
       {/* Google */}
@@ -36,17 +26,6 @@ const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn, onAppl
       >
         <LinkedInIcon />
         LinkedIn
-      </button>
-
-      {/* Apple */}
-      <button
-        type="button"
-        onClick={onApple}
-        disabled={loading || !clerkLoaded}
-        className="flex-1 flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-      >
-        <AppleIcon />
-        Apple
       </button>
     </div>
   );

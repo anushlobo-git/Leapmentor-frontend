@@ -16,7 +16,6 @@ const callbackRef = {
 
 const useGoogleAuth = ({
   btnRef,
-  termsAcceptedRef,
   roles,
   onSuccess,
   onError,
@@ -34,7 +33,6 @@ const useGoogleAuth = ({
   callbackRef.onSuccess = onSuccess;
   callbackRef.onError = onError;
   callbackRef.onLoadingChange = onLoadingChange;
-  callbackRef.termsAcceptedRef = termsAcceptedRef;
   callbackRef.rolesRef = rolesRef;
 
   useEffect(() => {
@@ -53,13 +51,6 @@ const useGoogleAuth = ({
           callback: async (response) => {
             // ✅ Always reads from callbackRef — never stale
             try {
-              if (
-                callbackRef.termsAcceptedRef &&
-                !callbackRef.termsAcceptedRef.current
-              ) {
-                callbackRef.onError("Please accept the terms to continue.");
-                return;
-              }
               callbackRef.onLoadingChange?.(true);
               const res = await axios.post(`${BASE_URL}/auth/google`, {
                 credential: response.credential,

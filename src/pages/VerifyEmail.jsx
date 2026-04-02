@@ -18,7 +18,7 @@ const VerifyEmail = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const role = location.state?.role || "mentor";
-  const loginPath = role === "mentee" ? "/login/mentee" : "/login/mentor";
+  const loginPath = "/login";
 
   const hasSentRef = useRef(false);
   const hasVerifiedRef = useRef(false);

@@ -114,17 +114,11 @@ const RegisterForm = ({ role }) => {
       const { isNewUser, message } = result.payload;
 
       if (!isNewUser) {
-        // already had this exact role — show error
-        if (message === "Already registered with this role") {
-          return setLocalMsg({
-            type: "error",
-            text: `You are already registered as a ${role}. Please login.`,
-          });
-        }
-        // role was newly added — redirect to dashboard
-        setTimeout(() => navigate(`/dashboard/${role}`), 800);
-        return;
-      }
+  return setLocalMsg({
+    type: "error",
+    text: "This email is already registered. Please login instead.",
+  });
+}
 
       // brand new user → verify email first
       setTimeout(() => navigate("/verify-email", {
@@ -273,7 +267,7 @@ const RegisterForm = ({ role }) => {
         Already have an account?{" "}
         <span
           className="text-blue-900 font-semibold cursor-pointer hover:underline"
-          onClick={() => navigate(`/login/${role}`)}
+          onClick={() => navigate("/login")}
         >
           Login
         </span>
