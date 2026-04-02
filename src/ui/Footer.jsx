@@ -9,14 +9,14 @@ const footerLinks = {
 };
 
 export default function Footer() {
-  const [isTermsOpen,    setIsTermsOpen]    = useState(false);
-  const [isContactOpen,  setIsContactOpen]  = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const navigate = useNavigate();
 
   // Same routes the navbar uses
   const handleLinkClick = (link) => {
-    if (link === "Find a Mentor")    return navigate("/register/mentee");
-    if (link === "Become a Mentor")  return navigate("/register/mentor");
+    if (link === "Find a Mentor") return navigate("/register/mentee");
+    if (link === "Become a Mentor") return navigate("/register/mentor");
   };
 
   return (
@@ -144,11 +144,11 @@ export default function Footer() {
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "center",
               gap: "12px",
             }}
           >
-            <p style={{ color: "#4b5563", fontSize: "12px" }}>
+            <p style={{ color: "#4b5563", fontSize: "12px", allignment: "center" }}>
               © 2026 LeapMentor Inc. All rights reserved.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
@@ -166,7 +166,6 @@ export default function Footer() {
                 onMouseEnter={e => { e.currentTarget.style.color = "#9ca3af"; }}
                 onMouseLeave={e => { e.currentTarget.style.color = "#4b5563"; }}
               >
-                Terms & Conditions
               </button>
             </div>
           </div>
