@@ -90,7 +90,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
             <div>
               <h2 className="text-lg font-bold text-slate-800">{mentee?.name || "—"}</h2>
               <p className="text-sm text-blue-900 font-semibold">Aspiring Mentee</p>
-              <p className="text-xs text-slate-400 mt-0.5">{mentee?.email}</p>
+              
             </div>
           </div>
           <button type="button" onClick={onClose}

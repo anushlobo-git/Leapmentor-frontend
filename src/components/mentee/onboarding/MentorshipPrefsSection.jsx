@@ -54,7 +54,7 @@ const MentorshipPrefsSection = ({ form, handleChange }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-blue-100 shadow-sm">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -146,7 +146,7 @@ const MentorshipPrefsSection = ({ form, handleChange }) => {
 
               {/* Dropdown list */}
               {dropdownOpen && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-44 overflow-y-auto">
                   {LANGUAGE_OPTIONS.map((lang) => {
                     const isSelected = languages.includes(lang);
                     return (
