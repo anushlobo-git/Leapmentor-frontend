@@ -2,7 +2,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import useMentorDashboard from "../../../hooks/useMentorDashboard";
 import useUnreadCount from "../../../hooks/useUnreadCount";
-import useSocketToast from "../../../hooks/useSocketToast";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 
@@ -37,7 +36,6 @@ const TabSkeleton = () => (
 const DashboardLayout = () => {
   const { user, profile, loading, error, refetchProfile } = useMentorDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
-  useSocketToast();
 
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
