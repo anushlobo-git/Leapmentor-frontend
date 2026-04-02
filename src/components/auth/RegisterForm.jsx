@@ -18,6 +18,26 @@ const CLERK_STRATEGY = {
   apple: "oauth_apple",
 };
 
+// ✅ Password validation rules
+const validatePassword = (password) => {
+  const rules = [
+    { id: "length",    label: "At least 8 characters",       test: (p) => p.length >= 8 },
+    { id: "uppercase", label: "At least 1 uppercase letter",  test: (p) => /[A-Z]/.test(p) },
+    { id: "number",    label: "At least 1 number",            test: (p) => /[0-9]/.test(p) },
+    { id: "special",   label: "At least 1 special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
+  ];
+  const passed = rules.filter((r) => r.test(password)).length;
+  return { rules, passed, total: rules.length };
+};
+
+// ✅ Strength label + color based on how many rules passed
+const getStrength = (passed) => {
+  if (passed <= 1) return { label: "Weak",   color: "#ef4444", width: "25%"  };
+  if (passed === 2) return { label: "Fair",   color: "#f59e0b", width: "50%"  };
+  if (passed === 3) return { label: "Good",   color: "#3b82f6", width: "75%"  };
+  return              { label: "Strong", color: "#22c55e", width: "100%" };
+};
+
 const RegisterForm = ({ role }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,6 +55,7 @@ const RegisterForm = ({ role }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [localMsg, setLocalMsg] = useState({ type: "", text: "" });
+  const [pwTouched, setPwTouched] = useState(false); // ✅ track if user typed in password
 
   useEffect(() => {
     if (error) setLocalMsg({ type: "error", text: error });
@@ -49,8 +70,8 @@ const RegisterForm = ({ role }) => {
     if (form.termsAccepted && localMsg.text === "Please accept the terms to continue.") {
       setLocalMsg({ type: "", text: "" });
     }
-
   }, [form.termsAccepted]);
+
   useGoogleAuth({
     btnRef: googleBtnRef,
     termsAcceptedRef,
@@ -96,11 +117,18 @@ const RegisterForm = ({ role }) => {
     }
   };
 
-  // ✅ only this function changed — everything else is same
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalMsg({ type: "", text: "" });
+
     if (!form.termsAccepted) return setLocalMsg({ type: "error", text: "Please accept the terms to continue." });
+
+    // ✅ Password validation — block if not all 4 rules pass
+    const { passed } = validatePassword(form.password);
+    if (passed < 4) {
+      setPwTouched(true);
+      return setLocalMsg({ type: "error", text: "Please choose a stronger password." });
+    }
 
     const result = await dispatch(registerUser({
       name: form.name.trim(),
@@ -111,16 +139,15 @@ const RegisterForm = ({ role }) => {
     }));
 
     if (registerUser.fulfilled.match(result)) {
-      const { isNewUser, message } = result.payload;
+      const { isNewUser } = result.payload;
 
       if (!isNewUser) {
-  return setLocalMsg({
-    type: "error",
-    text: "This email is already registered. Please login instead.",
-  });
-}
+        return setLocalMsg({
+          type: "error",
+          text: "This email is already registered. Please login instead.",
+        });
+      }
 
-      // brand new user → verify email first
       setTimeout(() => navigate("/verify-email", {
         state: { email: form.email.trim(), role },
       }), 800);
@@ -169,9 +196,9 @@ const RegisterForm = ({ role }) => {
               name="password"
               type={showPassword ? "text" : "password"}
               value={form.password}
-              onChange={handleChange}
+              onChange={(e) => { handleChange(e); setPwTouched(true); }}
+              onBlur={() => setPwTouched(true)}
               placeholder="••••••••"
-              minLength={6}
               required
               className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
             />
@@ -196,7 +223,48 @@ const RegisterForm = ({ role }) => {
               )}
             </button>
           </div>
-          <p className="text-xs text-slate-500">Minimum 6 characters with a mix of letters and numbers.</p>
+
+          {/* ✅ Strength bar + rules checklist — appears after user starts typing */}
+          {pwTouched && form.password.length > 0 && (() => {
+            const { rules, passed } = validatePassword(form.password);
+            const strength = getStrength(passed);
+            return (
+              <div className="mt-2 flex flex-col gap-2">
+                {/* Strength bar */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div style={{
+                      width: strength.width,
+                      height: "100%",
+                      background: strength.color,
+                      borderRadius: "999px",
+                      transition: "width 0.3s ease, background 0.3s ease",
+                    }} />
+                  </div>
+                  <span style={{ fontSize: "11px", fontWeight: "700", color: strength.color }}>
+                    {strength.label}
+                  </span>
+                </div>
+                {/* Rules checklist */}
+                <div className="grid grid-cols-2 gap-1">
+                  {rules.map((rule) => (
+                    <div key={rule.id} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      <span style={{ color: rule.test(form.password) ? "#22c55e" : "#cbd5e1", fontSize: "12px" }}>
+                        {rule.test(form.password) ? "✓" : "○"}
+                      </span>
+                      <span style={{
+                        fontSize: "11px",
+                        color: rule.test(form.password) ? "#16a34a" : "#94a3b8",
+                        fontWeight: rule.test(form.password) ? "600" : "400",
+                      }}>
+                        {rule.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Terms */}
@@ -278,8 +346,7 @@ const RegisterForm = ({ role }) => {
         onClose={handleTermsClose}
         onAccept={handleTermsAccept}
         role={role}
-        termsAccepted={form.termsAccepted}  
-
+        termsAccepted={form.termsAccepted}
       />
     </>
   );
