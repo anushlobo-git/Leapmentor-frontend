@@ -11,10 +11,10 @@ const NAV_ITEMS = [
         label: "User Management",
         icon: (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
         ),
       },
@@ -23,7 +23,7 @@ const NAV_ITEMS = [
         label: "Engagements",
         icon: (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         ),
       },
@@ -32,9 +32,9 @@ const NAV_ITEMS = [
         label: "Reports",
         icon: (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         ),
       },
@@ -43,8 +43,8 @@ const NAV_ITEMS = [
         label: "Payment Tracking",
         icon: (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-            <line x1="1" y1="10" x2="23" y2="10"/>
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+            <line x1="1" y1="10" x2="23" y2="10" />
           </svg>
         ),
       },
@@ -53,9 +53,9 @@ const NAV_ITEMS = [
         label: "Support Messages",
         icon: (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         ),
       },
@@ -69,8 +69,8 @@ const NAV_ITEMS = [
         label: "Settings",
         icon: (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
         ),
       },
@@ -80,8 +80,8 @@ const NAV_ITEMS = [
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate  = useNavigate();
-  const adminRaw  = localStorage.getItem("adminUser");
+  const navigate = useNavigate();
+  const adminRaw = localStorage.getItem("adminUser");
   const adminUser = adminRaw ? JSON.parse(adminRaw) : { name: "Admin" };
 
   const handleLogout = () => {
@@ -125,15 +125,16 @@ const AdminLayout = ({ children }) => {
         <div className="flex items-center justify-between px-3 py-3 border-b flex-shrink-0"
           style={{ borderColor: "#e8eaf0" }}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                <polyline points="17 6 23 6 23 12"/>
-              </svg>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+              <img
+                src="/images/logo.webp"
+                alt="LeapMentor logo"
+                width={32}
+                height={32}
+              />
             </div>
             <div>
-              <p className="text-sm text-slate-800 leading-none" style={{ fontWeight: 700 }}>Leapmentor</p>
+              <p className="text-sm text-slate-800 leading-none" style={{ fontWeight: 700 }}>LeapMentor</p>
               <p className="text-[10px] mt-0.5" style={{ color: "#2563eb", fontWeight: 600 }}>Admin</p>
             </div>
           </div>
@@ -144,48 +145,48 @@ const AdminLayout = ({ children }) => {
             className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
-       {/*sidebar*/}
+        {/*sidebar*/}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-            {NAV_ITEMS.map((section) => (
-              <div key={section.group}>
-                <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 px-3 mb-2">
-                  {section.group}
-                </p>
-                <div className="space-y-1">
-                  {section.links.map((link) => (
-                    <NavLink
-                      key={link.to}
-                      to={link.to}
-                      onClick={closeSidebar}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150
+          {NAV_ITEMS.map((section) => (
+            <div key={section.group}>
+              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 px-3 mb-2">
+                {section.group}
+              </p>
+              <div className="space-y-1">
+                {section.links.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={closeSidebar}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150
                         ${isActive
-                          ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
-                          : "text-slate-600 hover:bg-slate-50"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <span className={`shrink-0 transition-colors duration-150 ${isActive ? "text-white" : "text-slate-400"}`}>
-                            {link.icon}
-                          </span>
-                          <span className={`truncate ${isActive ? "text-white" : "text-slate-700"}`}>
-                            {link.label}
-                          </span>
-                        </>
-                      )}
-                    </NavLink>
-                  ))}
-                </div>
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-900/40"
+                        : "text-slate-600 hover:bg-slate-50"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <span className={`shrink-0 transition-colors duration-150 ${isActive ? "text-white" : "text-slate-400"}`}>
+                          {link.icon}
+                        </span>
+                        <span className={`truncate ${isActive ? "text-white" : "text-slate-700"}`}>
+                          {link.label}
+                        </span>
+                      </>
+                    )}
+                  </NavLink>
+                ))}
               </div>
-            ))}
-          </nav>
+            </div>
+          ))}
+        </nav>
 
         {/* Admin info + logout */}
         <div className="px-4 py-4 border-t flex-shrink-0" style={{ borderColor: "#e8eaf0" }}>
@@ -204,9 +205,9 @@ const AdminLayout = ({ children }) => {
               className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
             </button>
           </div>
@@ -231,9 +232,9 @@ const AdminLayout = ({ children }) => {
               className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="3" y1="6"  x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
           </div>

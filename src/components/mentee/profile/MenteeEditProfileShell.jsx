@@ -27,9 +27,13 @@ const MenteeEditProfileShell = () => {
       <header className="sticky top-0 z-10 bg-white border-b border-slate-100 shadow-sm">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              M
-            </div>
+            <img
+              src="/images/logo.webp"
+              alt="LeapMentor logo"
+              className="h-8 w-8"
+              width={32}
+              height={32}
+            />
             <span className="text-sm font-bold text-slate-800">Edit Profile</span>
           </div>
           <button

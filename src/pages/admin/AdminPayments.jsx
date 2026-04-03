@@ -2,9 +2,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import AdminLayout from "../../components/admin/AdminLayout";
-import StatCard    from "../../components/admin/common/StatCard";
+import StatCard from "../../components/admin/common/StatCard";
 
-const BASE_URL   = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -17,8 +17,8 @@ const Toast = ({ toast }) => {
       style={{
         fontWeight: 600, fontFamily: FONT,
         background: toast.type === "success" ? "#f0fdf4" : "#fef2f2",
-        border:     `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecaca"}`,
-        color:      toast.type === "success" ? "#15803d" : "#dc2626",
+        border: `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecaca"}`,
+        color: toast.type === "success" ? "#15803d" : "#dc2626",
       }}>
       {toast.msg}
     </div>
@@ -28,8 +28,8 @@ const Toast = ({ toast }) => {
 // ── Avatar ─────────────────────────────────────────────────────
 const Avatar = ({ name }) => {
   const initials = name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const colors   = ["#2563eb", "#7c3aed", "#0891b2", "#059669", "#d97706"];
-  const color    = colors[initials.charCodeAt(0) % colors.length];
+  const colors = ["#2563eb", "#7c3aed", "#0891b2", "#059669", "#d97706"];
+  const color = colors[initials.charCodeAt(0) % colors.length];
   return (
     <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-700 text-white"
       style={{ background: color, fontWeight: 700 }}>
@@ -40,13 +40,13 @@ const Avatar = ({ name }) => {
 
 // ── Type Badge ─────────────────────────────────────────────────
 const TYPE_CONFIG = {
-  credit:             { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission"  },
-  escrow_hold:        { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Escrow"      },
-  escrow_release:     { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout"      },
-  escrow_refund:      { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Refund"      },
-  commission_deduct:  { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission"  },
-  mentor_payout:      { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout"      },
-  debit:              { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Debit"       },
+  credit: { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission" },
+  escrow_hold: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Escrow" },
+  escrow_release: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout" },
+  escrow_refund: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Refund" },
+  commission_deduct: { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission" },
+  mentor_payout: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout" },
+  debit: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Debit" },
 };
 
 const TypeBadge = ({ type }) => {
@@ -62,8 +62,8 @@ const TypeBadge = ({ type }) => {
 // ── Status Badge ───────────────────────────────────────────────
 const STATUS_CONFIG = {
   completed: { color: "#059669", dot: "#22c55e", label: "COMPLETED" },
-  pending:   { color: "#d97706", dot: "#f59e0b", label: "PENDING"   },
-  refunded:  { color: "#dc2626", dot: "#ef4444", label: "FAILED"    },
+  pending: { color: "#d97706", dot: "#f59e0b", label: "PENDING" },
+  refunded: { color: "#dc2626", dot: "#ef4444", label: "FAILED" },
 };
 
 const TxStatusBadge = ({ status }) => {
@@ -89,9 +89,9 @@ const RevenueChart = ({ data = [], loading }) => {
   if (!data.length) return null;
 
   const values = data.map((d) => d.amount);
-  const min    = Math.min(...values);
-  const max    = Math.max(...values) || 1;
-  const range  = max - min || 1;
+  const min = Math.min(...values);
+  const max = Math.max(...values) || 1;
+  const range = max - min || 1;
 
   const xs = data.map((_, i) => PAD_LEFT + (i / (data.length - 1)) * CHART_W);
   const ys = values.map((v) => H - ((v - min) / range) * (H * 0.72) - H * 0.1);
@@ -113,15 +113,15 @@ const RevenueChart = ({ data = [], loading }) => {
         onMouseLeave={() => setHovered(null)}>
         <defs>
           <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#2563eb" stopOpacity="0.13"/>
-            <stop offset="100%" stopColor="#2563eb" stopOpacity="0"/>
+            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.13" />
+            <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
           </linearGradient>
         </defs>
 
         {/* Grid lines */}
         {Y_TICKS.filter((t) => t > 0 && t < 1).map((t, i) => (
           <line key={i} x1={PAD_LEFT} y1={H * t} x2={W} y2={H * t}
-            stroke="#e8eaf0" strokeWidth="1" strokeDasharray="4 4"/>
+            stroke="#e8eaf0" strokeWidth="1" strokeDasharray="4 4" />
         ))}
 
         {/* Y-axis labels */}
@@ -137,25 +137,25 @@ const RevenueChart = ({ data = [], loading }) => {
         })}
 
         {/* Y-axis line */}
-        <line x1={PAD_LEFT} y1={0} x2={PAD_LEFT} y2={H} stroke="#e8eaf0" strokeWidth="1"/>
+        <line x1={PAD_LEFT} y1={0} x2={PAD_LEFT} y2={H} stroke="#e8eaf0" strokeWidth="1" />
 
         {/* Area + Line */}
-        <path d={area} fill="url(#revGrad)"/>
+        <path d={area} fill="url(#revGrad)" />
         <path d={line} fill="none" stroke="#2563eb" strokeWidth="2.5"
-          strokeLinecap="round" strokeLinejoin="round"/>
+          strokeLinecap="round" strokeLinejoin="round" />
 
         {/* Hover */}
         {xs.map((x, i) => (
           <g key={i}>
             <rect x={x - 14} y={0} width={28} height={H} fill="transparent"
-              onMouseEnter={() => setHovered(i)}/>
+              onMouseEnter={() => setHovered(i)} />
             {hovered === i && (
               <>
                 <line x1={x} y1={0} x2={x} y2={H} stroke="#2563eb" strokeWidth="1"
-                  strokeDasharray="3 3" opacity="0.4"/>
-                <circle cx={x} cy={ys[i]} r="5" fill="#2563eb" stroke="white" strokeWidth="2"/>
+                  strokeDasharray="3 3" opacity="0.4" />
+                <circle cx={x} cy={ys[i]} r="5" fill="#2563eb" stroke="white" strokeWidth="2" />
                 <g transform={`translate(${Math.min(x - 35, W - 90)}, ${Math.max(ys[i] - 42, 4)})`}>
-                  <rect x="0" y="0" width="84" height="32" rx="6" fill="#1e293b"/>
+                  <rect x="0" y="0" width="84" height="32" rx="6" fill="#1e293b" />
                   <text x="9" y="13" fill="#94a3b8" fontSize="9" fontFamily={MONO}>{data[i]?.label}</text>
                   <text x="9" y="26" fill="#60a5fa" fontSize="11" fontFamily={MONO} fontWeight="600">
                     {values[i].toLocaleString()} LP
@@ -182,15 +182,15 @@ const RevenueChart = ({ data = [], loading }) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════
 const AdminPayments = () => {
-  const [stats,        setStats]        = useState(null);
-  const [chartData,    setChartData]    = useState([]);
+  const [stats, setStats] = useState(null);
+  const [chartData, setChartData] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [pagination,   setPagination]   = useState({ totalCount: 0, currentPage: 1, totalPages: 1 });
-  const [search,       setSearch]       = useState("");
-  const [typeFilter,   setTypeFilter]   = useState("");
-  const [loading,      setLoading]      = useState(true);
+  const [pagination, setPagination] = useState({ totalCount: 0, currentPage: 1, totalPages: 1 });
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [loading, setLoading] = useState(true);
   const [loadingChart, setLoadingChart] = useState(true);
-  const [toast,        setToast]        = useState(null);
+  const [toast, setToast] = useState(null);
   const searchTimer = useRef(null);
 
   const showToast = (msg, type = "error") => {
@@ -218,8 +218,8 @@ const AdminPayments = () => {
     try {
       setLoading(true);
       const params = { page, limit: 10 };
-      if (q)    params.search = q;
-      if (type) params.type   = type;
+      if (q) params.search = q;
+      if (type) params.type = type;
       const res = await axios.get(`${BASE_URL}/admin/payments/transactions`, {
         headers: authHeader(), params,
       });
@@ -246,43 +246,43 @@ const AdminPayments = () => {
     fetchTransactions(1, search, type);
   };
 
-  // ✅ No trend values
+  // No trend values
   const STAT_CARDS = [
     {
       label: "Total Revenue",
       value: stats?.totalRevenue,
       accent: "#2563eb",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>,
     },
     {
       label: "Platform Commission",
       value: stats?.platformCommission,
-      sub: `${stats?.commissionRate ?? "—"}% rate`,
+      sub: `${stats?.commissionRate ?? ""}% rate`,
       accent: "#059669",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
     },
     {
       label: "Pending Payouts",
       value: stats?.pendingPayouts,
       sub: "Held in escrow",
       accent: "#d97706",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
     },
     {
       label: "Refunded Requests",
       value: stats?.refundedRequests,
       sub: "Requires Action",
       accent: "#dc2626",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>,
     },
   ];
 
   const TYPE_FILTERS = [
-    { key: "",               label: "All"        },
+    { key: "", label: "All" },
     { key: "commission_deduct", label: "Commission" },
-    { key: "escrow_release", label: "Payout"     },
-    { key: "escrow_refund",  label: "Refund"     },
-    { key: "escrow_hold",    label: "Escrow"     },
+    { key: "escrow_release", label: "Payout" },
+    { key: "escrow_refund", label: "Refund" },
+    { key: "escrow_hold", label: "Escrow" },
   ];
 
   return (
@@ -316,10 +316,10 @@ const AdminPayments = () => {
               <h3 className="text-sm font-700 text-slate-800" style={{ fontWeight: 700, fontFamily: FONT }}>
                 Revenue Overview
               </h3>
-              <p className="text-xs text-slate-600 mt-0.5">Monthly growth trajectory (Jan–Jun)</p>
+              <p className="text-xs text-slate-600 mt-0.5">Growth trajectory </p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-600"/>
+              <div className="w-2 h-2 rounded-full bg-blue-600" />
               <span className="text-xs text-slate-500" style={{ fontFamily: MONO }}>Net Revenue</span>
               <span className="text-xs font-600 px-2.5 py-1 rounded-lg ml-1"
                 style={{ background: "#f1f5f9", color: "#475569", fontWeight: 600 }}>
@@ -348,7 +348,7 @@ const AdminPayments = () => {
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="13" height="13"
                   viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
                 <input
                   value={search}
@@ -357,7 +357,7 @@ const AdminPayments = () => {
                   className="pl-8 pr-3 py-1.5 rounded-xl text-xs outline-none transition-all"
                   style={{ background: "#f8fafc", border: "1px solid #e2e8f0", width: 200, fontFamily: FONT, color: "#334155" }}
                   onFocus={(e) => e.target.style.borderColor = "#93c5fd"}
-                  onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
+                  onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
                 />
               </div>
             </div>
@@ -370,7 +370,7 @@ const AdminPayments = () => {
                   style={{
                     fontWeight: 600, fontFamily: FONT,
                     background: typeFilter === key ? "#2563eb" : "#f1f5f9",
-                    color: typeFilter === key ?      "white"   : "#475569",
+                    color: typeFilter === key ? "white" : "#475569",
                   }}>
                   {label}
                 </button>
@@ -383,9 +383,9 @@ const AdminPayments = () => {
             <table className="w-full" style={{ fontFamily: FONT }}>
               <thead>
                 <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
-                    {["TRANSACTION ID", "USER", "AMOUNT", "TYPE", "DATE", "STATUS"].map((h) => (
+                  {["TRANSACTION ID", "USER", "AMOUNT", "TYPE", "DATE", "STATUS"].map((h) => (
                     <th key={h} className="text-left px-5 py-3 text-[10px] uppercase tracking-widest"
-                     style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
+                      style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
                       {h}
                     </th>
                   ))}
@@ -398,7 +398,7 @@ const AdminPayments = () => {
                       {[...Array(6)].map((_, j) => (
                         <td key={j} className="px-5 py-4">
                           <div className="h-4 rounded-lg animate-pulse"
-                            style={{ background: "#f1f5f9", width: j === 0 ? 100 : j === 1 ? 130 : 70 }}/>
+                            style={{ background: "#f1f5f9", width: j === 0 ? 100 : j === 1 ? 130 : 70 }} />
                         </td>
                       ))}
                     </tr>
@@ -435,7 +435,7 @@ const AdminPayments = () => {
                       <td className="px-5 py-4">
                         <span className="text-xs font-500 text-slate-800"
                           style={{ fontFamily: MONO, fontWeight: 500 }}>
-                          ${tx.amount?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {tx.amount?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </td>
                       <td className="px-5 py-4"><TypeBadge type={tx.type} /></td>
@@ -468,7 +468,7 @@ const AdminPayments = () => {
                     style={{
                       fontWeight: 600,
                       background: pagination.currentPage === p ? "#2563eb" : "#f1f5f9",
-                      color:      pagination.currentPage === p ? "white"   : "#475569",
+                      color: pagination.currentPage === p ? "white" : "#475569",
                     }}>{p}</button>
                 );
               })}

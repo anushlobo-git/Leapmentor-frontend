@@ -6,10 +6,10 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const AdminLogin = () => {
-  const [email,    setEmail]    = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error,    setError]    = useState("");
-  const [loading,  setLoading]  = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
@@ -20,7 +20,7 @@ const AdminLogin = () => {
     try {
       const res = await axios.post(`${BASE_URL}/admin/auth/login`, { email, password });
       localStorage.setItem("adminToken", res.data.token);
-      localStorage.setItem("adminUser",  JSON.stringify(res.data.admin));
+      localStorage.setItem("adminUser", JSON.stringify(res.data.admin));
       navigate("/admin/users");
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed. Please try again.");
@@ -45,14 +45,16 @@ const AdminLogin = () => {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)", boxShadow: "0 8px 32px rgba(37,99,235,0.4)" }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
-            </svg>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" >
+            <img
+              src="/images/logo.webp"
+              alt="LeapMentor logo"
+              className="h-12 w-12"
+              width={32}
+              height={32}
+            />
           </div>
-          <h1 className="text-2xl font-700 text-white" style={{ fontWeight: 700 }}>Leapmentor</h1>
+          <h1 className="text-2xl font-bold-700 text-white" style={{ fontWeight: 700 }}>LeapMentor</h1>
           <p className="text-sm text-slate-400 mt-1">Admin Control Panel</p>
         </div>
 
@@ -76,7 +78,7 @@ const AdminLogin = () => {
                 className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition-all"
                 style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", fontFamily: "'DM Sans', sans-serif" }}
                 onFocus={(e) => e.target.style.borderColor = "rgba(37,99,235,0.6)"}
-                onBlur={(e)  => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+                onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
               />
             </div>
 
@@ -93,13 +95,13 @@ const AdminLogin = () => {
                   className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition-all pr-11"
                   style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", fontFamily: "'DM Sans', sans-serif" }}
                   onFocus={(e) => e.target.style.borderColor = "rgba(37,99,235,0.6)"}
-                  onBlur={(e)  => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
                 />
                 <button type="button" onClick={() => setShowPass(!showPass)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
                   {showPass
-                    ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                    : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                   }
                 </button>
               </div>
@@ -109,7 +111,7 @@ const AdminLogin = () => {
               <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                 style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
                 <p className="text-xs text-red-400">{error}</p>
               </div>

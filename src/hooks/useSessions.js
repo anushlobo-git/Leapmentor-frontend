@@ -1,4 +1,3 @@
-// src/hooks/useSessions.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 
@@ -15,15 +14,13 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const [completedSlots, setCompletedSlots] = useState(0);
   const [totalSlots, setTotalSlots] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [allComplete, setAllComplete] = useState(false); // ✅ NEW
 
-  const allCompleteFiredRef = useRef(false);
   const onAllCompleteRef = useRef(onAllComplete);
-
   useEffect(() => {
     onAllCompleteRef.current = onAllComplete;
   }, [onAllComplete]);
 
-  // ── Per-slot saving state helper ──────────────────────────────
   const setSavingSlot = (index, val) =>
     setSavingSlots((prev) => {
       const next = new Set(prev);
@@ -31,11 +28,13 @@ const useSessions = (connectRequestId, onAllComplete) => {
       return next;
     });
 
+  // ✅ now also sets allComplete
   const applySlotUpdate = useCallback((data) => {
     if (data.slots) setSlots(data.slots);
     if (data.completedSlots !== undefined) setCompletedSlots(data.completedSlots);
     if (data.totalSlots !== undefined) setTotalSlots(data.totalSlots);
     if (data.progress !== undefined) setProgress(data.progress);
+    if (data.allComplete !== undefined) setAllComplete(data.allComplete); // ✅ NEW
   }, []);
 
   const fetchSlots = useCallback(async (silent = false) => {
@@ -59,52 +58,16 @@ const useSessions = (connectRequestId, onAllComplete) => {
     fetchSlots();
   }, [fetchSlots]);
 
-  // ✅ Listen on the SHARED global socket (window.__leapSocket)
+  // ✅ Poll every 5s — real-time sync without sockets
   useEffect(() => {
     if (!connectRequestId) return;
+    const interval = setInterval(() => fetchSlots(true), 5000);
+    return () => clearInterval(interval);
+  }, [connectRequestId, fetchSlots]);
 
-    const handleSlotUpdate = (data) => {
-      if (data.connectRequestId !== connectRequestId) return;
-      console.log("📅 session_slots_updated — syncing instantly");
-      applySlotUpdate(data);
+  // ✅ Keep socket listeners ONLY for goals (chat uses its own)
+  // Session sync is now handled by polling above — socket block removed
 
-      if (data.allComplete && !allCompleteFiredRef.current) {
-        allCompleteFiredRef.current = true;
-        setTimeout(() => {
-          onAllCompleteRef.current?.();
-        }, 2000);
-      }
-    };
-
-    const handleSlotCancelled = (data) => {
-      if (data.connectRequestId !== connectRequestId) return;
-      console.log("🚫 slot_cancelled received", data);
-    };
-
-    const handleSlotRescheduled = (data) => {
-      if (data.connectRequestId !== connectRequestId) return;
-      console.log("🔄 slot_rescheduled received", data);
-    };
-
-    const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
-        window.__leapSocket.on("session_slots_updated", handleSlotUpdate);
-        window.__leapSocket.on("slot_cancelled", handleSlotCancelled);
-        window.__leapSocket.on("slot_rescheduled", handleSlotRescheduled);
-        clearInterval(waitForSocket);
-        console.log("📅 Registered session socket listeners on shared socket");
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(waitForSocket);
-      window.__leapSocket?.off("session_slots_updated", handleSlotUpdate);
-      window.__leapSocket?.off("slot_cancelled", handleSlotCancelled);
-      window.__leapSocket?.off("slot_rescheduled", handleSlotRescheduled);
-    };
-  }, [connectRequestId, applySlotUpdate]);
-
-  // ── setMeetingLink ────────────────────────────────────────────
   const setMeetingLink = useCallback(
     async (slotIndex, meetingLink) => {
       if (!meetingLink?.trim()) return { success: false };
@@ -118,9 +81,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         );
         setSlots((prev) =>
           prev.map((s, i) =>
-            i === slotIndex
-              ? { ...s, meetingLink: res.data.slot.meetingLink }
-              : s,
+            i === slotIndex ? { ...s, meetingLink: res.data.slot.meetingLink } : s,
           ),
         );
         return { success: true };
@@ -134,7 +95,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     [connectRequestId],
   );
 
-  // ── markSlotComplete ──────────────────────────────────────────
+  // ✅ now uses applySlotUpdate so allComplete is set correctly
   const markSlotComplete = useCallback(
     async (slotIndex) => {
       try {
@@ -145,19 +106,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
           {},
           { headers: authHeader() },
         );
-        setSlots((prev) =>
-          prev.map((s, i) => (i === slotIndex ? { ...s, ...res.data.slot } : s)),
-        );
-        setCompletedSlots(res.data.completedSlots);
-        setProgress(res.data.progress);
-
-        if (res.data.allComplete) {
-          allCompleteFiredRef.current = true;
-          setTimeout(() => {
-            onAllCompleteRef.current?.();
-          }, 2000);
-        }
-
+        applySlotUpdate(res.data); // ✅ replaces manual setSlots/setCompletedSlots/setProgress
         return { success: true, ...res.data };
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to mark session complete.");
@@ -166,14 +115,13 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSavingSlot(slotIndex, false);
       }
     },
-    [connectRequestId],
+    [connectRequestId, applySlotUpdate],
   );
 
-  // ── addSlot ───────────────────────────────────────────────────
   const addSlot = useCallback(
     async ({ day, date, startTime, endTime }) => {
       try {
-        setSavingSlot(-1, true); // -1 = global/non-slot-specific action
+        setSavingSlot(-1, true);
         setError(null);
         const res = await axios.post(
           `${BASE_URL}/sessions/${connectRequestId}/add-slot`,
@@ -193,7 +141,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
     [connectRequestId, applySlotUpdate],
   );
 
-  // ── cancelSlot ────────────────────────────────────────────────
   const cancelSlot = useCallback(
     async (slotIndex, reason = "") => {
       try {
@@ -217,7 +164,6 @@ const useSessions = (connectRequestId, onAllComplete) => {
     [connectRequestId, applySlotUpdate],
   );
 
-  // ── rescheduleSlot ────────────────────────────────────────────
   const rescheduleSlot = useCallback(
     async (slotIndex, { date, startTime, endTime }) => {
       try {
@@ -249,6 +195,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     completedSlots,
     totalSlots,
     progress,
+    allComplete, // ✅ NEW
     setMeetingLink,
     markSlotComplete,
     addSlot,

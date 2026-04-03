@@ -1,5 +1,4 @@
-// src/components/shared-dashboard/tabs/SharedGoalsTab.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
 import GoalForm from "./goals/GoalForm";
@@ -8,7 +7,6 @@ import MilestoneList from "./goals/MilestoneList";
 import SessionCard from "./goals/SessionCard";
 import FeedbackModal from "./FeedbackModal";
 
-// ── Loading Skeleton ──────────────────────────────────────────
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">
     {[1, 2, 3].map((i) => (
@@ -17,7 +15,6 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-// ── Goal Card (view mode) ─────────────────────────────────────
 const GoalCard = ({ goal, onEdit }) => {
   const statusClass =
     goal.status === "completed" ? "bg-green-50 text-green-600 border-green-200"
@@ -61,7 +58,6 @@ const GoalCard = ({ goal, onEdit }) => {
   );
 };
 
-// ── No Goal Empty State ───────────────────────────────────────
 const NoGoalState = ({ onSetGoal }) => (
   <div className="bg-white border border-dashed border-violet-200 rounded-2xl p-10
     flex flex-col items-center text-center gap-3">
@@ -96,8 +92,8 @@ const NoGoalState = ({ onSetGoal }) => (
   </div>
 );
 
-// ── Overall Progress Bar ──────────────────────────────────────
-const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
+// ✅ allComplete + onLeaveFeedback added
+const OverallProgress = ({ completedSlots, totalSlots, progress, allComplete, onLeaveFeedback }) => (
   <div className="bg-white border border-slate-200 rounded-2xl p-5">
     <div className="flex items-center justify-between mb-3">
       <div>
@@ -116,14 +112,26 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
       />
     </div>
     {progress >= 100 && (
-      <div className="flex items-center justify-center gap-2 mt-3 py-2 px-4 rounded-xl
+      <div className="flex items-center justify-between mt-3 py-2 px-4 rounded-xl
         bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-        All sessions complete — tokens released to mentor!
+        <div className="flex items-center gap-2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          All sessions complete 
+        </div>
+        {/* Leave Feedback button — only when truly allComplete */}
+        {allComplete && (
+          <button
+            onClick={onLeaveFeedback}
+            className="ml-4 px-3 py-1.5 rounded-lg bg-emerald-600 text-white
+              text-xs font-bold hover:bg-emerald-700 transition-all"
+          >
+            Leave Feedback
+          </button>
+        )}
       </div>
     )}
   </div>
@@ -131,20 +139,18 @@ const OverallProgress = ({ completedSlots, totalSlots, progress }) => (
 
 // ── Main ──────────────────────────────────────────────────────
 const SharedGoalsTab = ({ connect, onAllComplete }) => {
-  const [isEditing,         setIsEditing]         = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal]  = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-  const modalShownRef   = useRef(false);
-  const prevProgressRef = useRef(null);
+  // ✅ removed: modalShownRef, prevProgressRef, and the old progress useEffect
 
-  const viewerRole       = connect?.viewerRole || "mentee";
+  const viewerRole = connect?.viewerRole || "mentee";
   const connectRequestId = connect?._id;
 
   const otherName = viewerRole === "mentee"
     ? connect?.mentor?.name || "Mentor"
     : connect?.mentee?.name || "Mentee";
 
-  // ── Goals + milestones ────────────────────────────────────
   const {
     goal, milestones,
     loading: goalsLoading, error: goalsError, saving: goalsSaving,
@@ -152,31 +158,13 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
     addMilestone, toggleMilestone, deleteMilestone,
   } = useGoals(connectRequestId);
 
-  // ── Sessions ──────────────────────────────────────────────
   const {
     slots, loading: slotsLoading, savingSlots, error: slotsError,
     completedSlots, totalSlots, progress,
+    allComplete, // ✅ NEW
     setMeetingLink, markSlotComplete,
-    cancelSlot,     // ✅ NEW
-    rescheduleSlot, // ✅ NEW
+    cancelSlot, rescheduleSlot,
   } = useSessions(connectRequestId, onAllComplete);
-
-  // Watch progress — fires feedback modal when it crosses 100
-  useEffect(() => {
-    if (slotsLoading) return;
-    if (progress >= 100) {
-      if (
-        prevProgressRef.current !== null &&
-        prevProgressRef.current < 100 &&
-        !modalShownRef.current
-      ) {
-        modalShownRef.current = true;
-        setShowFeedbackModal(true);
-        onAllComplete?.();
-      }
-    }
-    prevProgressRef.current = progress;
-  }, [progress, slotsLoading]); // eslint-disable-line
 
   const handleCreateGoal = async (fields) => {
     const result = await createGoal(fields);
@@ -190,7 +178,6 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
 
   if (goalsLoading || slotsLoading) return <LoadingSkeleton />;
 
-  // Only count active (non-cancelled) slots for the sessions header
   const activeSlots = slots.filter((s) => !s.status || s.status !== "cancelled");
 
   return (
@@ -247,16 +234,18 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
         />
       )}
 
-      {/* Overall progress bar — based on active slots only */}
+      {/* Overall progress — ✅ passes allComplete + onLeaveFeedback */}
       {activeSlots.length > 0 && (
         <OverallProgress
           completedSlots={completedSlots}
           totalSlots={totalSlots}
           progress={progress}
+          allComplete={allComplete}
+          onLeaveFeedback={() => setShowFeedbackModal(true)}
         />
       )}
 
-      {/* Sessions — show ALL slots (cancelled ones appear greyed out) */}
+      {/* Sessions */}
       {slots.length > 0 && (
         <div className="flex flex-col gap-4">
           <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">
@@ -274,10 +263,10 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 savingSlots={savingSlots}
                 onSetLink={setMeetingLink}
                 onMarkComplete={markSlotComplete}
-                onCancelSlot={cancelSlot}         
-                onRescheduleSlot={rescheduleSlot} 
-                allSlots={slots}                  
-                connectRequestId={connectRequestId} 
+                onCancelSlot={cancelSlot}
+                onRescheduleSlot={rescheduleSlot}
+                allSlots={slots}
+                connectRequestId={connectRequestId}
               />
             ))}
           </div>

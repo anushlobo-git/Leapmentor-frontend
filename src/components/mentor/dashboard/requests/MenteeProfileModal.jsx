@@ -21,36 +21,55 @@ const formatDate = (dateStr) => {
   });
 };
 
+// Reusable inline spinner
+const Spinner = ({ light = false }) => (
+  <span
+    className={`w-4 h-4 rounded-full border-2 animate-spin shrink-0 ${light ? "border-white/30 border-t-white" : "border-current/30 border-t-current"
+      }`}
+  />
+);
+
 const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
-  const [loading, setLoading]               = useState(false);
-  const [actionModal, setActionModal]       = useState(null);
+  // null | 'accepted' | 'rejected' | 'refer'
+  const [loading, setLoading] = useState(null);
+  const [actionModal, setActionModal] = useState(null);
   const [showReferModal, setShowReferModal] = useState(false);
 
-  const mentee   = request.mentee;
-  const slots    = request.selectedSlots || [];
+  const mentee = request.mentee;
+  const slots = request.selectedSlots || [];
   const initials = mentee?.name
     ? mentee.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
 
+  const isAnyLoading = loading !== null;
+
   const handleRespond = async (status) => {
     const confirmedSlot = status === "accepted" ? slots[0] : undefined;
     try {
-      setLoading(true);
+      setLoading(status);
       const token = localStorage.getItem("token");
-      const body  = { status, ...(confirmedSlot ? { confirmedSlot } : {}) };
+      const body = { status, ...(confirmedSlot ? { confirmedSlot } : {}) };
       await axios.patch(
         `${BASE_URL}/connect-requests/${request._id}`,
         body,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // ✅ No toast here — backend emits socket event to mentee directly
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
     } catch (err) {
       console.error("Respond error:", err);
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
+  };
+
+  const handleReferClick = () => {
+    setLoading("refer");
+    // Small delay so the loader is visible before modal mounts
+    setTimeout(() => {
+      setLoading(null);
+      setShowReferModal(true);
+    }, 400);
   };
 
   if (actionModal) {
@@ -69,7 +88,6 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
         request={request}
         onClose={() => { setShowReferModal(false); onClose(); }}
         onReferred={(id, status) => {
-          // ✅ No toast here — backend emits socket event to mentee directly
           onUpdate(id, status);
           setShowReferModal(false);
         }}
@@ -90,13 +108,12 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
             <div>
               <h2 className="text-lg font-bold text-slate-800">{mentee?.name || "—"}</h2>
               <p className="text-sm text-blue-900 font-semibold">Aspiring Mentee</p>
-              
             </div>
           </div>
-          <button type="button" onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors">
+          <button type="button" onClick={onClose} disabled={isAnyLoading}
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors disabled:opacity-40">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -108,7 +125,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
             <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
                 <p className="text-xs font-bold text-blue-900 uppercase tracking-wide">Mentorship Request Message</p>
               </div>
@@ -124,10 +141,10 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
                 <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/>
-                      <line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
                     <span className="text-sm font-semibold text-slate-700">{formatDate(slot.date)}</span>
                   </div>
@@ -148,23 +165,52 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
 
           {/* ── Actions ── */}
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={() => setShowReferModal(true)} disabled={loading}
-              className="flex-1 py-3 rounded-2xl border-2 border-emerald-200 text-emerald-600 text-sm font-semibold hover:bg-emerald-50 disabled:opacity-50 transition-all duration-150">
-              Refer
+
+            {/* Refer */}
+            <button
+              type="button"
+              onClick={handleReferClick}
+              disabled={isAnyLoading}
+              className="flex-1 py-3 rounded-2xl border-2 border-emerald-200 text-emerald-600 text-sm font-semibold hover:bg-emerald-50 disabled:opacity-50 transition-all duration-150 flex items-center justify-center gap-2"
+            >
+              {loading === "refer" ? (
+                <>
+                  <Spinner />
+                  Referring…
+                </>
+              ) : "Refer"}
             </button>
-            <button type="button" onClick={() => handleRespond("rejected")} disabled={loading}
-              className="flex-1 py-3 rounded-2xl border-2 border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 disabled:opacity-50 transition-all duration-150">
-              {loading ? "..." : "Reject"}
+
+            {/* Reject */}
+            <button
+              type="button"
+              onClick={() => handleRespond("rejected")}
+              disabled={isAnyLoading}
+              className="flex-1 py-3 rounded-2xl border-2 border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 disabled:opacity-50 transition-all duration-150 flex items-center justify-center gap-2"
+            >
+              {loading === "rejected" ? (
+                <>
+                  <Spinner />
+                  Rejecting…
+                </>
+              ) : "Reject"}
             </button>
-            <button type="button" onClick={() => handleRespond("accepted")} disabled={loading}
-              className="flex-1 py-3 rounded-2xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-blue-200">
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  ...
-                </span>
+
+            {/* Accept */}
+            <button
+              type="button"
+              onClick={() => handleRespond("accepted")}
+              disabled={isAnyLoading}
+              className="flex-1 py-3 rounded-2xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all duration-150 shadow-sm shadow-blue-200 flex items-center justify-center gap-2"
+            >
+              {loading === "accepted" ? (
+                <>
+                  <Spinner light />
+                  Accepting…
+                </>
               ) : "Accept Request"}
             </button>
+
           </div>
         </div>
       </div>

@@ -18,12 +18,12 @@ const formatTime = (time) => {
 };
 
 const STATUS_CONFIG = {
-  pending:   { label: "Pending",   badge: "bg-blue-100   text-blue-800   border-blue-300",    dot: "bg-blue-500"    },
-  accepted:  { label: "Accepted",  badge: "bg-emerald-100 text-emerald-800 border-emerald-300", dot: "bg-emerald-500" },
-  ongoing:   { label: "Ongoing",   badge: "bg-indigo-100 text-indigo-800  border-indigo-300",  dot: "bg-indigo-500"  },
-  rejected:  { label: "Rejected",  badge: "bg-red-100    text-red-700     border-red-300",     dot: "bg-red-500"     },
-  referred:  { label: "Referred",  badge: "bg-violet-100 text-violet-800  border-violet-300",  dot: "bg-violet-500"  },
-  completed: { label: "Completed", badge: "bg-slate-100  text-slate-700   border-slate-300",   dot: "bg-slate-500"   },
+  pending: { label: "Pending", badge: "bg-blue-100   text-blue-800   border-blue-300", dot: "bg-blue-500" },
+  accepted: { label: "Accepted", badge: "bg-emerald-100 text-emerald-800 border-emerald-300", dot: "bg-emerald-500" },
+  ongoing: { label: "Ongoing", badge: "bg-indigo-100 text-indigo-800  border-indigo-300", dot: "bg-indigo-500" },
+  rejected: { label: "Rejected", badge: "bg-red-100    text-red-700     border-red-300", dot: "bg-red-500" },
+  referred: { label: "Referred", badge: "bg-violet-100 text-violet-800  border-violet-300", dot: "bg-violet-500" },
+  completed: { label: "Completed", badge: "bg-slate-100  text-slate-700   border-slate-300", dot: "bg-slate-500" },
 };
 
 const getCfg = (s) => STATUS_CONFIG[s] || STATUS_CONFIG.pending;
@@ -31,7 +31,7 @@ const getCfg = (s) => STATUS_CONFIG[s] || STATUS_CONFIG.pending;
 // ── Slots Detail Modal ────────────────────────────────────────
 const SlotsModal = ({ request, onClose }) => {
   const { mentee, selectedSlots = [], confirmedSlot, status, message, requestedAt } = request;
-  const cfg      = getCfg(status);
+  const cfg = getCfg(status);
   const initials = mentee?.name
     ? mentee.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
@@ -55,7 +55,7 @@ const SlotsModal = ({ request, onClose }) => {
             <button type="button" onClick={onClose}
               className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
@@ -145,12 +145,12 @@ const SlotsModal = ({ request, onClose }) => {
 
 // ── Main Request Card ─────────────────────────────────────────
 const RequestCard = ({ request, onViewProfile }) => {
-  const [showSlots,             setShowSlots]             = useState(false);
+  const [showSlots, setShowSlots] = useState(false);
   const [showReferredByProfile, setShowReferredByProfile] = useState(false);
 
   const { mentee, message, selectedSlots = [], confirmedSlot, status, requestedAt } = request;
 
-  const cfg       = getCfg(status);
+  const cfg = getCfg(status);
   const isPending = status === "pending";
 
   const initials = mentee?.name
@@ -164,17 +164,17 @@ const RequestCard = ({ request, onViewProfile }) => {
   const extraSlots = selectedSlots.length - 1;
 
   const referredByMentor = request.referredBy ? {
-    name:              request.referredBy.name                      || "",
-    email:             request.referredBy.email                     || "",
-    currentRole:       request.referredByProfile?.currentRole       || "",
-    company:           request.referredByProfile?.company           || "",
-    industry:          request.referredByProfile?.industry          || "",
-    bio:               request.referredByProfile?.bio               || "",
-    hourlyRate:        request.referredByProfile?.hourlyRate        || null,
-    avgRating:         request.referredByProfile?.avgRating         || 0,
+    name: request.referredBy.name || "",
+    email: request.referredBy.email || "",
+    currentRole: request.referredByProfile?.currentRole || "",
+    company: request.referredByProfile?.company || "",
+    industry: request.referredByProfile?.industry || "",
+    bio: request.referredByProfile?.bio || "",
+    hourlyRate: request.referredByProfile?.hourlyRate || null,
+    avgRating: request.referredByProfile?.avgRating || 0,
     yearsOfExperience: request.referredByProfile?.yearsOfExperience || null,
-    profilePicture:    request.referredByProfile?.profilePicture    || null,
-    skills:            request.referredByProfile?.skills            || [],
+    profilePicture: request.referredByProfile?.profilePicture || null,
+    skills: request.referredByProfile?.skills || [],
   } : null;
 
   return (
@@ -220,10 +220,10 @@ const RequestCard = ({ request, onViewProfile }) => {
                 {/* Date row */}
                 <div className="flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
                   <p className="text-xs font-medium text-slate-900 truncate">
                     {displaySlot.day}, {formatDate(displaySlot.date)}
@@ -232,8 +232,8 @@ const RequestCard = ({ request, onViewProfile }) => {
                 {/* Time row */}
                 <div className="flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
                   </svg>
                   <p className="text-xs font-bold text-blue-700">
                     {formatTime(displaySlot.startTime)}
@@ -268,7 +268,7 @@ const RequestCard = ({ request, onViewProfile }) => {
                 Referred by <span className="font-bold">{request.referredBy?.name}</span>
               </p>
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#92400e" strokeWidth="2.5" strokeLinecap="round" className="shrink-0">
-                <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+                <path d="M5 12h14" /><path d="M12 5l7 7-7 7" />
               </svg>
             </button>
           )}
@@ -277,8 +277,8 @@ const RequestCard = ({ request, onViewProfile }) => {
           {status === "referred" && (
             <div className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2.5">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-                <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                <path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 0 1-4 4H3" />
               </svg>
               <p className="text-sm text-violet-700 font-semibold">Referred to another mentor</p>
             </div>
@@ -301,14 +301,14 @@ const RequestCard = ({ request, onViewProfile }) => {
             <p className="text-sm text-slate-500 font-semibold shrink-0">
               {formatDate(requestedAt)}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button type="button" onClick={() => setShowSlots(true)}
-                className="px-4 py-2 rounded-lg bg-blue-100 border-2 border-blue-200 text-blue-700 text-sm font-semibold hover:bg-blue-200 transition-all whitespace-nowrap">
+                className="px-1 py-1.5 rounded-lg bg-blue-100 border-2 border-blue-200 text-blue-700 text-sm font-semibold hover:bg-blue-200 transition-all whitespace-nowrap">
                 View Details
               </button>
               {isPending && (
                 <button type="button" onClick={() => onViewProfile(request)}
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
+                  className="px-4 py-2  rounded-lg bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
                   Respond
                 </button>
               )}

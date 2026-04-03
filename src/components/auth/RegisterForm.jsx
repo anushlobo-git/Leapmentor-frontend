@@ -17,14 +17,13 @@ const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
   apple: "oauth_apple",
 };
-
 // ✅ Password validation rules
 const validatePassword = (password) => {
   const rules = [
-    { id: "length",    label: "At least 8 characters",       test: (p) => p.length >= 8 },
-    { id: "uppercase", label: "At least 1 uppercase letter",  test: (p) => /[A-Z]/.test(p) },
-    { id: "number",    label: "At least 1 number",            test: (p) => /[0-9]/.test(p) },
-    { id: "special",   label: "At least 1 special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
+    { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
+    { id: "uppercase", label: "At least 1 uppercase letter", test: (p) => /[A-Z]/.test(p) },
+    { id: "number", label: "At least 1 number", test: (p) => /[0-9]/.test(p) },
+    { id: "special", label: "At least 1 special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
   ];
   const passed = rules.filter((r) => r.test(password)).length;
   return { rules, passed, total: rules.length };
@@ -32,10 +31,10 @@ const validatePassword = (password) => {
 
 // ✅ Strength label + color based on how many rules passed
 const getStrength = (passed) => {
-  if (passed <= 1) return { label: "Weak",   color: "#ef4444", width: "25%"  };
-  if (passed === 2) return { label: "Fair",   color: "#f59e0b", width: "50%"  };
-  if (passed === 3) return { label: "Good",   color: "#3b82f6", width: "75%"  };
-  return              { label: "Strong", color: "#22c55e", width: "100%" };
+  if (passed <= 1) return { label: "Weak", color: "#ef4444", width: "25%" };
+  if (passed === 2) return { label: "Fair", color: "#f59e0b", width: "50%" };
+  if (passed === 3) return { label: "Good", color: "#3b82f6", width: "75%" };
+  return { label: "Strong", color: "#22c55e", width: "100%" };
 };
 
 const RegisterForm = ({ role }) => {
@@ -45,7 +44,7 @@ const RegisterForm = ({ role }) => {
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
 
   const googleBtnRef = useRef(null);
-  const termsAcceptedRef = useRef(false);
+  const termsAcceptedRef = useRef(true);
 
   const { loading, error, successMsg } = useSelector((state) => state.auth);
 
@@ -99,7 +98,6 @@ const RegisterForm = ({ role }) => {
   const handleTermsClose = () => setShowTermsModal(false);
 
   const handleClerkSSO = async (provider) => {
-    if (!form.termsAccepted) return setLocalMsg({ type: "error", text: "Please accept the terms to continue." });
     if (!clerkLoaded) return;
     try {
       await signOut({ redirectUrl: window.location.href });
@@ -309,26 +307,7 @@ const RegisterForm = ({ role }) => {
           loading={loading}
           clerkLoaded={clerkLoaded}
           onLinkedIn={() => handleClerkSSO("linkedin")}
-          onApple={() => handleClerkSSO("apple")}
-          termsAccepted={form.termsAccepted}
-          onTermsNotAccepted={() =>
-            setLocalMsg({ type: "error", text: "Please accept the terms to continue." })
-          }
         />
-
-        {!form.termsAccepted && (
-          <>
-            <div
-              className="absolute inset-0 cursor-pointer z-10"
-              onClick={() =>
-                setLocalMsg({ type: "error", text: "Please accept the terms to continue." })
-              }
-            />
-            <p className="sr-only" aria-live="polite">
-              Accept the terms and conditions to enable social sign-in.
-            </p>
-          </>
-        )}
       </div>
 
       <p className="text-sm text-slate-500 text-center mt-5">

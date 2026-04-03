@@ -107,11 +107,10 @@ const LoginForm = ({ placeholder, registerPath }) => {
       </div>
 
       {msg.text && (
-        <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${
-          msg.type === "success"
-            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-            : "bg-red-50 text-red-600 border-red-200"
-        }`}>
+        <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
+          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+          : "bg-red-50 text-red-600 border-red-200"
+          }`}>
           {msg.text}
         </div>
       )}
@@ -177,7 +176,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
 
       <div className="flex items-center gap-3 my-6">
         <div className="h-px bg-slate-200 flex-1" />
-        <span className="text-xs text-slate-500 font-medium">Or continue with</span>
+        <span className="text-xs font-semibold text-slate-700 font-medium">Or continue with</span>
         <div className="h-px bg-slate-200 flex-1" />
       </div>
 

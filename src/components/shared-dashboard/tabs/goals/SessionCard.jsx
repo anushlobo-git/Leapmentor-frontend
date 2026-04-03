@@ -7,7 +7,6 @@ const authHeader = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-// ── Helpers ───────────────────────────────────────────────────
 const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
   return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
@@ -426,59 +425,68 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
         </div>
       ) : slot?.meetingLink ? (
         <div className="flex items-center gap-2">
-          <a
-            href={slot.meetingLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100
-              rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors truncate"
+
+        <a  href={slot.meetingLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100
+          rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors truncate"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-            </svg>
-            <span className="truncate">{slot.meetingLink}</span>
-          </a>
-          {isMentor && (
-            <button
-              onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
-              className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
-                text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Edit
-            </button>
-          )}
-        </div>
-      ) : isMentor ? (
-        <button
-          onClick={() => setEditing(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
-            border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500
-            hover:border-blue-300 hover:text-blue-600 transition-colors"
-        >
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
-          Add Meeting Link
+          <span className="truncate">{slot.meetingLink}</span>
+        </a>
+          {isMentor && (
+        <button
+          onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
+          className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
+                text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          Edit
         </button>
-      ) : (
-        <p className="text-xs text-slate-400 italic">No meeting link added yet.</p>
       )}
     </div>
+  ) : isMentor ? (
+    <button
+      onClick={() => setEditing(true)}
+      className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
+            border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500
+            hover:border-blue-300 hover:text-blue-600 transition-colors"
+    >
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Add Meeting Link
+    </button>
+  ) : (
+    <p className="text-xs text-slate-400 italic">No meeting link added yet.</p>
+  )
+}
+    </div >
   );
 };
 
 // ── Completion Section ────────────────────────────────────────
-const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, saving }) => {
+const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete }) => {
+  const [localSaving, setLocalSaving] = useState(false);
+
   const isMentee = viewerRole === "mentee";
   const iMenteeMarked = slot?.menteeMarked || false;
   const iMentorMarked = slot?.mentorMarked || false;
   const myMark = isMentee ? iMenteeMarked : iMentorMarked;
   const otherMark = isMentee ? iMentorMarked : iMenteeMarked;
   const bothDone = iMenteeMarked && iMentorMarked;
+
+  const handleClick = async () => {
+    setLocalSaving(true);
+    await onMarkComplete(slotIndex);
+    setLocalSaving(false);
+  };
 
   return (
     <div className="border-t border-slate-100 pt-3">
@@ -499,16 +507,17 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
           </span>
         </div>
       </div>
-      {!myMark && !bothDone && (
+
+      {(!myMark || localSaving) && !bothDone && (
         <button
-          onClick={() => onMarkComplete(slotIndex)}
-          disabled={saving}
+          onClick={handleClick}
+          disabled={localSaving}
           className="w-full py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold
             hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed
             flex items-center justify-center gap-2"
         >
-          {saving
-            ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Marking...</>
+          {localSaving
+            ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Marking Complete...</>
             : <><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
@@ -516,6 +525,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
           }
         </button>
       )}
+
       {bothDone && (
         <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl
           bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
@@ -545,7 +555,7 @@ const SessionCard = ({
   allSlots,
   connectRequestId,
 }) => {
-  const saving = savingSlots.has(slotIndex); 
+  const saving = [...savingSlots].includes(slotIndex);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -639,14 +649,12 @@ const SessionCard = ({
               onSetLink={(link) => onSetLink(slotIndex, link)}
               saving={saving}
             />
-
             <CompletionSection
               slot={slot}
               viewerRole={viewerRole}
               otherName={otherName}
               slotIndex={slotIndex}
               onMarkComplete={onMarkComplete}
-              saving={saving}
             />
           </>
         )}

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AdminLayout from "../../components/admin/AdminLayout";
 
-const BASE_URL   = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -15,13 +15,13 @@ const Toast = ({ toast }) => {
       style={{
         fontWeight: 600, fontFamily: FONT,
         background: toast.type === "success" ? "#f0fdf4" : "#fef2f2",
-        border:     `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecaca"}`,
-        color:      toast.type === "success" ? "#15803d" : "#dc2626",
-        animation:  "slideIn 0.2s ease",
+        border: `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecaca"}`,
+        color: toast.type === "success" ? "#15803d" : "#dc2626",
+        animation: "slideIn 0.2s ease",
       }}>
       {toast.type === "success"
-        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+        : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
       }
       {toast.msg}
     </div>
@@ -81,11 +81,11 @@ const OverviewCard = ({ label, value, icon, accent, sub }) => (
 const AdminSettings = () => {
   const [toast, setToast] = useState(null);
   const [overview, setOverview] = useState({ totalUsers: 0, activeSessions: 0 });
-  const [adminName,   setAdminName]   = useState("");
-  const [adminEmail,  setAdminEmail]  = useState("");
+  const [adminName, setAdminName] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [addingAdmin, setAddingAdmin] = useState(false);
-  const [tempPw,      setTempPw]      = useState("");
-  const [commission,       setCommission]       = useState("");
+  const [tempPw, setTempPw] = useState("");
+  const [commission, setCommission] = useState("");
   const [savingCommission, setSavingCommission] = useState(false);
 
   const showToast = (msg, type = "success") => {
@@ -97,7 +97,7 @@ const AdminSettings = () => {
     const fetchData = async () => {
       try {
         const [ovRes, cmRes] = await Promise.all([
-          axios.get(`${BASE_URL}/admin/settings/overview`,   { headers: authHeader() }),
+          axios.get(`${BASE_URL}/admin/settings/overview`, { headers: authHeader() }),
           axios.get(`${BASE_URL}/admin/settings/commission`, { headers: authHeader() }),
         ]);
         setOverview({ totalUsers: ovRes.data.totalUsers, activeSessions: ovRes.data.activeSessions });
@@ -167,57 +167,18 @@ const AdminSettings = () => {
             Admin Settings
           </h1>
           <p className="text-sm text-slate-600 mt-0.5">
-            Manage platform configurations, users, and preferences.
+            Manage platform configurations and preferences.
           </p>
         </div>
 
 
-        {/* ── Platform Overview ── */}
-        <SectionCard title="Platform Overview" subtitle="Live platform statistics" accent="#2563eb"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <OverviewCard label="Total Users" value={overview.totalUsers} accent="#2563eb" sub="Mentors + Mentees"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
-            />
-            <OverviewCard label="Active Sessions" value={overview.activeSessions} accent="#059669" sub="Currently ongoing"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>}
-            />
-          </div>
-        </SectionCard>
 
-        {/* ── User Management ── */}
-        <SectionCard title="User Management" subtitle="Quick access to user management tools" accent="#7c3aed"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Manage Mentors", desc: "View, verify, and manage mentor accounts", href: "/admin/users?role=mentor" },
-              { label: "Manage Mentees", desc: "View, manage, and support mentee accounts", href: "/admin/users?role=mentee" },
-            ].map((item) => (
-              <a key={item.label} href={item.href}
-                className="flex items-center justify-between p-4 rounded-2xl transition-all"
-                style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#bfdbfe"; e.currentTarget.style.background = "#eff6ff"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.background = "#f8fafc"; }}
-              >
-                <div>
-                  <p className="text-sm font-600 text-slate-900" style={{ fontWeight: 600, fontFamily: FONT }}>{item.label}</p>
-                  <p className="text-xs text-slate-600 mt-0.5">{item.desc}</p>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
-                </svg>
-              </a>
-            ))}
-          </div>
-        </SectionCard>
 
         {/* ── Commission Rate ── */}
         <SectionCard title="Platform Commission Rate" subtitle="Set the % deducted from each mentor payout" accent="#d97706"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>}
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>}
         >
-          {/* ✅ Fixed layout — input + button side by side, button aligned to input height */}
+          {/* Fixed layout — input + button side by side, button aligned to input height */}
           <div className="flex gap-3" style={{ alignItems: "flex-start" }}>
             <div style={{ width: 240 }}>
               <label className="text-xs font-600 text-slate-900 block mb-1.5"
@@ -237,14 +198,14 @@ const AdminSettings = () => {
                   fontFamily: FONT,
                 }}
                 onFocus={(e) => e.target.style.borderColor = "#fed7aa"}
-                onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
+                onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
               />
               <p className="text-[10px] text-slate-600 mt-1">
                 Applied to every mentor payout. Must be between 0–100.
               </p>
             </div>
 
-            {/* ✅ mt-6 pushes button down to align with input (label height = ~1.5rem) */}
+            {/*  mt-6 pushes button down to align with input (label height = ~1.5rem) */}
             <div style={{ marginTop: "1.6rem" }}>
               <SubmitBtn
                 loading={savingCommission}
@@ -258,7 +219,7 @@ const AdminSettings = () => {
 
         {/* ── Add Other Admin ── */}
         <SectionCard title="Add Other Admin" subtitle="Invite a new admin to manage the platform" accent="#059669"
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>}
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>}
         >
           <div className="grid grid-cols-2 gap-4 max-w-lg">
             <div>
@@ -272,7 +233,7 @@ const AdminSettings = () => {
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#334155", fontFamily: FONT }}
                 onFocus={(e) => e.target.style.borderColor = "#93c5fd"}
-                onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
+                onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
               />
             </div>
             <div>
@@ -286,9 +247,9 @@ const AdminSettings = () => {
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#334155", fontFamily: FONT }}
                 onFocus={(e) => e.target.style.borderColor = "#93c5fd"}
-                onBlur={(e)  => e.target.style.borderColor = "#e2e8f0"}
+                onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
               />
-              <p className="text-[10px] text-slate-600 mt-1">A temporary password will be generated.</p>
+              <p className="text-[10px] text-slate-600 mt-1"> Password will be generated.</p>
             </div>
           </div>
 
@@ -300,11 +261,11 @@ const AdminSettings = () => {
             <div className="mt-4 flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{ background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
               </svg>
               <div>
                 <p className="text-xs font-600 text-emerald-700" style={{ fontWeight: 600 }}>
-                  Temporary password — share securely with the new admin:
+                  Password — share securely with the new admin:
                 </p>
                 <p className="text-sm font-700 text-emerald-800 mt-0.5"
                   style={{ fontFamily: MONO, fontWeight: 700 }}>{tempPw}</p>

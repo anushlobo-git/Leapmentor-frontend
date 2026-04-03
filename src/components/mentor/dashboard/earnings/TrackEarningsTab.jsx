@@ -119,7 +119,7 @@ const TrackEarningsTab = () => {
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="18 15 12 9 6 15" />
                     </svg>
-                    12%
+
                   </span>
                 }
               />
@@ -172,8 +172,8 @@ const TrackEarningsTab = () => {
                   type="button"
                   onClick={() => handleChartPeriod(p)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${chartPeriod === p
-                      ? "bg-white text-blue-900 shadow-sm"
-                      : "text-slate-700 hover:text-slate-600"
+                    ? "bg-white text-blue-900 shadow-sm"
+                    : "text-slate-700 hover:text-slate-600"
                     }`}
                 >
                   {p.charAt(0).toUpperCase() + p.slice(1)}
