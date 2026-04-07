@@ -22,6 +22,7 @@ const SSOSync        = lazy(() => import("./pages/SSOSync"));
 
 // ── Onboarding ────────────────────────────────────────────────
 const MentorOnboarding = lazy(() => import("./pages/MentorOnboarding"));
+const MentorVerification = lazy(() => import("./pages/MentorVerification"));
 const MenteeOnboarding = lazy(() => import("./pages/MenteeOnboarding"));
 
 // ── Edit Profile ──────────────────────────────────────────────
@@ -80,6 +81,7 @@ const App = () => {
 
           {/* ── Onboarding ────────────────────────────────── */}
           <Route path="/onboarding/mentor" element={<ProtectedRoute role="mentor"><MentorOnboarding /></ProtectedRoute>} />
+          <Route path="/verify-documents" element={<ProtectedRoute role="mentor"><MentorVerification /></ProtectedRoute>} />
           <Route path="/onboarding/mentee" element={<ProtectedRoute role="mentee"><MenteeOnboarding /></ProtectedRoute>} />
 
           {/* ── Edit Profile ──────────────────────────────── */}

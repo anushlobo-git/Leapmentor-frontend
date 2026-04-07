@@ -75,7 +75,7 @@ const OnboardingFormShell = () => {
       setTimeout(() => {
         sessionStorage.removeItem("mentorOnboardingForm"); // ✅ clear saved data
         dispatch(clearMentorOnboardingMessages());
-        navigate("/dashboard/mentor");
+        navigate("/verify-documents");
       }, 1000);
     }
   }, [error, successMsg]);
