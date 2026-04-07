@@ -130,29 +130,11 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
         {/* ── Header with Report button at top right ──────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-[22px] font-bold text-slate-800">Session Overview</h1>
+            <h1 className="text-[22px] font-bold text-slate-800"> Overview</h1>
             <p className="text-[13px] text-blue-900 mt-1">
               Your active mentorship session details and participants.
             </p>
           </div>
-
-          {/* Report button — top right, always visible */}
-          <button
-            type="button"
-            onClick={() => setShowReport(true)}
-            className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl
-              bg-red-50 border border-red-200 text-red-600 text-xs font-bold
-              hover:bg-red-100 hover:border-red-300 transition-all"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0
-                1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            Report
-          </button>
         </div>
 
         {/* Participants */}
@@ -282,7 +264,19 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
             )}
           </div>
         </div>
-
+        {/* Report link — bottom of page */}
+        <div className="text-center pt-2 pb-1">
+          <p className="text-[11px] text-slate-600">
+            Something wrong with this session?{" "}
+            <button
+              type="button"
+              onClick={() => setShowReport(true)}
+              className="text-red-400 font-semibold hover:text-red-600 hover:underline transition-colors"
+            >
+              Report an issue
+            </button>
+          </p>
+        </div>
       </div>
 
       {/* Report Modal */}

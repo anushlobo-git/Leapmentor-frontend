@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
+import useReport from "../../../hooks/useReport";
 import GoalForm from "./goals/GoalForm";
 import TimelineTracker from "./goals/TimelineTracker";
 import MilestoneList from "./goals/MilestoneList";
@@ -15,7 +16,7 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-const GoalCard = ({ goal, onEdit }) => {
+const GoalCard = ({ goal, onEdit, milestones, saving, onAdd, onToggle, onDelete }) => {
   const statusClass =
     goal.status === "completed" ? "bg-green-50 text-green-600 border-green-200"
       : goal.status === "abandoned" ? "bg-red-50 text-red-500 border-red-200"
@@ -53,6 +54,16 @@ const GoalCard = ({ goal, onEdit }) => {
             Edit
           </button>
         </div>
+      </div>
+      <div className="mt-4 pt-4 border-t border-slate-50">
+        <MilestoneList
+          goal={goal}
+          milestones={milestones}
+          saving={saving}
+          onAdd={onAdd}
+          onToggle={onToggle}
+          onDelete={onDelete}
+        />
       </div>
     </div>
   );
@@ -92,57 +103,73 @@ const NoGoalState = ({ onSetGoal }) => (
   </div>
 );
 
-// ✅ allComplete + onLeaveFeedback added
-const OverallProgress = ({ completedSlots, totalSlots, progress, allComplete, onLeaveFeedback }) => (
-  <div className="bg-white border border-slate-200 rounded-2xl p-5">
-    <div className="flex items-center justify-between mb-3">
-      <div>
-        <p className="text-sm font-bold text-slate-800">Overall Session Progress</p>
-        <p className="text-xs text-slate-700 mt-0.5">
-          {completedSlots} of {totalSlots} session{totalSlots !== 1 ? "s" : ""} completed by both parties
-        </p>
-      </div>
-      <p className="text-2xl font-black text-blue-900">{progress}%</p>
-    </div>
-    <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-all duration-700
-          ${progress >= 100 ? "bg-emerald-500" : "bg-blue-600"}`}
-        style={{ width: `${progress}%` }}
-      />
-    </div>
-    {progress >= 100 && (
-      <div className="flex items-center justify-between mt-3 py-2 px-4 rounded-xl
-        bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-        <div className="flex items-center gap-2">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          All sessions complete 
+const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback, feedbackSubmitted }) => {
+  const [showMessage, setShowMessage] = useState(false);
+
+  const handleClick = () => {
+    if (feedbackSubmitted) {
+      setShowMessage(true);
+      setTimeout(() => setShowMessage(false), 3000);
+    } else {
+      onLeaveFeedback();
+    }
+  };
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-sm font-bold text-slate-800">Overall Session Progress</p>
+          <p className="text-xs text-slate-700 mt-0.5">
+            {completedSlots} of {totalSlots} session{totalSlots !== 1 ? "s" : ""} completed by both parties
+          </p>
         </div>
-        {/* Leave Feedback button — only when truly allComplete */}
-        {allComplete && (
-          <button
-            onClick={onLeaveFeedback}
-            className="ml-4 px-3 py-1.5 rounded-lg bg-emerald-600 text-white
-              text-xs font-bold hover:bg-emerald-700 transition-all"
-          >
-            Leave Feedback
-          </button>
-        )}
+        <p className="text-2xl font-black text-blue-900">{progress}%</p>
       </div>
-    )}
-  </div>
-);
+      <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700
+            ${progress >= 100 ? "bg-emerald-500" : "bg-blue-600"}`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      {progress >= 100 && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between mt-3 py-2 px-4 rounded-xl
+            bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+            <div className="flex items-center gap-2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              All sessions complete
+            </div>
+            <button
+              onClick={handleClick}
+              className={`ml-4 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-all
+                ${feedbackSubmitted
+                  ? "bg-slate-400 cursor-default"
+                  : "bg-emerald-600 hover:bg-emerald-700"}`}
+            >
+              {feedbackSubmitted ? "Feedback Submitted" : "Leave Feedback"}
+            </button>
+          </div>
+          {showMessage && (
+            <div className="px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
+              You've already submitted feedback for this session
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ── Main ──────────────────────────────────────────────────────
 const SharedGoalsTab = ({ connect, onAllComplete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-
-  // ✅ removed: modalShownRef, prevProgressRef, and the old progress useEffect
 
   const viewerRole = connect?.viewerRole || "mentee";
   const connectRequestId = connect?._id;
@@ -161,10 +188,15 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
   const {
     slots, loading: slotsLoading, savingSlots, error: slotsError,
     completedSlots, totalSlots, progress,
-    allComplete, // ✅ NEW
     setMeetingLink, markSlotComplete,
     cancelSlot, rescheduleSlot,
   } = useSessions(connectRequestId, onAllComplete);
+
+  const {
+    myFeedback,
+    loading: feedbackLoading,
+    refetch: refetchFeedback,        // ← destructure refetch
+  } = useReport(connectRequestId);
 
   const handleCreateGoal = async (fields) => {
     const result = await createGoal(fields);
@@ -176,7 +208,13 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
     if (result?.success) setIsEditing(false);
   };
 
-  if (goalsLoading || slotsLoading) return <LoadingSkeleton />;
+  // Called by FeedbackModal after successful submit
+  const handleFeedbackSubmitted = () => {
+    refetchFeedback();               // ← re-fetches myFeedback in this scope
+    setShowFeedbackModal(false);
+  };
+
+  if (goalsLoading || slotsLoading || feedbackLoading) return <LoadingSkeleton />;
 
   const activeSlots = slots.filter((s) => !s.status || s.status !== "cancelled");
 
@@ -217,31 +255,27 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
           saving={goalsSaving}
         />
       ) : goal ? (
-        <GoalCard goal={goal} onEdit={() => setIsEditing(true)} />
-      ) : (
-        <NoGoalState onSetGoal={() => setIsEditing(true)} />
-      )}
-
-      {/* Milestones */}
-      {goal && (
-        <MilestoneList
+        <GoalCard
           goal={goal}
+          onEdit={() => setIsEditing(true)}
           milestones={milestones}
           saving={goalsSaving}
           onAdd={addMilestone}
           onToggle={toggleMilestone}
           onDelete={deleteMilestone}
         />
+      ) : (
+        <NoGoalState onSetGoal={() => setIsEditing(true)} />
       )}
 
-      {/* Overall progress — ✅ passes allComplete + onLeaveFeedback */}
+      {/* Overall progress */}
       {activeSlots.length > 0 && (
         <OverallProgress
           completedSlots={completedSlots}
           totalSlots={totalSlots}
           progress={progress}
-          allComplete={allComplete}
           onLeaveFeedback={() => setShowFeedbackModal(true)}
+          feedbackSubmitted={!!myFeedback}  // ← drives button state reactively
         />
       )}
 
@@ -267,17 +301,19 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 onRescheduleSlot={rescheduleSlot}
                 allSlots={slots}
                 connectRequestId={connectRequestId}
+                connect={connect}
               />
             ))}
           </div>
         </div>
       )}
 
-      {/* Feedback modal */}
+      {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
           connect={connect}
           onClose={() => setShowFeedbackModal(false)}
+          onFeedbackSubmitted={handleFeedbackSubmitted}  // ← passed down
         />
       )}
 

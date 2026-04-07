@@ -27,7 +27,7 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
   </div>
 );
 
-const FeedbackModal = ({ connect, onClose }) => {
+const FeedbackModal = ({ connect, onClose, slotIndex, onFeedbackSubmitted }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [done, setDone] = useState(false);
@@ -40,12 +40,30 @@ const FeedbackModal = ({ connect, onClose }) => {
 
   const handleSubmit = async () => {
     if (rating === 0) return;
-    const result = await submitFeedback(rating, comment);
-    if (result?.success) setDone(true);
+    const result = await submitFeedback(rating, comment, slotIndex);
+    if (result?.success) {
+      setDone(true);
+      setTimeout(() => {
+        if (onFeedbackSubmitted) {
+          onFeedbackSubmitted();
+        } else {
+          onClose();
+        }
+      }, 1500);
+    } else if (result?.message?.includes("already submitted")) {
+      onClose();
+    }
+  };
+
+  const handleDone = () => {
+    if (onFeedbackSubmitted) {
+      onFeedbackSubmitted();
+    } else {
+      onClose();
+    }
   };
 
   return (
-    // Backdrop
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}
@@ -67,7 +85,7 @@ const FeedbackModal = ({ connect, onClose }) => {
                     </svg>
                   </div>
                   <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">
-                    Session Complete!
+                    {slotIndex !== undefined ? `Session ${slotIndex + 1} Complete!` : "Session Complete!"}
                   </p>
                 </div>
                 <h2 className="text-lg font-extrabold text-slate-800">
@@ -156,7 +174,7 @@ const FeedbackModal = ({ connect, onClose }) => {
             </div>
           </>
         ) : (
-          // Success state
+          /* Success Screen */
           <div className="flex flex-col items-center text-center gap-4 py-4">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200
               flex items-center justify-center">
@@ -167,13 +185,18 @@ const FeedbackModal = ({ connect, onClose }) => {
               </svg>
             </div>
             <div>
-              <p className="text-base font-extrabold text-slate-800">Thanks for your feedback!</p>
+              <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">
+                Feedback Submitted!
+              </p>
+              <p className="text-base font-extrabold text-slate-800">
+                Thanks for your feedback!
+              </p>
               <p className="text-xs text-slate-500 mt-1">
                 Your review has been submitted successfully.
               </p>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleDone}
               className="px-6 py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold
                 hover:bg-blue-700 transition-all"
             >

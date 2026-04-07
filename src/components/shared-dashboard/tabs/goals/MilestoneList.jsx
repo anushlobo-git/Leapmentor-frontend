@@ -14,7 +14,6 @@ const MilestoneProgress = ({ completed, total }) => {
 
   return (
     <div className="mb-4">
-      {/* Label row */}
       <div className="flex items-center justify-between mb-1.5">
         <p className="text-xs font-semibold text-slate-500">
           {completed} of {total} milestone{total !== 1 ? "s" : ""} completed
@@ -23,8 +22,6 @@ const MilestoneProgress = ({ completed, total }) => {
           {percent}%
         </p>
       </div>
-
-      {/* Progress bar */}
       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500
@@ -32,8 +29,6 @@ const MilestoneProgress = ({ completed, total }) => {
           style={{ width: `${percent}%` }}
         />
       </div>
-
-      {/* All done message */}
       {allDone && (
         <div className="flex items-center gap-1.5 mt-2 text-xs font-bold text-green-600">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -51,13 +46,11 @@ const MilestoneProgress = ({ completed, total }) => {
 // ── Add Milestone Form ────────────────────────────────────────
 const AddMilestoneForm = ({ onAdd, onCancel, saving }) => {
   const [title, setTitle] = useState("");
-  const [dueDate, setDueDate] = useState("");
 
   const handleAdd = async () => {
     if (!title.trim()) return;
-    await onAdd({ title: title.trim(), dueDate });
+    await onAdd({ title: title.trim() });
     setTitle("");
-    setDueDate("");
   };
 
   return (
@@ -71,13 +64,6 @@ const AddMilestoneForm = ({ onAdd, onCancel, saving }) => {
           placeholder="Milestone title..."
           className="flex-1 px-3 py-2 border border-violet-200 rounded-lg text-sm text-slate-800
             bg-white outline-none focus:border-violet-500 transition-colors placeholder:text-slate-400"
-        />
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="px-2.5 py-2 border border-violet-200 rounded-lg text-xs text-slate-600
-            bg-white outline-none focus:border-violet-500 transition-colors"
         />
       </div>
       <div className="flex gap-2">
@@ -103,17 +89,45 @@ const AddMilestoneForm = ({ onAdd, onCancel, saving }) => {
   );
 };
 
-// ── Milestone Row ─────────────────────────────────────────────
-const MilestoneRow = ({ milestone, onToggle, onDelete }) => {
-  const [deleting, setDeleting] = useState(false);
-  const overdue = !milestone.isCompleted && isOverdue(milestone.dueDate);
+// ── Delete Confirmation Modal ─────────────────────────────────
+const DeleteMilestoneModal = ({ milestone, onConfirm, onCancel }) => (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+    onClick={onCancel}
+  >
+    <div
+      className="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl"
+      onClick={e => e.stopPropagation()}
+    >
 
-  const handleDelete = async () => {
-    if (!window.confirm("Delete this milestone?")) return;
-    setDeleting(true);
-    await onDelete(milestone._id);
-    setDeleting(false);
-  };
+      <h3 className="text-base font-extrabold text-slate-800 mb-1">Delete Milestone?</h3>
+      <p className="text-sm text-slate-500 mb-5">
+        <span className="font-semibold text-slate-700">"{milestone.title}"</span> will be
+        permanently removed from this goal.
+      </p>
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          className="flex-1 py-2 rounded-xl border border-slate-200 text-sm font-semibold
+            text-slate-600 hover:bg-slate-50 transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onConfirm}
+          className="flex-1 py-2 rounded-xl bg-blue-900 border-none text-sm font-bold
+            text-white hover:bg-blue-900 transition-all cursor-pointer"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// ── Milestone Row ─────────────────────────────────────────────
+const MilestoneRow = ({ milestone, onToggle, onRequestDelete }) => {
+  const overdue = !milestone.isCompleted && isOverdue(milestone.dueDate);
 
   const dueBadgeClass = milestone.isCompleted
     ? "bg-slate-100 text-slate-400 border-slate-200"
@@ -156,12 +170,11 @@ const MilestoneRow = ({ milestone, onToggle, onDelete }) => {
         </span>
       )}
 
-      {/* Delete */}
+      {/* Delete — now opens modal instead of window.confirm */}
       <button
-        onClick={handleDelete}
-        disabled={deleting}
-        className="p-1 rounded-md border-none bg-transparent text-slate-300 hover:text-red-400
-          transition-colors cursor-pointer shrink-0 disabled:cursor-not-allowed flex items-center"
+        onClick={() => onRequestDelete(milestone)}
+        className="p-1 rounded-md border-none bg-transparent text-slate-600 hover:text-red-400
+          transition-colors cursor-pointer shrink-0 flex items-center"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -177,6 +190,7 @@ const MilestoneRow = ({ milestone, onToggle, onDelete }) => {
 // ── Main ──────────────────────────────────────────────────────
 const MilestoneList = ({ goal, milestones, saving, onAdd, onToggle, onDelete }) => {
   const [showForm, setShowForm] = useState(false);
+  const [milestoneToDelete, setMilestoneToDelete] = useState(null);
 
   const completed = milestones.filter((m) => m.isCompleted);
   const pending = milestones.filter((m) => !m.isCompleted);
@@ -187,73 +201,89 @@ const MilestoneList = ({ goal, milestones, saving, onAdd, onToggle, onDelete }) 
     if (result?.success) setShowForm(false);
   };
 
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5">
+  const handleDeleteConfirm = async () => {
+    await onDelete(milestoneToDelete._id);
+    setMilestoneToDelete(null);
+  };
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <p className="text-sm font-bold text-slate-800 m-0">Milestones</p>
-          {milestones.length > 0 && (
-            <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border
-              ${completed.length === milestones.length
-                ? "bg-green-50 text-green-600 border-green-200"
-                : "bg-violet-50 text-violet-600 border-violet-200"}`}>
-              {completed.length} / {milestones.length}
-            </span>
+  return (
+    <>
+      <div className="bg-white border border-slate-200 rounded-2xl p-5">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <p className="text-sm font-bold text-slate-800 m-0">Milestones</p>
+            {milestones.length > 0 && (
+              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border
+                ${completed.length === milestones.length
+                  ? "bg-green-50 text-green-600 border-green-200"
+                  : "bg-violet-50 text-violet-600 border-violet-200"}`}>
+                {completed.length} / {milestones.length}
+              </span>
+            )}
+          </div>
+          {!showForm && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-50
+                border border-violet-200 text-xs font-bold text-violet-600 cursor-pointer
+                hover:bg-violet-100 transition-colors"
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Milestone
+            </button>
           )}
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-50
-              border border-violet-200 text-xs font-bold text-violet-600 cursor-pointer
-              hover:bg-violet-100 transition-colors"
-          >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Milestone
-          </button>
+
+        {/* Progress bar */}
+        <MilestoneProgress
+          completed={completed.length}
+          total={milestones.length}
+        />
+
+        {/* Add form */}
+        {showForm && (
+          <AddMilestoneForm
+            onAdd={handleAdd}
+            onCancel={() => setShowForm(false)}
+            saving={saving}
+          />
         )}
+
+        {/* Empty state */}
+        {milestones.length === 0 && !showForm && (
+          <div className="text-center py-7">
+            <p className="text-sm font-semibold text-slate-700 mb-1">No milestones yet</p>
+            <p className="text-xs text-slate-600">Break your goal into smaller, checkable steps.</p>
+          </div>
+        )}
+
+        {/* Milestone rows */}
+        {sorted.map((m) => (
+          <MilestoneRow
+            key={m._id}
+            milestone={m}
+            onToggle={onToggle}
+            onRequestDelete={setMilestoneToDelete}
+          />
+        ))}
+
       </div>
 
-      {/* ── Progress bar — only shown when milestones exist ── */}
-      <MilestoneProgress
-        completed={completed.length}
-        total={milestones.length}
-      />
-
-      {/* Add form */}
-      {showForm && (
-        <AddMilestoneForm
-          onAdd={handleAdd}
-          onCancel={() => setShowForm(false)}
-          saving={saving}
+      {/* Delete confirmation modal */}
+      {milestoneToDelete && (
+        <DeleteMilestoneModal
+          milestone={milestoneToDelete}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setMilestoneToDelete(null)}
         />
       )}
-
-      {/* Empty state */}
-      {milestones.length === 0 && !showForm && (
-        <div className="text-center py-7">
-          <p className="text-sm font-semibold text-slate-700 mb-1">No milestones yet</p>
-          <p className="text-xs text-slate-600">Break your goal into smaller, checkable steps.</p>
-        </div>
-      )}
-
-      {/* Milestone rows */}
-      {sorted.map((m) => (
-        <MilestoneRow
-          key={m._id}
-          milestone={m}
-          onToggle={onToggle}
-          onDelete={onDelete}
-        />
-      ))}
-
-    </div>
+    </>
   );
 };
 
