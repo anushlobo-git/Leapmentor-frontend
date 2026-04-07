@@ -50,7 +50,7 @@ const OnboardingFormShell = () => {
     if (error)      setMsg({ type: "error",   text: error });
     if (successMsg) {
       setMsg({ type: "success", text: successMsg });
-      setTimeout(() => navigate("/dashboard/mentor"), 1000);
+      setTimeout(() => navigate("/verify-documents"), 1000);
     }
   }, [error, successMsg]);
 
