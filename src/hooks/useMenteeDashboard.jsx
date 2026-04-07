@@ -48,7 +48,6 @@ const useMenteeDashboard = () => {
         } catch (profileErr) {
           if (profileErr?.response?.status === 404) {
             if (!isEditPage) navigate("/onboarding/mentee");
-            setLoading(false);
             return;
           }
           if (profileErr?.response?.status === 401) {

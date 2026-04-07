@@ -47,6 +47,8 @@ const useMenteeOnboarding = () => {
   });
 
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [redirecting, setRedirecting] = useState(false);
+
 
   useEffect(() => {
     if (error) {
@@ -54,13 +56,11 @@ const useMenteeOnboarding = () => {
     }
 
     if (successMsg) {
-      setMsg({ type: "success", text: successMsg });
-      setTimeout(() => {
-        sessionStorage.removeItem("menteeOnboardingForm"); // ✅ clear saved data
-        dispatch(clearOnboardingMessages());
-        navigate("/dashboard/mentee");
-      }, 1000);
-    }
+  sessionStorage.removeItem("menteeOnboardingForm");
+  dispatch(clearOnboardingMessages());
+  setRedirecting(true);
+  setTimeout(() => navigate("/dashboard/mentee"), 1500);
+}
   }, [error, successMsg]);
 
   // ✅ Clear Redux messages on unmount so stale state never bleeds
@@ -116,7 +116,7 @@ const useMenteeOnboarding = () => {
     dispatch(submitMenteeOnboarding({ ...form }));
   };
 
-  return { form, loading, msg, handleChange, handleSubmit };
+return { form, loading, msg, redirecting, handleChange, handleSubmit };
 };
 
 export default useMenteeOnboarding;

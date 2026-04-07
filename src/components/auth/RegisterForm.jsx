@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import { registerUser, clearMessages , setUser } from "../../store/slices/authSlice";
-
+import FullScreenLoader from "../FullScreenLoader";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
@@ -55,11 +55,11 @@ const RegisterForm = ({ role }) => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [localMsg, setLocalMsg] = useState({ type: "", text: "" });
   const [pwTouched, setPwTouched] = useState(false); // ✅ track if user typed in password
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    if (error) setLocalMsg({ type: "error", text: error });
-    if (successMsg) setLocalMsg({ type: "success", text: successMsg });
-  }, [error, successMsg]);
+  if (error) setLocalMsg({ type: "error", text: error });
+}, [error, successMsg]);
 
   useEffect(() => {
     return () => dispatch(clearMessages());
@@ -147,7 +147,7 @@ const RegisterForm = ({ role }) => {
           text: "This email is already registered. Please login instead.",
         });
       }
-
+        setRedirecting(true);  
       setTimeout(() => navigate("/verify-email", {
         state: { email: form.email.trim(), role },
       }), 800);
@@ -156,6 +156,7 @@ const RegisterForm = ({ role }) => {
 
   return (
     <>
+        {redirecting && <FullScreenLoader message="Setting up your account..." />} 
       <AuthBrand logo={<LeapMentorLogo />} />
 
       <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1.5">
@@ -169,7 +170,7 @@ const RegisterForm = ({ role }) => {
           : "Create your LeapMentor mentee account to start growing."}
       </p>
 
-      <AuthMessageBanner type={localMsg.type} text={localMsg.text} />
+{localMsg.type === "error" && <AuthMessageBanner type="error" text={localMsg.text} />}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <AuthField
@@ -298,7 +299,12 @@ const RegisterForm = ({ role }) => {
           disabled={loading}
           className="w-full bg-blue-900 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-lg py-2.5 mt-1 transition-colors"
         >
-          {loading ? "Creating account..." : "Create Account"}
+          {loading ? (
+  <span className="flex items-center justify-center gap-2">
+    <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+    Creating account…
+  </span>
+) : "Create Account"}
         </button>
       </form>
 
