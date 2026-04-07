@@ -63,7 +63,6 @@ const useMentorDashboard = () => {
             if (!isEditPage) {
               navigate("/onboarding/mentor");
             }
-            setLoading(false);
             return;
           }
           if (profileErr?.response?.status === 401) {

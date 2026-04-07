@@ -7,10 +7,12 @@ import InterestedFieldsSection from "./InterestedFieldsSection";
 import MentorshipPrefsSection from "./MentorshipPrefsSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
+import FullScreenLoader from "../../FullScreenLoader";
+
 import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
-  const { form, loading, msg, handleChange, handleSubmit } = useMenteeOnboarding();
+  const { form, loading, msg,redirecting, handleChange, handleSubmit } = useMenteeOnboarding();
   const [errors, setErrors] = useState({});
 
   // ── Refs for custom tag-input sections that have no real name= in the DOM ──
@@ -70,6 +72,8 @@ const MenteeOnboardingShell = () => {
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]">
+        {redirecting && <FullScreenLoader message="Setting up your profile..." />}
+
       {/* Top accent */}
       <div className="h-1 w-full bg-blue-900" />
 

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMentorOnboarding, clearMentorOnboardingMessages } from "../../../store/slices/mentorOnboardingSlice";
+import FullScreenLoader from "../../FullScreenLoader";
 
 import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalInfoSection from "./ProfessionalInfoSection";
@@ -60,6 +61,8 @@ const OnboardingFormShell = () => {
 
   // local msg — used for validation errors + synced from Redux
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [redirecting, setRedirecting] = useState(false);
+
 
   // ── Refs for custom section components that can't be targeted by name= ──
   const sectionRefs = {
@@ -71,13 +74,11 @@ const OnboardingFormShell = () => {
     if (error) setMsg({ type: "error", text: error });
     // In your existing success useEffect
     if (successMsg) {
-      setMsg({ type: "success", text: successMsg });
-      setTimeout(() => {
-        sessionStorage.removeItem("mentorOnboardingForm"); // ✅ clear saved data
-        dispatch(clearMentorOnboardingMessages());
-        navigate("/verify-documents");
-      }, 1000);
-    }
+  sessionStorage.removeItem("mentorOnboardingForm");
+  dispatch(clearMentorOnboardingMessages());
+  setRedirecting(true);
+  setTimeout(() => navigate("/verify-documents"), 1500);
+}
   }, [error, successMsg]);
 
   useEffect(() => {
@@ -177,6 +178,8 @@ const OnboardingFormShell = () => {
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        {redirecting && <FullScreenLoader message="Setting up your profile..." />}
+
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
       {/* Top accent bar */}

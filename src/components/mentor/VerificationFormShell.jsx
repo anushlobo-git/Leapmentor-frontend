@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-
+import FullScreenLoader from "../../components/FullScreenLoader";
 import PhoneNumberField     from "./PhoneNumberField";
 import ResumeUpload         from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
@@ -18,6 +18,7 @@ const VerificationFormShell = () => {
   const [phoneNumber,          setPhoneNumber]          = useState("");
   const [resumeFile,           setResumeFile]           = useState(null);
   const [workExperienceFiles,  setWorkExperienceFiles]  = useState([]);
+  const [redirecting, setRedirecting] = useState(false);
 
   // ── Error state — per field ──
   const [errors, setErrors] = useState({
@@ -82,9 +83,8 @@ const VerificationFormShell = () => {
         },
       });
 
-      setMsg({ type: "success", text: "Documents submitted! Your profile is under review." });
-      setTimeout(() => navigate("/dashboard/mentor"), 1500);
-
+setRedirecting(true);
+setTimeout(() => navigate("/dashboard/mentor"), 1500);
     } catch (err) {
       setMsg({
         type: "error",
@@ -97,6 +97,8 @@ const VerificationFormShell = () => {
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        {redirecting && <FullScreenLoader message="Submitting documents..." />}  {/* 👈 add here */}
+
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
       {/* Top accent bar */}
@@ -161,16 +163,12 @@ const VerificationFormShell = () => {
           />
 
           {/* Status message */}
-          {msg.text && (
-            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
-              msg.type === "success"
-                ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
-                : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-            }`}>
-              <span>{msg.type === "success" ? "✓" : "⚠"}</span>
-              {msg.text}
-            </div>
-          )}
+          {msg.type === "error" && msg.text && (
+  <div className="flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]">
+    <span>⚠</span>
+    {msg.text}
+  </div>
+)}
 
           {/* Submit */}
           <button

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../store/slices/authSlice";
+import FullScreenLoader from "../components/FullScreenLoader";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const VerifyEmail = () => {
 
   const [email, setEmail] = useState(location.state?.email || "");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-
+  const [redirecting, setRedirecting] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const role = location.state?.role || "mentor";
@@ -25,7 +26,7 @@ const VerifyEmail = () => {
 
   useEffect(() => {
     if (error) setMsg({ type: "error", text: error });
-    if (successMsg) setMsg({ type: "success", text: successMsg });
+    // ✅ don't show success msg — loader handles it
   }, [error, successMsg]);
 
   // ── Magic link auto-verify ────────────────────────────────
@@ -39,16 +40,16 @@ const VerifyEmail = () => {
       dispatch(clearMessages());
       setMsg({ type: "", text: "" });
 
-     dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
-  if (verifyMagicLink.fulfilled.match(action)) {
-    const userRole = action.payload?.role || "mentee";
-    const redirectPath = userRole === "mentee" ? "/login/mentee" : "/login/mentor";
-    setMsg({ type: "success", text: "Email verified! Redirecting to login..." });
-    setTimeout(() => navigate(redirectPath), 1500);
-  } else {
-    setMsg({ type: "error", text: action.payload || "Magic link verification failed." });
-  }
-});
+      dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
+        if (verifyMagicLink.fulfilled.match(action)) {
+          const userRole = action.payload?.role || "mentee";
+          const redirectPath = userRole === "mentee" ? "/login/mentee" : "/login/mentor";
+          setRedirecting(true);
+          setTimeout(() => navigate(redirectPath), 1500);
+        } else {
+          setMsg({ type: "error", text: action.payload || "Magic link verification failed." });
+        }
+      });
     }
   }, []);
 
@@ -115,8 +116,8 @@ const VerifyEmail = () => {
 
     const action = await dispatch(verifyEmail({ email, otp: otpStr }));
     if (verifyEmail.fulfilled.match(action)) {
-      setMsg({ type: "success", text: "Email verified! Redirecting to login..." });
-      setTimeout(() => navigate(loginPath), 900);
+      setRedirecting(true);
+      setTimeout(() => navigate(loginPath), 900); // ✅ fixed: was using undefined redirectPath
     } else {
       setMsg({ type: "error", text: action.payload || "OTP verification failed." });
     }
@@ -126,6 +127,7 @@ const VerifyEmail = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
+      {redirecting && <FullScreenLoader message="Email verified! Redirecting..." />} {/* ✅ */}
 
       {/* ── Left image panel ── */}
       <div className="relative hidden lg:flex lg:w-[48%] overflow-hidden bg-slate-900">
@@ -172,18 +174,23 @@ const VerifyEmail = () => {
             }
           </p>
 
-          {/* Message banner
-              FIX: text-emerald-800 on bg-emerald-100 (~5.2:1) passes
-                      text-red-800 on bg-red-100 (~5.9:1) passes
-                      (previous emerald-700/emerald-50 and red-600/red-50 both failed 4.5:1) */}
-          {msg.text && (
+          {/* ✅ Only show errors — success is handled by FullScreenLoader */}
+          {msg.type === "error" && msg.text && (
             <div
               role="alert"
               aria-live="polite"
-              className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-                ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                : "bg-red-100 text-red-800 border-red-300"
-                }`}
+              className="mb-5 text-sm rounded-xl px-4 py-3 border bg-red-100 text-red-800 border-red-300"
+            >
+              {msg.text}
+            </div>
+          )}
+
+          {/* ✅ Keep OTP sent success message since that's not a redirect */}
+          {msg.type === "success" && msg.text && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className="mb-5 text-sm rounded-xl px-4 py-3 border bg-emerald-100 text-emerald-800 border-emerald-300"
             >
               {msg.text}
             </div>

@@ -1,12 +1,16 @@
 // src/components/auth/LoginForm.jsx
 import { useRef, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
+import { setUser } from "../../store/slices/authSlice";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
+import FullScreenLoader from "../FullScreenLoader";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -19,24 +23,26 @@ const LoginForm = ({ placeholder, registerPath }) => {
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
-
+const dispatch = useDispatch();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [redirecting, setRedirecting] = useState(false);
+
 
   useEffect(() => { return () => setLoading(false); }, []);
 
   const handlePostAuth = (token, user) => {
     if (token) localStorage.setItem("token", token);
     const roles = user?.roles || [];
-    if (roles.includes("mentor")) {
-      setMsg({ type: "success", text: "Login successful! Redirecting..." });
-      setTimeout(() => navigate("/dashboard/mentor"), 800);
-    } else if (roles.includes("mentee")) {
-      setMsg({ type: "success", text: "Login successful! Redirecting..." });
-      setTimeout(() => navigate("/dashboard/mentee"), 800);
-    } else {
+   if (roles.includes("mentor")) {
+  setRedirecting(true);
+  setTimeout(() => navigate("/dashboard/mentor"), 800);
+} else if (roles.includes("mentee")) {
+  setRedirecting(true);
+  setTimeout(() => navigate("/dashboard/mentee"), 800);
+} else {
       setMsg({ type: "error", text: "No role found. Please register first." });
     }
   };
@@ -44,6 +50,8 @@ const LoginForm = ({ placeholder, registerPath }) => {
   useGoogleAuth({
     btnRef: googleBtnRef,
     roles: [],
+    dispatch,
+    setUser,
     onSuccess: (data) => handlePostAuth(data?.token, data?.user),
     onError: (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
@@ -98,6 +106,8 @@ const LoginForm = ({ placeholder, registerPath }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto px-4">
+            {redirecting && <FullScreenLoader message="Redirecting to dashboard..." />}  {/* 👈 add here */}
+
       <AuthBrand logo={<LeapMentorLogo />} />
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1.5">Login</h1>
@@ -106,14 +116,11 @@ const LoginForm = ({ placeholder, registerPath }) => {
         </h2>
       </div>
 
-      {msg.text && (
-        <div className={`mb-5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-          : "bg-red-50 text-red-600 border-red-200"
-          }`}>
-          {msg.text}
-        </div>
-      )}
+      {msg.type === "error" && msg.text && (
+  <div className="mb-5 text-sm rounded-xl px-4 py-3 border bg-red-50 text-red-600 border-red-200">
+    {msg.text}
+  </div>
+)}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

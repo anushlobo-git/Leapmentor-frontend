@@ -11,7 +11,9 @@ const callbackRef = {
   onError: null,
   onLoadingChange: null,
   rolesRef: null,
-  termsAcceptedRef: null, // ✅ FIX 1: was being ignored before
+  termsAcceptedRef: null, 
+  dispatch: null,
+  setUser: null,
 };
 
 const useGoogleAuth = ({
@@ -36,7 +38,9 @@ const useGoogleAuth = ({
   callbackRef.onError = onError;
   callbackRef.onLoadingChange = onLoadingChange;
   callbackRef.rolesRef = rolesRef;
-  callbackRef.termsAcceptedRef = termsAcceptedRef; // ✅ FIX 1: keep ref fresh
+  callbackRef.termsAcceptedRef = termsAcceptedRef;
+  callbackRef.dispatch = dispatch; 
+callbackRef.setUser = setUser;  
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
@@ -52,10 +56,10 @@ const useGoogleAuth = ({
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
-            // ✅ FIX 1: Read termsAccepted from the live ref, not hardcoded true
-            const termsAccepted = callbackRef.termsAcceptedRef?.current ?? false;
+            //  FIX 1: Read termsAccepted from the live ref, not hardcoded true
+const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
 
-            // ✅ FIX 2: Validate terms before hitting the backend
+            // FIX 2: Validate terms before hitting the backend
             if (!termsAccepted) {
               callbackRef.onError?.("Please accept the terms to continue.");
               return;
@@ -76,7 +80,7 @@ const useGoogleAuth = ({
                 localStorage.setItem("token", res.data.token);
 
                 // ✅ Add this line — sync token into Redux so slices can read it
-                dispatch(setUser({ token: res.data.token, user: res.data.user || null }));
+callbackRef.dispatch?.(callbackRef.setUser({ token: res.data.token, user: res.data.user || null }));
 
                 await new Promise((resolve) => setTimeout(resolve, 50));
               }
