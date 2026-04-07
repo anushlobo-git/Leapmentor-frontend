@@ -5,7 +5,7 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-const useReport = (connectRequestId, refreshKey = 0) => {  // 👈 ADDED: refreshKey param
+const useReport = (connectRequestId, refreshKey = 0) => {
   const [myFeedback, setMyFeedback] = useState(null);
   const [theirFeedback, setTheirFeedback] = useState(null);
   const [sessionStatus, setSessionStatus] = useState(null);
@@ -13,7 +13,6 @@ const useReport = (connectRequestId, refreshKey = 0) => {  // 👈 ADDED: refres
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  // ── Fetch feedback ────────────────────────────────────────
   const fetchFeedback = useCallback(async () => {
     if (!connectRequestId) return;
     try {
@@ -33,18 +32,18 @@ const useReport = (connectRequestId, refreshKey = 0) => {  // 👈 ADDED: refres
     }
   }, [connectRequestId]);
 
-  // 👇 CHANGED: added refreshKey to dependency array so it re-fetches on completion
   useEffect(() => { fetchFeedback(); }, [fetchFeedback, refreshKey]);
 
-  // ── Submit feedback ───────────────────────────────────────
-  const submitFeedback = useCallback(async (rating, comment) => {
+  // slotIndex now accepted and sent to backend
+  const submitFeedback = useCallback(async (rating, comment, slotIndex) => {
+    console.log("sending feedback:", { connectRequestId, rating, comment, slotIndex })
     if (!connectRequestId) return { success: false };
     try {
       setSubmitting(true);
       setError(null);
       const res = await axios.post(
         `${BASE_URL}/feedback`,
-        { connectRequestId, rating, comment },
+        { connectRequestId, rating, comment, slotIndex },
         { headers: authHeader() }
       );
       setMyFeedback(res.data.feedback);

@@ -7,6 +7,24 @@ import { forgotPassword, verifyResetOtp, resetPassword, clearMessages } from "..
 // ── Steps: 1 = enter email, 2 = enter OTP, 3 = new password ──
 const STEPS = { EMAIL: 1, OTP: 2, PASSWORD: 3 };
 
+const validatePassword = (password) => {
+  const rules = [
+    { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
+    { id: "uppercase", label: "At least 1 uppercase letter", test: (p) => /[A-Z]/.test(p) },
+    { id: "number", label: "At least 1 number", test: (p) => /[0-9]/.test(p) },
+    { id: "special", label: "At least 1 special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
+  ];
+  const passed = rules.filter((r) => r.test(password)).length;
+  return { rules, passed, total: rules.length };
+};
+
+const getStrength = (passed) => {
+  if (passed <= 1) return { label: "Weak", color: "#ef4444", width: "25%" };
+  if (passed === 2) return { label: "Fair", color: "#f59e0b", width: "50%" };
+  if (passed === 3) return { label: "Good", color: "#3b82f6", width: "75%" };
+  return { label: "Strong", color: "#22c55e", width: "100%" };
+};
+
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -14,18 +32,18 @@ const ForgotPassword = () => {
   const { loading } = useSelector((state) => state.auth);
 
   const role = searchParams.get("role") || "mentor";
-  const loginPath = role === "mentee" ? "/login/mentee" : "/login/mentor";
+  const loginPath = role === "mentee" ? "/login" : "/login";
 
   const [step, setStep] = useState(STEPS.EMAIL);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-
-  // local msg — driven only by handlers, never by Redux sync
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [pwTouched, setPwTouched] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
-  // Clear any stale Redux messages on mount only
   useEffect(() => {
     dispatch(clearMessages());
   }, []);
@@ -99,8 +117,13 @@ const ForgotPassword = () => {
   // ── Step 3 — Reset Password ───────────────────────────────
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      return setMsg({ type: "error", text: "Password must be at least 6 characters." });
+    const { passed } = validatePassword(newPassword);
+    if (passed < 4) {
+      setPwTouched(true);
+      return setMsg({ type: "error", text: "Please choose a stronger password." });
+    }
+    if (newPassword !== confirmPassword) {
+      return setMsg({ type: "error", text: "Passwords do not match." });
     }
     dispatch(clearMessages());
     setMsg({ type: "", text: "" });
@@ -124,9 +147,9 @@ const ForgotPassword = () => {
   };
 
   return (
-    // FIX 1: <div> → <main> to satisfy the "main landmark" accessibility requirement
     <main className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm">
+
         {/* ── Logo ── */}
         <div className="flex items-center gap-2.5 mb-8 justify-center">
           <img
@@ -211,8 +234,6 @@ const ForgotPassword = () => {
                   ? <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Verifying...</>
                   : "Verify OTP"}
               </button>
-              {/* Resend */}
-              {/* FIX 2: text-slate-400 → text-slate-500 (contrast 5.9:1, passes WCAG AA) */}
               <p className="text-xs text-slate-500 text-center">
                 Didn't get it?{" "}
                 <span className="text-blue-900 font-semibold cursor-pointer hover:underline"
@@ -226,20 +247,22 @@ const ForgotPassword = () => {
           {/* ── STEP 3: New Password ── */}
           {step === STEPS.PASSWORD && (
             <form onSubmit={handleResetPassword} className="space-y-4">
+
+              {/* New Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">New Password</label>
                 <div className="relative">
                   <input
                     type={showPw ? "text" : "password"}
                     value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Min. 6 characters"
+                    onChange={(e) => { setNewPassword(e.target.value); setPwTouched(true); }}
+                    onBlur={() => setPwTouched(true)}
+                    placeholder="Min. 8 characters"
                     required
-                    minLength={6}
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
                   />
                   <button type="button" onClick={() => setShowPw((p) => !p)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600">
                     {showPw ? (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
@@ -253,10 +276,79 @@ const ForgotPassword = () => {
                       </svg>
                     )}
                   </button>
+                </div>{/* ← relative closes here */}
+
+                {/* Strength bar — outside relative, inside New Password div */}
+                {pwTouched && newPassword.length > 0 && (() => {
+                  const { rules, passed } = validatePassword(newPassword);
+                  const strength = getStrength(passed);
+                  return (
+                    <div className="mt-2 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div style={{
+                            width: strength.width,
+                            height: "100%",
+                            background: strength.color,
+                            borderRadius: "999px",
+                            transition: "width 0.3s ease, background 0.3s ease",
+                          }} />
+                        </div>
+                        <span style={{ fontSize: "11px", fontWeight: "700", color: strength.color }}>
+                          {strength.label}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        {rules.map((rule) => (
+                          <div key={rule.id} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                            <span style={{ color: rule.test(newPassword) ? "#22c55e" : "#cbd5e1", fontSize: "12px" }}>
+                              {rule.test(newPassword) ? "✓" : "○"}
+                            </span>
+                            <span style={{
+                              fontSize: "11px",
+                              color: rule.test(newPassword) ? "#16a34a" : "#94a3b8",
+                              fontWeight: rule.test(newPassword) ? "600" : "400",
+                            }}>
+                              {rule.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>{/* ← New Password div closes here */}
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Confirm Password</label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPw ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter your password"
+                    required
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
+                  />
+                  <button type="button" onClick={() => setShowConfirmPw((p) => !p)}
+                    className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600">
+                    {showConfirmPw ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
-                {/* FIX 3: text-slate-400 → text-slate-500 (contrast 5.9:1, passes WCAG AA) */}
-                <p className="text-xs text-slate-500 mt-1">Minimum 6 characters</p>
-              </div>
+              </div>{/* ← Confirm Password div closes here */}
+
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-900 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
                 {loading

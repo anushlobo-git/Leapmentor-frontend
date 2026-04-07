@@ -1,6 +1,7 @@
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
+import FeedbackModal from "../FeedbackModal";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({
@@ -104,74 +105,135 @@ const formatTimeShort = (t) => {
   return `${hour % 12 || 12}:${m} ${ampm}`;
 };
 
-const SlotPickerDateCard = ({ group, onSelect, bookedSlots }) => {
-  const [expanded, setExpanded] = useState(false);
-  const freeCount = group.slots.filter(
-    (s) => !bookedSlots.some(
-      (b) => b.date === group.date && b.startTime === s.startTime && b.endTime === s.endTime
-    )
-  ).length;
+// ── Slot Pill ─────────────────────────────────────────────────
+const SlotPill = ({ slot, group, selected, onSelect, booked }) => (
+  <button
+    type="button"
+    disabled={booked}
+    onClick={() => !booked && onSelect({ day: group.day, date: group.date, startTime: slot.startTime, endTime: slot.endTime })}
+    className={`
+      relative flex items-center justify-center
+      rounded-2xl px-3 h-12 text-center border w-full
+      transition-all duration-200
+      ${selected
+        ? "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]"
+        : booked
+          ? "bg-slate-50 border-slate-100 cursor-not-allowed opacity-40"
+          : "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md cursor-pointer"
+      }
+    `}
+  >
+    {selected && (
+      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-white rounded-full border-2 border-blue-900 flex items-center justify-center shadow-sm z-10">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </span>
+    )}
+    <span className={`text-[11px] font-semibold whitespace-nowrap ${selected ? "text-white" : "text-slate-700"}`}>
+      {formatTimeShort(slot.startTime)} – {formatTimeShort(slot.endTime)}
+    </span>
+  </button>
+);
+
+// ── Slot Tab Picker ───────────────────────────────────────────
+const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) => {
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
+
+  const activeGroup = availability[activeDayIndex] || null;
+
+  const isBooked = (group, slot) =>
+    bookedSlots.some(
+      (b) => b.date === group.date && b.startTime === slot.startTime && b.endTime === slot.endTime
+    );
+
+  const freeSlots = activeGroup
+    ? activeGroup.slots.filter((s) => !isBooked(activeGroup, s))
+    : [];
+
+  const totalAvailable = availability.reduce(
+    (acc, g) => acc + g.slots.filter((s) => !isBooked(g, s)).length, 0
+  );
 
   return (
-    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white">
-      <button
-        type="button"
-        onClick={() => setExpanded((p) => !p)}
-        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0"
-            style={{ background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 12px rgba(37,99,235,0.3)" }}>
-            <span className="text-[10px] font-bold text-white/80 leading-none">
-              {new Date(group.date + "T00:00:00").toLocaleDateString("en-US", { month: "short" }).toUpperCase()}
-            </span>
-            <span className="text-lg font-extrabold text-white leading-none">
-              {new Date(group.date + "T00:00:00").getDate()}
-            </span>
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-bold text-slate-800">
-              {group.day}, {new Date(group.date + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}
-            </p>
-            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 mt-0.5
-              ${freeCount > 0 ? "bg-green-50 border-green-200 text-green-700" : "bg-slate-50 border-slate-200 text-slate-400"}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${freeCount > 0 ? "bg-green-500" : "bg-slate-300"}`} />
-              {freeCount} slot{freeCount !== 1 ? "s" : ""} free
-            </span>
-          </div>
+    <div className="rounded-2xl border border-slate-200 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          <p className="text-sm font-bold text-slate-700">Available Slots</p>
         </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}>
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
+        {totalAvailable > 0 && (
+          <span className="text-xs text-slate-400">{totalAvailable} available</span>
+        )}
+      </div>
 
-      {expanded && (
-        <div className="border-t border-slate-100 p-3 grid grid-cols-2 gap-2">
-          {group.slots.map((s, i) => {
-            const booked = bookedSlots.some(
-              (b) => b.date === group.date && b.startTime === s.startTime && b.endTime === s.endTime
-            );
+      <div className="p-4 space-y-3">
+        {/* Day tabs */}
+        <div className="flex gap-2">
+          {availability.map((group, idx) => {
+            const isActiveTab = activeDayIndex === idx;
+            const date = new Date(group.date + "T00:00:00");
+            const dayLabel = date.toLocaleDateString("en-US", { weekday: "short" });
+            const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            const freeCnt = group.slots.filter((s) => !isBooked(group, s)).length;
             return (
               <button
-                key={i}
+                key={group.date}
                 type="button"
-                disabled={booked}
-                onClick={() => !booked && onSelect({ day: group.day, date: group.date, startTime: s.startTime, endTime: s.endTime })}
-                className={`text-left px-3 py-2.5 rounded-xl border text-xs font-semibold transition-all
-                  ${booked
-                    ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60"
-                    : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
-                  }`}
+                onClick={() => setActiveDayIndex(idx)}
+                className={`
+                  flex-1 flex flex-col items-center justify-center
+                  py-2 px-1 rounded-xl border text-center transition-all duration-200
+                  ${isActiveTab
+                    ? "bg-blue-900 border-blue-900 shadow-md"
+                    : freeCnt === 0
+                      ? "bg-slate-50 border-slate-100 opacity-50 cursor-not-allowed"
+                      : "bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50"
+                  }
+                `}
+                disabled={freeCnt === 0}
               >
-                <span className="block">{formatTimeShort(s.startTime)}</span>
-                <span className="block text-[10px] opacity-70">to {formatTimeShort(s.endTime)}</span>
+                <span className={`text-[11px] font-bold leading-tight ${isActiveTab ? "text-white" : "text-slate-600"}`}>
+                  {dayLabel}
+                </span>
+                <span className={`text-[9px] font-medium mt-0.5 ${isActiveTab ? "text-blue-100" : "text-slate-400"}`}>
+                  {dateLabel}
+                </span>
               </button>
             );
           })}
         </div>
-      )}
+
+        {/* Slot pills */}
+        {activeGroup && (
+          <div>
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-xs font-bold text-slate-600">
+                {new Date(activeGroup.date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">{freeSlots.length} open</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {freeSlots.map((slot, i) => (
+                <SlotPill
+                  key={i}
+                  slot={slot}
+                  group={activeGroup}
+                  selected={selectedSlot?.date === activeGroup.date && selectedSlot?.startTime === slot.startTime}
+                  onSelect={onSelect}
+                  booked={isBooked(activeGroup, slot)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -226,9 +288,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
             </div>
             <div>
               <p className="text-sm font-bold text-slate-800">Reschedule Session</p>
-              <p className="text-xs text-slate-500">
-                {formatSlotDate(slot)} &bull; {formatTime(slot?.startTime)} – {formatTime(slot?.endTime)}
-              </p>
             </div>
           </div>
           <button onClick={onClose} className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors">
@@ -246,7 +305,7 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
               stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
               <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            <p className="text-xs text-blue-700 font-medium leading-relaxed">
+            <p className="text-xs text-blue-900 font-medium leading-relaxed">
               The current slot will be cancelled and replaced with the new one you pick below.
               Your mentor will be notified immediately.
             </p>
@@ -263,11 +322,10 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                   type="button"
                   onClick={() => { setDuration(dur); setSelectedNewSlot(null); }}
                   className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
-                    ${duration === dur
-                      ? "text-white shadow-md"
+    ${duration === dur
+                      ? "bg-blue-900 text-white shadow-md"
                       : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
-                  style={duration === dur ? { background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 14px rgba(37,99,235,0.3)" } : {}}
                 >
                   {dur} min
                 </button>
@@ -276,9 +334,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
           </div>
 
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-              Pick a New Time Slot
-            </p>
             {availLoading ? (
               <div className="flex flex-col gap-2">
                 {[1, 2, 3].map((i) => (
@@ -304,40 +359,32 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                {availability.map((group, i) => (
-                  <SlotPickerDateCard
-                    key={i}
-                    group={group}
-                    onSelect={setSelectedNewSlot}
-                    bookedSlots={bookedSlots}
-                  />
-                ))}
-              </div>
+              // FIX: Render SlotTabPicker ONCE — not inside a .map()
+              <SlotTabPicker
+                availability={availability}
+                selectedSlot={selectedNewSlot}
+                onSelect={setSelectedNewSlot}
+                bookedSlots={bookedSlots}
+              />
             )}
           </div>
         </div>
 
         {selectedNewSlot && (
           <div className="border-t border-slate-100 px-6 py-4 shrink-0">
-            <div className="flex items-center justify-between gap-3 mb-3 px-3.5 py-3 bg-blue-50 border border-blue-200 rounded-xl">
+            <div className="flex items-center justify-between gap-3 mb-3 px-3.5 py-3 border border-slate-200 rounded-xl">
               <div>
-                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">New Slot</p>
-                <p className="text-sm font-bold text-blue-800">
+                <p className="text-[10px] font-bold text-blue-900 uppercase tracking-widest">New Slot</p>
+                <p className="text-sm font-semibold text-slate-800">
                   {new Date(selectedNewSlot.date + "T00:00:00").toLocaleDateString("en-US", {
                     weekday: "short", month: "short", day: "numeric"
                   })}
                 </p>
-                <p className="text-xs font-semibold text-blue-600">
+                <p className="text-xs font-semibold text-slate-900">
                   {formatTime(selectedNewSlot.startTime)} – {formatTime(selectedNewSlot.endTime)}
                 </p>
               </div>
-              <button
-                onClick={() => setSelectedNewSlot(null)}
-                className="text-xs text-blue-400 hover:text-blue-600 font-semibold"
-              >
-                Change
-              </button>
+              
             </div>
             <div className="flex gap-2.5">
               <button
@@ -353,8 +400,8 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                 disabled={saving}
                 className="flex-1 py-2.5 rounded-xl text-white text-sm font-bold
                   transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                  flex items-center justify-center gap-2"
-                style={{ background: "linear-gradient(135deg,#2563eb,#1d4ed8)", boxShadow: "0 4px 14px rgba(37,99,235,0.25)" }}
+                  flex items-center justify-center gap-2 bg-blue-900"
+                
               >
                 {saving
                   ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Rescheduling...</>
@@ -425,54 +472,52 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
         </div>
       ) : slot?.meetingLink ? (
         <div className="flex items-center gap-2">
-
-        <a  href={slot.meetingLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100
-          rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors truncate"
+          <a href={slot.meetingLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100
+            rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors truncate"
           >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </svg>
-          <span className="truncate">{slot.meetingLink}</span>
-        </a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+            <span className="truncate">{slot.meetingLink}</span>
+          </a>
           {isMentor && (
-        <button
-          onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
-          className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
+            <button
+              onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
+              className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
                 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-        >
-          Edit
-        </button>
-      )}
-    </div>
-  ) : isMentor ? (
-    <button
-      onClick={() => setEditing(true)}
-      className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
+            >
+              Edit
+            </button>
+          )}
+        </div>
+      ) : isMentor ? (
+        <button
+          onClick={() => setEditing(true)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
             border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500
             hover:border-blue-300 hover:text-blue-600 transition-colors"
-    >
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
-      </svg>
-      Add Meeting Link
-    </button>
-  ) : (
-    <p className="text-xs text-slate-400 italic">No meeting link added yet.</p>
-  )
-}
-    </div >
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add Meeting Link
+        </button>
+      ) : (
+        <p className="text-xs text-slate-400 italic">No meeting link added yet.</p>
+      )}
+    </div>
   );
 };
 
 // ── Completion Section ────────────────────────────────────────
-const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete }) => {
+const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, onSessionComplete }) => {
   const [localSaving, setLocalSaving] = useState(false);
 
   const isMentee = viewerRole === "mentee";
@@ -484,8 +529,9 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
 
   const handleClick = async () => {
     setLocalSaving(true);
-    await onMarkComplete(slotIndex);
+    const result = await onMarkComplete(slotIndex);
     setLocalSaving(false);
+    if (result?.success && onSessionComplete) onSessionComplete();
   };
 
   return (
@@ -554,18 +600,24 @@ const SessionCard = ({
   onRescheduleSlot,
   allSlots,
   connectRequestId,
+  connect,
 }) => {
   const saving = [...savingSlots].includes(slotIndex);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [showSessionFeedback, setShowSessionFeedback] = useState(false);
+
+  const onSessionComplete = () => {
+    setTimeout(() => setShowSessionFeedback(true), 1200);
+  };
 
   const cancelled = slot?.status === "cancelled";
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
   const isMentee = viewerRole === "mentee";
 
   const canCancel = !cancelled && !bothDone;
-  const canReschedule = isMentee && !cancelled && !bothDone;
+  const canReschedule = !cancelled && !bothDone;
 
   const statusLabel = cancelled
     ? "Cancelled"
@@ -655,6 +707,7 @@ const SessionCard = ({
               otherName={otherName}
               slotIndex={slotIndex}
               onMarkComplete={onMarkComplete}
+              onSessionComplete={onSessionComplete}
             />
           </>
         )}
@@ -716,6 +769,14 @@ const SessionCard = ({
           onConfirm={handleReschedule}
           onClose={() => setShowRescheduleModal(false)}
           saving={saving}
+        />
+      )}
+
+      {showSessionFeedback && (
+        <FeedbackModal
+          connect={connect}
+          slotIndex={slotIndex}
+          onClose={() => setShowSessionFeedback(false)}
         />
       )}
     </>
