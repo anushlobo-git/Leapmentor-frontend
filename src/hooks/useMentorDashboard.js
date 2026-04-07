@@ -55,7 +55,7 @@ const useMentorDashboard = () => {
         // 3) Fetch mentor profile
         let profileData = null;
         try {
-          const profileRes = await axios.get(`${BASE_URL}/mentor-profile/me`, { headers: authHeader });
+          const profileRes = await axios.get(`${BASE_URL}/mentor-profile/me` , { headers: authHeader });
           profileData = profileRes.data;
         } catch (profileErr) {
           if (profileErr?.response?.status === 404) {
@@ -63,6 +63,7 @@ const useMentorDashboard = () => {
             if (!isEditPage) {
               navigate("/onboarding/mentor");
             }
+            setLoading(false);
             return;
           }
           if (profileErr?.response?.status === 401) {

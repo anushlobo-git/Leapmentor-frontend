@@ -7,17 +7,15 @@ const INDUSTRY_OPTIONS = [
 ];
 
 const inputClass = (hasError) =>
-  `w-full text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${
-    hasError
-      ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
-      : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
+  `w-full text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${hasError
+    ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
+    : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
   }`;
 
 const selectClass = (hasError, hasValue) =>
-  `w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 ${
-    hasError
-      ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100 text-slate-800"
-      : `border-slate-300 focus:border-blue-400 focus:ring-blue-100 ${hasValue ? "text-slate-800" : "text-slate-400"}`
+  `w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 ${hasError
+    ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100 text-slate-800"
+    : `border-slate-300 focus:border-blue-400 focus:ring-blue-100 ${hasValue ? "text-slate-800" : "text-slate-400"}`
   }`;
 
 const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
@@ -30,7 +28,7 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
       <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
           </svg>
         </div>
         <h2 className="text-sm font-bold text-slate-800">Professional Info</h2>
@@ -100,6 +98,20 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
             />
           </div>
 
+          {/* Educational Qualifications */}
+          <div className="col-span-2">
+            <label className="block text-xs font-semibold text-slate-500 mb-2">
+              Educational Qualifications
+            </label>
+            <input
+              name="education"
+              value={form.education || ""}
+              onChange={onChange}
+              className={inputClass(false)}
+              placeholder="e.g. B.Tech in Computer Science, MBA"
+            />
+          </div>
+
           {/* Years of Experience */}
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-2">
@@ -108,7 +120,7 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
             <input
               name="yearsOfExperience"
               type="number"
-              min="0"
+              min="2"
               max="60"
               value={form.yearsOfExperience}
               onChange={onChange}
@@ -130,7 +142,8 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
               <input
                 name="hourlyRate"
                 type="number"
-                min="0"
+                min="1"
+                max="200"
                 value={form.hourlyRate}
                 onChange={onChange}
                 className={inputClass(false) + " pl-7"}
