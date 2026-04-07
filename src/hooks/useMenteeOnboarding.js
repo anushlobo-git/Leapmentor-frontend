@@ -11,32 +11,67 @@ const useMenteeOnboarding = () => {
   const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
   const token = localStorage.getItem("token");
 
-  const [form, setForm] = useState({
-    profilePicture:           "",
-    bio:                      "",
-    currentRole:              "",
-    company:                  "",
-    industry:                 "",
-    yearsOfExperience:        "",
-    interestedFields:         [],
-    skills:                   [],
-    communicationPreferences: [],
-    languages:                [],
-    linkedInUrl:              "",
-    portfolioUrl:             "",
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("menteeOnboardingForm");
+      return saved ? JSON.parse(saved) : {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        company: "",
+        industry: "",
+        yearsOfExperience: "",
+        interestedFields: [],
+        skills: [],
+        communicationPreferences: [],
+        languages: [],
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    } catch {
+      return {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        company: "",
+        industry: "",
+        yearsOfExperience: "",
+        interestedFields: [],
+        skills: [],
+        communicationPreferences: [],
+        languages: [],
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    }
   });
 
-  // local msg for validation errors (client-side only, not from Redux)
   const [msg, setMsg] = useState({ type: "", text: "" });
 
-  // sync Redux error/successMsg → local msg
   useEffect(() => {
-    if (error)      setMsg({ type: "error",   text: error });
+    if (error) {
+      setMsg({ type: "error", text: error });
+    }
+
     if (successMsg) {
       setMsg({ type: "success", text: successMsg });
-      setTimeout(() => navigate("/dashboard/mentee"), 1000);
+      setTimeout(() => {
+        sessionStorage.removeItem("menteeOnboardingForm"); // ✅ clear saved data
+        dispatch(clearOnboardingMessages());
+        navigate("/dashboard/mentee");
+      }, 1000);
     }
   }, [error, successMsg]);
+
+  // ✅ Clear Redux messages on unmount so stale state never bleeds
+  // into a future visit to this page
+  useEffect(() => {
+    return () => { dispatch(clearOnboardingMessages()); };
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("menteeOnboardingForm", JSON.stringify(form));
+  }, [form]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,7 +111,6 @@ const useMenteeOnboarding = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    // ── No token → redirect to login ──
     if (!token) { navigate("/login"); return; }
 
     dispatch(submitMenteeOnboarding({ ...form }));
