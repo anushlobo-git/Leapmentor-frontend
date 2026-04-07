@@ -4,22 +4,25 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-// ✅ Store callbacks outside the hook so they stay fresh
-// but initialize() is only called once
+// Store callbacks outside the hook so they stay fresh across re-renders
+// but initialize() is only called once per app lifetime
 const callbackRef = {
   onSuccess: null,
   onError: null,
   onLoadingChange: null,
-  termsAcceptedRef: null,
   rolesRef: null,
+  termsAcceptedRef: null, // ✅ FIX 1: was being ignored before
 };
 
 const useGoogleAuth = ({
   btnRef,
   roles,
+  termsAcceptedRef, // ✅ FIX 1: now properly received and used
   onSuccess,
   onError,
   onLoadingChange,
+  dispatch,
+  setUser,
 }) => {
   const rolesRef = useRef(roles);
 
@@ -27,46 +30,65 @@ const useGoogleAuth = ({
     rolesRef.current = roles;
   }, [roles]);
 
-  // ✅ Always keep the global callbackRef up to date
-  // This way even though initialize() runs once, it always
-  // calls the latest onSuccess/onError from whichever page is active
+  // Always keep the global callbackRef up to date so the frozen
+  // Google callback always calls the latest handlers
   callbackRef.onSuccess = onSuccess;
   callbackRef.onError = onError;
   callbackRef.onLoadingChange = onLoadingChange;
   callbackRef.rolesRef = rolesRef;
+  callbackRef.termsAcceptedRef = termsAcceptedRef; // ✅ FIX 1: keep ref fresh
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
-      onError("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
+      onError?.("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
       return;
     }
 
     const initGoogle = () => {
       if (!btnRef.current) return;
 
-      // ✅ Only initialize once for the entire app lifetime
+      // Only initialize once for the entire app lifetime
       if (!window.__googleInitialized) {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
-            // ✅ Always reads from callbackRef — never stale
+            // ✅ FIX 1: Read termsAccepted from the live ref, not hardcoded true
+            const termsAccepted = callbackRef.termsAcceptedRef?.current ?? false;
+
+            // ✅ FIX 2: Validate terms before hitting the backend
+            if (!termsAccepted) {
+              callbackRef.onError?.("Please accept the terms to continue.");
+              return;
+            }
+
             try {
               callbackRef.onLoadingChange?.(true);
+
               const res = await axios.post(`${BASE_URL}/auth/google`, {
                 credential: response.credential,
                 roles: callbackRef.rolesRef.current,
                 termsAccepted: true,
               });
-              if (res.data?.token)
+
+              // ✅ FIX 3: Store token BEFORE calling onSuccess so the
+              // dashboard never fires API calls without a token
+              if (res.data?.token) {
                 localStorage.setItem("token", res.data.token);
-              callbackRef.onSuccess(res.data);
+
+                // ✅ Add this line — sync token into Redux so slices can read it
+                dispatch(setUser({ token: res.data.token, user: res.data.user || null }));
+
+                await new Promise((resolve) => setTimeout(resolve, 50));
+              }
+
+              callbackRef.onSuccess?.(res.data);
             } catch (err) {
               const apiMsg =
                 err?.response?.data?.message ||
                 err?.response?.data?.error ||
                 err?.message ||
                 "Google authentication failed";
-              callbackRef.onError(apiMsg);
+              callbackRef.onError?.(apiMsg);
             } finally {
               callbackRef.onLoadingChange?.(false);
             }
@@ -75,7 +97,7 @@ const useGoogleAuth = ({
         window.__googleInitialized = true;
       }
 
-      // ✅ Always re-render button — safe to call multiple times
+      // Always re-render the button — safe to call multiple times
       btnRef.current.innerHTML = "";
       window.google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",

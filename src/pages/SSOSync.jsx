@@ -1,15 +1,18 @@
 // src/pages/SSOSync.jsx
+// ⚠️  This page is for LinkedIn (Clerk) SSO ONLY.
+// Google users are handled entirely in useGoogleAuth.js and never land here.
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/authSlice";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const redirectByRole = (roles, navigate) => {
-  if (roles.includes("mentor") && roles.includes("mentee")) {
-    navigate("/dashboard/mentor");
-  } else if (roles.includes("mentor")) {
+  if (roles.includes("mentor")) {
     navigate("/dashboard/mentor");
   } else {
     navigate("/dashboard/mentee");
@@ -19,19 +22,37 @@ const redirectByRole = (roles, navigate) => {
 const SSOSync = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isLoaded) return;
 
+    // ✅ FIX: If there's already a token in localStorage it means the user
+    // came from Google SSO (not Clerk/LinkedIn). Redirect them away immediately
+    // so they don't hit getToken() which would return null and cause "invalid token".
+    const existingToken = localStorage.getItem("token");
+    if (existingToken && !isSignedIn) {
+      // Google user accidentally landed here — send them to their dashboard
+      navigate("/dashboard/mentee", { replace: true });
+      return;
+    }
+
     if (!isSignedIn) {
-      navigate("/login?error=sso_failed");
+      navigate("/login?error=sso_failed", { replace: true });
       return;
     }
 
     const sync = async () => {
       try {
         const clerkToken = await getToken();
+
+        // ✅ FIX: If Clerk token is null, don't hit the backend — it will fail
+        if (!clerkToken) {
+          setError("Authentication failed. Please try logging in again.");
+          return;
+        }
+
         const role = localStorage.getItem("sso_role");
         const termsAccepted = localStorage.getItem("sso_terms") === "true";
 
@@ -41,27 +62,34 @@ const SSOSync = () => {
           termsAccepted: role !== "existing" ? termsAccepted : true,
         });
 
-        if (res.data?.token) localStorage.setItem("token", res.data.token);
+        if (res.data?.token) {
+          localStorage.setItem("token", res.data.token);
+
+          // ✅ Sync token + user into Redux so onboarding slices can read it
+          dispatch(setUser({
+            token: res.data.token,
+            user: res.data.user || null,
+          }));
+
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
 
         localStorage.removeItem("sso_role");
         localStorage.removeItem("sso_terms");
 
         if (res.data?.isNewUser) {
-          // ✅ New user — go to onboarding for intended role
           const onboardingRole = role && role !== "existing"
             ? role
             : res.data.user.roles[0];
-          navigate(`/onboarding/${onboardingRole}`);
+          navigate(`/onboarding/${onboardingRole}`, { replace: true });
         } else {
-          // ✅ Existing user — use intended role to decide dashboard
           const intendedRole = role && role !== "existing" ? role : null;
 
           if (intendedRole === "mentee") {
-            navigate("/dashboard/mentee");
+            navigate("/dashboard/mentee", { replace: true });
           } else if (intendedRole === "mentor") {
-            navigate("/dashboard/mentor");
+            navigate("/dashboard/mentor", { replace: true });
           } else {
-            // Login flow (role = "existing") — use roles from DB
             redirectByRole(res.data?.user?.roles || [], navigate);
           }
         }

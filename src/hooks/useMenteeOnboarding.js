@@ -26,17 +26,30 @@ const useMenteeOnboarding = () => {
     portfolioUrl:             "",
   });
 
-  // local msg for validation errors (client-side only, not from Redux)
   const [msg, setMsg] = useState({ type: "", text: "" });
 
-  // sync Redux error/successMsg → local msg
   useEffect(() => {
-    if (error)      setMsg({ type: "error",   text: error });
+    if (error) {
+      setMsg({ type: "error", text: error });
+    }
+
     if (successMsg) {
       setMsg({ type: "success", text: successMsg });
-      setTimeout(() => navigate("/dashboard/mentee"), 1000);
+      setTimeout(() => {
+        // ✅ FIX: Clear Redux state BEFORE navigating so successMsg doesn't
+        // persist into the next render and re-trigger this effect, causing
+        // the onboarding → dashboard → onboarding infinite loop
+        dispatch(clearOnboardingMessages());
+        navigate("/dashboard/mentee");
+      }, 1000);
     }
   }, [error, successMsg]);
+
+  // ✅ Clear Redux messages on unmount so stale state never bleeds
+  // into a future visit to this page
+  useEffect(() => {
+    return () => { dispatch(clearOnboardingMessages()); };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,7 +89,6 @@ const useMenteeOnboarding = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    // ── No token → redirect to login ──
     if (!token) { navigate("/login"); return; }
 
     dispatch(submitMenteeOnboarding({ ...form }));
