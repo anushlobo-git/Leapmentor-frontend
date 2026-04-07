@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
-import { registerUser, clearMessages } from "../../store/slices/authSlice";
+import { registerUser, clearMessages , setUser } from "../../store/slices/authSlice";
 
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
@@ -75,6 +75,8 @@ const RegisterForm = ({ role }) => {
     btnRef: googleBtnRef,
     termsAcceptedRef,
     roles: [role],
+    dispatch,
+    setUser,  
     onSuccess: (data) => {
       setLocalMsg({ type: "success", text: "Google signup successful! Redirecting..." });
       setTimeout(() => navigate(data?.isNewUser ? `/onboarding/${role}` : `/dashboard/${role}`), 700);

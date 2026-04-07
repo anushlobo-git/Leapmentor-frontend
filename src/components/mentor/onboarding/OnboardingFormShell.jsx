@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMentorOnboarding, clearMentorOnboardingMessages } from "../../../store/slices/mentorOnboardingSlice";
 
-import PersonalInfoSection     from "./PersonalInfoSection";
+import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalInfoSection from "./ProfessionalInfoSection";
-import SkillsSection           from "./SkillsSection";
-import PreferencesSection      from "./PreferencesSection";
-import SocialLinksSection      from "./SocialLinksSection";
-import OnboardingProgressBar   from "../../../ui/OnboardingProgressBar";
+import SkillsSection from "./SkillsSection";
+import PreferencesSection from "./PreferencesSection";
+import SocialLinksSection from "./SocialLinksSection";
+import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const OnboardingFormShell = () => {
@@ -19,19 +19,40 @@ const OnboardingFormShell = () => {
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
   const token = localStorage.getItem("token");
 
-  const [form, setForm] = useState({
-    profilePicture:           "",
-    bio:                      "",
-    currentRole:              "",
-    industry:                 "",
-    company:                  "",
-    yearsOfExperience:        "",
-    hourlyRate:               "",
-    skills:                   [],
-    communicationPreferences: [],
-    languages:                "",
-    linkedInUrl:              "",
-    portfolioUrl:             "",
+  // Replace your current useState for form
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("mentorOnboardingForm");
+      return saved ? JSON.parse(saved) : {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        industry: "",
+        company: "",
+        yearsOfExperience: "",
+        hourlyRate: "",
+        skills: [],
+        communicationPreferences: [],
+        languages: "",
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    } catch {
+      return {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        industry: "",
+        company: "",
+        yearsOfExperience: "",
+        hourlyRate: "",
+        skills: [],
+        communicationPreferences: [],
+        languages: "",
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    }
   });
 
   // ── Validation errors ──
@@ -47,20 +68,35 @@ const OnboardingFormShell = () => {
 
   // sync Redux error/successMsg → local msg
   useEffect(() => {
-    if (error)      setMsg({ type: "error",   text: error });
+    if (error) setMsg({ type: "error", text: error });
+    // In your existing success useEffect
     if (successMsg) {
       setMsg({ type: "success", text: successMsg });
-      setTimeout(() => navigate("/verify-documents"), 1000);
+      setTimeout(() => {
+        sessionStorage.removeItem("mentorOnboardingForm"); // ✅ clear saved data
+        dispatch(clearMentorOnboardingMessages());
+        navigate("/dashboard/mentor");
+      }, 1000);
     }
   }, [error, successMsg]);
+
+  useEffect(() => {
+    return () => { dispatch(clearMentorOnboardingMessages()); };
+  }, []);
+
+
+  // Add this useEffect after your existing useEffects
+  useEffect(() => {
+    sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
+  }, [form]);
 
   // ── Validate required fields ──
   const validate = () => {
     const newErrors = {};
-    if (!form.currentRole?.trim())  newErrors.currentRole = true;
-    if (!form.yearsOfExperience)    newErrors.yearsOfExperience = true;
-    if (!form.industry?.trim())     newErrors.industry = true;
-    if (!form.skills?.length)       newErrors.skills = true;
+    if (!form.currentRole?.trim()) newErrors.currentRole = true;
+    if (!form.yearsOfExperience) newErrors.yearsOfExperience = true;
+    if (!form.industry?.trim()) newErrors.industry = true;
+    if (!form.skills?.length) newErrors.skills = true;
     return newErrors;
   };
 
@@ -130,7 +166,7 @@ const OnboardingFormShell = () => {
     const payload = {
       ...form,
       yearsOfExperience: Number(form.yearsOfExperience) || 0,
-      hourlyRate:        Number(form.hourlyRate) || 0,
+      hourlyRate: Number(form.hourlyRate) || 0,
       languages: typeof form.languages === "string"
         ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
         : form.languages,
@@ -174,7 +210,7 @@ const OnboardingFormShell = () => {
       <main className="max-w-2xl mx-auto px-6 py-6">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
-          <PersonalInfoSection     form={form} onChange={handleChange} errors={errors} />
+          <PersonalInfoSection form={form} onChange={handleChange} errors={errors} />
           <ProfessionalInfoSection form={form} onChange={handleChange} errors={errors} />
 
           {/* ref forwarded so scrollToFirstError can target this section */}
@@ -190,11 +226,10 @@ const OnboardingFormShell = () => {
 
           {/* Status message */}
           {msg.text && (
-            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
-              msg.type === "success"
-                ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
-                : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-            }`}>
+            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
+              ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
+              : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
+              }`}>
               <span>{msg.type === "success" ? "✓" : "⚠"}</span>
               {msg.text}
             </div>

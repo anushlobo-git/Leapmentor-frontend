@@ -8,7 +8,8 @@ export const submitMentorOnboarding = createAsyncThunk(
   "mentorOnboarding/submit",
   async (payload, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
+      const token = getState().auth.token || localStorage.getItem("token");
+      if (!token) return rejectWithValue("No auth token found.");
       const res = await axios.post(`${BASE_URL}/mentor-profile`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -22,30 +23,30 @@ export const submitMentorOnboarding = createAsyncThunk(
 const mentorOnboardingSlice = createSlice({
   name: "mentorOnboarding",
   initialState: {
-    loading:    false,
-    error:      null,
+    loading: false,
+    error: null,
     successMsg: null,
   },
   reducers: {
     clearMentorOnboardingMessages(state) {
-      state.error      = null;
+      state.error = null;
       state.successMsg = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(submitMentorOnboarding.pending, (state) => {
-        state.loading    = true;
-        state.error      = null;
+        state.loading = true;
+        state.error = null;
         state.successMsg = null;
       })
       .addCase(submitMentorOnboarding.fulfilled, (state) => {
-        state.loading    = false;
+        state.loading = false;
         state.successMsg = "Profile saved! Redirecting to dashboard…";
       })
       .addCase(submitMentorOnboarding.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error = action.payload;
       });
   },
 });
