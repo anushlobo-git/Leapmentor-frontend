@@ -35,19 +35,14 @@ const UserCell = ({ user }) => (
 );
 
 // ── Slot Pill ─────────────────────────────────────────────────
-const SlotPill = ({ slot, confirmed }) => (
+const SlotPill = ({ slot }) => (
   <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
     style={{
-      background: confirmed ? "#eff6ff" : "#f8fafc",
-      border:     `1px solid ${confirmed ? "#bfdbfe" : "#e2e8f0"}`,
+      background: "#f8fafc",
+      border:     "1px solid #e2e8f0",
     }}>
-    {confirmed && (
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    )}
     <span className="text-[10px] font-600"
-      style={{ color: confirmed ? "#1d4ed8" : "#475569", fontWeight: 500, fontFamily: MONO }}>
+      style={{ color: "#475569", fontWeight: 500, fontFamily: MONO }}>
       {slot.date} · {slot.startTime}–{slot.endTime}
     </span>
   </div>
@@ -64,13 +59,9 @@ const ExpandedDetail = ({ eng }) => (
           <p className="text-[10px] font-700 uppercase tracking-widest text-slate-400 mb-2"
             style={{ fontWeight: 700, letterSpacing: "0.1em" }}>Proposed Slots</p>
           <div className="flex flex-col gap-1.5">
-            {eng.selectedSlots?.map((s, i) => {
-              const isConfirmed = eng.confirmedSlot
-                && eng.confirmedSlot.date      === s.date
-                && eng.confirmedSlot.startTime === s.startTime
-                && eng.confirmedSlot.endTime   === s.endTime;
-              return <SlotPill key={i} slot={s} confirmed={isConfirmed} />;
-            })}
+            {eng.selectedSlots?.map((s, i) => (
+              <SlotPill key={i} slot={s} />
+            ))}
           </div>
         </div>
 
@@ -81,7 +72,7 @@ const ExpandedDetail = ({ eng }) => (
           <div className="grid grid-cols-2 gap-2">
             {[
               { label: "Rate / Session", value: eng.sessionRate  ? `₹${eng.sessionRate}`  : "—" },
-              { label: "Session Count",  value: eng.sessionCount ?? "—" },
+              { label: "Session Count",  value: eng.selectedSlots?.length ?? eng.sessionCount ?? "—" },
               { label: "Total Amount",   value: eng.totalAmount  ? `₹${eng.totalAmount}`  : "—" },
               { label: "Payment",        value: <StatusBadge status={eng.paymentStatus || "unpaid"} /> },
               { label: "Requested",      value: eng.requestedAt  ? new Date(eng.requestedAt).toLocaleDateString("en-US",  { month: "short", day: "numeric", year: "numeric" }) : "—" },
@@ -277,12 +268,12 @@ const AdminEngagements = () => {
                 <input type="date" value={dateFrom}
                   onChange={(e) => handleDateFilter(e.target.value, dateTo)}
                   className="px-3 py-1.5 rounded-xl text-xs outline-none"
-                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color:  "#94a3b8" }} />
+                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color: "#94a3b8" }} />
                 <span className="text-xs text-slate-600" style={{ fontFamily: MONO }}>To</span>
                 <input type="date" value={dateTo}
                   onChange={(e) => handleDateFilter(dateFrom, e.target.value)}
                   className="px-3 py-1.5 rounded-xl text-xs outline-none"
-                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color: "#94a3b8"}} />
+                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", fontFamily: MONO, color: "#94a3b8" }} />
                 {(dateFrom || dateTo) && (
                   <button onClick={() => handleDateFilter("", "")}
                     className="px-2.5 py-1.5 rounded-xl text-xs font-600"
@@ -299,9 +290,9 @@ const AdminEngagements = () => {
             <table className="w-full" style={{ fontFamily: FONT }}>
               <thead>
                 <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
-                   {["Mentor", "Mentee", "Status", "Payment", "Amount", "Requested", ""].map((h) => (
+                  {["Mentor", "Mentee", "Status", "Payment", "Amount", "Requested", ""].map((h) => (
                     <th key={h} className="text-left px-5 py-3 text-[10px] uppercase tracking-widest"
-                     style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
+                      style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
                       {h}
                     </th>
                   ))}
@@ -347,7 +338,7 @@ const AdminEngagements = () => {
                           </span>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-xs   text-slate-800" style={{ fontFamily: MONO }}>
+                          <span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>
                             {eng.requestedAt
                               ? new Date(eng.requestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                               : "—"}
