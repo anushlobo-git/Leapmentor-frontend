@@ -241,10 +241,10 @@ const AdminLayout = ({ children }) => {
 
           {/* System Online */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
-            style={{ background: "#f0f9ff", border: "1px solid #bae6fd" }}>
-            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="hidden sm:inline text-xs text-blue-700" style={{ fontWeight: 600 }}>System Online</span>
-            <span className="sm:hidden text-xs text-blue-700" style={{ fontWeight: 600 }}>Online</span>
+            style={{ background: "#1e3a8a", border: "1px solid #bae6fd" }}>
+            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <button onClick={handleLogout} className="hidden sm:inline text-xs text-white" style={{ fontWeight: 600 }}>Logout</button>
+            <button onClick={handleLogout} className="sm:hidden text-xs text-white" style={{ fontWeight: 600 }}>Logout</button>
           </div>
         </header>
 

@@ -42,11 +42,11 @@ const Avatar = ({ name }) => {
 const TYPE_CONFIG = {
   credit: { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission" },
   escrow_hold: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Escrow" },
-  escrow_release: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout" },
+  escrow_release: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Released" },
   escrow_refund: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Refund" },
   commission_deduct: { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", label: "Commission" },
-  mentor_payout: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Payout" },
-  debit: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Debit" },
+  mentor_payout: { bg: "#f5f3ff", color: "#7c3aed", border: "#ddd6fe", label: "Received" },
+  debit: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", label: "Payout" },
 };
 
 const TypeBadge = ({ type }) => {
@@ -63,7 +63,7 @@ const TypeBadge = ({ type }) => {
 const STATUS_CONFIG = {
   completed: { color: "#059669", dot: "#22c55e", label: "COMPLETED" },
   pending: { color: "#d97706", dot: "#f59e0b", label: "PENDING" },
-  refunded: { color: "#dc2626", dot: "#ef4444", label: "FAILED" },
+  refunded: { color: "#dc2626", dot: "#ef4444", label: "REFUNDED" },
 };
 
 const TxStatusBadge = ({ status }) => {
@@ -278,12 +278,13 @@ const AdminPayments = () => {
   ];
 
   const TYPE_FILTERS = [
-    { key: "", label: "All" },
-    { key: "commission_deduct", label: "Commission" },
-    { key: "escrow_release", label: "Payout" },
-    { key: "escrow_refund", label: "Refund" },
-    { key: "escrow_hold", label: "Escrow" },
-  ];
+  { key: "",                 label: "All" },
+  { key: "commission_deduct",label: "Commission" },
+  { key: "mentor_payout",    label: "Received" },
+  { key: "debit",            label: "Payout" },
+  { key: "escrow_hold",      label: "Escrow Hold" },
+  { key: "escrow_refund",    label: "Refund" },
+];
 
   return (
     <AdminLayout>
