@@ -11,19 +11,39 @@ const useMenteeOnboarding = () => {
   const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
   const token = localStorage.getItem("token");
 
-  const [form, setForm] = useState({
-    profilePicture:           "",
-    bio:                      "",
-    currentRole:              "",
-    company:                  "",
-    industry:                 "",
-    yearsOfExperience:        "",
-    interestedFields:         [],
-    skills:                   [],
-    communicationPreferences: [],
-    languages:                [],
-    linkedInUrl:              "",
-    portfolioUrl:             "",
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("menteeOnboardingForm");
+      return saved ? JSON.parse(saved) : {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        company: "",
+        industry: "",
+        yearsOfExperience: "",
+        interestedFields: [],
+        skills: [],
+        communicationPreferences: [],
+        languages: [],
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    } catch {
+      return {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        company: "",
+        industry: "",
+        yearsOfExperience: "",
+        interestedFields: [],
+        skills: [],
+        communicationPreferences: [],
+        languages: [],
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    }
   });
 
   const [msg, setMsg] = useState({ type: "", text: "" });
@@ -36,9 +56,7 @@ const useMenteeOnboarding = () => {
     if (successMsg) {
       setMsg({ type: "success", text: successMsg });
       setTimeout(() => {
-        // ✅ FIX: Clear Redux state BEFORE navigating so successMsg doesn't
-        // persist into the next render and re-trigger this effect, causing
-        // the onboarding → dashboard → onboarding infinite loop
+        sessionStorage.removeItem("menteeOnboardingForm"); // ✅ clear saved data
         dispatch(clearOnboardingMessages());
         navigate("/dashboard/mentee");
       }, 1000);
@@ -50,6 +68,10 @@ const useMenteeOnboarding = () => {
   useEffect(() => {
     return () => { dispatch(clearOnboardingMessages()); };
   }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("menteeOnboardingForm", JSON.stringify(form));
+  }, [form]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

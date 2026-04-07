@@ -19,19 +19,40 @@ const OnboardingFormShell = () => {
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
   const token = localStorage.getItem("token");
 
-  const [form, setForm] = useState({
-    profilePicture: "",
-    bio: "",
-    currentRole: "",
-    industry: "",
-    company: "",
-    yearsOfExperience: "",
-    hourlyRate: "",
-    skills: [],
-    communicationPreferences: [],
-    languages: "",
-    linkedInUrl: "",
-    portfolioUrl: "",
+  // Replace your current useState for form
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("mentorOnboardingForm");
+      return saved ? JSON.parse(saved) : {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        industry: "",
+        company: "",
+        yearsOfExperience: "",
+        hourlyRate: "",
+        skills: [],
+        communicationPreferences: [],
+        languages: "",
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    } catch {
+      return {
+        profilePicture: "",
+        bio: "",
+        currentRole: "",
+        industry: "",
+        company: "",
+        yearsOfExperience: "",
+        hourlyRate: "",
+        skills: [],
+        communicationPreferences: [],
+        languages: "",
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    }
   });
 
   // ── Validation errors ──
@@ -48,10 +69,12 @@ const OnboardingFormShell = () => {
   // sync Redux error/successMsg → local msg
   useEffect(() => {
     if (error) setMsg({ type: "error", text: error });
+    // In your existing success useEffect
     if (successMsg) {
       setMsg({ type: "success", text: successMsg });
       setTimeout(() => {
-        dispatch(clearMentorOnboardingMessages()); // ← clear BEFORE navigate
+        sessionStorage.removeItem("mentorOnboardingForm"); // ✅ clear saved data
+        dispatch(clearMentorOnboardingMessages());
         navigate("/dashboard/mentor");
       }, 1000);
     }
@@ -60,6 +83,12 @@ const OnboardingFormShell = () => {
   useEffect(() => {
     return () => { dispatch(clearMentorOnboardingMessages()); };
   }, []);
+
+
+  // Add this useEffect after your existing useEffects
+  useEffect(() => {
+    sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
+  }, [form]);
 
   // ── Validate required fields ──
   const validate = () => {
