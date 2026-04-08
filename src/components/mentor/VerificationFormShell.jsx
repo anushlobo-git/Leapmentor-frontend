@@ -189,18 +189,6 @@ const VerificationFormShell = () => {
             )}
           </button>
 
-          <p className="text-center text-xs text-slate-500 pb-8">
-            You can also{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/dashboard/mentor")}
-              className="text-blue-600 hover:underline font-medium"
-            >
-              skip for now
-            </button>{" "}
-            and submit documents later from your dashboard.
-          </p>
-
         </form>
       </main>
     </div>

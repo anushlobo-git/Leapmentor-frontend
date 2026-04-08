@@ -51,7 +51,7 @@ const VerificationBadge = ({ status }) => {
 };
 
 const MentorCard = ({ mentor, onViewProfile }) => {
-  const { user, currentRole, company, industry, skills = [], hourlyRate, avgRating, profilePicture, verificationStatus } = mentor;
+  const { user, currentRole, company, industry, skills = [], hourlyRate, avgRating, profilePicture, verificationStatus, yearsOfExperience } = mentor;
 
   const visibleSkills = skills.slice(0, MAX_SKILLS_SHOWN);
   const extraSkills   = skills.length - MAX_SKILLS_SHOWN;
@@ -85,6 +85,16 @@ const MentorCard = ({ mentor, onViewProfile }) => {
             {currentRole || "—"}
             {company ? ` · ${company}` : ""}
           </p>
+          {/* ── Years of Experience ── */}
+          {yearsOfExperience != null && (
+            <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+              </svg>
+              {yearsOfExperience} {yearsOfExperience === 1 ? "yr" : "yrs"} experience
+            </p>
+          )}
           <div className="flex items-center flex-wrap gap-1.5 mt-1.5">
             {industry && (
               <span className="inline-block text-xs font-semibold text-blue-900 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
@@ -115,12 +125,16 @@ const MentorCard = ({ mentor, onViewProfile }) => {
       {/* ── Price + rating ── */}
       <div className="flex items-center justify-between mt-auto pt-1">
         <div className="flex items-center gap-1">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="1" x2="12" y2="23"/>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
           <span className="text-sm font-bold text-slate-800">
-            {hourlyRate ? `$${hourlyRate}/hr` : "Free"}
+            {hourlyRate ? (
+              <p className="font-black text-slate-600 leading-none flex items-end gap-1">
+                <span className="text-xl">{hourlyRate}</span>
+                <span className="text-sm font-bold text-amber-500 mb-0.5">LP</span>
+                <span className="text-sm font-medium text-slate-400 mb-1">/hr</span>
+              </p>
+            ) : (
+              <p className="text-3xl font-black text-slate-500">Free</p>
+            )}
           </span>
         </div>
         <StarRating rating={avgRating} />

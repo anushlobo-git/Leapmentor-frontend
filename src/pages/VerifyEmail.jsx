@@ -43,7 +43,7 @@ const VerifyEmail = () => {
       dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
         if (verifyMagicLink.fulfilled.match(action)) {
           const userRole = action.payload?.role || "mentee";
-          const redirectPath = userRole === "mentee" ? "/login/mentee" : "/login/mentor";
+          const redirectPath = userRole === "mentee" ? "/login" : "/login";
           setRedirecting(true);
           setTimeout(() => navigate(redirectPath), 1500);
         } else {
