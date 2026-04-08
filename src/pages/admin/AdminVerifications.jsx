@@ -317,9 +317,8 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════
 const AdminVerifications = () => {
-  const token = useSelector(s => s.auth.token);
-  const adminToken = localStorage.getItem("adminToken");
-  const authHeader = token || adminToken;
+  // ✅ Replace those 3 lines with just this
+const authHeader = localStorage.getItem("adminToken");
 
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
