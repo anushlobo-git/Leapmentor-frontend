@@ -45,7 +45,7 @@ const AdminSettings        = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminSupportMessages = lazy(() => import("./components/admin/AdminSupportMessages"));
 const AdminLayout          = lazy(() => import("./components/admin/AdminLayout"));
 const AdminWalletRequests = lazy(() => import("./pages/admin/AdminWalletRequests"));
-
+const AdminVerifications    = lazy(() => import("./pages/admin/AdminVerifications"));
 // ── Global loading spinner ────────────────────────────────────
 const PageLoader = () => (
   <div
@@ -106,7 +106,7 @@ const App = () => {
           <Route path="/admin/settings"    element={<AdminRoute><AdminSettings /></AdminRoute>} />
           <Route path="/admin/wallet-requests" element={<AdminRoute><AdminWalletRequests /></AdminRoute>} />
           <Route path="/admin/support"     element={<AdminRoute><AdminLayout><AdminSupportMessages /></AdminLayout></AdminRoute>} />
-
+          <Route path="/admin/verifications" element={<AdminRoute><AdminLayout><AdminVerifications /></AdminLayout></AdminRoute>} />
           {/* ── 404 ───────────────────────────────────────── */}
           <Route path="*" element={<NotFound />} />
 
