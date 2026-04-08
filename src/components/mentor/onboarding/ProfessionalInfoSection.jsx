@@ -72,7 +72,7 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
                   <option key={opt} value={opt} className="text-slate-800">{opt}</option>
                 ))}
               </select>
-              {/* Custom arrow — sits inset from right edge */}
+              {/* Custom arrow */}
               <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="6 9 12 15 18 9" />
@@ -120,8 +120,6 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
             <input
               name="yearsOfExperience"
               type="number"
-              min="2"
-              max="60"
               value={form.yearsOfExperience}
               onChange={onChange}
               className={inputClass(errors.yearsOfExperience)}
@@ -135,15 +133,14 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
           {/* Session Rate */}
           <div className="col-span-2">
             <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Session Rate
+              Session Rate (Leap Points)<span className="text-slate-400 font-normal"> (1 LP – 100 LP)</span>
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold"></span>
               <input
                 name="hourlyRate"
                 type="number"
-                min="1"
-                max="200"
+                max="100"
                 value={form.hourlyRate}
                 onChange={onChange}
                 className={inputClass(false) + " pl-7"}

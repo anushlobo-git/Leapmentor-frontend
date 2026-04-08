@@ -20,7 +20,6 @@ const OnboardingFormShell = () => {
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
   const token = localStorage.getItem("token");
 
-  // Replace your current useState for form
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem("mentorOnboardingForm");
@@ -63,7 +62,6 @@ const OnboardingFormShell = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
 
-
   // ── Refs for custom section components that can't be targeted by name= ──
   const sectionRefs = {
     skills: useRef(null),
@@ -72,21 +70,18 @@ const OnboardingFormShell = () => {
   // sync Redux error/successMsg → local msg
   useEffect(() => {
     if (error) setMsg({ type: "error", text: error });
-    // In your existing success useEffect
     if (successMsg) {
-  sessionStorage.removeItem("mentorOnboardingForm");
-  dispatch(clearMentorOnboardingMessages());
-  setRedirecting(true);
-  setTimeout(() => navigate("/verify-documents"), 1500);
-}
+      sessionStorage.removeItem("mentorOnboardingForm");
+      dispatch(clearMentorOnboardingMessages());
+      setRedirecting(true);
+      setTimeout(() => navigate("/verify-documents"), 1500);
+    }
   }, [error, successMsg]);
 
   useEffect(() => {
     return () => { dispatch(clearMentorOnboardingMessages()); };
   }, []);
 
-
-  // Add this useEffect after your existing useEffects
   useEffect(() => {
     sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
   }, [form]);
@@ -117,9 +112,19 @@ const OnboardingFormShell = () => {
     }
   };
 
-  // ── Universal onChange — clears error for the field being edited ──
+  // ── Universal onChange — clears error + enforces numeric range limits ──
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // ── hourlyRate: only block values clearly over the max as you type.
+    //    Do NOT enforce min here — enforcing min=1 causes the "reduces by 1"
+    //    glitch because the browser normalises an empty/transitional value to
+    //    the min before React can update state. Min is checked on submit instead.
+    if (name === "hourlyRate" && value !== "") {
+      const num = Number(value);
+      if (num > 100) return;
+    }
+
     if (errors[name]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -151,6 +156,10 @@ const OnboardingFormShell = () => {
     if (isOnlyNumbers(form.company))
       return setMsg({ type: "error", text: "Company name cannot be a number." });
 
+    // ── Numeric range safety net (catches pasted values that bypass onChange) ──
+    if (form.hourlyRate && (Number(form.hourlyRate) < 1 || Number(form.hourlyRate) > 100))
+      return setMsg({ type: "error", text: "Session rate must be between ₹1 and ₹100." });
+
     const isValidUrl = (val) => {
       if (!val) return true;
       try { new URL(val); return true; }
@@ -178,7 +187,7 @@ const OnboardingFormShell = () => {
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        {redirecting && <FullScreenLoader message="Setting up your profile..." />}
+      {redirecting && <FullScreenLoader message="Setting up your profile..." />}
 
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
