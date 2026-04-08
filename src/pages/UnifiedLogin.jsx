@@ -61,7 +61,7 @@ export default function UnifiedLogin() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
           <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
-            Welcome Back
+            Welcome
           </h1>
           {/* Use Clerk's prebuilt SignIn component */}
           <SignInEmbed />
@@ -83,7 +83,7 @@ export default function UnifiedLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-sm text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Welcome back, {user.firstName}!
+          Welcome , {user.firstName}!
         </h2>
         <p className="text-gray-500 mb-8">
           You're registered as both a Mentor and Mentee. How would you like to continue?

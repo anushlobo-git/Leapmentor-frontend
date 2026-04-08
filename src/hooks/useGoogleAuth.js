@@ -91,7 +91,7 @@ callbackRef.dispatch?.(callbackRef.setUser({ token: res.data.token, user: res.da
                 err?.response?.data?.message ||
                 err?.response?.data?.error ||
                 err?.message ||
-                "Google authentication failed";
+                "Already user exists";
               callbackRef.onError?.(apiMsg);
             } finally {
               callbackRef.onLoadingChange?.(false);
