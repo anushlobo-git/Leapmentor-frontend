@@ -59,7 +59,7 @@ const TypeBadge = ({ type }) => {
   );
 };
 
-// ── Status Badge ───────────────────────────────────────────────
+// Status Badge
 const STATUS_CONFIG = {
   completed: { color: "#059669", dot: "#22c55e", label: "COMPLETED" },
   pending: { color: "#d97706", dot: "#f59e0b", label: "PENDING" },
@@ -69,8 +69,10 @@ const STATUS_CONFIG = {
 const TxStatusBadge = ({ status }) => {
   const cfg = STATUS_CONFIG[status] || { color: "#64748b", dot: "#94a3b8", label: status?.toUpperCase() };
   return (
-    <span className="flex items-center gap-1.5 text-xs font-700"
-      style={{ color: cfg.color, fontWeight: 700, fontFamily: MONO }}>
+    <span
+      className="inline-flex items-center gap-1.5 text-[10px] uppercase"
+      style={{ color: cfg.color, fontWeight: 600, letterSpacing: "0.05em", fontFamily: FONT }}
+    >
       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
       {cfg.label}
     </span>
@@ -252,14 +254,18 @@ const AdminPayments = () => {
       label: "Total Revenue",
       value: stats?.totalRevenue,
       accent: "#2563eb",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>,
+      icon: <span style={{ fontSize: 13, fontWeight: 800, fontFamily: MONO, color: "currentColor", letterSpacing: "-0.02em" }}>
+      LP
+    </span>,
     },
     {
       label: "Platform Commission",
       value: stats?.platformCommission,
-      sub: `${stats?.commissionRate ?? ""}% rate`,
+      sub: stats?.commissionRate != null ? `${stats.commissionRate}% rate` : "—",
       accent: "#059669",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
+      icon: <span style={{ fontSize: 13, fontWeight: 800, fontFamily: MONO, color: "currentColor", letterSpacing: "-0.02em" }}>
+      LP
+    </span>,
     },
     {
       label: "Pending Payouts",
