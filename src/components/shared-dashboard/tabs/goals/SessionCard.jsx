@@ -617,7 +617,14 @@ const SessionCard = ({
   const isMentee = viewerRole === "mentee";
 
   const canCancel = !cancelled && !bothDone;
-  const canReschedule = !cancelled && !bothDone;
+  const isMoreThan12HrsAway = (slot) => {
+    if (!slot?.date || !slot?.startTime) return false;
+    const sessionDateTime = new Date(`${slot.date}T${slot.startTime}`);
+    const diffMs = sessionDateTime - new Date();
+    return diffMs > 12 * 60 * 60 * 1000;
+  };
+
+  const canReschedule = !cancelled && !bothDone && isMoreThan12HrsAway(slot);
 
   const statusLabel = cancelled
     ? "Cancelled"
@@ -714,21 +721,34 @@ const SessionCard = ({
 
         {(canCancel || canReschedule) && (
           <div className="border-t border-slate-100 pt-3 flex gap-2">
-            {canReschedule && (
-              <button
-                onClick={() => setShowRescheduleModal(true)}
-                disabled={saving}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-blue-200
-                  bg-blue-50 text-xs font-bold text-blue-600 hover:bg-blue-100 transition-colors
-                  disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 4v6h-6" />
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                </svg>
-                Reschedule
-              </button>
+            {!cancelled && !bothDone && (
+              isMoreThan12HrsAway(slot) ? (
+                <button
+                  onClick={() => setShowRescheduleModal(true)}
+                  disabled={saving}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-blue-200
+        bg-blue-50 text-xs font-bold text-blue-600 hover:bg-blue-100 transition-colors
+        disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M23 4v6h-6" />
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                  </svg>
+                  Reschedule
+                </button>
+              ) : (
+                <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200
+      bg-slate-50 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  Reschedule unavailable (within 12hrs)
+                </div>
+              )
             )}
             {canCancel && (
               <button
