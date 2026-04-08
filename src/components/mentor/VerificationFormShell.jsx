@@ -7,6 +7,7 @@ import FullScreenLoader from "../../components/FullScreenLoader";
 import PhoneNumberField     from "./PhoneNumberField";
 import ResumeUpload         from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
+import VerificationInstructionsModal from "./VerificationInstructionsModal"; // ✅ 1. IMPORT
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -19,6 +20,7 @@ const VerificationFormShell = () => {
   const [resumeFile,           setResumeFile]           = useState(null);
   const [workExperienceFiles,  setWorkExperienceFiles]  = useState([]);
   const [redirecting, setRedirecting] = useState(false);
+  const [showModal, setShowModal] = useState(true); // ✅ 2. MODAL STATE
 
   // ── Error state — per field ──
   const [errors, setErrors] = useState({
@@ -83,8 +85,8 @@ const VerificationFormShell = () => {
         },
       });
 
-setRedirecting(true);
-setTimeout(() => navigate("/dashboard/mentor"), 1500);
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentor"), 1500);
     } catch (err) {
       setMsg({
         type: "error",
@@ -97,7 +99,11 @@ setTimeout(() => navigate("/dashboard/mentor"), 1500);
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        {redirecting && <FullScreenLoader message="Submitting documents..." />}  {/* 👈 add here */}
+
+      {/* ✅ 3. MODAL — right here, first thing inside the root div */}
+      {showModal && <VerificationInstructionsModal onClose={() => setShowModal(false)} />}
+
+      {redirecting && <FullScreenLoader message="Submitting documents..." />}
 
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
@@ -115,7 +121,6 @@ setTimeout(() => navigate("/dashboard/mentor"), 1500);
             />
             <span className="text-sm font-bold text-[#0f172a]">Mentor Verification</span>
           </div>
-          {/* Step indicator */}
           <span className="text-xs text-slate-400 font-medium">Step 2 of 2</span>
         </div>
       </header>
@@ -162,15 +167,13 @@ setTimeout(() => navigate("/dashboard/mentor"), 1500);
             error={errors.workExperienceFiles}
           />
 
-          {/* Status message */}
           {msg.type === "error" && msg.text && (
-  <div className="flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]">
-    <span>⚠</span>
-    {msg.text}
-  </div>
-)}
+            <div className="flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]">
+              <span>⚠</span>
+              {msg.text}
+            </div>
+          )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -186,7 +189,6 @@ setTimeout(() => navigate("/dashboard/mentor"), 1500);
             )}
           </button>
 
-          {/* Skip link */}
           <p className="text-center text-xs text-slate-500 pb-8">
             You can also{" "}
             <button

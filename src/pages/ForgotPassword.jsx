@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword, verifyResetOtp, resetPassword, clearMessages } from "../store/slices/authSlice";
+import FullScreenLoader from "../components/FullScreenLoader";
+
 
 // ── Steps: 1 = enter email, 2 = enter OTP, 3 = new password ──
 const STEPS = { EMAIL: 1, OTP: 2, PASSWORD: 3 };
@@ -43,6 +45,7 @@ const ForgotPassword = () => {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [pwTouched, setPwTouched] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     dispatch(clearMessages());
@@ -54,14 +57,11 @@ const ForgotPassword = () => {
     dispatch(clearMessages());
     setMsg({ type: "", text: "" });
     const action = await dispatch(forgotPassword({ email }));
-    if (forgotPassword.fulfilled.match(action)) {
-      setMsg({ type: "success", text: "OTP sent! Check your email." });
-      setTimeout(() => {
-        dispatch(clearMessages());
-        setMsg({ type: "", text: "" });
-        setStep(STEPS.OTP);
-      }, 800);
-    } else {
+   if (forgotPassword.fulfilled.match(action)) {
+  dispatch(clearMessages());
+  setMsg({ type: "", text: "" });
+  setStep(STEPS.OTP);
+}else {
       setMsg({ type: "error", text: action.payload || "Failed to send OTP." });
     }
   };
@@ -103,13 +103,10 @@ const ForgotPassword = () => {
     setMsg({ type: "", text: "" });
     const action = await dispatch(verifyResetOtp({ email, otp: otpStr }));
     if (verifyResetOtp.fulfilled.match(action)) {
-      setMsg({ type: "success", text: "OTP verified!" });
-      setTimeout(() => {
-        dispatch(clearMessages());
-        setMsg({ type: "", text: "" });
-        setStep(STEPS.PASSWORD);
-      }, 600);
-    } else {
+  dispatch(clearMessages());
+  setMsg({ type: "", text: "" });
+  setStep(STEPS.PASSWORD);
+}else {
       setMsg({ type: "error", text: action.payload || "Invalid OTP." });
     }
   };
@@ -129,12 +126,10 @@ const ForgotPassword = () => {
     setMsg({ type: "", text: "" });
     const action = await dispatch(resetPassword({ email, otp: otp.join(""), newPassword }));
     if (resetPassword.fulfilled.match(action)) {
-      setMsg({ type: "success", text: "Password reset! Redirecting to login..." });
-      setTimeout(() => {
-        dispatch(clearMessages());
-        navigate(loginPath);
-      }, 1500);
-    } else {
+  dispatch(clearMessages());
+  setRedirecting(true);
+  setTimeout(() => navigate(loginPath), 1500);
+}else {
       setMsg({ type: "error", text: action.payload || "Failed to reset password." });
     }
   };
@@ -148,6 +143,8 @@ const ForgotPassword = () => {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        {redirecting && <FullScreenLoader message="Redirecting to login..." />}
+
       <div className="w-full max-w-sm">
 
         {/* ── Logo ── */}
