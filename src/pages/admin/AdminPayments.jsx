@@ -217,7 +217,7 @@ const AdminPayments = () => {
   const fetchTransactions = useCallback(async (page = 1, q = search, type = typeFilter) => {
     try {
       setLoading(true);
-      const params = { page, limit: 10 };
+      const params = { page, limit: 15 };
       if (q) params.search = q;
       if (type) params.type = type;
       const res = await axios.get(`${BASE_URL}/admin/payments/transactions`, {
