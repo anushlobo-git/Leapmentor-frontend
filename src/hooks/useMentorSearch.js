@@ -10,6 +10,7 @@ const useMentorSearch = () => {
   const [skill,       setSkill]       = useState("");
   const [filters,     setFilters]     = useState({
     industry: "", minPrice: "", maxPrice: "", minRating: "",
+    experience: "",
   });
   const [mentors,     setMentors]     = useState([]);
   const [loading,     setLoading]     = useState(false);
@@ -43,6 +44,15 @@ const useMentorSearch = () => {
       if (currentFilters.maxPrice !== "")  params.set("maxPrice",  currentFilters.maxPrice);
       if (currentFilters.minRating !== "") params.set("minRating", currentFilters.minRating);
 
+      // Parse experience range string → minExperience / maxExperience
+      if (currentFilters.experience !== "") {
+        const exp = currentFilters.experience;
+        if (exp === "0-2")  { params.set("minExperience", "0");  params.set("maxExperience", "2"); }
+        if (exp === "3-5")  { params.set("minExperience", "3");  params.set("maxExperience", "5"); }
+        if (exp === "6-10") { params.set("minExperience", "6");  params.set("maxExperience", "10"); }
+        if (exp === "10+")  { params.set("minExperience", "10"); }
+      }
+
       params.set("page",  currentPage);
       params.set("limit", LIMIT);
 
@@ -69,7 +79,10 @@ const useMentorSearch = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Debounced search on skill change ──────────────────────
+  // ── Single unified effect for both skill typing + filter changes ──
+  // Fixes: experience/industry/etc filters not working because the old
+  // separate filter effect didn't include `skill` in its deps, causing
+  // fetchMentors to receive a stale empty skill value.
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
@@ -77,22 +90,15 @@ const useMentorSearch = () => {
       fetchMentors(skill, filters, 1, false);
     }, DEBOUNCE_MS);
     return () => clearTimeout(debounceTimer.current);
-  }, [skill]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [skill, filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Immediate search on filter change ─────────────────────
-  useEffect(() => {
-    if (!hasSearched && !skill.trim()) return;
-    setPage(1);
-    fetchMentors(skill, filters, 1, false);
-  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ✅ Wrapped setSkill — clears stale error on new search input
+  // Wrapped setSkill — clears stale error on new search input
   const handleSetSkill = (value) => {
     setError("");
     setSkill(value);
   };
 
-  // ✅ updateFilter — clears stale error on any filter change
+  // updateFilter — clears stale error on any filter change
   const updateFilter = (key, value) => {
     setError("");
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -100,7 +106,7 @@ const useMentorSearch = () => {
 
   const resetFilters = () => {
     setError("");
-    setFilters({ industry: "", minPrice: "", maxPrice: "", minRating: "" });
+    setFilters({ industry: "", minPrice: "", maxPrice: "", minRating: "", experience: "" });
     setSkill("");
     setMentors([]);
     setHasSearched(false);
@@ -123,7 +129,7 @@ const useMentorSearch = () => {
   return {
     skill, filters, mentors, loading, loadingMore,
     error, hasSearched, hasMore, totalCount,
-    setSkill: handleSetSkill,  // ✅ wrapped
+    setSkill: handleSetSkill,
     updateFilter, resetFilters, loadMore, searchMentors,
   };
 };

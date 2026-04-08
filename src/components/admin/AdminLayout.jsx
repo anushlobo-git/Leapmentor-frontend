@@ -1,6 +1,9 @@
 // src/components/admin/AdminLayout.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const NAV_ITEMS = [
   {
@@ -59,6 +62,20 @@ const NAV_ITEMS = [
           </svg>
         ),
       },
+      {
+        to: "/admin/wallet-requests",
+        label: "Wallet Requests",
+        icon: (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 12V22H4V12" />
+            <path d="M22 7H2v5h20V7z" />
+            <path d="M12 22V7" />
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+          </svg>
+        ),
+        badge: false,
+      },
     ],
   },
   {
@@ -80,9 +97,30 @@ const NAV_ITEMS = [
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingWalletCount, setPendingWalletCount] = useState(0);
   const navigate = useNavigate();
   const adminRaw = localStorage.getItem("adminUser");
   const adminUser = adminRaw ? JSON.parse(adminRaw) : { name: "Admin" };
+
+  // ── Fetch pending wallet request count for sidebar badge ──
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/api/v1/admin/leap-requests/pending-count`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } }
+        );
+        setPendingWalletCount(res.data.count ?? 499);
+      } catch {
+        // silent — badge just won't show if this fails
+      }
+    };
+
+    fetchPendingCount();
+    // Re-poll every 60 seconds so badge stays fresh
+    const interval = setInterval(fetchPendingCount, 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -108,8 +146,6 @@ const AdminLayout = ({ children }) => {
 
       {/* ══════════════════════════════════════════════════
           SIDEBAR
-          Mobile: fixed overlay, slides in from left
-          Desktop (lg+): static, always visible
       ══════════════════════════════════════════════════ */}
       <aside
         className={`
@@ -150,7 +186,8 @@ const AdminLayout = ({ children }) => {
             </svg>
           </button>
         </div>
-        {/*sidebar*/}
+
+        {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
           {NAV_ITEMS.map((section) => (
             <div key={section.group}>
@@ -176,9 +213,18 @@ const AdminLayout = ({ children }) => {
                         <span className={`shrink-0 transition-colors duration-150 ${isActive ? "text-white" : "text-slate-400"}`}>
                           {link.icon}
                         </span>
-                        <span className={`truncate ${isActive ? "text-white" : "text-slate-700"}`}>
+                        <span className={`flex-1 truncate ${isActive ? "text-white" : "text-slate-700"}`}>
                           {link.label}
                         </span>
+
+                        {/* Pending badge — only on Wallet Requests when not active */}
+                        {link.badge && pendingWalletCount < 500 && !isActive && (
+                          <span className="shrink-0 min-w-[18px] h-[18px] flex items-center justify-center
+                            rounded-full text-[9px] font-extrabold px-1"
+                            style={{ background: "#f59e0b", color: "#fff" }}>
+                            {pendingWalletCount > 99 ? "99+" : pendingWalletCount}
+                          </span>
+                        )}
                       </>
                     )}
                   </NavLink>
@@ -225,7 +271,6 @@ const AdminLayout = ({ children }) => {
           style={{ background: "#ffffff", borderBottom: "1px solid #e8eaf0" }}
         >
           <div className="flex items-center gap-3">
-
             {/* Hamburger — mobile only */}
             <button
               onClick={() => setSidebarOpen(true)}
@@ -239,7 +284,7 @@ const AdminLayout = ({ children }) => {
             </button>
           </div>
 
-          {/* System Online */}
+          {/* System Online / Logout */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
             style={{ background: "#1e3a8a", border: "1px solid #bae6fd" }}>
             <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />

@@ -212,7 +212,8 @@ const handleSend = async () => {
   }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+  <div className="h-full max-h-[90vh] overflow-y-auto [scrollbar-gutter:stable]">
         {/* ── Header ── */}
         <div className="flex items-start justify-between p-6 pb-5">
           <div className="flex items-center gap-4">
@@ -533,6 +534,7 @@ const handleSend = async () => {
         </div>
       </div>
     </div>
+</div>
   );
 };
 export default MentorProfileModal;

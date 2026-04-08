@@ -13,6 +13,15 @@ const RATINGS = [
   { label: "Any",  value: "" },
 ];
 
+// ✅ Experience range options
+const EXPERIENCE_RANGES = [
+  { label: "Any",      value: "" },
+  { label: "0–2 yrs",  value: "0-2" },
+  { label: "3–5 yrs",  value: "3-5" },
+  { label: "6–10 yrs", value: "6-10" },
+  { label: "10+ yrs",  value: "10+" },
+];
+
 const PRICE_DEBOUNCE_MS = 600;
 
 const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
@@ -50,6 +59,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
     filters.minPrice,
     filters.maxPrice,
     filters.minRating,
+    filters.experience, // ✅ included in badge count
   ].filter(Boolean).length;
 
   return (
@@ -145,6 +155,29 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
                   onClick={() => updateFilter("minRating", r.value)}
                   className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
                     filters.minRating === r.value
+                      ? "bg-blue-900 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ✅ Experience — new filter, full width on its own row */}
+          <div className="md:col-span-3">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+              Experience
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {EXPERIENCE_RANGES.map((r) => (
+                <button
+                  key={r.label}
+                  type="button"
+                  onClick={() => updateFilter("experience", r.value)}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+                    filters.experience === r.value
                       ? "bg-blue-900 text-white shadow-sm"
                       : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                   }`}
