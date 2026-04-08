@@ -231,7 +231,7 @@ const handleSend = async () => {
                 </div>
               )}
               {/* Online indicator */}
-              <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm" />
+              {/* <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white shadow-sm" /> */}
             </div>
             {/* Name / role / bio / location */}
             <div className="flex-1 min-w-0">
@@ -271,11 +271,11 @@ const handleSend = async () => {
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Hourly Rate</p>
               {hourlyRate ? (
-                <p className="font-black text-slate-800 leading-none flex items-end gap-0.5">
-                  <span className="text-xl font-bold text-slate-500 mb-0.5">$</span>
-                  <span className="text-4xl">{hourlyRate}</span>
-                  <span className="text-sm font-medium text-slate-400 mb-1">/hr</span>
-                </p>
+                <p className="font-black text-slate-800 leading-none flex items-end gap-1">
+    <span className="text-4xl">{hourlyRate}</span>
+    <span className="text-xl font-bold text-amber-500 mb-0.5">LP</span>
+    <span className="text-sm font-medium text-slate-400 mb-1">/hr</span>
+  </p>
               ) : (
                 <p className="text-3xl font-black text-slate-800">Free</p>
               )}
