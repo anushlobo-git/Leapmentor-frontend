@@ -35,23 +35,42 @@ const UserCell = ({ user }) => (
 );
 
 // ── Slot Pill ─────────────────────────────────────────────────
-const SlotPill = ({ slot }) => (
-  <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
-    style={{
-      background: "#f8fafc",
-      border:     "1px solid #e2e8f0",
-    }}>
-    <span className="text-[10px] font-600"
-      style={{ color: "#475569", fontWeight: 500, fontFamily: MONO }}>
-      {slot.date} · {slot.startTime}–{slot.endTime}
-    </span>
-  </div>
-);
+const SlotPill = ({ slot }) => {
+  const isCancelled = slot.status === "cancelled";
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+      style={{
+        background: isCancelled ? "#fef2f2" : "#f8fafc",
+        border: `1px solid ${isCancelled ? "#fecaca" : "#e2e8f0"}`,
+      }}>
+      {/* ✓ / ✗ icon */}
+      {isCancelled ? (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      ) : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      )}
+      <span className="text-[10px] font-600"
+        style={{ color: isCancelled ? "#ef4444" : "#475569", fontWeight: 500, fontFamily: MONO,
+          textDecoration: isCancelled ? "line-through" : "none" }}>
+        {slot.date} · {slot.startTime}–{slot.endTime}
+      </span>
+      {isCancelled && (
+        <span className="text-[9px] font-600 ml-auto" style={{ color: "#ef4444", fontWeight: 600 }}>
+          Cancelled
+        </span>
+      )}
+    </div>
+  );
+};
 
 // ── Expanded Detail Row ───────────────────────────────────────
 const ExpandedDetail = ({ eng }) => (
   <tr>
-    <td colSpan={7} style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
+    <td colSpan={6} style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
       <div className="px-6 py-4 grid grid-cols-2 gap-6">
 
         {/* Slots */}
@@ -71,14 +90,12 @@ const ExpandedDetail = ({ eng }) => (
             style={{ fontWeight: 700, letterSpacing: "0.1em" }}>Session Details</p>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { label: "Rate / Session", value: eng.sessionRate  ? `₹${eng.sessionRate}`  : "—" },
-              { label: "Session Count",  value: eng.selectedSlots?.length ?? eng.sessionCount ?? "—" },
-              { label: "Total Amount",   value: eng.totalAmount  ? `₹${eng.totalAmount}`  : "—" },
-              { label: "Payment",        value: <StatusBadge status={eng.paymentStatus || "unpaid"} /> },
-              { label: "Requested",      value: eng.requestedAt  ? new Date(eng.requestedAt).toLocaleDateString("en-US",  { month: "short", day: "numeric", year: "numeric" }) : "—" },
-              { label: "Responded",      value: eng.respondedAt  ? new Date(eng.respondedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
-              { label: "Paid At",        value: eng.paidAt       ? new Date(eng.paidAt).toLocaleDateString("en-US",      { month: "short", day: "numeric", year: "numeric" }) : "—" },
-              { label: "Completed At",   value: eng.completedAt  ? new Date(eng.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
+              { label: "Rate / Session", value: eng.sessionRate ? `₹${eng.sessionRate}` : "—" },
+              { label: "Session Count", value: eng.selectedSlots?.filter(s => s.status !== "cancelled").length ?? eng.sessionCount ?? "—" },
+              { label: "Payment",       value: <StatusBadge status={eng.paymentStatus || "unpaid"} /> },
+              { label: "Requested",     value: eng.requestedAt ? new Date(eng.requestedAt).toLocaleDateString("en-US",  { month: "short", day: "numeric", year: "numeric" }) : "—" },
+              { label: "Responded",     value: eng.respondedAt ? new Date(eng.respondedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
+              { label: "Completed At",  value: eng.completedAt ? new Date(eng.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
             ].map(({ label, value }) => (
               <div key={label} className="px-3 py-2 rounded-xl" style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}>
                 <p className="text-[9px] font-700 uppercase tracking-widest text-slate-600 mb-0.5"
@@ -290,7 +307,7 @@ const AdminEngagements = () => {
             <table className="w-full" style={{ fontFamily: FONT }}>
               <thead>
                 <tr style={{ background: "#f1f5f9", borderBottom: "2px solid #e2e8f0" }}>
-                  {["Mentor", "Mentee", "Status", "Payment", "Amount", "Requested", ""].map((h) => (
+                  {["Mentor", "Mentee", "Status", "Payment", "Requested", ""].map((h) => (
                     <th key={h} className="text-left px-5 py-3 text-[10px] uppercase tracking-widest"
                       style={{ color: "#334155", fontWeight: 800, letterSpacing: "0.12em" }}>
                       {h}
@@ -302,7 +319,7 @@ const AdminEngagements = () => {
                 {loading ? (
                   [...Array(6)].map((_, i) => (
                     <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      {[...Array(7)].map((_, j) => (
+                      {[...Array(6)].map((_, j) => (
                         <td key={j} className="px-5 py-4">
                           <div className="h-4 rounded-lg animate-pulse"
                             style={{ background: "#f1f5f9", width: j < 2 ? 130 : 70 }}/>
@@ -312,7 +329,7 @@ const AdminEngagements = () => {
                   ))
                 ) : engagements.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-16 text-sm text-slate-400">
+                    <td colSpan={6} className="text-center py-16 text-sm text-slate-400">
                       No engagements found.
                     </td>
                   </tr>
@@ -331,12 +348,6 @@ const AdminEngagements = () => {
                         <td className="px-5 py-4"><UserCell user={eng.mentee} /></td>
                         <td className="px-5 py-4"><StatusBadge status={eng.status} /></td>
                         <td className="px-5 py-4"><StatusBadge status={eng.paymentStatus || "unpaid"} /></td>
-                        <td className="px-5 py-4">
-                          <span className="text-xs font-600 text-slate-700"
-                            style={{ fontWeight: 600, fontFamily: MONO }}>
-                            {eng.totalAmount ? `₹${eng.totalAmount.toLocaleString()}` : "—"}
-                          </span>
-                        </td>
                         <td className="px-5 py-4">
                           <span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>
                             {eng.requestedAt
