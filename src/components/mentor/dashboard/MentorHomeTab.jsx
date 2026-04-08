@@ -243,7 +243,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            {isFirstLogin ? `Welcome, ${firstName}! 👋` : `Welcome back, ${firstName}! 👋`}
+            {isFirstLogin ? `Welcome, ${firstName}! 👋` : `Welcome, ${firstName}! 👋`}
           </h1>
           <p className="text-sm text-blue-900 mt-1">
             {loadingSessions
