@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+
 // ── Auth pages ────────────────────────────────────────────────
 const RegisterMentee = lazy(() => import("./pages/RegisterMentee"));
 const RegisterMentor = lazy(() => import("./pages/RegisterMentor"));
@@ -43,6 +44,7 @@ const AdminPayments        = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminSettings        = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminSupportMessages = lazy(() => import("./components/admin/AdminSupportMessages"));
 const AdminLayout          = lazy(() => import("./components/admin/AdminLayout"));
+const AdminWalletRequests = lazy(() => import("./pages/admin/AdminWalletRequests"));
 
 // ── Global loading spinner ────────────────────────────────────
 const PageLoader = () => (
@@ -102,6 +104,7 @@ const App = () => {
           <Route path="/admin/reports"     element={<AdminRoute><AdminReports /></AdminRoute>} />
           <Route path="/admin/payments"    element={<AdminRoute><AdminPayments /></AdminRoute>} />
           <Route path="/admin/settings"    element={<AdminRoute><AdminSettings /></AdminRoute>} />
+          <Route path="/admin/wallet-requests" element={<AdminRoute><AdminWalletRequests /></AdminRoute>} />
           <Route path="/admin/support"     element={<AdminRoute><AdminLayout><AdminSupportMessages /></AdminLayout></AdminRoute>} />
 
           {/* ── 404 ───────────────────────────────────────── */}
