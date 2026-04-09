@@ -117,7 +117,7 @@ const AdminLayout = ({ children }) => {
     const fetchPendingCount = async () => {
       try {
         const res = await axios.get(
-          `${BASE_URL}/api/v1/admin/leap-requests/pending-count`,
+          `${BASE_URL}/admin/leap-requests/pending-count`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } }
         );
         setPendingWalletCount(res.data.count ?? 499);

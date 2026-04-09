@@ -67,10 +67,8 @@ const IconStar = () => (
   </svg>
 );
 
-const IconMoney = () => (
-  <span style={{ fontSize: 13, fontWeight: 800, fontFamily: MONO, color: "currentColor", letterSpacing: "-0.02em" }}>
-    LP
-  </span>
+const IconMoney = () => (<span style={{fontSize: 13,fontWeight: 800,fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",color: "currentColor",letterSpacing: "-0.02em"}}>LP
+</span>
 );
 
 const IconInbox = () => (
