@@ -34,19 +34,20 @@ const dispatch = useDispatch();
   useEffect(() => { return () => setLoading(false); }, []);
 
   const handlePostAuth = (token, user) => {
-    if (token) localStorage.setItem("token", token);
-    const roles = user?.roles || [];
-   if (roles.includes("mentor")) {
-  setRedirecting(true);
-  setTimeout(() => navigate("/dashboard/mentor"), 800);
-} else if (roles.includes("mentee")) {
-  setRedirecting(true);
-  setTimeout(() => navigate("/dashboard/mentee"), 800);
-} else {
-      setMsg({ type: "error", text: "No role found. Please register first." });
-    }
-  };
-
+  if (token) localStorage.setItem("token", token);
+  const roles = user?.roles || [];
+  if (roles.includes("mentor")) {
+    localStorage.setItem("role", "mentor");  // 👈 add
+    setRedirecting(true);
+    setTimeout(() => navigate("/dashboard/mentor"), 800);
+  } else if (roles.includes("mentee")) {
+    localStorage.setItem("role", "mentee");  // 👈 add
+    setRedirecting(true);
+    setTimeout(() => navigate("/dashboard/mentee"), 800);
+  } else {
+    setMsg({ type: "error", text: "No role found. Please register first." });
+  }
+};
   useGoogleAuth({
     btnRef: googleBtnRef,
     roles: [],

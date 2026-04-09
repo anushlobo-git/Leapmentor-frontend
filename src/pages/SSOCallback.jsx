@@ -7,11 +7,11 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const redirectByRole = (roles, navigate) => {
-  if (roles.includes("mentor") && roles.includes("mentee")) {
-    navigate("/dashboard/mentor");
-  } else if (roles.includes("mentor")) {
+  if (roles.includes("mentor")) {
+    localStorage.setItem("role", "mentor");  // 👈 add
     navigate("/dashboard/mentor");
   } else {
+    localStorage.setItem("role", "mentee");  // 👈 add
     navigate("/dashboard/mentee");
   }
 };
