@@ -25,6 +25,30 @@ const formatTime = (t) => {
 
 const isActive = (slot) => !slot?.status || slot?.status !== "cancelled";
 
+// ── Meeting link validator ─────────────────────────────────────
+const ALLOWED_MEETING_DOMAINS = [
+  "meet.google.com",
+  "zoom.us",
+  "teams.microsoft.com",
+  "whereby.com",
+  "around.co",
+  "meet.jit.si",
+  "webex.com",
+];
+
+const isValidMeetingLink = (rawUrl) => {
+  try {
+    const url = new URL(rawUrl);
+    if (url.protocol !== "https:") return false;
+    const host = url.hostname.toLowerCase();
+    return ALLOWED_MEETING_DOMAINS.some(
+      (d) => host === d || host.endsWith(`.${d}`)
+    );
+  } catch {
+    return false;
+  }
+};
+
 // ── Cancel Confirm Modal ──────────────────────────────────────
 const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
   const [reason, setReason] = useState("");
@@ -322,7 +346,7 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                   type="button"
                   onClick={() => { setDuration(dur); setSelectedNewSlot(null); }}
                   className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
-    ${duration === dur
+                    ${duration === dur
                       ? "bg-blue-900 text-white shadow-md"
                       : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
@@ -359,7 +383,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                 </p>
               </div>
             ) : (
-              // FIX: Render SlotTabPicker ONCE — not inside a .map()
               <SlotTabPicker
                 availability={availability}
                 selectedSlot={selectedNewSlot}
@@ -384,7 +407,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                   {formatTime(selectedNewSlot.startTime)} – {formatTime(selectedNewSlot.endTime)}
                 </p>
               </div>
-              
             </div>
             <div className="flex gap-2.5">
               <button
@@ -401,7 +423,6 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
                 className="flex-1 py-2.5 rounded-xl text-white text-sm font-bold
                   transition-all disabled:opacity-50 disabled:cursor-not-allowed
                   flex items-center justify-center gap-2 bg-blue-900"
-                
               >
                 {saving
                   ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />Rescheduling...</>
@@ -430,7 +451,14 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
   const isMentor = viewerRole === "mentor";
 
   const handleSave = async () => {
-    if (!linkVal.trim()) { setLinkErr("Link cannot be empty"); return; }
+    if (!linkVal.trim()) {
+      setLinkErr("Link cannot be empty");
+      return;
+    }
+    if (!isValidMeetingLink(linkVal.trim())) {
+      setLinkErr("Only HTTPS links from Google Meet, Zoom etc are allowed.");
+      return;
+    }
     setLinkErr("");
     const result = await onSetLink(linkVal.trim());
     if (result?.success) setEditing(false);
@@ -446,13 +474,26 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
           <input
             autoFocus
             value={linkVal}
-            onChange={(e) => setLinkVal(e.target.value)}
+            onChange={(e) => { setLinkVal(e.target.value); setLinkErr(""); }}
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
             placeholder="https://meet.google.com/..."
-            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700
-              bg-white outline-none focus:border-blue-300 transition-colors placeholder:text-slate-400"
+            className={`w-full px-3 py-2 border rounded-xl text-sm text-slate-700
+              bg-white outline-none transition-colors placeholder:text-slate-400
+              ${linkErr ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-300"}`}
           />
-          {linkErr && <p className="text-xs text-red-500">{linkErr}</p>}
+          {linkErr && (
+            <div className="flex items-start gap-1.5 px-3 py-2 bg-red-50 border border-red-100 rounded-xl">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                className="shrink-0 mt-0.5">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <p className="text-xs text-red-600 leading-relaxed">{linkErr}</p>
+            </div>
+          )}
+          {/* Helper hint */}
           <div className="flex gap-2">
             <button
               onClick={() => { setEditing(false); setLinkErr(""); setLinkVal(slot?.meetingLink || ""); }}
@@ -614,7 +655,6 @@ const SessionCard = ({
 
   const cancelled = slot?.status === "cancelled";
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
-  const isMentee = viewerRole === "mentee";
 
   const canCancel = !cancelled && !bothDone;
   const isMoreThan12HrsAway = (slot) => {
@@ -702,12 +742,15 @@ const SessionCard = ({
           </div>
         ) : (
           <>
-            <MeetingLinkSection
-              slot={slot}
-              viewerRole={viewerRole}
-              onSetLink={(link) => onSetLink(slotIndex, link)}
-              saving={saving}
-            />
+              {!bothDone && (
+                <MeetingLinkSection
+                  slot={slot}
+                  viewerRole={viewerRole}
+                  onSetLink={(link) => onSetLink(slotIndex, link)}
+                  saving={saving}
+                />
+              )}
+
             <CompletionSection
               slot={slot}
               viewerRole={viewerRole}
@@ -727,8 +770,8 @@ const SessionCard = ({
                   onClick={() => setShowRescheduleModal(true)}
                   disabled={saving}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-blue-200
-        bg-blue-50 text-xs font-bold text-blue-600 hover:bg-blue-100 transition-colors
-        disabled:opacity-50 disabled:cursor-not-allowed"
+                    bg-blue-50 text-xs font-bold text-blue-600 hover:bg-blue-100 transition-colors
+                    disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -739,14 +782,14 @@ const SessionCard = ({
                 </button>
               ) : (
                 <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200
-      bg-slate-50 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                  bg-slate-50 text-xs font-semibold text-slate-400 cursor-not-allowed">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="8" x2="12" y2="12" />
                     <line x1="12" y1="16" x2="12.01" y2="16" />
                   </svg>
-                  Reschedule unavailable (within 12hrs)
+                  Reschedule unavailable (before 12hrs)
                 </div>
               )
             )}
