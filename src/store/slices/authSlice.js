@@ -146,6 +146,7 @@ const authSlice = createSlice({
       state.error      = null;
       state.successMsg = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
     },
     //manually sets user data and token
     setUser(state, action) {

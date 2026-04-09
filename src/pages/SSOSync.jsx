@@ -1,5 +1,4 @@
 // src/pages/SSOSync.jsx
-// ⚠️  This page is for LinkedIn (Clerk) SSO ONLY.
 // Google users are handled entirely in useGoogleAuth.js and never land here.
 
 import { useEffect, useState } from "react";
@@ -13,8 +12,10 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
+    localStorage.setItem("role", "mentor");  //  add
     navigate("/dashboard/mentor");
   } else {
+    localStorage.setItem("role", "mentee");  //  add
     navigate("/dashboard/mentee");
   }
 };
@@ -28,15 +29,15 @@ const SSOSync = () => {
   useEffect(() => {
     if (!isLoaded) return;
 
-    // ✅ FIX: If there's already a token in localStorage it means the user
+    // FIX: If there's already a token in localStorage it means the user
     // came from Google SSO (not Clerk/LinkedIn). Redirect them away immediately
     // so they don't hit getToken() which would return null and cause "invalid token".
     const existingToken = localStorage.getItem("token");
     if (existingToken && !isSignedIn) {
-      // Google user accidentally landed here — send them to their dashboard
-      navigate("/dashboard/mentee", { replace: true });
-      return;
-    }
+  const role = localStorage.getItem("role");     //read existing role
+  navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee", { replace: true });
+  return;
+}
 
     if (!isSignedIn) {
       navigate("/login?error=sso_failed", { replace: true });
@@ -86,12 +87,14 @@ const SSOSync = () => {
           const intendedRole = role && role !== "existing" ? role : null;
 
           if (intendedRole === "mentee") {
-            navigate("/dashboard/mentee", { replace: true });
-          } else if (intendedRole === "mentor") {
-            navigate("/dashboard/mentor", { replace: true });
-          } else {
-            redirectByRole(res.data?.user?.roles || [], navigate);
-          }
+  localStorage.setItem("role", "mentee");        // 👈 add
+  navigate("/dashboard/mentee", { replace: true });
+} else if (intendedRole === "mentor") {
+  localStorage.setItem("role", "mentor");        // 👈 add
+  navigate("/dashboard/mentor", { replace: true });
+} else {
+  redirectByRole(res.data?.user?.roles || [], navigate);
+}
         }
 
       } catch (err) {
