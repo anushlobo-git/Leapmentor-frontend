@@ -4,49 +4,73 @@ import axios from "axios";
 import AdminLayout          from "../../components/admin/AdminLayout";
 import StatCard             from "../../components/admin/common/StatCard";
 import UserGrowthChart      from "../../components/admin/common/UserGrowthChart";
-import MentorIndustryChart  from "../../components/admin/common/MentorIndustryChart";  // ← new
+import MentorIndustryChart  from "../../components/admin/common/MentorIndustryChart";
 
 const BASE_URL   = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 
-// ── Confirm Delete Modal ──────────────────────────────────────
-const ConfirmDeleteModal = ({ user, onConfirm, onCancel, deleting }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-    style={{ background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)" }}>
-    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5">
-      <div className="flex items-start gap-4">
-        <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-          style={{ background: "#fef2f2", border: "1px solid #fecaca" }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-          </svg>
+// ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
+const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
+  const config = {
+    delete: {
+      color: "#ef4444", bg: "#fef2f2", border: "#fecaca",
+      title: "Delete User Account",
+      desc: `You're about to permanently delete ${user?.name}. This will remove their profile and all associated sessions. This cannot be undone.`,
+      btnText: "Yes, Delete", loadingText: "Deleting...",
+      icon: <><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></>
+    },
+    block: {
+      color: "#d97706", bg: "#fffbeb", border: "#fde68a",
+      title: "Block User Account",
+      desc: `You're about to block ${user?.name}. They will immediately be prevented from logging into the platform. Their data will remain intact.`,
+      btnText: "Yes, Block", loadingText: "Blocking...",
+      icon: <><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></>
+    },
+    unblock: {
+      color: "#15803d", bg: "#f0fdf4", border: "#bbf7d0",
+      title: "Restore User Account",
+      desc: `You're about to unblock ${user?.name}. They will regain full access to log into their account immediately.`,
+      btnText: "Yes, Unblock", loadingText: "Unblocking...",
+      icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>
+    }
+  };
+
+  const current = config[mode];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5">
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: current.bg, border: `1px solid ${current.border}` }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={current.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {current.icon}
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>{current.title}</p>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">{current.desc}</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>Delete User Account</p>
-          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-            You're about to permanently delete{" "}
-            <span className="font-600 text-slate-700" style={{ fontWeight: 600 }}>{user?.name}</span>.
-            This will remove their profile and all associated sessions. This cannot be undone.
-          </p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} disabled={loading}
+            className="flex-1 py-2.5 rounded-xl border text-xs font-600 text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40"
+            style={{ border: "1px solid #e2e8f0", fontWeight: 600 }}>
+            Cancel
+          </button>
+          <button onClick={onConfirm} disabled={loading}
+            className="flex-1 py-2.5 rounded-xl text-xs font-600 text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            style={{ background: current.color, fontWeight: 600 }}>
+            {loading
+              ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin"/>{current.loadingText}</>
+              : current.btnText}
+          </button>
         </div>
-      </div>
-      <div className="flex gap-3">
-        <button onClick={onCancel} disabled={deleting}
-          className="flex-1 py-2.5 rounded-xl border text-xs font-600 text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40"
-          style={{ border: "1px solid #e2e8f0", fontWeight: 600 }}>
-          Cancel
-        </button>
-        <button onClick={onConfirm} disabled={deleting}
-          className="flex-1 py-2.5 rounded-xl text-xs font-600 text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2"
-          style={{ background: "#ef4444", fontWeight: 600 }}>
-          {deleting
-            ? <><span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin"/>Deleting...</>
-            : "Yes, Delete"}
-        </button>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ── Role Badge ────────────────────────────────────────────────
 const RoleBadge = ({ roles }) => {
@@ -87,12 +111,15 @@ const AdminUserManagement = () => {
   const [pagination,  setPagination]  = useState({ total: 0, page: 1, totalPages: 1 });
   const [search,      setSearch]      = useState("");
   const [roleFilter,  setRoleFilter]  = useState("");
+  const [showBlocked, setShowBlocked] = useState(false); // ← NEW STATE FOR TOGGLE
   const [loading,     setLoading]     = useState(true);
-  const [toDelete,    setToDelete]    = useState(null);
-  const [deleting,    setDeleting]    = useState(false);
+  
+  const [actionModal, setActionModal] = useState(null); 
+  const [actionLoading, setActionLoading] = useState(false);
+  
   const [toast,       setToast]       = useState(null);
   const [growthData,  setGrowthData]  = useState([]);
-  const [industryData, setIndustryData] = useState([]);   // ← new
+  const [industryData, setIndustryData] = useState([]);
 
   const searchTimer = useRef(null);
 
@@ -121,7 +148,6 @@ const AdminUserManagement = () => {
     }
   }, []);
 
-  // ── NEW: fetch industry distribution ──────────────────────
   const fetchIndustryData = useCallback(async () => {
     try {
       const res = await axios.get(`${BASE_URL}/admin/stats/mentor-industries`, { headers: authHeader() });
@@ -131,12 +157,14 @@ const AdminUserManagement = () => {
     }
   }, []);
 
-  const fetchUsers = useCallback(async (page = 1, q = search, role = roleFilter) => {
+  const fetchUsers = useCallback(async (page = 1, q = search, role = roleFilter, blocked = showBlocked) => {
     try {
       setLoading(true);
       const params = { page, limit: 15 };
-      if (q)    params.search = q;
-      if (role) params.role   = role;
+      if (q)       params.search = q;
+      if (role)    params.role   = role;
+      if (blocked) params.deleted = true;
+
       const res = await axios.get(`${BASE_URL}/admin/users`, { headers: authHeader(), params });
       setUsers(res.data.users);
       setPagination(res.data.pagination);
@@ -145,43 +173,59 @@ const AdminUserManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter]);
+  }, [search, roleFilter, showBlocked]);
 
-  // ── Single unified useEffect ──────────────────────────────
   useEffect(() => {
     fetchStats();
     fetchUsers();
     fetchGrowthData();
-    fetchIndustryData();   // ← new
+    fetchIndustryData();
   }, []);
 
-  // ── Debounced search ──────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────
   const handleSearchChange = (val) => {
     setSearch(val);
     clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => fetchUsers(1, val, roleFilter), 400);
+    searchTimer.current = setTimeout(() => fetchUsers(1, val, roleFilter, showBlocked), 400);
   };
 
   const handleRoleFilter = (role) => {
     setRoleFilter(role);
-    fetchUsers(1, search, role);
+    fetchUsers(1, search, role, showBlocked);
   };
 
-  // ── Delete ────────────────────────────────────────────────
-  const handleDelete = async () => {
-    if (!toDelete) return;
-    setDeleting(true);
+  const handleBlockedToggle = (isBlocked) => {
+    setShowBlocked(isBlocked);
+    fetchUsers(1, search, roleFilter, isBlocked);
+  };
+
+  const executeAction = async () => {
+    if (!actionModal) return;
+    const { user, mode } = actionModal;
+    setActionLoading(true);
+    
     try {
-      await axios.delete(`${BASE_URL}/admin/users/${toDelete._id}`, { headers: authHeader() });
-      showToast(`${toDelete.name} has been permanently deleted.`);
-      setToDelete(null);
+      if (mode === "delete") {
+        await axios.delete(`${BASE_URL}/admin/users/${user._id}`, { headers: authHeader() });
+        showToast(`${user.name} has been permanently deleted.`);
+      } 
+      else if (mode === "block") {
+        await axios.patch(`${BASE_URL}/admin/users/${user._id}/block`, {}, { headers: authHeader() });
+        showToast(`${user.name} has been blocked.`);
+      } 
+      else if (mode === "unblock") {
+        await axios.patch(`${BASE_URL}/admin/users/${user._id}/unblock`, {}, { headers: authHeader() });
+        showToast(`${user.name} has been restored.`);
+      }
+      
+      setActionModal(null);
       fetchStats();
       fetchUsers(pagination.page);
-      fetchIndustryData();   // refresh chart after delete
+      if (mode === "delete") fetchIndustryData();
     } catch (err) {
-      showToast(err?.response?.data?.message || "Delete failed.", "error");
+      showToast(err?.response?.data?.message || "Action failed.", "error");
     } finally {
-      setDeleting(false);
+      setActionLoading(false);
     }
   };
 
@@ -189,7 +233,6 @@ const AdminUserManagement = () => {
     <AdminLayout>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
 
-      {/* ── Toast ───────────────────────────────────────────── */}
       {toast && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg text-sm font-600 transition-all"
           style={{
@@ -207,8 +250,6 @@ const AdminUserManagement = () => {
       )}
 
       <div className="space-y-6">
-
-        {/* ── Page Header ─────────────────────────────────────── */}
         <div>
           <h1 className="text-3xl text-slate-900" style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>
             User Management
@@ -216,7 +257,6 @@ const AdminUserManagement = () => {
           <p className="text-sm text-slate-700 mt-1">Manage, verify, and monitor all platform participants.</p>
         </div>
 
-        {/* ── Stat Cards ──────────────────────────────────────── */}
         <div className="grid grid-cols-3 gap-4">
           <StatCard
             label="Total Users"
@@ -263,23 +303,34 @@ const AdminUserManagement = () => {
           />
         </div>
 
-        {/* ── Charts row ──────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4">
           <UserGrowthChart data={growthData} />
           <MentorIndustryChart data={industryData} />
         </div>
 
-        {/* ── User List ───────────────────────────────────────── */}
         <div className="rounded-2xl overflow-hidden" style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}>
-
-          {/* Filters header */}
           <div className="flex items-center justify-between gap-4 px-6 py-4 border-b" style={{ borderColor: "#e8eaf0" }}>
-            <div>
-              <p className="text-sm font-700 text-slate-800" style={{ fontWeight: 700 }}>User List</p>
-              <p className="text-xs text-slate-600 mt-0.5">{pagination.total} total users</p>
+            
+            <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl">
+              <button onClick={() => handleBlockedToggle(false)}
+                className="px-4 py-1.5 rounded-lg text-xs font-600 transition-all shadow-sm"
+                style={{
+                  background: !showBlocked ? "#ffffff" : "transparent",
+                  color:      !showBlocked ? "#0f172a" : "#64748b",
+                }}>
+                Active Users
+              </button>
+              <button onClick={() => handleBlockedToggle(true)}
+                className="px-4 py-1.5 rounded-lg text-xs font-600 transition-all shadow-sm"
+                style={{
+                  background: showBlocked ? "#ffffff" : "transparent",
+                  color:      showBlocked ? "#d97706" : "#64748b",
+                }}>
+                Blocked Users
+              </button>
             </div>
+
             <div className="flex items-center gap-3">
-              {/* Role pills */}
               <div className="flex gap-1.5">
                 {["", "mentor", "mentee"].map((r) => (
                   <button key={r} onClick={() => handleRoleFilter(r)}
@@ -289,11 +340,10 @@ const AdminUserManagement = () => {
                       background: roleFilter === r ? "#2563eb" : "#f1f5f9",
                       color:      roleFilter === r ? "white"   : "#475569",
                     }}>
-                    {r === "" ? "All" : r.charAt(0).toUpperCase() + r.slice(1)}
+                    {r === "" ? "All Roles" : r.charAt(0).toUpperCase() + r.slice(1)}
                   </button>
                 ))}
               </div>
-              {/* Search */}
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -311,7 +361,6 @@ const AdminUserManagement = () => {
             </div>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               <thead>
@@ -348,21 +397,20 @@ const AdminUserManagement = () => {
                       onMouseEnter={(e) => e.currentTarget.style.background = "#fafbfc"}
                       onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
 
-                      {/* User */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <Avatar name={user.name} picture={user.profile?.profilePicture} />
                           <div>
-                            <p className="text-sm font-600 text-slate-900" style={{ fontWeight: 600 }}>{user.name}</p>
+                            <p className="text-sm font-600 text-slate-900" style={{ fontWeight: 600 }}>
+                              {user.name} {showBlocked && <span className="ml-2 text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Blocked</span>}
+                            </p>
                             <p className="text-[10px] text-slate-600" style={{ fontFamily: "'DM Mono', monospace" }}>{user.email}</p>
                           </div>
                         </div>
                       </td>
 
-                      {/* Role */}
                       <td className="px-3 py-3"><RoleBadge roles={user.roles}/></td>
 
-                      {/* Email verified */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full" style={{ background: user.isEmailVerified ? "#22c55e" : "#f59e0b" }}/>
@@ -370,25 +418,43 @@ const AdminUserManagement = () => {
                         </div>
                       </td>
 
-                      {/* Joined */}
                       <td className="px-6 py-4">
                         <span className="text-xs text-slate-900" style={{ fontFamily: "'DM Mono', monospace" }}>
                           {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </span>
                       </td>
 
-                      {/* Actions */}
                       <td className="px-6 py-4">
-                        <button onClick={() => setToDelete(user)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all"
-                          style={{ background: "#fef2f2", color: "#dc2626", fontWeight: 600, border: "1px solid #fecaca" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = "#fee2e2"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = "#fef2f2"; }}>
-                          <svg width="10" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
-                          </svg>
-                          Delete
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {!showBlocked ? (
+                            <button onClick={() => setActionModal({ user, mode: 'block' })}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-amber-100"
+                              style={{ background: "#fffbeb", color: "#d97706", fontWeight: 600, border: "1px solid #fde68a" }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                              </svg>
+                              Block
+                            </button>
+                          ) : (
+                            <button onClick={() => setActionModal({ user, mode: 'unblock' })}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-green-100"
+                              style={{ background: "#f0fdf4", color: "#15803d", fontWeight: 600, border: "1px solid #bbf7d0" }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                              </svg>
+                              Unblock
+                            </button>
+                          )}
+
+                          <button onClick={() => setActionModal({ user, mode: 'delete' })}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-red-100"
+                            style={{ background: "#fef2f2", color: "#dc2626", fontWeight: 600, border: "1px solid #fecaca" }}>
+                            <svg width="10" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+                            </svg>
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -397,7 +463,6 @@ const AdminUserManagement = () => {
             </table>
           </div>
 
-          {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: "#e8eaf0" }}>
               <p className="text-xs text-slate-600">
@@ -424,13 +489,13 @@ const AdminUserManagement = () => {
         </div>
       </div>
 
-      {/* ── Confirm Delete Modal ─────────────────────────────── */}
-      {toDelete && (
-        <ConfirmDeleteModal
-          user={toDelete}
-          onConfirm={handleDelete}
-          onCancel={() => setToDelete(null)}
-          deleting={deleting}
+      {actionModal && (
+        <ConfirmActionModal
+          user={actionModal.user}
+          mode={actionModal.mode}
+          onConfirm={executeAction}
+          onCancel={() => setActionModal(null)}
+          loading={actionLoading}
         />
       )}
     </AdminLayout>
