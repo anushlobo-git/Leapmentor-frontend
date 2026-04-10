@@ -90,13 +90,19 @@ const dispatch = useDispatch();
         password: form.password,
       });
       handlePostAuth(res.data?.token, res.data?.user);
-    } catch (err) {
+      
+    }  catch (err) {
       const status = err?.response?.status;
       const data = err?.response?.data;
       const apiMsg = data?.message || err?.message || "Invalid credentials";
       if (status === 403 && data?.isEmailVerified === false) {
         setMsg({ type: "error", text: "Please verify your email first. Redirecting..." });
         setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(data.email)}`), 1000);
+        return;
+      }
+      // 👇 ONLY THIS LINE IS NEW — handles blocked account 403
+      if (status === 403) {
+        setMsg({ type: "error", text: apiMsg });
         return;
       }
       setMsg({ type: "error", text: apiMsg });
