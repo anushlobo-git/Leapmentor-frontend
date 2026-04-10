@@ -407,13 +407,14 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
           </div>
 
           {/* ── Two column layout ── */}
-          <div className="flex gap-6 items-start">
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+
 
             {/* ── Duration picker (left) ── */}
             {sessionDurations.length > 0 && (
               <div className="shrink-0">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Session Duration</p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-row md:flex-col gap-2 flex-wrap">
                   {sessionDurations.map((d) => (
                     <button key={d} type="button" onClick={() => handleDurationChange(d)}
                       className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${duration === d
@@ -428,7 +429,8 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
             )}
 
           {/* ══════════ SLOT SELECTION UI (right) ══════════ */}
-          <div className="w-[800px] rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="w-full rounded-2xl border border-slate-200 overflow-hidden">
+
 
             {/* Top bar */}
             <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
@@ -451,7 +453,7 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
               {/* Loading skeleton */}
               {availLoading && (
                 <div className="space-y-3">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="h-9 flex-1 bg-slate-100 rounded-xl animate-pulse" />
                     ))}
@@ -521,7 +523,8 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
                           {activeGroup.slots.filter((s) => !isSlotBooked(activeGroup.date, s.startTime)).length} open
                         </span>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+
                         {activeGroup.slots.map((slot, i) => (
                           <SlotPill
                             key={i}
