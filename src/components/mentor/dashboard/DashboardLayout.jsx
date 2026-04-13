@@ -97,7 +97,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Topbar renders immediately — user prop is optional, shows skeleton name if null */}
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} />
+      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)}  onLogoClick={() => handleSetTab("home")}/>
       <div className="flex flex-1">
         <Sidebar
           activeTab={activeTab}

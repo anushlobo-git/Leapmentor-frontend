@@ -1,7 +1,7 @@
 // src/components/shared-dashboard/SharedTopbar.jsx
 import { useNavigate } from "react-router-dom";
 
-const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
+const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
   const navigate = useNavigate();
 
   const backPath = viewerRole === "mentor"
@@ -52,6 +52,7 @@ const SharedTopbar = ({ viewerRole, onMenuToggle }) => {
         {/* Logo */}
         <div
           className="flex items-center gap-2 cursor-pointer"
+          onClick={onLogoClick} 
 
         >
           <img
