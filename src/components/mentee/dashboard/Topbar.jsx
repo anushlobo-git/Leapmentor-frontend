@@ -1,7 +1,7 @@
 // components/mentee/dashboard/Topbar.jsx
 import { useNavigate } from "react-router-dom";
 
-const Topbar = ({ onMenuToggle }) => {
+const Topbar = ({ onMenuToggle, onLogoClick }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -13,7 +13,7 @@ const Topbar = ({ onMenuToggle }) => {
     <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-between px-4 sticky top-0 z-20 shadow-sm">
       <div className="flex items-center gap-2.5">
 
-        {/* Hamburger — hidden on desktop, visible on mobile */}
+        {/* Hamburger */}
         <button
           onClick={onMenuToggle}
           aria-label="Open menu"
@@ -26,15 +26,22 @@ const Topbar = ({ onMenuToggle }) => {
           </svg>
         </button>
 
-        {/* Logo */}
-        <img
-          src="/images/logo.webp"
-          alt="LeapMentor logo"
-          className="h-8 w-8"
-          width={32}
-          height={32}
-        />
-        <span className="text-xl font-bold text-slate-800">LeapMentor</span>
+        {/* Logo + Name — clicking navigates to Home tab */}
+        <button
+          onClick={onLogoClick}
+          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+          aria-label="Go to Home"
+        >
+          <img
+            src="/images/logo.webp"
+            alt="LeapMentor logo"
+            className="h-8 w-8"
+            width={32}
+            height={32}
+          />
+          <span className="text-xl font-bold text-slate-800">LeapMentor</span>
+        </button>
+
       </div>
 
       <button

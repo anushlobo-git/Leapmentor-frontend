@@ -1,5 +1,6 @@
 // src/components/shared-dashboard/SharedDashboardLayout.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SharedTopbar from "./SharedTopbar";
 import SharedSidebar from "./SharedSidebar";
 import SharedHomeTab from "./tabs/SharedHomeTab";
@@ -8,15 +9,20 @@ import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import useSocketToast from "../../hooks/useSocketToast";
-//import useSessions from "../../hooks/useSessions";
+
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
   const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   useSocketToast();
 
   const viewerRole = connect?.viewerRole || "mentee";
-  //const { slots } = useSessions(connect?._id);
+
+  const backPath = viewerRole === "mentor"
+    ? "/dashboard/mentor"
+    : "/dashboard/mentee";
+
   return (
     <div style={{
       height: "100vh",
@@ -30,6 +36,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
       <SharedTopbar
         viewerRole={viewerRole}
         onMenuToggle={() => setSidebarOpen(true)}
+        onLogoClick={() => navigate(backPath)}  // ✅ added
       />
 
       {/* Body */}
