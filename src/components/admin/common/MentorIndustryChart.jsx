@@ -57,22 +57,20 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
-// ── Custom X-Axis Tick ────────────────────────────────────────
+// ── Custom X-Axis Tick (rotated to prevent overlap) ───────────
 const CustomXTick = ({ x, y, payload }) => {
-  const label = payload.value.length > 11
-    ? payload.value.slice(0, 10) + "…"
-    : payload.value;
   return (
     <g transform={`translate(${x},${y})`}>
       <text
-        x={0} y={0} dy={14}
-        textAnchor="middle"
+        x={0} y={0} dy={4}
+        textAnchor="end"
         fill="#64748b"
         fontSize={11}
         fontFamily="'DM Sans', sans-serif"
         fontWeight={500}
+        transform="rotate(-35)"
       >
-        {label}
+        {payload.value}
       </text>
     </g>
   );
@@ -131,10 +129,10 @@ const MentorIndustryChart = ({ data = [] }) => {
       </div>
 
       {/* ── Chart ── */}
-      <ResponsiveContainer width="100%" height={220}>
+      <ResponsiveContainer width="100%" height={260}>
         <BarChart
           data={chartData}
-          margin={{ top: 20, right: 16, left: -10, bottom: 8 }}
+          margin={{ top: 20, right: 16, left: -10, bottom: 60 }}
           barSize={chartData.length <= 3 ? 52 : chartData.length <= 6 ? 36 : 24}
         >
           <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
