@@ -1,5 +1,5 @@
 // components/mentee/dashboard/InterestedFieldsCard.jsx
-
+import { useMenteeContext } from "../../../context/MenteeDashboardContext";
 const TagChip = ({ label }) => {
   return (
     <span className={`inline-flex items-center text-sm font-m text-slate-600 px-3 py-1.5 rounded-full border `}>
@@ -8,7 +8,9 @@ const TagChip = ({ label }) => {
   );
 };
 
-const InterestedFieldsCard = ({ profile }) => {
+const InterestedFieldsCard = () => {
+  //context pulling from prop drilling
+  const { profile } = useMenteeContext();
   const fields = profile?.interestedFields || [];
   const skills = profile?.skills || [];
 

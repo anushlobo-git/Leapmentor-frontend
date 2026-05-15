@@ -1,5 +1,5 @@
 // components/mentee/dashboard/MentorshipPrefsCard.jsx
-
+import { useMenteeContext } from "../../../context/MenteeDashboardContext";
 const COMM_ICONS = {
   "Chat": "💬",
   "Video Call": "🎥",
@@ -8,7 +8,9 @@ const COMM_ICONS = {
   "In-Person": "🤝",
 };
 
-const MentorshipPrefsCard = ({ profile }) => {
+const MentorshipPrefsCard = () => {
+  // context pulling from prop drilling
+  const { profile } = useMenteeContext();
   const commPrefs = profile?.communicationPreferences || [];
   const languages = profile?.languages || [];
 
