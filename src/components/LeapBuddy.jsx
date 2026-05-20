@@ -2,7 +2,7 @@
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 
 import { useState, useRef, useEffect } from "react";
-import { useMenteeContext } from "../../../context/MenteeDashboardContext";
+import { useMenteeContext } from "../context/MenteeDashboardContext";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const INDIGO = "#4f46e5";

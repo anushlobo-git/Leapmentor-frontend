@@ -263,7 +263,7 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
 };
 
 // ── Reschedule Modal ──────────────────────────────────────────
-const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onConfirm, onClose, saving }) => {
+const RescheduleModal = ({ slotIndex, connectRequestId, existingSlots, onConfirm, onClose, saving }) => {
   const [duration, setDuration] = useState(60);
   const [availability, setAvailability] = useState([]);
   const [sessionDurations, setSessionDurations] = useState([30, 60]);

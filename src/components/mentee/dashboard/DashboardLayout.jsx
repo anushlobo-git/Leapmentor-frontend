@@ -86,7 +86,7 @@ useEffect(() => {
   */}
 
   return (
-    <MenteeDashboardContext.Provider value={{ user, profile }}>
+    <MenteeDashboardContext.Provider value={{ user, profile,setActiveTab: handleSetTab }}>
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
       <div className="flex flex-1">

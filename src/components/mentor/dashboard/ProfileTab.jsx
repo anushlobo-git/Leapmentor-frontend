@@ -7,6 +7,7 @@ import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialCard from "./SocialCard";
 
 const ProfileTab = ({ user, profile }) => {
+  
   const navigate = useNavigate();
 
   return (
