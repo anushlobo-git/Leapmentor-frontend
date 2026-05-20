@@ -5,7 +5,8 @@ import useUnreadCount from "../../../hooks/useUnreadCount";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import useSocketToast from "../../../hooks/useSocketToast";
-
+import { DashboardContext } from "../../../context/DashboardContext";
+import LeapBuddy from "../../LeapBuddy";
 // LCP FIX: lazy-load every tab so only the active tab's JS is loaded.
 // MentorHomeTab is also lazy — its chunk was 120 KiB and is the first thing
 // the user sees, but it still loads faster than blocking the entire shell.
@@ -95,6 +96,7 @@ useEffect(() => {
   }
 
   return (
+    <DashboardContext.Provider value={{ user, profile, setActiveTab: handleSetTab,refetchProfile : refetchProfile }}>
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Topbar renders immediately — user prop is optional, shows skeleton name if null */}
       <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)}  onLogoClick={() => handleSetTab("home")}/>
@@ -110,8 +112,8 @@ useEffect(() => {
           {/* Suspense wraps all tabs — fallback shows a content skeleton
               while the lazy chunk downloads on first visit to that tab */}
           <Suspense fallback={<TabSkeleton />}>
-            {activeTab === "home" && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab} />}
-            {activeTab === "profile" && <ProfileTab user={user} profile={profile} />}
+            {activeTab === "home" && <MentorHomeTab />}
+            {activeTab === "profile" && <ProfileTab />}
             {activeTab === "availability" && <AvailabilityTab />}
             {activeTab === "requests" && <RequestsTab />}
             {activeTab === "connects" && <MentorConnectsTab />}
@@ -122,6 +124,8 @@ useEffect(() => {
         </main>
       </div>
     </div>
+    <LeapBuddy role="mentor" user={user} profile={profile} />
+    </DashboardContext.Provider>
   );
 };
 

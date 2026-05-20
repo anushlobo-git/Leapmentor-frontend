@@ -1,6 +1,7 @@
 // src/components/mentor/dashboard/NotificationsTab.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -277,7 +278,8 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const NotificationsTab = ({ setActiveTab }) => {
+const NotificationsTab = () => {
+  const {setActiveTab} = useDashboardContext();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

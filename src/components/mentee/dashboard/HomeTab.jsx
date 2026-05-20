@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
-import { useMenteeContext } from "../../../context/MenteeDashboardContext";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
@@ -12,7 +12,7 @@ const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = () => {
   // context pulling from prop drilling
-  const { profile } = useMenteeContext();
+  const { profile } = useDashboardContext();
   const [mentors, setMentors] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -417,7 +417,7 @@ const LeapPointsPanel = ({ balance, loading }) => {
 // ── Main HomeTab ──────────────────────────────────────────────
 const HomeTab = () => {
 
-  const {user, profile,setActiveTab } = useMenteeContext();
+  const {user, profile,setActiveTab } = useDashboardContext();
   
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;

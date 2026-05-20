@@ -4,11 +4,11 @@ import ProfessionalDetailsCard from "./ProfessionalDetailsCard";
 import InterestedFieldsCard from "./InterestedFieldsCard";
 import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialPresenceCard from "./SocialPresenceCard";
-import { useMenteeContext } from "../../../context/MenteeDashboardContext";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
 const ProfileTab = () => {
   //context pulling from prop drilling 
-  const {profile } = useMenteeContext(); 
+  const {profile } = useDashboardContext(); 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">

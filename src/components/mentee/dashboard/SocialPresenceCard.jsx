@@ -1,7 +1,7 @@
 // components/mentee/dashboard/SocialPresenceCard.jsx
-import { useMenteeContext } from "../../../context/MenteeDashboardContext";
+import { useDashboardContext } from "../../../context/DashboardContext";
 const SocialPresenceCard = () => {
-  const { profile } = useMenteeContext();
+  const { profile } = useDashboardContext();
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">

@@ -1,9 +1,9 @@
 // components/mentee/dashboard/ProfileHeroCard.jsx
 import { useNavigate } from "react-router-dom";
-import { useMenteeContext } from "../../../context/MenteeDashboardContext";
+import { useDashboardContext } from "../../../context/DashboardContext";
 const ProfileHeroCard = () => {
   //context pulling from prop drilling
-  const { user, profile } = useMenteeContext();  
+  const { user, profile } = useDashboardContext();
   const navigate = useNavigate();
 
   return (
