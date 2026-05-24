@@ -117,7 +117,7 @@ useEffect(() => {
             {activeTab === "availability" && <AvailabilityTab />}
             {activeTab === "requests" && <RequestsTab />}
             {activeTab === "connects" && <MentorConnectsTab />}
-            {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
+            {activeTab === "notifications" && <NotificationsTab />}
             {activeTab === "earnings" && <TrackEarningsTab />}
             {activeTab === "help" && <HelpCenter />}
           </Suspense>

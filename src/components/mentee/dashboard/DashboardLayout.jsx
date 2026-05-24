@@ -103,7 +103,7 @@ useEffect(() => {
           {activeTab === "profile"       && <ProfileTab/>}
           {activeTab === "findMentors"   && <FindMentorsTab />}
           {activeTab === "history"       && <RequestHistoryTab />}
-          {activeTab === "notifications" && <NotificationsTab />}
+          {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
           {activeTab === "connects"      && <MenteeConnectsTab />}
           {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
           

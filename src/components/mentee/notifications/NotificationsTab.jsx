@@ -134,7 +134,7 @@ const resolveNavigation = (notif, setActiveTab) => {
   switch (type) {
     case "connect_request_received":
     case "connect_request_declined":
-      setActiveTab("requests");
+      setActiveTab("history");
       break;
 
     case "connect_request_accepted":
