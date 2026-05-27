@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Logo from "@atoms/Logo";
+import Button from "@atoms/Button";
+import RegisterButton from "@molecules/RegisterButton";
+import RegisterDropdownItem from "@molecules/RegisterDropdownItem";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,6 +22,15 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+
+  const handleLogoClick = () => {
+  if (window.location.pathname === "/") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    navigate("/");
+  }
+};
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="w-full px-6 py-4 flex items-center justify-between">
@@ -32,14 +45,7 @@ export default function Navbar() {
             }
           }}
         >
-          <img
-            src="/images/logo.webp"
-            alt="LeapMentor logo"
-            className="h-8 w-8"
-            width={32}
-            height={32}
-          />
-          <span className="text-xl font-bold text-gray-900 tracking-tight">LeapMentor</span>
+          <Logo onClick={handleLogoClick} />
         </div>
 
         {/* Desktop Buttons — only this block changed */}
@@ -47,63 +53,41 @@ export default function Navbar() {
 
           {/* Register dropdown */}
           <div className="relative" ref={registerRef}>
-            <button
+            <RegisterButton
+             isOpen={registerOpen}
               onClick={() => setRegisterOpen((o) => !o)}
-              className= "w-32 flex items-center gap-1 px-5 py-[9px] text-sm font-semibold text-blue-900 border-2 border-blue-900 rounded-lg hover:bg-blue-50 transition-colors duration-200"
-            >
-              Register
-              <svg
-                className={`w-4 h-4 transition-transform duration-200 ${registerOpen ? "rotate-180" : ""}`}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
+             />
             {registerOpen && (
               <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border-2 border-blue-900/10 z-50 overflow-hidden p-2">
 
                 {/* Become a Mentor */}
-                <button
+                <RegisterDropdownItem
+                  emoji="🚀"
+                  title="Become a Mentor"
+                  subtitle="Share your expertise"
+                  iconBg="bg-blue-900"
                   onClick={() => { navigate("/register/mentor"); setRegisterOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 transition-all duration-150 group text-left"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-blue-900 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-150">
-                    <span className="text-base">🚀</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 group-hover:text-blue-900">Become a Mentor</p>
-                    <p className="text-xs text-slate-400">Share your expertise</p>
-                  </div>
-                </button>
+                />
 
                 <div className="h-px bg-blue-900/10 mx-3 my-1" />
 
                 {/* Find a Mentor */}
-                <button
+                <RegisterDropdownItem
+                  emoji="🎓"
+                  title="Find a Mentor"
+                  subtitle="Accelerate your growth"
+                  iconBg="bg-blue-100"
                   onClick={() => { navigate("/register/mentee"); setRegisterOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 transition-all duration-150 group text-left"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-150">
-                    <span className="text-base">🎓</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 group-hover:text-blue-900">Find a Mentor</p>
-                    <p className="text-xs text-slate-400">Accelerate your growth</p>
-                  </div>
-                </button>
+                />
 
               </div>
             )}
           </div>
 
           {/* Login button */}
-          <button
-            onClick={() => navigate("/login")}
-            className= "w-32 px-5 py-[9px] text-sm font-semibold text-white bg-blue-900 border-2 border-transparent rounded-lg hover:bg-blue-800 transition-colors duration-200"
-          >
-            Login
-          </button>
+          <Button variant="primary" onClick={() => navigate("/login")}>
+              Login
+          </Button>
 
         </div>
 

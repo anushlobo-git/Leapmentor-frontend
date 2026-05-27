@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TermsAndConditionsModal from "./TermsAndConditionsModal";
 
+
 const footerLinks = {
   "For Mentees": ["Find a Mentor"],
   "For Mentors": ["Become a Mentor"],
