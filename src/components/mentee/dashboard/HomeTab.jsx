@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
-const useHomeData = (profile) => {
+const useHomeData = () => {
+  // context pulling from prop drilling
+  const { profile } = useDashboardContext();
   const [mentors, setMentors] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -189,7 +192,8 @@ const MentorCardSkeleton = () => (
 );
 
 // ── Session Card ──────────────────────────────────────────────
-const SessionCard = ({ request, index, navigate }) => {
+const SessionCard = ({ request, index }) => {
+  const navigate = useNavigate();
   const slot = request.confirmedSlot || request.selectedSlots?.[0];
   const dateObj = slot?.date ? new Date(slot.date + "T00:00:00") : null;
   const dateNum = dateObj ? dateObj.getDate().toString() : "—";
@@ -411,14 +415,16 @@ const LeapPointsPanel = ({ balance, loading }) => {
 };
 
 // ── Main HomeTab ──────────────────────────────────────────────
-const HomeTab = ({ user, profile }) => {
-  const navigate = useNavigate();
+const HomeTab = () => {
+
+  const {user, profile,setActiveTab } = useDashboardContext();
+  
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
   const completionPct = calculateProfileCompletion(profile);
   const [selectedMentor, setSelectedMentor] = useState(null);
 
-  const { mentors, sessions, loading, balance } = useHomeData(profile);
+  const { mentors, sessions, loading, balance } = useHomeData();
 
   return (
     <>
@@ -440,7 +446,7 @@ const HomeTab = ({ user, profile }) => {
           {completionPct < 100 && (
             <div
               className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "profile" }))}
+              onClick={() => setActiveTab("profile")}
             >
               <div className="relative w-9 h-9">
                 <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
@@ -471,7 +477,7 @@ const HomeTab = ({ user, profile }) => {
               )}
             </div>
             <button
-              onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "findMentors" }))}
+              onClick={() => setActiveTab("findMentors")}
               className="text-xs text-blue-900 font-medium hover:underline"
             >
               View all
@@ -498,7 +504,7 @@ const HomeTab = ({ user, profile }) => {
               <div className="col-span-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center">
                 <p className="text-sm text-slate-700">No mentor recommendations yet.</p>
                 <button
-                  onClick={() => window.dispatchEvent(new CustomEvent("setDashboardTab", { detail: "findMentors" }))}
+                  onClick={() => setActiveTab("findMentors")}
                   className="text-xs text-blue-900 font-semibold mt-2 hover:underline"
                 >
                   Browse all mentors →
@@ -525,7 +531,6 @@ const HomeTab = ({ user, profile }) => {
                     key={request._id}
                     request={request}
                     index={idx}
-                    navigate={navigate}
                   />
                 ))
               ) : (
@@ -554,7 +559,7 @@ const HomeTab = ({ user, profile }) => {
           onClose={() => setSelectedMentor(null)}
         />
       )}
-      <LeapBuddy role="mentee" user={user} profile={profile} />
+      <LeapBuddy role="mentee"/>
     </>
   );
 };

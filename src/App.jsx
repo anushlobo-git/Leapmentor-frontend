@@ -73,7 +73,7 @@ const App = () => {
           {/* ── Auth ──────────────────────────────────────── */}
           <Route path="/register/mentee"   element={<RegisterMentee />} />
           <Route path="/register/mentor"   element={<RegisterMentor />} />
-          <Route path="/login" element={<LoginMentee />} />
+          <Route path="/login"             element={<LoginMentee />} />
           <Route path="/login/mentor"      element={<LoginMentor />} />
           <Route path="/login/mentee"      element={<LoginMentee />} />
           <Route path="/verify-email"      element={<VerifyEmail />} />
@@ -83,7 +83,7 @@ const App = () => {
 
           {/* ── Onboarding ────────────────────────────────── */}
           <Route path="/onboarding/mentor" element={<ProtectedRoute role="mentor"><MentorOnboarding /></ProtectedRoute>} />
-          <Route path="/verify-documents" element={<ProtectedRoute role="mentor"><MentorVerification /></ProtectedRoute>} />
+          <Route path="/verify-documents"  element={<ProtectedRoute role="mentor"><MentorVerification /></ProtectedRoute>} />
           <Route path="/onboarding/mentee" element={<ProtectedRoute role="mentee"><MenteeOnboarding /></ProtectedRoute>} />
 
           {/* ── Edit Profile ──────────────────────────────── */}
