@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LeapBuddy from "../../LeapBuddy";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
@@ -165,7 +166,8 @@ const EarningsSkeleton = () => (
   </div>
 );
 
-const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
+const MentorHomeTab = () => {
+  const {user,profile,refetchProfile,setActiveTab} = useDashboardContext();
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;

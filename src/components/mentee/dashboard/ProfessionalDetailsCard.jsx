@@ -1,5 +1,5 @@
 // components/mentee/dashboard/ProfessionalDetailsCard.jsx
-
+import { useDashboardContext } from "../../../context/DashboardContext";
 const Field = ({ label, icon, value }) => (
   <div className="py-3 border-b border-slate-100 last:border-0">
     <p className="text-xs font-semibold text-slate-800 uppercase tracking-wide mb-1">{label}</p>
@@ -10,7 +10,9 @@ const Field = ({ label, icon, value }) => (
   </div>
 );
 
-const ProfessionalDetailsCard = ({ profile }) => {
+const ProfessionalDetailsCard = () => {
+  //context pulling from prop drilling
+  const { profile } = useDashboardContext();
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <h3 className="text-m font-bold text-slate-800 mb-4">Professional Details</h3>

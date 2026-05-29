@@ -4,8 +4,11 @@ import ProfessionalDetailsCard from "./ProfessionalDetailsCard";
 import InterestedFieldsCard from "./InterestedFieldsCard";
 import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialPresenceCard from "./SocialPresenceCard";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
-const ProfileTab = ({ user, profile }) => {
+const ProfileTab = () => {
+  //context pulling from prop drilling 
+  const {profile } = useDashboardContext(); 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
@@ -17,14 +20,14 @@ const ProfileTab = ({ user, profile }) => {
         </div>
       </div>
       {/* Hero Card */}
-      <ProfileHeroCard user={user} profile={profile} />
+      <ProfileHeroCard />
 
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ProfessionalDetailsCard profile={profile} />
-        <MentorshipPrefsCard profile={profile} />
-        <InterestedFieldsCard profile={profile} />
-        <SocialPresenceCard profile={profile} />
+        <ProfessionalDetailsCard/>
+        <MentorshipPrefsCard/>
+        <InterestedFieldsCard/>
+        <SocialPresenceCard/>
       </div>
 
       {/* Footer */}

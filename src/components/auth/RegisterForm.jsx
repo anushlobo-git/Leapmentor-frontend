@@ -58,7 +58,11 @@ const RegisterForm = ({ role }) => {
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-  if (error) setLocalMsg({ type: "error", text: error });
+  if (error){
+
+  const t= setTimeout(()=>setLocalMsg({ type: "error", text: error }),0);
+  return () => clearTimeout(t);
+  }
 }, [error, successMsg]);
 
   useEffect(() => {
@@ -67,9 +71,10 @@ const RegisterForm = ({ role }) => {
 
   useEffect(() => {
     if (form.termsAccepted && localMsg.text === "Please accept the terms to continue.") {
-      setLocalMsg({ type: "", text: "" });
+      const t= setTimeout(()=>setLocalMsg({ type: "", text: "" }),0);
+      return () => clearTimeout(t);
     }
-  }, [form.termsAccepted]);
+  }, [form.termsAccepted,localMsg.text]);
 
   useGoogleAuth({
     btnRef: googleBtnRef,
