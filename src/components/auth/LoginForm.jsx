@@ -1,10 +1,8 @@
 // src/components/auth/LoginForm.jsx
 import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSignIn, useClerk } from "@clerk/clerk-react";
 import { setUser } from "../../store/slices/authSlice";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import AuthSSOButtons from "./AuthSSOButtons";
@@ -12,70 +10,56 @@ import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import FullScreenLoader from "../FullScreenLoader";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const BASE_URL     = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL || "http://localhost:5000";
+// VITE_APP_BASE_URL should be "http://localhost:5000" — no /api/v1
 
-const CLERK_STRATEGY = {
-  linkedin: "oauth_linkedin_oidc",
-};
 
 const LoginForm = ({ placeholder, registerPath }) => {
-  const navigate = useNavigate();
+  const navigate    = useNavigate();
+  const dispatch    = useDispatch();
   const googleBtnRef = useRef(null);
-  const { signIn, isLoaded: clerkLoaded } = useSignIn();
-  const { signOut } = useClerk();
-const dispatch = useDispatch();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [showPw, setShowPw] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState({ type: "", text: "" });
-  const [redirecting, setRedirecting] = useState(false);
 
+  const [form,        setForm]        = useState({ email: "", password: "" });
+  const [showPw,      setShowPw]      = useState(false);
+  const [loading,     setLoading]     = useState(false);
+  const [msg,         setMsg]         = useState({ type: "", text: "" });
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => { return () => setLoading(false); }, []);
 
   const handlePostAuth = (token, user) => {
-  if (token) localStorage.setItem("token", token);
-  const roles = user?.roles || [];
-  if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");  // 👈 add
-    setRedirecting(true);
-    setTimeout(() => navigate("/dashboard/mentor"), 800);
-  } else if (roles.includes("mentee")) {
-    localStorage.setItem("role", "mentee");  // 👈 add
-    setRedirecting(true);
-    setTimeout(() => navigate("/dashboard/mentee"), 800);
-  } else {
-    setMsg({ type: "error", text: "No role found. Please register first." });
-  }
-};
+    if (token) localStorage.setItem("token", token);
+    dispatch(setUser({ token, user }));
+    const roles = user?.roles || [];
+    if (roles.includes("mentor")) {
+      localStorage.setItem("role", "mentor");
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentor"), 800);
+    } else if (roles.includes("mentee")) {
+      localStorage.setItem("role", "mentee");
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentee"), 800);
+    } else {
+      setMsg({ type: "error", text: "No role found. Please register first." });
+    }
+  };
+
   useGoogleAuth({
     btnRef: googleBtnRef,
     roles: [],
     dispatch,
     setUser,
     onSuccess: (data) => handlePostAuth(data?.token, data?.user),
-    onError: (text) => setMsg({ type: "error", text }),
+    onError:   (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
   });
 
-  const handleClerkSSO = async (provider) => {
-    if (!clerkLoaded) return;
-    try {
-      setLoading(true);
-      await signOut({ Url: window.location.href });
-      localStorage.setItem("sso_role", "existing");
-      localStorage.setItem("sso_terms", "true");
-      await signIn.authenticateWithRedirect({
-        strategy: CLERK_STRATEGY[provider],
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
-      });
-    } catch (err) {
-      localStorage.removeItem("sso_role");
-      localStorage.removeItem("sso_terms");
-      setMsg({ type: "error", text: err.message || "SSO failed. Try again." });
-      setLoading(false);
-    }
+  // ── LinkedIn redirect (mirrors RegisterForm) ───────────────────────────────
+  const handleLinkedIn = () => {
+    // On login we don't know the role yet — backend will resolve it
+    // via the existing OAuthAccount → user lookup in socialAuthUser()
+    window.location.href = `${BASE_URL}/auth/linkedin?termsAccepted=true`;
   };
 
   const handleSubmit = async (e) => {
@@ -86,23 +70,17 @@ const dispatch = useDispatch();
       localStorage.removeItem("adminToken");
       setLoading(true);
       const res = await axios.post(`${BASE_URL}/auth/login`, {
-        email: form.email.trim(),
+        email:    form.email.trim(),
         password: form.password,
       });
       handlePostAuth(res.data?.token, res.data?.user);
-      
-    }  catch (err) {
+    } catch (err) {
       const status = err?.response?.status;
-      const data = err?.response?.data;
+      const data   = err?.response?.data;
       const apiMsg = data?.message || err?.message || "Invalid credentials";
       if (status === 403 && data?.isEmailVerified === false) {
-        setMsg({ type: "error", text: "Please verify your email first. Redirecting..." });
+        setMsg({ type: "error", text: "Please verify your email first. Redirecting…" });
         setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(data.email)}`), 1000);
-        return;
-      }
-      // 👇 ONLY THIS LINE IS NEW — handles blocked account 403
-      if (status === 403) {
-        setMsg({ type: "error", text: apiMsg });
         return;
       }
       setMsg({ type: "error", text: apiMsg });
@@ -113,21 +91,21 @@ const dispatch = useDispatch();
 
   return (
     <div className="w-full max-w-sm mx-auto px-4">
-            {redirecting && <FullScreenLoader message="Redirecting to dashboard..." />}  {/* 👈 add here */}
+      {redirecting && <FullScreenLoader message="Redirecting to dashboard…" />}
 
       <AuthBrand logo={<LeapMentorLogo />} />
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1.5">Login</h1>
-        <h2 className="text-sm text-slate-500 leading-relaxed mb-6">
+        <p className="text-sm text-slate-500 leading-relaxed mb-6">
           Enter your credentials to securely access your account.
-        </h2>
+        </p>
       </div>
 
       {msg.type === "error" && msg.text && (
-  <div className="mb-5 text-sm rounded-xl px-4 py-3 border bg-red-50 text-red-600 border-red-200">
-    {msg.text}
-  </div>
-)}
+        <div className="mb-5 text-sm rounded-xl px-4 py-3 border bg-red-50 text-red-600 border-red-200">
+          {msg.text}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -177,7 +155,7 @@ const dispatch = useDispatch();
         <button type="submit" disabled={loading}
           className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200 flex items-center justify-center gap-2 mt-2">
           {loading ? (
-            <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Logging in...</>
+            <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Logging in…</>
           ) : (
             <>Login to Dashboard
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -190,15 +168,14 @@ const dispatch = useDispatch();
 
       <div className="flex items-center gap-3 my-6">
         <div className="h-px bg-slate-200 flex-1" />
-        <span className="text-xs font-semibold text-slate-700 font-medium">Or continue with</span>
+        <span className="text-xs font-semibold text-slate-500">Or continue with</span>
         <div className="h-px bg-slate-200 flex-1" />
       </div>
 
       <AuthSSOButtons
         googleBtnRef={googleBtnRef}
         loading={loading}
-        clerkLoaded={clerkLoaded}
-        onLinkedIn={() => handleClerkSSO("linkedin")}
+        onLinkedIn={handleLinkedIn}
       />
 
       <p className="text-sm text-slate-500 text-center mt-8">

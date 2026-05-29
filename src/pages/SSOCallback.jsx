@@ -1,75 +1,92 @@
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/authSlice";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-const redirectByRole = (roles, navigate) => {
-  if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");  // 👈 add
-    navigate("/dashboard/mentor");
-  } else {
-    localStorage.setItem("role", "mentee");  // 👈 add
-    navigate("/dashboard/mentee");
-  }
-};
-
-// ── Inner component — only runs AFTER Clerk finishes OAuth ──
-const SyncWithBackend = () => {
-  const { getToken } = useAuth();
+const SSOCallback = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const sync = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+     console.log("SSOCallback mounted, code:", code?.slice(0, 10));
+  console.log("sessionStorage value:", sessionStorage.getItem("linkedin_code_used")?.slice(0, 10));
+  
+    const state = params.get("state");
+    const provider = params.get("provider");
+
+    if (!code || provider !== "linkedin") {
+      setError("Invalid callback. Missing code or unsupported provider.");
+      return;
+    }
+
+    // ── Guard against double-fire (Strict Mode or router remount) ──
+    if (sessionStorage.getItem("linkedin_code_used") === code) return;
+    sessionStorage.setItem("linkedin_code_used", code);
+
+    let role = null;
+    let termsAccepted = false;
+    try {
+      const payloadB64 = state.split(".")[0];
+      const decoded = JSON.parse(atob(payloadB64));
+      role = decoded.role || null;
+      termsAccepted = decoded.termsAccepted === "true" || decoded.termsAccepted === true;
+    } catch {
+      // state unreadable — proceed without role hint
+    }
+
+    const exchange = async () => {
       try {
-        const clerkToken = await getToken();
-        console.log("✅ Clerk token:", clerkToken ? "YES" : "NO");
-
-        const role = localStorage.getItem("sso_role");
-        const termsAccepted = localStorage.getItem("sso_terms") === "true";
-        console.log("Role:", role);
-
-        const res = await axios.post(`${BASE_URL}/auth/clerk-sso`, {
-          clerkToken,
-          roles: role && role !== "existing" ? [role] : undefined,
-          termsAccepted: role !== "existing" ? termsAccepted : true,
+        const res = await axios.post(`${BASE_URL}/auth/linkedin/token`, {
+          code,
+          roles: role ? [role] : undefined,
+          termsAccepted,
         });
 
-        console.log("✅ Backend response:", res.data);
+        sessionStorage.removeItem("linkedin_code_used");  // cleanup on success
 
-        if (res.data?.token) localStorage.setItem("token", res.data.token);
+        const { token, user, isNewUser } = res.data;
 
-        localStorage.removeItem("sso_role");
-        localStorage.removeItem("sso_terms");
+        localStorage.setItem("token", token);
 
-        if (res.data?.isNewUser) {
-          const onboardingRole = role && role !== "existing" ? role : res.data.user.roles[0];
-          navigate(`/onboarding/${onboardingRole}`);
+        const resolvedRole = user?.roles?.includes("mentor") ? "mentor" : "mentee";
+        localStorage.setItem("role", resolvedRole);
+
+        dispatch(setUser({ token, user }));
+
+        await new Promise((r) => setTimeout(r, 50));
+
+        if (isNewUser) {
+          navigate(`/onboarding/${resolvedRole}`, { replace: true });
         } else {
-          redirectByRole(res.data?.user?.roles || [], navigate);
+          navigate(`/dashboard/${resolvedRole}`, { replace: true });
         }
-
       } catch (err) {
-        console.error("❌ Error:", err?.response?.data || err.message);
-        setError(err?.response?.data?.message || err.message || "SSO failed");
-        localStorage.removeItem("sso_role");
-        localStorage.removeItem("sso_terms");
+        sessionStorage.removeItem("linkedin_code_used");  // cleanup on failure
+        const msg = err?.response?.data?.message || err.message || "LinkedIn sign-in failed.";
+        setError(msg);
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
       }
     };
 
-    sync();
+    exchange();
   }, []);
 
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-red-600 font-medium">{error}</p>
+          <p className="text-red-600 font-medium mb-2">{error}</p>
           <button
-            className="mt-4 underline text-sm"
+            className="mt-4 underline text-sm text-slate-600 hover:text-slate-800"
             onClick={() => navigate("/login")}
           >
             Back to login
@@ -81,19 +98,11 @@ const SyncWithBackend = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-500 text-sm">Completing sign in...</p>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+        <p className="text-gray-500 text-sm">Completing sign in…</p>
+      </div>
     </div>
-  );
-};
-
-// ── Main component — AuthenticateWithRedirectCallback finishes
-//    the OAuth handshake, THEN renders SyncWithBackend ──
-const SSOCallback = () => {
-  return (
-    <AuthenticateWithRedirectCallback
-      afterSignInUrl="/sso-callback-sync"
-      afterSignUpUrl="/sso-callback-sync"
-    />
   );
 };
 

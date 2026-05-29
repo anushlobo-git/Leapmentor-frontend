@@ -1,7 +1,7 @@
 // src/components/auth/AuthSSOButtons.jsx
 import { GoogleIcon, LinkedInIcon } from "./AuthIcons";
 
-const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn }) => {
+const AuthSSOButtons = ({ googleBtnRef, loading, onLinkedIn }) => {
   return (
     <div className="flex gap-2.5">
       {/* Google */}
@@ -21,7 +21,7 @@ const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn }) => {
       <button
         type="button"
         onClick={onLinkedIn}
-        disabled={loading || !clerkLoaded}
+        disabled={loading}
         className="flex-1 flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
       >
         <LinkedInIcon />

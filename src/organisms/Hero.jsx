@@ -1,5 +1,5 @@
 import LetterBall from "@atoms/LetterBall";
-import HeroSlider from "@molecules/HeroSlider";
+import HeroSlider from "@molecules/HeroSlider"; 
 
 const socialProof = [
   { letter: "A", color: "bg-pink-400" },

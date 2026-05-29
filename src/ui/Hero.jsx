@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ErrorButton from "./ErrorButton"; // Temporary Sentry test button
 
 const images = [
   "/images/mentor3.webp",
@@ -103,6 +104,7 @@ export default function Hero() {
                 </div>
               </div>
               <p className="text-xs text-gray-600 mt-1">Mentee satisfaction rise across all verified programs.</p>
+              <ErrorButton /> {/* Temporary Sentry test button */}
             </div>
           </div>
         </div>
