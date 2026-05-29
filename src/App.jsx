@@ -2,6 +2,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home     from "@pages/shared/Home";
 import NotFound from "./pages/NotFound";
@@ -17,7 +18,7 @@ const LoginMentee    = lazy(() => import("./pages/LoginMentee"));
 const VerifyEmail    = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const SSOCallback    = lazy(() => import("./pages/SSOCallback"));
-const SSOSync        = lazy(() => import("./pages/SSOSync"));
+
 // In App.jsx - lazy load pages
 
 
@@ -62,7 +63,7 @@ const PageLoader = () => (
 );
 
 const App = () => {
-  return (
+  return ( 
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -79,7 +80,7 @@ const App = () => {
           <Route path="/verify-email"      element={<VerifyEmail />} />
           <Route path="/forgot-password"   element={<ForgotPassword />} />
           <Route path="/sso-callback"      element={<SSOCallback />} />
-          <Route path="/sso-callback-sync" element={<SSOSync />} />
+          
 
           {/* ── Onboarding ────────────────────────────────── */}
           <Route path="/onboarding/mentor" element={<ProtectedRoute role="mentor"><MentorOnboarding /></ProtectedRoute>} />
@@ -109,6 +110,7 @@ const App = () => {
           <Route path="/admin/verifications" element={<AdminRoute><AdminLayout><AdminVerifications /></AdminLayout></AdminRoute>} />
           {/* ── 404 ───────────────────────────────────────── */}
           <Route path="*" element={<NotFound />} />
+           
 
         </Routes>
       </Suspense>
