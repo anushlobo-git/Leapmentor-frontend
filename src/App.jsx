@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // ── Eager loaded — tiny, always needed immediately ────────────
-import Home     from "./components/Home";
+import Home     from "@pages/shared/Home";
 import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
 import ProtectedRoute from "./components/auth/ProtectedRoute";

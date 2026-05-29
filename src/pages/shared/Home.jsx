@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "@organisms/Navbar";
+import PublicLayout from "@templates/PublicLayout";
 import Hero from "@organisms/Hero";
 import Missions from "@organisms/Missions";
 import Testimonials from "@organisms/Testimonials";
-import Footer from "@organisms/Footer";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -18,14 +17,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans antialiased">
-      <Navbar />
-      <main className="flex-1">
-        <Hero />
-        <Missions />
-        <Testimonials />
-      </main>
-      <Footer />
-    </div>
+    <PublicLayout>
+      <Hero />
+      <Missions />
+      <Testimonials />
+    </PublicLayout>
   );
 }

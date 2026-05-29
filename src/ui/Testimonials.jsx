@@ -238,5 +238,4 @@ function TestimonialCard({ testimonial, active, dimmed }) {
         <StarRating count={testimonial.rating} />
       </div>
     </div>
-  );
-}
+  

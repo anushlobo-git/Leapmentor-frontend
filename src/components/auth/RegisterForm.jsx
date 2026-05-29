@@ -104,23 +104,23 @@ const RegisterForm = ({ role }) => {
 
   const handleTermsClose = () => setShowTermsModal(false);
 
-  const handleClerkSSO = async (provider) => {
-    if (!clerkLoaded) return;
-    try {
-      await signOut({ redirectUrl: window.location.href });
-      localStorage.setItem("sso_role", role);
-      localStorage.setItem("sso_terms", "true");
-      await signIn.authenticateWithRedirect({
-        strategy: CLERK_STRATEGY[provider],
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
-      });
-    } catch (err) {
-      localStorage.removeItem("sso_role");
-      localStorage.removeItem("sso_terms");
-      setLocalMsg({ type: "error", text: err.message || "SSO failed. Try again." });
-    }
-  };
+    const handleClerkSSO = async (provider) => {
+      if (!clerkLoaded) return;
+      try {
+        await signOut({ redirectUrl: window.location.href });
+        localStorage.setItem("sso_role", role);
+        localStorage.setItem("sso_terms", "true");
+        await signIn.authenticateWithRedirect({
+          strategy: CLERK_STRATEGY[provider],
+          redirectUrl: `${window.location.origin}/sso-callback`,
+          redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
+        });
+      } catch (err) {
+        localStorage.removeItem("sso_role");
+        localStorage.removeItem("sso_terms");
+        setLocalMsg({ type: "error", text: err.message || "SSO failed. Try again." });
+      }
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -446,7 +446,7 @@ export default function LeapBuddy({ role = "mentee" , user = null, profile = nul
               placeholder="Ask LeapBuddy anything..."
               rows={1} disabled={loading}
               style={{
-                flex: 1, padding: "8px 12px", borderRadius: 10,
+                flex: 1, padding: "anush.lobo@nineleaps.com8px 12px", borderRadius: 10,
                 border: "1.5px solid #e2e8f0", fontSize: 13,
                 outline: "none", resize: "none", fontFamily: "inherit",
                 color: "#0f172a", lineHeight: 1.5, maxHeight: 80,
