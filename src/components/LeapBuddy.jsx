@@ -2,7 +2,6 @@
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 
 import { useState, useRef, useEffect } from "react";
-
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const INDIGO = "#4f46e5";
@@ -107,7 +106,7 @@ function TypingDots() {
 
 // ─── Main LeapBuddy Component ─────────────────────────────────────────────────
 
-export default function LeapBuddy({ role = "mentee", user = null, profile = null }) {
+export default function LeapBuddy({ role = "mentee" , user = null, profile = null }) {
   // Merge user + profile into one context object for the AI
   const userContext = {
     name: user?.name || null,

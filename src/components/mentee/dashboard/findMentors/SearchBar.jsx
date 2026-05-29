@@ -1,4 +1,4 @@
-const SearchBar = ({ skill, setSkill, totalCount, hasSearched }) => {
+const SearchBar = ({ skill, setSkill }) => {
 const handleChange = (e) => {
 setSkill(e.target.value); 
 };
