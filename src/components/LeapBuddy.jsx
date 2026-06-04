@@ -2,6 +2,8 @@
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 
 import { useState, useRef, useEffect } from "react";
+import axiosInstance from "@utils/axiosInstance"; // Use the configured axios instance with interceptors
+
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -192,26 +194,18 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     setLoading(false);
   };
 
-  const submitTicket = async (idx) => {
-    const form = ticketForms[idx];
-    if (!form?.email || !form?.subject || !form?.message) return;
-    setTicketStatus((p) => ({ ...p, [idx]: "sending" }));
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/support/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ ...form, role }),
-      });
-      if (!res.ok) throw new Error();
-      setTicketStatus((p) => ({ ...p, [idx]: "sent" }));
-    } catch {
-      setTicketStatus((p) => ({ ...p, [idx]: "error" }));
-    }
-  };
+  // then submitTicket becomes:
+const submitTicket = async (idx) => {
+  const form = ticketForms[idx];
+  if (!form?.email || !form?.subject || !form?.message) return;
+  setTicketStatus((p) => ({ ...p, [idx]: "sending" }));
+  try {
+    await axiosInstance.post("/support/messages", { ...form, role });
+    setTicketStatus((p) => ({ ...p, [idx]: "sent" }));
+  } catch {
+    setTicketStatus((p) => ({ ...p, [idx]: "error" }));
+  }
+};
 
   const quickChips = role === "mentor"
     ? ["How do I accept a session?", "When do I get paid?", "Set availability"]

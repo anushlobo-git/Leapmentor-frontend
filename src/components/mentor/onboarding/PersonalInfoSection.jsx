@@ -1,8 +1,8 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 
 const PersonalInfoSection = ({ form, onChange }) => {
   const fileInputRef              = useRef(null);
@@ -31,21 +31,15 @@ const PersonalInfoSection = ({ form, onChange }) => {
     setUploading(true);
 
     try {
-      const token = localStorage.getItem("token");
+      
 
       // ✅ Send as multipart/form-data — NOT Base64
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const res = await axios.post(
-        `${BASE_URL}/upload/profile-picture`,
+      const res = await axiosInstance.post(
+        `/upload/profile-picture`,
         formData,
-        {
-          headers: {
-            Authorization:  `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
       );
 
       // ✅ Store Cloudinary URL in form state

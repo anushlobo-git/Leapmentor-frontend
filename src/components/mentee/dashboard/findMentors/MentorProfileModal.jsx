@@ -1,6 +1,6 @@
 // src/components/mentee/dashboard/findMentors/MentorProfileModal.jsx
 import { useState, useEffect,useRef } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
@@ -132,10 +132,8 @@ const badges = BADGES.map((badge) => ({
       setSlotsError("");
       setSelectedSlots([]);
       setActiveDayIndex(0);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${BASE_URL}/availability/${mentor.user._id}/slots?duration=${duration}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await axiosInstance.get(
+        `/availability/${mentor.user._id}/slots?duration=${duration}`
       );
       setGroupedSlots(res.data.slots || []);
       if (res.data.sessionDurations?.length) {

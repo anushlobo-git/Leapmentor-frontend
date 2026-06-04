@@ -1,6 +1,7 @@
 // src/hooks/useUnreadCount.js
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
+import { isLoggedIn } from "@utils/cookies";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -9,11 +10,8 @@ const useUnreadCount = () => {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      const res = await axios.get(`${BASE_URL}/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (!isLoggedIn()) return;
+      const res = await axiosInstance.get("/notifications");
       const count = (res.data.notifications || []).filter(
         (n) => !n.read,
       ).length;
@@ -25,11 +23,8 @@ const useUnreadCount = () => {
 
   // ✅ fetch once on mount only
   useEffect(() => {
-  const load = async () => {
-    await fetchUnreadCount();
-  };
-  load();
-}, [fetchUnreadCount]);
+ fetchUnreadCount();
+}, []);
 
   // ✅ increment badge when socket/push notification arrives
   const incrementBadge = useCallback(() => {

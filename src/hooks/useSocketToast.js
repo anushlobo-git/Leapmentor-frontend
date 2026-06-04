@@ -2,13 +2,12 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
-import useUnreadCount from "./useUnreadCount";
+import { isLoggedIn } from "@utils/cookies";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
-const useSocketToast = (onRequestChanged) => {
+const useSocketToast = (onRequestChanged, incrementBadge) => {
   const { showToast } = useToast();
-  const { incrementBadge } = useUnreadCount();
 
   const socketRef = useRef(null);
 
@@ -28,8 +27,7 @@ const useSocketToast = (onRequestChanged) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return; // ✅ no token = no socket (onboarding, login pages)
+    if (!isLoggedIn()) return; // ✅ no token = no socket (onboarding, login pages)
     {
       /*
     // ✅ prevent duplicate socket if already connected
@@ -42,7 +40,7 @@ const useSocketToast = (onRequestChanged) => {
     // ✅ added global socket reference to prevent duplicates across multiple hook instances (e.g. multiple pages open)
 
     const socket = io(BASE_URL, {
-      auth: { token },
+      withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 5, // ✅ reduced from 10
       reconnectionDelay: 2000,

@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMenteeOnboarding, clearOnboardingMessages } from "../store/slices/menteeOnboardingSlice";
+import {isLoggedIn} from "@utils/cookies";
 
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
-  const token = localStorage.getItem("token");
+
 
   const [form, setForm] = useState(() => {
     try {
@@ -110,8 +111,7 @@ const useMenteeOnboarding = () => {
       return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
-
-    if (!token) { navigate("/login"); return; }
+    
 
     dispatch(submitMenteeOnboarding({ ...form }));
   };

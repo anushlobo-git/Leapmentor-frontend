@@ -1,6 +1,7 @@
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import axiosInstance from "@utils/axiosInstance";
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -37,38 +38,12 @@ const formatTime = (isoStr) => {
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 };
 
-const isoToHHMM = (isoStr) => {
-  if (!isoStr) return "";
-  const d = new Date(isoStr);
-  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-};
 
-const getBusyWindowsForDate = (dateStr, busySlots) => {
-  if (!busySlots?.length) return [];
-  return busySlots
-    .filter((b) => {
-      const d = new Date(b.start).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-      return d === dateStr;
-    })
-    .map((b) => ({
-      start: b.start,
-      end: b.end,
-      startHHMM: isoToHHMM(b.start),
-      endHHMM: isoToHHMM(b.end),
-      label: `${formatTime(b.start)} – ${formatTime(b.end)}`,
-    }));
-};
 
 const timeToMins = (t) => {
   if (!t) return 0;
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
-};
-
-const isSlotTooShort = (startTime, endTime, minDuration) => {
-  if (!startTime || !endTime) return false;
-  const diffMins = timeToMins(endTime) - timeToMins(startTime);
-  return diffMins > 0 && diffMins < minDuration;
 };
 
 // null = valid, otherwise returns an error string
@@ -571,7 +546,6 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
     onBusySlotsChange?.(slots);
   };
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
   useEffect(() => {
     if (!googleCalendarConnected) {
@@ -579,23 +553,19 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
       setCalendarEvents([]);
       return;
     }
-    const token    = localStorage.getItem("token");
-    const firstDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-01`;
-    const lastDay  = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${new Date(calYear, calMonth + 1, 0).getDate()}`;
+      const firstDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-01`;
+  const lastDay  = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${new Date(calYear, calMonth + 1, 0).getDate()}`;
+  const params   = { startDate: firstDay, endDate: lastDay };
 
-    import("axios").then(({ default: axios }) => {
-      const headers = { Authorization: `Bearer ${token}` };
-      const params  = { startDate: firstDay, endDate: lastDay };
+  axiosInstance.get("/google-calendar/busy", { params })
+    .then(({ data }) => updateBusySlots(data.busy || []))
+    .catch((err) => console.error("Failed to fetch busy slots:", err));
 
-      axios.get(`${BASE_URL}/google-calendar/busy`, { params, headers })
-        .then(({ data }) => updateBusySlots(data.busy || []))
-        .catch((err) => console.error("Failed to fetch busy slots:", err));
+  axiosInstance.get("/google-calendar/events", { params })
+    .then(({ data }) => setCalendarEvents(data.events || []))
+    .catch((err) => console.error("Failed to fetch events:", err));
 
-      axios.get(`${BASE_URL}/google-calendar/events`, { params, headers })
-        .then(({ data }) => setCalendarEvents(data.events || []))
-        .catch((err) => console.error("Failed to fetch events:", err));
-    });
-  }, [googleCalendarConnected, calYear, calMonth]);
+}, [googleCalendarConnected, calYear, calMonth]);
 
   const handleToggleDate = (dateStr) => {
     setSpecificDates((prev) => {

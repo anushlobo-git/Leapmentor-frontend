@@ -15,8 +15,8 @@ import useSocketToast from "../../../hooks/useSocketToast";
 
 const DashboardLayout = () => {
   const { user, profile, loading, error } = useMenteeDashboard();
-  const { unreadCount, clearBadge } = useUnreadCount();
-  useSocketToast();
+  const { unreadCount, clearBadge,incrementBadge } = useUnreadCount();
+  useSocketToast(onRequestChanged,incrementBadge);  
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   useEffect(() => {

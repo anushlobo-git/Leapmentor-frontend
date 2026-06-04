@@ -24,13 +24,6 @@ const formatDateSeparator = (dateStr) => {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 };
 const isSameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
-const getMyId = () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-    return JSON.parse(atob(token.split(".")[1])).id;
-  } catch { return null; }
-};
 
 // ── File Type Config ──────────────────────────────────────────
 const FILE_TYPE_CONFIG = {
@@ -260,10 +253,9 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
 };
 
 // ── Shared Files Section ──────────────────────────────────────
-const SharedFilesSection = ({ connect }) => {
+const SharedFilesSection = ({ connect ,myId }) => {
   const [showUpload, setShowUpload] = useState(false);
   const { notes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
-  const myId = getMyId();
   const isCompleted = connect?.status === "completed";
 
   const handleUpload = async (file, title) => uploadNote(file, title, false);
@@ -351,7 +343,7 @@ const SharedFilesSection = ({ connect }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const SharedNotesTab = ({ connect }) => {
+const SharedNotesTab = ({ connect,myId }) => {
   const [activeView, setActiveView] = useState("shared");
 
   if (!connect?._id) {
@@ -389,7 +381,7 @@ const SharedNotesTab = ({ connect }) => {
         </button>
       </div>
 
-      {activeView === "shared" && <SharedFilesSection connect={connect} />}
+      {activeView === "shared" && <SharedFilesSection connect={connect} myId={myId} />}
       {activeView === "private" && <PrivateNotesTab connect={connect} />}
     </div>
   );

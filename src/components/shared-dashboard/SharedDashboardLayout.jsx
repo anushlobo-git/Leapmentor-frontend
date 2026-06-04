@@ -9,10 +9,12 @@ import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import useSocketToast from "../../hooks/useSocketToast";
+import { useSelector } from "react-redux";
 
 const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
   const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   useSocketToast();
@@ -98,7 +100,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedNotesTab connect={connect} />
+            <SharedNotesTab connect={connect} myId={user?.id} />
           </div>
 
           {/* Add Session */}

@@ -1,10 +1,11 @@
 import { Navigate } from "react-router-dom";
+import { isLoggedIn, getRole } from "@utils/cookies";
 
 const ProtectedRoute = ({ children, role }) => {
-  const token     = localStorage.getItem("token");
-  const storedRole = localStorage.getItem("role");
+  const loggedIn   = isLoggedIn();
+  const storedRole = getRole();
 
-  if (!token) {
+  if (!loggedIn) {
     const redirectTo = role === "mentor"
       ? "/login/mentor"
       : role === "mentee"

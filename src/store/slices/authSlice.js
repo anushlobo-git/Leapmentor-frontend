@@ -1,9 +1,7 @@
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-//helper function for redirection
 export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
   if (targetRole === "mentee" && roles.includes("mentee")) return navigate("/dashboard/mentee");
@@ -19,10 +17,9 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ name, email, password, roles, termsAccepted }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/register`, {
-        name, email, password, roles, termsAccepted,
-      });
-      if (res.data?.token) localStorage.setItem("token", res.data.token);
+      const res = await axiosInstance.post(`/auth/register`, {
+        name, email, password, roles, termsAccepted },
+      );
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Registration failed.");
@@ -34,8 +31,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/login`, { email, password });
-      if (res.data?.token) localStorage.setItem("token", res.data.token);
+      const res = await axiosInstance.post(`/auth/login`, { email, password });
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Login failed.");
@@ -47,7 +43,7 @@ export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/verification/send`, { email: email.trim() });
+      const res = await axiosInstance.post(`/verification/send`, { email: email.trim() });
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to send OTP.");
@@ -59,7 +55,7 @@ export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/verification/verify-otp`, {
+      const res = await axiosInstance.post(`/verification/verify-otp`, {
         email: email.trim(),
         otp,
       });
@@ -74,8 +70,8 @@ export const verifyMagicLink = createAsyncThunk(
   "auth/verifyMagicLink",
   async ({ token, email }, { rejectWithValue }) => {
     try {
-      const res = await axios.get(
-        `${BASE_URL}/verification/verify/${token}?email=${encodeURIComponent(email)}`
+      const res = await axiosInstance.get(
+        `/verification/verify/${token}?email=${encodeURIComponent(email)}`
       );
       return res.data;
     } catch (err) {
@@ -88,7 +84,7 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/forgot-password`, { email: email.trim() });
+      const res = await axiosInstance.post(`/auth/forgot-password`, { email: email.trim() });
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to send OTP.");
@@ -100,7 +96,7 @@ export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/verify-reset-otp`, {
+      const res = await axiosInstance.post(`/auth/verify-reset-otp`, {
         email: email.trim(),
         otp,
       });
@@ -115,7 +111,7 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${BASE_URL}/auth/reset-password`, {
+      const res = await axiosInstance.post(`/auth/reset-password`, {
         email: email.trim(),
         otp,
         newPassword,
@@ -132,7 +128,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user:       null,
-    token:      localStorage.getItem("token") || null,
+    token:       null,
     loading:    false,
     sending:    false,   // for resend/send OTP actions
     error:      null,
@@ -145,8 +141,6 @@ const authSlice = createSlice({
       state.token      = null;
       state.error      = null;
       state.successMsg = null;
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
     },
     //manually sets user data and token
     setUser(state, action) {

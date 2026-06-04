@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
+import { isLoggedIn } from "@utils/cookies";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 const urlBase64ToUint8Array = (base64String) => {
@@ -17,8 +17,7 @@ const usePushNotification = () => {
 
   // ✅ Register service worker + subscribe to push
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!isLoggedIn()) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     const setup = async () => {
@@ -32,10 +31,9 @@ const usePushNotification = () => {
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
 
-        await axios.post(
-          `${BASE_URL}/push/subscribe`,
+        await axiosInstance.post(
+          `/push/subscribe`,
           { subscription },
-          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         console.log("✅ Push notifications enabled");

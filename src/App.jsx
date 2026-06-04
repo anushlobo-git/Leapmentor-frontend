@@ -1,4 +1,5 @@
 // src/App.jsx
+import {Toaster } from "sonner";
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -113,6 +114,7 @@ const App = () => {
            
 
         </Routes>
+        <Toaster/>
       </Suspense>
     </BrowserRouter>
   );

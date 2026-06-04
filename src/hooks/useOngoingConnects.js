@@ -1,8 +1,6 @@
 // src/hooks/useOngoingConnects.js
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
 
 const useOngoingConnects = () => {
   const [ongoing,   setOngoing]   = useState([]);
@@ -14,11 +12,7 @@ const useOngoingConnects = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/connect-requests/ongoing`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const res = await axiosInstance.get("/connect-requests/ongoing");
       const all = res.data.connects || [];
 
       // ✅ Split into ongoing and completed

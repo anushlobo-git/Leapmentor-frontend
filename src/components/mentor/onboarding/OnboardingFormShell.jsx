@@ -12,13 +12,14 @@ import PreferencesSection from "./PreferencesSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
+import { isLoggedIn } from "@utils/cookies";
 
 const OnboardingFormShell = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
-  const token = localStorage.getItem("token");
+  
 
   const [form, setForm] = useState(() => {
     try {
@@ -169,9 +170,6 @@ const OnboardingFormShell = () => {
       return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
-
-    // ── No token → redirect to login ──
-    if (!token) { navigate("/login"); return; }
 
     const payload = {
       ...form,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-
+import axiosInstance from "@utils/axiosInstance"; // Use the configured axios instance with interceptors
 // ─── MENTOR FAQS ─────────────────────────────────────────────────────────────
 
 const mentorFaqs = [
@@ -79,7 +79,6 @@ const INDIGO = "#4f46e5";
 const INDIGO_DARK = "#4338ca";
 const INDIGO_LIGHT = "#eef2ff";
 const INDIGO_BORDER = "#c7d2fe";
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // ─── FAQ ITEM ─────────────────────────────────────────────────────────────────
 
@@ -144,29 +143,21 @@ export default function HelpCenter() {
     }))
     .filter((g) => g.items.length > 0);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/support/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ ...form, role }),
-      });
-      if (!res.ok) throw new Error("Failed to send message");
-      setSubmitted(true);
-      setForm({ email: "", subject: "", message: "" });
-    } catch (err) {
-      setSubmitError("Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // handleSubmit becomes:
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitting(true);
+  setSubmitError("");
+  try {
+    await axiosInstance.post("/support/messages", { ...form, role });
+    setSubmitted(true);
+    setForm({ email: "", subject: "", message: "" });
+  } catch {
+    setSubmitError("Something went wrong. Please try again.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div style={{

@@ -1,9 +1,8 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
+import { isLoggedIn } from "@utils/cookies";
 
 const useMentorEditProfile = () => {
   const navigate = useNavigate();
@@ -28,12 +27,10 @@ const useMentorEditProfile = () => {
 
   // Pre-fill form with existing profile data
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    
     const fetchProfile = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/mentor-profile/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const { data } = await axiosInstance.get("/mentor-profile/me");
         setForm({
           profilePicture: data.profilePicture || "",
           bio: data.bio || "",
@@ -82,8 +79,11 @@ const useMentorEditProfile = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    const token = localStorage.getItem("token");
-    if (!token) { navigate("/login"); return; }
+    
+    if (!isLoggedIn()) {
+      navigate("/login");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -97,9 +97,7 @@ const useMentorEditProfile = () => {
           : form.languages,
       };
 
-      await axios.put(`${BASE_URL}/mentor-profile/me`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axiosInstance.put("/mentor-profile/me", payload);
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);

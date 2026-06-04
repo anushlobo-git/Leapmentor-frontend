@@ -1,8 +1,7 @@
 // src/components/mentor/dashboard/requests/ReferModal.jsx
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const ReferModal = ({ request, onClose, onReferred }) => {
   const [mentors, setMentors]       = useState([]);
@@ -18,10 +17,8 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     const fetchSimilarMentors = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${BASE_URL}/connect-requests/${request._id}/similar-mentors`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        const res = await axiosInstance.get(
+          `/connect-requests/${request._id}/similar-mentors`
         );
         setMentors(res.data.mentors || []);
         setMySkills(res.data.mySkills || []);
@@ -40,11 +37,9 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     try {
       setReferring(true);
       setError("");
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${BASE_URL}/connect-requests/${request._id}/refer`,
-        { referToMentorId: selected.user._id },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axiosInstance.patch(
+        `/connect-requests/${request._id}/refer`,
+        { referToMentorId: selected.user._id }
       );
       setSuccess(true);
       onReferred(request._id, "referred");

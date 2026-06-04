@@ -6,6 +6,7 @@ import store from './store/index.js';
 import './index.css'
 import * as Sentry from "@sentry/react";
 import { ToastProvider } from './context/ToastContext.jsx'
+import logger from './utils/logger.js';
 
 const App = lazy(() => import('./App.jsx'))
 
@@ -15,6 +16,22 @@ Sentry.init({
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
   sendDefaultPii: true
+});
+
+// ✅ Catch unhandled React/UI errors
+window.addEventListener("error", (event) => {
+  logger.error("Unhandled UI Error", {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+  });
+});
+
+// ✅ Catch unhandled asynchronous errors (e.g., failed API promises without .catch)
+window.addEventListener("unhandledrejection", (event) => {
+  logger.error("Unhandled Promise Rejection", {
+    reason: event.reason?.message || event.reason,
+  });
 });
 
 createRoot(document.getElementById('root')).render(

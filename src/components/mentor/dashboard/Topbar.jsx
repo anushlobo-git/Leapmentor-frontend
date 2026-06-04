@@ -1,11 +1,22 @@
 // components/mentee/dashboard/Topbar.jsx
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import axiosInstance from "@utils/axiosInstance";
+import { logout } from "@store/slices/authSlice";
+
+
 
 const Topbar = ({ onMenuToggle, onLogoClick }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post(`/auth/logout`, {}, { withCredentials: true });
+    } catch {
+      // clear state and redirect regardless
+    }
+    dispatch(logout());
     navigate("/login/mentor");
   };
 
