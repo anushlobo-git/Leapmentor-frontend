@@ -5,8 +5,6 @@ import StatusBadge from "./StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // ✅ NEW
-
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
   <div className={`flex items-center justify-between rounded-xl px-3 py-2 border ${

@@ -6,9 +6,6 @@ import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import useSocketToast from "../../../hooks/useSocketToast";
 
-// LCP FIX: lazy-load every tab so only the active tab's JS is loaded.
-// MentorHomeTab is also lazy — its chunk was 120 KiB and is the first thing
-// the user sees, but it still loads faster than blocking the entire shell.
 const MentorHomeTab = lazy(() => import("./MentorHomeTab"));
 const ProfileTab = lazy(() => import("./ProfileTab"));
 const AvailabilityTab = lazy(() => import("./availability/AvailabilityTab"));
@@ -18,7 +15,6 @@ const NotificationsTab = lazy(() => import("./notifications/NotificationsTab"));
 const TrackEarningsTab = lazy(() => import("./earnings/TrackEarningsTab"));
 const HelpCenter = lazy(() => import("../../common/HelpCenter"));
 
-// ── Tab skeleton — shown while a lazy tab chunk is loading ───
 const TabSkeleton = () => (
   <div className="w-full flex flex-col gap-4 animate-pulse pt-2">
     <div className="h-7 w-48 bg-slate-200 rounded-xl" />
@@ -36,9 +32,8 @@ const TabSkeleton = () => (
 
 const DashboardLayout = () => {
   const { user, profile, loading, error, refetchProfile } = useMentorDashboard();
-  const { unreadCount, clearBadge } = useUnreadCount();
-  useSocketToast();
-
+  const { unreadCount, clearBadge, incrementBadge } = useUnreadCount(); // ✅ added incrementBadge
+  useSocketToast(undefined, incrementBadge);                             // ✅ pass incrementBadge
 
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -47,28 +42,26 @@ const DashboardLayout = () => {
     if (activeTab === "notifications") clearBadge();
   }, [activeTab, clearBadge]);
 
-  // Deep link: read ?tab= from URL on mount (e.g. from email links)
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab");
-  const validTabs = ["home", "profile", "availability", "requests", "connects", "notifications", "earnings", "help"];
-  if (tab && validTabs.includes(tab)) {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const validTabs = ["home", "profile", "availability", "requests", "connects", "notifications", "earnings", "help"];
+    if (tab && validTabs.includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
+
+  const handleSetTab = (tab) => {
     setActiveTab(tab);
-  }
-}, []);
-
- const handleSetTab = (tab) => {
-  setActiveTab(tab);
-  setSidebarOpen(false);
-  const url = new URL(window.location.href);
-  if (tab === "home") {
-    url.searchParams.delete("tab");
-  } else {
-    url.searchParams.set("tab", tab);
-  }
-  window.history.replaceState(null, "", url.toString());
-};
-
+    setSidebarOpen(false);
+    const url = new URL(window.location.href);
+    if (tab === "home") {
+      url.searchParams.delete("tab");
+    } else {
+      url.searchParams.set("tab", tab);
+    }
+    window.history.replaceState(null, "", url.toString());
+  };
 
   if (error) {
     return (
@@ -96,8 +89,7 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Topbar renders immediately — user prop is optional, shows skeleton name if null */}
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)}  onLogoClick={() => handleSetTab("home")}/>
+      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
       <div className="flex flex-1">
         <Sidebar
           activeTab={activeTab}
@@ -107,17 +99,15 @@ useEffect(() => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {/* Suspense wraps all tabs — fallback shows a content skeleton
-              while the lazy chunk downloads on first visit to that tab */}
           <Suspense fallback={<TabSkeleton />}>
-            {activeTab === "home" && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab} />}
-            {activeTab === "profile" && <ProfileTab user={user} profile={profile} />}
-            {activeTab === "availability" && <AvailabilityTab />}
-            {activeTab === "requests" && <RequestsTab />}
-            {activeTab === "connects" && <MentorConnectsTab />}
+            {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab} />}
+            {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
+            {activeTab === "availability"  && <AvailabilityTab />}
+            {activeTab === "requests"      && <RequestsTab />}
+            {activeTab === "connects"      && <MentorConnectsTab />}
             {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
-            {activeTab === "earnings" && <TrackEarningsTab />}
-            {activeTab === "help" && <HelpCenter />}
+            {activeTab === "earnings"      && <TrackEarningsTab />}
+            {activeTab === "help"          && <HelpCenter />}
           </Suspense>
         </main>
       </div>

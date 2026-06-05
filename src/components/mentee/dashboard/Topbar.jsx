@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import { logout } from "@store/slices/authSlice";
+import { clearAuthRole } from "@utils/cookies";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
@@ -17,7 +18,8 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
     } catch {
       // even if request fails, clear local state and redirect
     }
-    dispatch(logout());   // clears Redux state
+    dispatch(logout()); 
+    clearAuthRole();  // clears Redux state
     navigate("/");
   };
 

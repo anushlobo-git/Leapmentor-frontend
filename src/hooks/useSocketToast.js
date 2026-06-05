@@ -1,13 +1,15 @@
-// src/hooks/useSocketToast.js
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
+import { useSelector } from "react-redux"; // ✅ added
 import { isLoggedIn } from "@utils/cookies";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
 const useSocketToast = (onRequestChanged, incrementBadge) => {
+  // ✅ incrementBadge as param
   const { showToast } = useToast();
+  const accessToken = useSelector((state) => state.auth.accessToken); // ✅ from Redux
 
   const socketRef = useRef(null);
 
@@ -27,22 +29,15 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    if (!isLoggedIn()) return; // ✅ no token = no socket (onboarding, login pages)
-    {
-      /*
-    // ✅ prevent duplicate socket if already connected
-    if (socketRef.current?.connected) return;*/
-    }
-
-    //the above was the past code i changed it and added below lines
-
-    if (window.__leapSocket?.connected) return; // ✅ globally shared
-    // ✅ added global socket reference to prevent duplicates across multiple hook instances (e.g. multiple pages open)
+    if (!isLoggedIn()) return;
+    if (!accessToken) return; // ✅ wait for silent refresh
+    if (window.__leapSocket?.connected) return;
 
     const socket = io(BASE_URL, {
       withCredentials: true,
+      auth: { token: accessToken }, // ✅ real token from Redux
       reconnection: true,
-      reconnectionAttempts: 5, // ✅ reduced from 10
+      reconnectionAttempts: 5,
       reconnectionDelay: 2000,
       transports: ["websocket", "polling"],
     });
@@ -50,35 +45,32 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
     socketRef.current = socket;
     window.__leapSocket = socket;
 
-    // ✅ removed connect log
-    // ✅ removed disconnect log
-    // ✅ removed cleanup log
-
     socket.on("connect_error", (err) => {
       console.warn("⚠️ Socket error:", err.message);
     });
+
     socket.on("reconnect", () => {
-      window.__leapSocket = socket; // ✅ re-expose after reconnect
+      window.__leapSocket = socket;
     });
 
     socket.on("new_connect_request", ({ title, message, type }) => {
       showToastRef.current({ type: type || "info", title, message });
-      incrementBadgeRef.current();
+      incrementBadgeRef.current?.(); // ✅ safe call
     });
 
     socket.on("request_accepted", ({ title, message, type }) => {
       showToastRef.current({ type: type || "success", title, message });
-      incrementBadgeRef.current();
+      incrementBadgeRef.current?.(); // ✅
     });
 
     socket.on("request_declined", ({ title, message, type }) => {
       showToastRef.current({ type: type || "warning", title, message });
-      incrementBadgeRef.current();
+      incrementBadgeRef.current?.(); // ✅
     });
 
     socket.on("request_referred", ({ title, message, type }) => {
       showToastRef.current({ type: type || "info", title, message });
-      incrementBadgeRef.current();
+      incrementBadgeRef.current?.(); // ✅
     });
 
     socket.on("request_status_changed", (data) => {
@@ -92,7 +84,7 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
         window.__leapSocket = null;
       }
     };
-  }, []);
+  }, [accessToken]); // ✅ re-run when token is ready
 };
 
 export default useSocketToast;

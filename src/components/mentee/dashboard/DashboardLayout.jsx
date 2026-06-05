@@ -14,8 +14,10 @@ import HelpCenter from "../../common/HelpCenter";
 import useSocketToast from "../../../hooks/useSocketToast"; 
 
 const DashboardLayout = () => {
-  const { user, profile, loading, error } = useMenteeDashboard();
+  const { user, profile, loading, error, refetch } = useMenteeDashboard();
   const { unreadCount, clearBadge,incrementBadge } = useUnreadCount();
+
+  const onRequestChanged = () => refetch?.(); 
   useSocketToast(onRequestChanged,incrementBadge);  
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);

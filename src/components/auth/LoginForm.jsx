@@ -27,8 +27,8 @@ const LoginForm = ({ placeholder, registerPath }) => {
 
   useEffect(() => { return () => setLoading(false); }, []);
 
-  const handlePostAuth = (user) => {
-  dispatch(setUser({ token: null, user }));
+  const handlePostAuth = (user,accessToken) => {
+  dispatch(setUser({ accessToken, user }));
 
   const roles = user?.roles || [];
   const primaryRole = roles.includes("mentor") 
@@ -38,7 +38,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
     : null;
 
   if (primaryRole) {
-    setAuthRole(primaryRole); // ✅ this is what was missing
+    setAuthRole(primaryRole); // this is what was missing
   } else {
     setMsg({ type: "error", text: "No role found. Please register first." });
     return;
@@ -53,7 +53,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
     roles: [],
     dispatch,
     setUser,
-    onSuccess: (data) => handlePostAuth( data?.user),
+    onSuccess: (data) => handlePostAuth( data?.user, data?.accessToken),
     onError:   (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
   });
@@ -75,7 +75,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
         password: form.password },
     );
 
-      handlePostAuth( res.data?.user);
+      handlePostAuth( res.data?.user, res.data?.accessToken);
     } catch (err) {
       const status = err?.response?.status;
       const data   = err?.response?.data;

@@ -128,7 +128,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user:       null,
-    token:       null,
+    accessToken:null,
     loading:    false,
     sending:    false,   // for resend/send OTP actions
     error:      null,
@@ -138,14 +138,14 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       state.user       = null;
-      state.token      = null;
+      state.accessToken      = null;
       state.error      = null;
       state.successMsg = null;
     },
     //manually sets user data and token
     setUser(state, action) {
       state.user  = action.payload.user;
-      state.token = action.payload.token;
+      state.accessToken = action.payload.accessToken;
     },
     clearMessages(state) {
       state.error      = null;
@@ -162,7 +162,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading    = false;
-        state.token      = action.payload.token || null;
+        state.accessToken  = action.payload.accessToken || null;
         state.user       = action.payload.user  || null;
         state.successMsg = "Account created! Please verify your email.";
       })
@@ -180,7 +180,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading    = false;
-        state.token      = action.payload.token || null;
+        state.accessToken = action.payload.accessToken || null;
         state.user       = action.payload.user  || null;
         state.successMsg = "Login successful!";
       })

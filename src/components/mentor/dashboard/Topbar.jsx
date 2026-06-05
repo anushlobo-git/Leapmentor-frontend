@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import { logout } from "@store/slices/authSlice";
-
+import { clearAuthRole } from "@utils/cookies";
 
 
 const Topbar = ({ onMenuToggle, onLogoClick }) => {
@@ -12,11 +12,12 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post(`/auth/logout`, {}, { withCredentials: true });
+      await axiosInstance.post(`/auth/logout`);
     } catch {
       // clear state and redirect regardless
     }
     dispatch(logout());
+    clearAuthRole();
     navigate("/login/mentor");
   };
 

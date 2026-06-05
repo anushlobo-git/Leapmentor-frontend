@@ -83,7 +83,7 @@ const useGoogleAuth = ({
 
               // ✅ Sync user into Redux (no token needed, it's in httpOnly cookie)
               callbackRef.dispatch?.(
-                callbackRef.setUser({ token: null, user: user || null }),
+                callbackRef.setUser({ accessToken: res.data.accessToken, user: user || null }),
               );
 
               callbackRef.onSuccess?.(res.data);
