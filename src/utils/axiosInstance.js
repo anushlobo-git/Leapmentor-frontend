@@ -62,6 +62,10 @@ axiosInstance.interceptors.response.use(
       url: response.config.url,
       durationMs: startTime ? Date.now() - startTime : null,
       correlationId,
+      contentLength:
+        response.headers["content-length"] ??
+        JSON.stringify(response.data).length ??
+        null,
     });
     return response;
   },

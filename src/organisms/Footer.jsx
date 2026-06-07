@@ -18,8 +18,8 @@ export default function Footer() {
   const navigate = useNavigate();
 
   const handleLinkClick = (link) => {
-    if (link === "Find a Mentor") return navigate("/register/mentee");
-    if (link === "Become a Mentor") return navigate("/register/mentor");
+    if (link === "Find a Mentor") return navigate("/register");
+    if (link === "Become a Mentor") return navigate("/register");
     if (link === "Contact") return setIsContactOpen(true);
   };
 

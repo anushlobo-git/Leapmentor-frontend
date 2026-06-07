@@ -183,7 +183,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
       <p className="text-sm text-slate-500 text-center mt-8">
         Don't have an account?{" "}
         <span className="text-blue-900 font-semibold cursor-pointer hover:underline"
-          onClick={() => navigate(registerPath || "/register/mentee")}>
+          onClick={() => navigate(registerPath || "/register")}>
           Register here
         </span>
       </p>
