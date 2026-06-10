@@ -133,7 +133,7 @@ const resolveNavigation = (notif, setActiveTab) => {
   switch (type) {
     case "connect_request_received":
     case "connect_request_declined":
-      setActiveTab("requests");
+      setActiveTab("history");
       break;
 
     case "connect_request_accepted":
@@ -277,7 +277,8 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const NotificationsTab = ({ setActiveTab }) => {
+const NotificationsTab = () => {
+  const {setActiveTab} = useDashboardContext();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

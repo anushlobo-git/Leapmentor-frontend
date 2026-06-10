@@ -5,8 +5,10 @@ import ProfessionalInfoCard from "./ProfessionalInfoCard";
 import SkillsCard from "./SkillsCard";
 import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialCard from "./SocialCard";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
-const ProfileTab = ({ user, profile }) => {
+const ProfileTab = () => {
+  const { user, profile } = useDashboardContext();
   const navigate = useNavigate();
 
   return (

@@ -109,7 +109,7 @@ function TypingDots() {
 
 // ─── Main LeapBuddy Component ─────────────────────────────────────────────────
 
-export default function LeapBuddy({ role = "mentee", user = null, profile = null }) {
+export default function LeapBuddy({ role = "mentee" , user = null, profile = null }) {
   // Merge user + profile into one context object for the AI
   const userContext = {
     name: user?.name || null,

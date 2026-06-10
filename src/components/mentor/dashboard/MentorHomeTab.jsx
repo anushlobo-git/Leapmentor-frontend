@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
+import { useDashboardContext } from "../../../context/DashboardContext";
 
 
 const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
@@ -163,7 +164,8 @@ const EarningsSkeleton = () => (
   </div>
 );
 
-const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
+const MentorHomeTab = () => {
+  const {user,profile,refetchProfile,setActiveTab} = useDashboardContext();
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
