@@ -77,7 +77,7 @@ export default function Navbar() {
                   title="Find a Mentor"
                   subtitle="Accelerate your growth"
                   iconBg="bg-blue-100"
-                  onClick={() => { navigate("/register/mentee"); setRegisterOpen(false); }}
+                  onClick={() => { navigate("/register"); setRegisterOpen(false); }}
                 />
 
               </div>
@@ -116,7 +116,7 @@ export default function Navbar() {
             🚀 Become a Mentor
           </button>
           <button
-            onClick={() => { navigate("/register/mentee"); setMenuOpen(false); }}
+            onClick={() => { navigate("/register"); setMenuOpen(false); }}
             className="w-full px-5 py-2 text-sm font-semibold text-blue-900 border-2 border-blue-900 rounded-lg hover:bg-blue-50 transition-colors"
           >
             🎓 Find a Mentor

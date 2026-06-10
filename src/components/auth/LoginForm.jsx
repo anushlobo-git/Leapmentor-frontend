@@ -2,18 +2,17 @@
 import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 import { setUser } from "../../store/slices/authSlice";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import FullScreenLoader from "../FullScreenLoader";
+import { setAuthRole } from "@utils/cookies"; 
 
-const BASE_URL     = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL || "http://localhost:5000";
-// VITE_APP_BASE_URL should be "http://localhost:5000" — no /api/v1
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
 const LoginForm = ({ placeholder, registerPath }) => {
   const navigate    = useNavigate();
@@ -28,29 +27,33 @@ const LoginForm = ({ placeholder, registerPath }) => {
 
   useEffect(() => { return () => setLoading(false); }, []);
 
-  const handlePostAuth = (token, user) => {
-    if (token) localStorage.setItem("token", token);
-    dispatch(setUser({ token, user }));
-    const roles = user?.roles || [];
-    if (roles.includes("mentor")) {
-      localStorage.setItem("role", "mentor");
-      setRedirecting(true);
-      setTimeout(() => navigate("/dashboard/mentor"), 800);
-    } else if (roles.includes("mentee")) {
-      localStorage.setItem("role", "mentee");
-      setRedirecting(true);
-      setTimeout(() => navigate("/dashboard/mentee"), 800);
-    } else {
-      setMsg({ type: "error", text: "No role found. Please register first." });
-    }
-  };
+  const handlePostAuth = (user,accessToken) => {
+  dispatch(setUser({ accessToken, user }));
+
+  const roles = user?.roles || [];
+  const primaryRole = roles.includes("mentor") 
+    ? "mentor" 
+    : roles.includes("mentee") 
+    ? "mentee" 
+    : null;
+
+  if (primaryRole) {
+    setAuthRole(primaryRole); // this is what was missing
+  } else {
+    setMsg({ type: "error", text: "No role found. Please register first." });
+    return;
+  }
+
+  setRedirecting(true);
+  setTimeout(() => navigate(`/dashboard/${primaryRole}`), 800);
+};
 
   useGoogleAuth({
     btnRef: googleBtnRef,
     roles: [],
     dispatch,
     setUser,
-    onSuccess: (data) => handlePostAuth(data?.token, data?.user),
+    onSuccess: (data) => handlePostAuth( data?.user, data?.accessToken),
     onError:   (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
   });
@@ -59,21 +62,20 @@ const LoginForm = ({ placeholder, registerPath }) => {
   const handleLinkedIn = () => {
     // On login we don't know the role yet — backend will resolve it
     // via the existing OAuthAccount → user lookup in socialAuthUser()
-    window.location.href = `${BASE_URL}/auth/linkedin?termsAccepted=true`;
+    window.location.href = `${API_BASE}/auth/linkedin?termsAccepted=true`;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("adminToken");
       setLoading(true);
-      const res = await axios.post(`${BASE_URL}/auth/login`, {
+      const res = await axiosInstance.post(`/auth/login`, {
         email:    form.email.trim(),
-        password: form.password,
-      });
-      handlePostAuth(res.data?.token, res.data?.user);
+        password: form.password },
+    );
+
+      handlePostAuth( res.data?.user, res.data?.accessToken);
     } catch (err) {
       const status = err?.response?.status;
       const data   = err?.response?.data;
@@ -181,7 +183,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
       <p className="text-sm text-slate-500 text-center mt-8">
         Don't have an account?{" "}
         <span className="text-blue-900 font-semibold cursor-pointer hover:underline"
-          onClick={() => navigate(registerPath || "/register/mentee")}>
+          onClick={() => navigate(registerPath || "/register")}>
           Register here
         </span>
       </p>

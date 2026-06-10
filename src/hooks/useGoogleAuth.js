@@ -1,17 +1,15 @@
 import { useEffect, useRef } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
+import { setAuthRole } from "@utils/cookies"; 
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-// Store callbacks outside the hook so they stay fresh across re-renders
-// but initialize() is only called once per app lifetime
 const callbackRef = {
   onSuccess: null,
   onError: null,
   onLoadingChange: null,
   rolesRef: null,
-  termsAcceptedRef: null, 
+  termsAcceptedRef: null,
   dispatch: null,
   setUser: null,
 };
@@ -19,7 +17,7 @@ const callbackRef = {
 const useGoogleAuth = ({
   btnRef,
   roles,
-  termsAcceptedRef, // ✅ FIX 1: now properly received and used
+  termsAcceptedRef,
   onSuccess,
   onError,
   onLoadingChange,
@@ -32,15 +30,13 @@ const useGoogleAuth = ({
     rolesRef.current = roles;
   }, [roles]);
 
-  // Always keep the global callbackRef up to date so the frozen
-  // Google callback always calls the latest handlers
   callbackRef.onSuccess = onSuccess;
   callbackRef.onError = onError;
   callbackRef.onLoadingChange = onLoadingChange;
   callbackRef.rolesRef = rolesRef;
   callbackRef.termsAcceptedRef = termsAcceptedRef;
-  callbackRef.dispatch = dispatch; 
-callbackRef.setUser = setUser;  
+  callbackRef.dispatch = dispatch;
+  callbackRef.setUser = setUser;
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
@@ -51,15 +47,12 @@ callbackRef.setUser = setUser;
     const initGoogle = () => {
       if (!btnRef.current) return;
 
-      // Only initialize once for the entire app lifetime
       if (!window.__googleInitialized) {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
-            //  FIX 1: Read termsAccepted from the live ref, not hardcoded true
-const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
+            const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
 
-            // FIX 2: Validate terms before hitting the backend
             if (!termsAccepted) {
               callbackRef.onError?.("Please accept the terms to continue.");
               return;
@@ -68,22 +61,30 @@ const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
             try {
               callbackRef.onLoadingChange?.(true);
 
-              const res = await axios.post(`${BASE_URL}/auth/google`, {
+              const res = await axiosInstance.post(`/auth/google`, {
                 credential: response.credential,
                 roles: callbackRef.rolesRef.current,
                 termsAccepted: true,
               });
 
-              // ✅ FIX 3: Store token BEFORE calling onSuccess so the
-              // dashboard never fires API calls without a token
-              if (res.data?.token) {
-                localStorage.setItem("token", res.data.token);
+              const user = res.data?.user;
+              const roles = user?.roles || [];
 
-                // ✅ Add this line — sync token into Redux so slices can read it
-callbackRef.dispatch?.(callbackRef.setUser({ token: res.data.token, user: res.data.user || null }));
+              // ✅ Set authRole cookie so ProtectedRoute works
+              const primaryRole = roles.includes("mentor")
+                ? "mentor"
+                : roles.includes("mentee")
+                  ? "mentee"
+                  : null;
 
-                await new Promise((resolve) => setTimeout(resolve, 50));
+              if (primaryRole) {
+                setAuthRole(primaryRole);
               }
+
+              // ✅ Sync user into Redux (no token needed, it's in httpOnly cookie)
+              callbackRef.dispatch?.(
+                callbackRef.setUser({ accessToken: res.data.accessToken, user: user || null }),
+              );
 
               callbackRef.onSuccess?.(res.data);
             } catch (err) {
@@ -91,7 +92,7 @@ callbackRef.dispatch?.(callbackRef.setUser({ token: res.data.token, user: res.da
                 err?.response?.data?.message ||
                 err?.response?.data?.error ||
                 err?.message ||
-                "Already user exists";
+                "Google sign-in failed";
               callbackRef.onError?.(apiMsg);
             } finally {
               callbackRef.onLoadingChange?.(false);
@@ -101,7 +102,6 @@ callbackRef.dispatch?.(callbackRef.setUser({ token: res.data.token, user: res.da
         window.__googleInitialized = true;
       }
 
-      // Always re-render the button — safe to call multiple times
       btnRef.current.innerHTML = "";
       window.google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",

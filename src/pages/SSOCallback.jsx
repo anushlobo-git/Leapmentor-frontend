@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authSlice";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
+import { setAuthRole } from "@utils/cookies";
 
 const SSOCallback = () => {
   const navigate = useNavigate();
@@ -16,9 +15,9 @@ const SSOCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
-     console.log("SSOCallback mounted, code:", code?.slice(0, 10));
-  console.log("sessionStorage value:", sessionStorage.getItem("linkedin_code_used")?.slice(0, 10));
-  
+    console.log("SSOCallback mounted, code:", code?.slice(0, 10));
+    console.log("sessionStorage value:", sessionStorage.getItem("linkedin_code_used")?.slice(0, 10));
+
     const state = params.get("state");
     const provider = params.get("provider");
 
@@ -44,36 +43,28 @@ const SSOCallback = () => {
 
     const exchange = async () => {
       try {
-        const res = await axios.post(`${BASE_URL}/auth/linkedin/token`, {
+        const res = await axiosInstance.post("/auth/linkedin/token", {
           code,
           roles: role ? [role] : undefined,
           termsAccepted,
         });
 
-        sessionStorage.removeItem("linkedin_code_used");  // cleanup on success
+        sessionStorage.removeItem("linkedin_code_used");
 
-        const { token, user, isNewUser } = res.data;
-
-        localStorage.setItem("token", token);
-
+        const { user, isNewUser } = res.data;
         const resolvedRole = user?.roles?.includes("mentor") ? "mentor" : "mentee";
-        localStorage.setItem("role", resolvedRole);
 
-        dispatch(setUser({ token, user }));
+        dispatch(setUser({ accessToken: res.data.accessToken || null, user })); // ✅
+        setAuthRole(resolvedRole);
 
-        await new Promise((r) => setTimeout(r, 50));
-
-        if (isNewUser) {
-          navigate(`/onboarding/${resolvedRole}`, { replace: true });
-        } else {
-          navigate(`/dashboard/${resolvedRole}`, { replace: true });
-        }
+        navigate(
+          isNewUser ? `/onboarding/${resolvedRole}` : `/dashboard/${resolvedRole}`,
+          { replace: true }
+        );
       } catch (err) {
-        sessionStorage.removeItem("linkedin_code_used");  // cleanup on failure
+        sessionStorage.removeItem("linkedin_code_used");
         const msg = err?.response?.data?.message || err.message || "LinkedIn sign-in failed.";
         setError(msg);
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
       }
     };
 

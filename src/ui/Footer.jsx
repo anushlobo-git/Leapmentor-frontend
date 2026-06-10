@@ -16,8 +16,8 @@ export default function Footer() {
 
   // Same routes the navbar uses
   const handleLinkClick = (link) => {
-    if (link === "Find a Mentor") return navigate("/register/mentee");
-    if (link === "Become a Mentor") return navigate("/register/mentor");
+    if (link === "Find a Mentor") return navigate("/register");
+    if (link === "Become a Mentor") return navigate("/register");
   };
 
   return (

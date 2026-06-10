@@ -1,10 +1,9 @@
 // src/pages/SharedDashboardPage.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 import SharedDashboardLayout from "../components/shared-dashboard/SharedDashboardLayout";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { isLoggedIn } from "@utils/cookies";
 
 const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
 
@@ -31,11 +30,9 @@ const SharedDashboardPage = () => {
 
   const fetchConnect = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) { navigate("/login"); return; }
-      const res = await axios.get(
-        `${BASE_URL}/connect-requests/${connectRequestId}/detail`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      if (!isLoggedIn()) { navigate("/login"); return; }
+      const res = await axiosInstance.get(
+        `/connect-requests/${connectRequestId}/detail`
       );
       setConnect(res.data.connect);
     } catch (err) {

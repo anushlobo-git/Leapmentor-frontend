@@ -1,8 +1,6 @@
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
 
 const BADGES = [
   {
@@ -61,10 +59,7 @@ const useMentorSettings = (initialProfile) => {
   const fetchProfile = async () => {
     try {
       setFetching(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/mentor-profile/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get("/mentor-profile/me");
       const p = res.data;
       setProfile(p);
       setHourlyRate(p.hourlyRate ?? "");
@@ -84,16 +79,11 @@ const useMentorSettings = (initialProfile) => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}/mentor-profile/me`,
-        {
-          hourlyRate: Number(hourlyRate) || 0,
-          emailNotifications,
-          isProfilePublished: publicProfile,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axiosInstance.put("/mentor-profile/me", {
+        hourlyRate: Number(hourlyRate) || 0,
+        emailNotifications,
+        isProfilePublished: publicProfile,
+      });
       setMsg({ type: "success", text: "Settings saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
     } catch (err) {

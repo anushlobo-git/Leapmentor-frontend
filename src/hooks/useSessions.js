@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-});
+import axiosInstance from "@utils/axiosInstance";
 
 const useSessions = (connectRequestId, onAllComplete) => {
   const [slots, setSlots] = useState([]);
@@ -42,10 +37,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     try {
       if (!silent) setLoading(true);
       setError(null);
-      const res = await axios.get(
-        `${BASE_URL}/sessions/${connectRequestId}/slots`,
-        { headers: authHeader() },
-      );
+      const res = await axiosInstance.get(`/sessions/${connectRequestId}/slots`);
       applySlotUpdate(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load sessions.");
@@ -74,11 +66,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axios.patch(
-          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/meeting-link`,
-          { meetingLink },
-          { headers: authHeader() },
-        );
+        const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/meeting-link`, { meetingLink });
         setSlots((prev) =>
           prev.map((s, i) =>
             i === slotIndex ? { ...s, meetingLink: res.data.slot.meetingLink } : s,
@@ -101,10 +89,9 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axios.patch(
-          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
+        const res = await axiosInstance.patch(
+          `/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
           {},
-          { headers: authHeader() },
         );
         applySlotUpdate(res.data); // ✅ replaces manual setSlots/setCompletedSlots/setProgress
         return { success: true, ...res.data };
@@ -123,11 +110,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(-1, true);
         setError(null);
-        const res = await axios.post(
-          `${BASE_URL}/sessions/${connectRequestId}/add-slot`,
-          { day, date, startTime, endTime },
-          { headers: authHeader() },
-        );
+        const res = await axiosInstance.post(`/sessions/${connectRequestId}/add-slot`, { day, date, startTime, endTime });
         applySlotUpdate(res.data);
         return { success: true, slotId: res.data.slotId ?? null };
       } catch (err) {
@@ -146,11 +129,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axios.patch(
-          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/cancel`,
-          { reason },
-          { headers: authHeader() },
-        );
+        const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/cancel`, { reason });
         applySlotUpdate(res.data);
         return { success: true, ...res.data };
       } catch (err) {
@@ -169,11 +148,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axios.patch(
-          `${BASE_URL}/sessions/${connectRequestId}/slots/${slotIndex}/reschedule`,
-          { date, startTime, endTime },
-          { headers: authHeader() },
-        );
+        const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/reschedule`, { date, startTime, endTime });
         applySlotUpdate(res.data);
         return { success: true, ...res.data };
       } catch (err) {

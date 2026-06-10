@@ -1,15 +1,10 @@
 // src/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
 
 const useSlotLock = (mentorId) => {
   const lockedKeys = useRef(new Set()); // tracks keys this session locked
 
-  const getHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  });
 
   // ─────────────────────────────────────────────
   // Lock a slot — called when mentee selects
@@ -17,11 +12,7 @@ const useSlotLock = (mentorId) => {
   // ─────────────────────────────────────────────
   const lockSlot = useCallback(async (date, startTime, endTime) => {
     try {
-      const res = await axios.post(
-        `${BASE_URL}/slot-locks/lock`,
-        { mentorId, date, startTime, endTime },
-        { headers: getHeaders() }
-      );
+      const res = await axiosInstance.post("/slot-locks/lock", { mentorId, date, startTime, endTime });
       lockedKeys.current.add(`${date}-${startTime}`);
       return { ok: true, expiresAt: res.data.expiresAt };
     } catch (err) {
@@ -36,11 +27,7 @@ const useSlotLock = (mentorId) => {
   // ─────────────────────────────────────────────
   const unlockSlot = useCallback(async (date, startTime, endTime) => {
     try {
-      await axios.post(
-        `${BASE_URL}/slot-locks/unlock`,
-        { mentorId, date, startTime, endTime },
-        { headers: getHeaders() }
-      );
+      await axiosInstance.post("/slot-locks/unlock", { mentorId, date, startTime, endTime });
       lockedKeys.current.delete(`${date}-${startTime}`);
     } catch (err) {
       // Silently fail — lock will expire via TTL anyway
@@ -53,11 +40,7 @@ const useSlotLock = (mentorId) => {
   // ─────────────────────────────────────────────
   const unlockAll = useCallback(async () => {
     try {
-      await axios.post(
-        `${BASE_URL}/slot-locks/unlock-all`,
-        { mentorId },
-        { headers: getHeaders() }
-      );
+      await axiosInstance.post("/slot-locks/unlock-all", { mentorId }); 
       lockedKeys.current.clear();
     } catch (err) {
       console.warn("unlock-all failed silently:", err?.message);

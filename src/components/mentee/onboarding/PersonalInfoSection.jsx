@@ -1,8 +1,6 @@
 // components/mentee/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
 
 const PersonalInfoSection = ({ form, handleChange }) => {
   const fileInputRef          = useRef(null);
@@ -26,20 +24,14 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     setUploading(true);
 
     try {
-      const token = localStorage.getItem("token");
+      
 
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const res = await axios.post(
-        `${BASE_URL}/upload/profile-picture`,
+      const res = await axiosInstance.post(
+        `/upload/profile-picture`,
         formData,
-        {
-          headers: {
-            Authorization:  `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
       );
 
       handleChange({

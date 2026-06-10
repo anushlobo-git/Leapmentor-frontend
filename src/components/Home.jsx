@@ -1,3 +1,4 @@
+//not being used currently, but keeping for potential future use
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@organisms/Navbar";

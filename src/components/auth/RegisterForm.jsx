@@ -136,15 +136,15 @@ const RegisterForm = ({ role }) => {
   return (
     <>
       {redirecting && <FullScreenLoader message="Setting up your account…" />}
-      <AuthBrand logo={<LeapMentorLogo />} />
+      
 
       <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1.5">
         Register as {role === "mentor" ? "Mentor" : "Mentee"}
       </h1>
       <p className="text-sm text-slate-500 leading-relaxed mb-6">
         {role === "mentor"
-          ? "Create your LeapMentor mentor account to start making an impact."
-          : "Create your LeapMentor mentee account to start growing."}
+          ? "Create your mentor account to start making an impact."
+          : "Create your mentee account to start growing."}
       </p>
 
       {localMsg.type === "error" && <AuthMessageBanner type="error" text={localMsg.text} />}

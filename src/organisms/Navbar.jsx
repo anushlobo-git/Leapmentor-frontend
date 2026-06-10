@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@atoms/Logo";
 import Button from "@atoms/Button";
-import RegisterDropdown from "@molecules/RegisterDropdown";
 import RegisterDropdownItem from "@molecules/RegisterDropdownItem";
 import HamburgerIcon from "@atoms/HamburgerIcon";
 
@@ -27,7 +26,9 @@ export default function Navbar() {
 
         {/* Desktop Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <RegisterDropdown />
+          <Button variant="outline" onClick={() => navigate("/register")}>
+            Register
+          </Button>
           <Button variant="primary" onClick={() => navigate("/login")}>
             Login
           </Button>
@@ -47,21 +48,13 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-white border-t border-gray-100">
 
+          
           <Button
             variant="outline"
             fullWidth
-            onClick={() => { navigate("/register/mentor"); setMenuOpen(false); }}
+            onClick={() => { navigate("/register"); setMenuOpen(false); }}
           >
-            Become a Mentor
-          </Button>
-            
-
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={() => { navigate("/register/mentee"); setMenuOpen(false); }}
-          >
-            Find a Mentor
+            Register
           </Button>
 
 

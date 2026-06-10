@@ -16,9 +16,11 @@ import { DashboardContext } from "../../../context/DashboardContext";
 import LeapBuddy from "../../LeapBuddy";
 
 const DashboardLayout = () => {
-  const { user, profile, loading, error } = useMenteeDashboard();
-  const { unreadCount, clearBadge } = useUnreadCount();
-  useSocketToast();
+  const { user, profile, loading, error, refetch } = useMenteeDashboard();
+  const { unreadCount, clearBadge,incrementBadge } = useUnreadCount();
+
+  const onRequestChanged = () => refetch?.(); 
+  useSocketToast(onRequestChanged,incrementBadge);  
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   useEffect(() => {

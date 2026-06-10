@@ -1,8 +1,8 @@
 // components/mentor/verification/VerificationFormShell.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import axios from "axios";
+//import { useSelector } from "react-redux";
+import axiosInstance  from "@utils/axiosInstance";
 import FullScreenLoader from "../../components/FullScreenLoader";
 import PhoneNumberField     from "./PhoneNumberField";
 import ResumeUpload         from "./ResumeUpload";
@@ -13,7 +13,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const VerificationFormShell = () => {
   const navigate = useNavigate();
-  const token = useSelector((state) => state.auth.token);
+  
 
   // ── Form state ──
   const [phoneNumber,          setPhoneNumber]          = useState("");
@@ -78,12 +78,7 @@ const VerificationFormShell = () => {
         formData.append("workExperienceDocs", file);
       });
 
-      await axios.post(`${BASE_URL}/upload/verification-documents`, formData, {
-        headers: {
-          Authorization:  `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axiosInstance.post(`/upload/verification-documents`, formData);
 
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentor"), 1500);

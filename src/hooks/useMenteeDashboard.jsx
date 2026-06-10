@@ -1,9 +1,8 @@
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
+import { isLoggedIn } from "@utils/cookies";
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
@@ -15,76 +14,59 @@ const useMenteeDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
+  const fetchData = async () => {  // ✅ moved outside useEffect
+    if (!isLoggedIn()) {
       navigate("/login");
       return;
     }
+    try {
+      const userRes  = await axiosInstance.get("/users/me");
+      const userData = userRes.data;
 
-    const authHeader = { Authorization: `Bearer ${token}` };
+      if (!userData.roles?.includes("mentee")) {
+        navigate("/dashboard/mentor");
+        return;
+      }
+      setUser(userData);
 
-    const fetchData = async () => {
+      let profileData = null;
       try {
-
-        // 1) Fetch user
-        const userRes = await axios.get(`${BASE_URL}/users/me`, { headers: authHeader });
-        const userData = userRes.data;
-
-        // 2) Role guard
-        if (!userData.roles?.includes("mentee")) {
-          navigate("/dashboard/mentor");
-          return;
-        }
-
-        setUser(userData);
-
-        // 3) Fetch mentee profile
-        let profileData = null;
-        try {
-          const profileRes = await axios.get(`${BASE_URL}/mentee-profile/me`, { headers: authHeader });
-          profileData = profileRes.data;
-        } catch (profileErr) {
-          if (profileErr?.response?.status === 404) {
-            if (!isEditPage) navigate("/onboarding/mentee");
-            return;
-          }
-          if (profileErr?.response?.status === 401) {
-            localStorage.removeItem("token");
-            navigate("/login");
+        const profileRes = await axiosInstance.get("/mentee-profile/me");
+        profileData = profileRes.data;
+      } catch (profileErr) {
+        if (profileErr?.response?.status === 404) {
+          if (!isEditPage) {
             setLoading(false);
-            return;
+            navigate("/onboarding/mentee");
           }
-          throw profileErr;
-        }
-
-        setProfile(profileData);
-
-        // 4) Onboarding incomplete
-        if (!profileData?.isProfileComplete && !isEditPage) {
-          navigate("/onboarding/mentee");
           return;
         }
+        throw profileErr;
+      }
 
-        // 5) All good — show dashboard
+      setProfile(profileData);
+
+      if (!profileData?.isProfileComplete && !isEditPage) {
         setLoading(false);
+        navigate("/onboarding/mentee");
+        return;
+      }
 
-      } catch (err) {
-        if (err?.response?.status === 401) {
-          localStorage.removeItem("token");
-          navigate("/login");
-          return;
-        }
+      setLoading(false);
+
+    } catch (err) {
+      if (err?.response?.status !== 401) {
         setError("Something went wrong. Please try again.");
         setLoading(false);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { user, profile, loading, error };
+  return { user, profile, loading, error, refetch: fetchData }; // ✅ exposed
 };
 
 export default useMenteeDashboard;

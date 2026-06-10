@@ -1,9 +1,8 @@
 // src/hooks/useMentorDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "@utils/axiosInstance";
+import { isLoggedIn } from "@utils/cookies";
 
 const useMentorDashboard = () => {
   const navigate = useNavigate();
@@ -17,10 +16,7 @@ const useMentorDashboard = () => {
 
   const refetchProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/mentor-profile/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get("/mentor-profile/me");
       setProfile(res.data);
     } catch (err) {
       console.error("Profile refetch failed:", err.message);
@@ -28,20 +24,17 @@ const useMentorDashboard = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
 
-    if (!token) {
+    if (!isLoggedIn()) {
       navigate("/login");
       return;
     }
-
-    const authHeader = { Authorization: `Bearer ${token}` };
 
     const fetchData = async () => {
       try {
 
         // 1) Fetch user
-        const userRes = await axios.get(`${BASE_URL}/users/me`, { headers: authHeader });
+        const userRes = await axiosInstance.get("/users/me");
         const userData = userRes.data;
 
         // 2) Role guard
@@ -55,18 +48,18 @@ const useMentorDashboard = () => {
         // 3) Fetch mentor profile
         let profileData = null;
         try {
-          const profileRes = await axios.get(`${BASE_URL}/mentor-profile/me` , { headers: authHeader });
+          const profileRes = await axiosInstance.get("/mentor-profile/me");
           profileData = profileRes.data;
         } catch (profileErr) {
           if (profileErr?.response?.status === 404) {
             // New mentor — no profile yet
             if (!isEditPage) {
+               setLoading(false); 
               navigate("/onboarding/mentor");
             }
             return;
           }
           if (profileErr?.response?.status === 401) {
-            localStorage.removeItem("token");
             navigate("/login");
             return;
           }
@@ -77,6 +70,7 @@ const useMentorDashboard = () => {
 
         // 4) Onboarding incomplete → redirect
         if (!profileData?.isProfileComplete && !isEditPage) {
+          setLoading(false);
           navigate("/onboarding/mentor");
           return;
         }
@@ -86,7 +80,6 @@ const useMentorDashboard = () => {
 
       } catch (err) {
         if (err?.response?.status === 401) {
-          localStorage.removeItem("token");
           navigate("/login");
           return;
         }

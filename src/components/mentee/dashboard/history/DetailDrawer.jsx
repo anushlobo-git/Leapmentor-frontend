@@ -1,11 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } from "./constants";
 import StatusBadge from "./StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // ✅ NEW
 
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
@@ -55,7 +53,7 @@ const PendingContent = ({ request, onDelete }) => {
 
 // ── Accepted content ────────────────────────────────────────
 const AcceptedContent = ({ request, onClose, onPayClick }) => {
-  const { confirmedSlot, selectedSlots = [], message } = request;
+  const { selectedSlots = [], message } = request;
 
   return (
     <div className="space-y-4">
@@ -116,10 +114,9 @@ const OngoingContent = ({ request, onClose }) => {
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${BASE_URL}/invoices/${request._id}`,
-        { headers: { Authorization: `Bearer ${token}` }, responseType: "blob" }
+      const res = await axiosInstance.get(
+        `/invoices/${request._id}`,
+        { responseType: "blob" }
       );
       const url  = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
       const link = document.createElement("a");

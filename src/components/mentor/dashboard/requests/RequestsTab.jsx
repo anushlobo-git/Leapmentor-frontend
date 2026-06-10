@@ -1,10 +1,9 @@
 // src/components/mentor/dashboard/requests/RequestsTab.jsx
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "@utils/axiosInstance";
 import RequestCard from "./RequestCard";
 import MenteeProfileModal from "./MenteeProfileModal";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const TABS = [
   { key: "all",       label: "All Requests" },
@@ -27,10 +26,7 @@ const RequestsTab = () => {
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/connect-requests/incoming`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get(`/connect-requests/incoming`);
       setRequests(res.data.requests || []);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load requests.");

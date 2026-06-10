@@ -1,6 +1,7 @@
 /**
  * Shared utility functions for notes functionality
  */
+//used nowhere else so can delete later
 
 export const formatFileSize = (bytes) => {
   if (!bytes) return "—";
@@ -31,15 +32,6 @@ export const formatDateSeparator = (dateStr) => {
 
 export const isSameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
 
-export const getMyId = () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-    return JSON.parse(atob(token.split(".")[1])).id;
-  } catch {
-    return null;
-  }
-};
 
 export const getFileType = (fileName) => {
   if (!fileName) return "other";

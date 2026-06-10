@@ -1,3 +1,4 @@
+//not using and importing anywhere, can be deleted
 // src/pages/Login.jsx
 // NON FUNCTIONAL AS ITS DIVIDED INTO LOGINMENTEE AND LOGINMENTOR PAGES
 import { useRef, useState } from "react";
@@ -183,7 +184,7 @@ const Login = () => {
 
         <p className="text-sm text-gray-600 mt-4">
           Don't have an account?{" "}
-          <span className="underline cursor-pointer" onClick={() => navigate("/register/mentee")}>
+          <span className="underline cursor-pointer" onClick={() => navigate("/register")}>
             Register
           </span>
         </p>
