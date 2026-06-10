@@ -1,9 +1,8 @@
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import axiosInstance from "@utils/axiosInstance";
+import adminAxiosInstance from "@utils/adminAxiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const NAV_ITEMS = [
   {
@@ -84,7 +83,7 @@ const NAV_ITEMS = [
             <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
           </svg>
         ),
-        badge: false,
+        badge: true,
       },
     ],
   },
@@ -108,31 +107,44 @@ const NAV_ITEMS = [
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
+  
+  const [adminUser, setAdminUser] = useState({ name: "Admin", email: "" });
+
   const navigate = useNavigate();
-  const adminRaw = localStorage.getItem("adminUser");
-  const adminUser = adminRaw ? JSON.parse(adminRaw) : { name: "Admin" };
+
+  // ── CHANGE 4: fetch admin info from /admin/auth/me ───────────
+  useEffect(() => {
+    const fetchAdminMe = async () => {
+      try {
+        const res = await adminAxiosInstance.get("/admin/auth/me");
+        setAdminUser(res.data.admin);
+      } catch {
+        // 401 → adminAxiosInstance interceptor redirects to /admin/login automatically
+      }
+    };
+    fetchAdminMe();
+  }, []);
 
   // ── Fetch pending wallet request count for sidebar badge ──
   useEffect(() => {
     const fetchPendingCount = async () => {
   try {
-    const res = await axiosInstance.get("/admin/leap-requests/pending-count");
+    const res = await adminAxiosInstance.get("/admin/leap-requests/pending-count");
     // ✅ axiosInstance has withCredentials: true — no manual header needed
-    setPendingWalletCount(res.data.count ?? 499);
+    setPendingWalletCount(res.data.count ?? 0);
   } catch {
     // silent
   }
 };
-
     fetchPendingCount();
-    // Re-poll every 60 seconds so badge stays fresh
-    const interval = setInterval(fetchPendingCount, 60_000);
-    return () => clearInterval(interval);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUser");
+   const handleLogout = async () => {
+    try {
+      await adminAxiosInstance.post("/admin/auth/logout"); // 👈 clears HttpOnly cookie
+    } catch {
+      // even if it fails, redirect anyway
+    }
     navigate("/admin/login");
   };
 

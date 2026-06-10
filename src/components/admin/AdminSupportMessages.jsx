@@ -1,7 +1,7 @@
 // src/components/admin/AdminSupportMessages.jsx
 import { useEffect, useState } from "react";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const STATUS_STYLES = {
   open:     { background: "#fef9c3", color: "#854d0e", label: "Open"     },
@@ -16,18 +16,14 @@ export default function AdminSupportMessages() {
   const [expanded,  setExpanded]  = useState(null);
   const [resolving, setResolving] = useState(null);
 
-  const token = localStorage.getItem("adminToken");
 
   const fetchMessages = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/support/messages`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to load messages");
-      const data = await res.json();
-      setMessages(data);
+      const res = await adminAxiosInstance.get(`/support/messages`);
+      
+      setMessages(res.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -41,10 +37,7 @@ export default function AdminSupportMessages() {
     if (resolving === id) return;
     setResolving(id);
     try {
-      await fetch(`${API_BASE}/support/messages/${id}/resolve`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await adminAxiosInstance.patch(`/support/messages/${id}/resolve`);
       setMessages((prev) =>
         prev.map((m) => m._id === id ? { ...m, status: "resolved" } : m)
       );

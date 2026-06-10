@@ -1,12 +1,9 @@
-cat > eslint.config.js << "EOF";
 import js from "@eslint/js";
-import react from "eslint-plugin-react";
 import globals from "globals";
 
 export default [
   js.configs.recommended,
   {
-    plugins: { react },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -17,9 +14,6 @@ export default [
       "no-unused-vars": "warn",
       "no-undef": "warn",
       "no-console": "warn",
-      "react/jsx-uses-react": "warn",
-      "react/jsx-uses-vars": "warn",
     },
   },
 ];
-EOF;
