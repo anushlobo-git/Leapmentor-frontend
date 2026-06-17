@@ -65,14 +65,21 @@ adminAxiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 2. 401 / 403 — session expired → redirect to admin login
+    // 2. 401 / 403 — skip redirect for silent auth probes (e.g. /auth/me on mount)
     if (status === 401 || status === 403) {
-      logger.warn("Admin session expired — redirecting to login", {
+      const isSkipped = error.config?._skipAuthRedirect;
+
+      logger.warn("Admin session expired or unauthorized", {
         url,
         status,
         correlationId,
+        skipped: isSkipped,
       });
-      window.location.href = "/admin/login";
+
+      if (!isSkipped) {
+        window.location.href = "/admin/login";
+      }
+
       return Promise.reject(error);
     }
 

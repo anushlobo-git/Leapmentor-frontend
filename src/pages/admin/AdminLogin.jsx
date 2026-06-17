@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { useAdminAuth } from "../../context/AdminAuthContext";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +10,7 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const { login } = useAdminAuth();   // ← was: const { setAdmin } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -18,7 +18,8 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
     try {
-       await adminAxiosInstance.post(`/admin/auth/login`, { email, password });
+      const res = await adminAxiosInstance.post(`/admin/auth/login`, { email, password });
+      login(res.data.admin);   // ← was: setAdmin(res.data.admin);
       navigate("/admin/users");
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed. Please try again.");
@@ -43,7 +44,7 @@ const AdminLogin = () => {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4">
             <img
               src="/images/logo.webp"
               alt="LeapMentor logo"
