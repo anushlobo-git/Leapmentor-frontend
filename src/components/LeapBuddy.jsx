@@ -167,30 +167,26 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/ai/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: newHistory,
-          systemPrompt: buildSystemPrompt(role, userContext),  // ← context passed here
-        }),
-      });
-      const data = await res.json();
-      const raw = data.content?.[0]?.text || "Sorry, I couldn't process that.";
-      const needsEscalation = raw.includes("[ESCALATE]");
-      const clean = raw.replace("[ESCALATE]", "").trim();
-      const msgIdx = messages.length + 1;
+  const { data } = await axiosInstance.post("/ai/chat", {
+    messages: newHistory,
+    systemPrompt: buildSystemPrompt(role, userContext),
+  });
 
-      setMessages((p) => [...p, { role: "ai", text: clean, escalate: needsEscalation, msgIdx }]);
-      setHistory((p) => [...p, { role: "assistant", content: clean }]);
+  const raw = data.content?.[0]?.text || "Sorry, I couldn't process that.";
+  const needsEscalation = raw.includes("[ESCALATE]");
+  const clean = raw.replace("[ESCALATE]", "").trim();
+  const msgIdx = messages.length + 1;
 
-      if (needsEscalation) {
-        setTicketForms((p) => ({ ...p, [msgIdx]: { email: user?.email || "", subject: text.slice(0, 80), message: text } }));
-        setTicketStatus((p) => ({ ...p, [msgIdx]: "idle" }));
-      }
-    } catch {
-      setMessages((p) => [...p, { role: "ai", text: "⚠️ Connection issue. Please try again.", escalate: false }]);
-    }
+  setMessages((p) => [...p, { role: "ai", text: clean, escalate: needsEscalation, msgIdx }]);
+  setHistory((p) => [...p, { role: "assistant", content: clean }]);
+
+  if (needsEscalation) {
+    setTicketForms((p) => ({ ...p, [msgIdx]: { email: user?.email || "", subject: text.slice(0, 80), message: text } }));
+    setTicketStatus((p) => ({ ...p, [msgIdx]: "idle" }));
+  }
+} catch {
+  setMessages((p) => [...p, { role: "ai", text: "⚠️ Connection issue. Please try again.", escalate: false }]);
+}
     setLoading(false);
   };
 
@@ -441,7 +437,7 @@ const submitTicket = async (idx) => {
               placeholder="Ask LeapBuddy anything..."
               rows={1} disabled={loading}
               style={{
-                flex: 1, padding: "anush.lobo@nineleaps.com8px 12px", borderRadius: 10,
+                flex: 1, padding: "8px 12px", borderRadius: 10,
                 border: "1.5px solid #e2e8f0", fontSize: 13,
                 outline: "none", resize: "none", fontFamily: "inherit",
                 color: "#0f172a", lineHeight: 1.5, maxHeight: 80,

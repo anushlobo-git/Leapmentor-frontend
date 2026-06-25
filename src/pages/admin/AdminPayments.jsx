@@ -202,7 +202,7 @@ const AdminPayments = () => {
   const fetchStats = useCallback(async () => {
     try {
       const res = await adminAxiosInstance.get(`/admin/payments/stats`);
-      setStats(res.data);
+      setStats(res.data.data || {});
     } catch { showToast("Failed to load payment stats."); }
   }, []);
 
