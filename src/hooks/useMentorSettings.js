@@ -1,6 +1,7 @@
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 
 const BADGES = [
   {
@@ -66,6 +67,7 @@ const useMentorSettings = (initialProfile) => {
       setEmailNotifications(p.emailNotifications ?? true);
       setPublicProfile(p.isProfilePublished ?? true);
     } catch (err) {
+       logger.error("Failed to load mentor settings", { error: err?.message });
       setMsg({ type: "error", text: "Failed to load settings." });
     } finally {
       setFetching(false);
@@ -109,7 +111,7 @@ const useMentorSettings = (initialProfile) => {
     publicProfile,    setPublicProfile,
     badges,
     handleSave,
-    
+
   };
 };
 

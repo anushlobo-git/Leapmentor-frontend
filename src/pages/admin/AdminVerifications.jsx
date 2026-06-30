@@ -1,8 +1,8 @@
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
+import adminAxiosInstance from "@utils/adminAxiosInstance";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 
 // ── Icons ────────────────────────────────────────────────
 const IconShield = () => (
@@ -317,8 +317,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════
 const AdminVerifications = () => {
-  // ✅ Replace those 3 lines with just this
-const authHeader = localStorage.getItem("adminToken");
+  
 
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -331,21 +330,17 @@ const authHeader = localStorage.getItem("adminToken");
 
   // ── Fetch ──────────────────────────────────────────────
   const fetchMentors = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API}/admin/mentor-verifications`, {
-        headers: { Authorization: `Bearer ${authHeader}` },
-      });
-      if (!res.ok) throw new Error("Failed to load verifications");
-      const data = await res.json();
-      setMentors(data.mentors || data);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [authHeader]);
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await adminAxiosInstance.get("/admin/mentor-verifications");
+    setMentors(res.data.mentors || res.data);
+  } catch (e) {
+    setError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}, []); 
 
   useEffect(() => { fetchMentors(); }, [fetchMentors]);
 
@@ -353,14 +348,8 @@ const authHeader = localStorage.getItem("adminToken");
   const handleVerify = async (mentorProfileId) => {
     setVerifying(true);
     try {
-      const res = await fetch(`${API}/admin/mentor-verifications/${mentorProfileId}/verify`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authHeader}`,
-        },
-      });
-      if (!res.ok) throw new Error("Verification failed");
+      const res = await adminAxiosInstance.patch(`/admin/mentor-verifications/${mentorProfileId}/verify`);
+      
 
       // Update local state
       setMentors(prev => prev.map(m =>

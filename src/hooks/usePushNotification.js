@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 import { isLoggedIn } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
@@ -15,7 +16,6 @@ const urlBase64ToUint8Array = (base64String) => {
 const usePushNotification = () => {
   const { showToast } = useToast();
 
-  // ✅ Register service worker + subscribe to push
   useEffect(() => {
     if (!isLoggedIn()) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
@@ -31,36 +31,32 @@ const usePushNotification = () => {
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
 
-        await axiosInstance.post(
-          `/push/subscribe`,
-          { subscription },
-        );
+        await axiosInstance.post(`/push/subscribe`, { subscription });
 
-        console.log("✅ Push notifications enabled");
+        logger.info("Push notifications enabled");
       } catch (err) {
-        console.warn("⚠️ Push setup failed:", err.message);
+        logger.warn("Push setup failed", { error: err.message });
       }
     };
 
     setup();
   }, []);
 
-  // ✅ Listen for messages from service worker → show in-app toast
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
     const handleMessage = (event) => {
-  console.log("📩 Message from SW received:", event.data); // ✅ check if message arrives
-  if (event.data?.type === "SHOW_TOAST") {
-    const { title, message, type } = event.data.payload;
-    console.log("🍞 Calling showToast:", { title, message, type }); // ✅ check if toast fires
-    showToast({ type: type || "info", title, message });
-  }
-};
-    navigator.serviceWorker.addEventListener("message", handleMessage);
-    return () => {
-      navigator.serviceWorker.removeEventListener("message", handleMessage);
+      logger.info("Message received from service worker", {
+        type: event.data?.type,
+      });
+      if (event.data?.type === "SHOW_TOAST") {
+        const { title, message, type } = event.data.payload;
+        showToast({ type: type || "info", title, message });
+      }
     };
+    navigator.serviceWorker.addEventListener("message", handleMessage);
+    return () =>
+      navigator.serviceWorker.removeEventListener("message", handleMessage);
   }, [showToast]);
 };
 

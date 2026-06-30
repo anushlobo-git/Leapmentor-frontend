@@ -21,15 +21,17 @@ const LockIcon = ({ size = 13 }) => (
 );
 
 const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
-  const [loading,        setLoading]        = useState(false);
-  const [fetching,       setFetching]       = useState(true);
-  const [error,          setError]          = useState("");
-  const [walletBalance,  setWalletBalance]  = useState(null);
-  const [commissionRate, setCommissionRate] = useState(20);
-  const [successPatch,   setSuccessPatch]   = useState(null);
+  const [loading,            setLoading]            = useState(false);
+  const [fetching,           setFetching]           = useState(true);
+  const [error,              setError]              = useState("");
+  const [walletBalance,      setWalletBalance]      = useState(null);
+  const [commissionRate,     setCommissionRate]     = useState(20);
+  const [remoteSessionRate,  setRemoteSessionRate]  = useState(null);
+  const [remoteSessionCount, setRemoteSessionCount] = useState(null);
+  const [successPatch,       setSuccessPatch]       = useState(null);
 
-  const sessionCount  = request?.selectedSlots?.length || 1;
-  const sessionRate   = request?.mentorProfile?.hourlyRate || 0;
+  const sessionCount  = remoteSessionCount ?? request?.selectedSlots?.length ?? 1;
+  const sessionRate   = remoteSessionRate ?? request?.mentorProfile?.hourlyRate ?? 0;
   const mentorAmount  = sessionRate * sessionCount;
   const platformFee   = Math.ceil((mentorAmount * commissionRate) / 100);
   const totalAmount   = mentorAmount + platformFee;
@@ -44,6 +46,8 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
         const data = await getEscrowStatus(request._id);
         setWalletBalance(data?.wallet?.balance ?? null);
         if (data?.commissionRate != null) setCommissionRate(data.commissionRate);
+        if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
+        if (data?.sessionCount != null) setRemoteSessionCount(data.sessionCount);
       } catch (err) {
         console.warn("⚠️ Could not fetch escrow status:", err?.response?.data || err.message);
       } finally {

@@ -1,7 +1,6 @@
 // src/components/shared-dashboard/tabs/AdditionalSessionPaymentModal.jsx
 import { useState, useEffect } from "react";
-import { payAdditionalEscrow } from "../../../../api/escrow.api";
-import { getEscrowStatus } from "../../../../api/escrow.api";
+import { payAdditionalEscrow, getEscrowStatus } from "../../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
 
 const TokenIcon = ({ size = 13 }) => (
@@ -21,9 +20,10 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
   const [error, setError]               = useState("");
   const [walletBalance, setWalletBalance] = useState(null);
   const [commissionRate, setCommissionRate] = useState(20);
+  const [remoteSessionRate, setRemoteSessionRate] = useState(null);
   const [showSuccess, setShowSuccess]   = useState(false);
 
-  const sessionRate  = connect?.mentorProfile?.hourlyRate || 0;
+  const sessionRate  = remoteSessionRate ?? connect?.mentorProfile?.hourlyRate ?? 0;
   const platformFee  = Math.ceil((sessionRate * commissionRate) / 100);
   const totalAmount  = sessionRate + platformFee;
   const insufficient = walletBalance !== null && walletBalance < totalAmount;
@@ -36,6 +36,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
         const data = await getEscrowStatus(connect._id);
         setWalletBalance(data?.wallet?.balance ?? null);
         if (data?.commissionRate != null) setCommissionRate(data.commissionRate);
+        if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
       } catch (err) {
         console.warn("Could not fetch escrow status:", err.message);
       } finally {

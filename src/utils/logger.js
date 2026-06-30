@@ -8,8 +8,7 @@ const logtail = sourceToken ? new Logtail(sourceToken) : null;
 
 const logger = {
   info: (message, context = {}) => {
-    if (logtail) logtail.info(message, context);
-    console.log(`[INFO] ${message}`, context); // Still prints to browser dev tools console
+    if (logtail) logtail.info(message, context); 
   },
   warn: (message, context = {}) => {
     if (logtail) logtail.warn(message, context);

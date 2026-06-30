@@ -14,9 +14,8 @@ import AdminRoute from "./components/admin/AdminRoute";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // ── Auth pages ────────────────────────────────────────────────
-//const RegisterMentee = lazy(() => import("./pages/RegisterMentee"));
-//const RegisterMentor = lazy(() => import("./pages/RegisterMentor"));
-const Register       =lazy(()=> import("./pages/Register"));
+
+const Register       = lazy(()=> import("./pages/Register"));
 const LoginMentor    = lazy(() => import("./pages/LoginMentor"));
 const LoginMentee    = lazy(() => import("./pages/LoginMentee"));
 const VerifyEmail    = lazy(() => import("./pages/VerifyEmail"));

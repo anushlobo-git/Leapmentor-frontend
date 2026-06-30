@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const useMentorEditProfile = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const useMentorEditProfile = () => {
 
   // Pre-fill form with existing profile data
   useEffect(() => {
-    
+
     const fetchProfile = async () => {
       try {
         const { data } = await axiosInstance.get("/mentor-profile/me");
@@ -46,6 +47,9 @@ const useMentorEditProfile = () => {
           portfolioUrl: data.portfolioUrl || "",
         });
       } catch (err) {
+         logger.error("Failed to load mentor profile data", {
+           error: err?.message,
+         });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
         setFetchLoading(false);
@@ -79,7 +83,7 @@ const useMentorEditProfile = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    
+
     if (!isLoggedIn()) {
       navigate("/login");
       return;

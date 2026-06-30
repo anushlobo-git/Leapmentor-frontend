@@ -72,7 +72,7 @@ const useMentorSearch = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); 
 
   // ── Single unified effect for both skill typing + filter changes ──
   // Fixes: experience/industry/etc filters not working because the old

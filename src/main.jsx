@@ -5,7 +5,8 @@ import store from './store/index.js';
 import { injectStore } from './utils/axiosInstance.js'; // FIX: import injectStore
 import './index.css'
 import * as Sentry from "@sentry/react";
-import { ToastProvider } from './context/ToastContext.jsx'
+import { ToastProvider } from './context/ToastContext.jsx';
+import { AdminAuthProvider } from './context/AdminAuthContext.jsx';
 import logger from './utils/logger.js';
 
 const App = lazy(() => import('./App.jsx'))
@@ -38,11 +39,13 @@ window.addEventListener("unhandledrejection", (event) => {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <ToastProvider>
-        <Suspense fallback={null}>
-          <App />
-        </Suspense>
-      </ToastProvider>
+      <AdminAuthProvider>
+        <ToastProvider>
+          <Suspense fallback={null}>
+            <App />
+          </Suspense>
+       </ToastProvider>
+      </AdminAuthProvider>
     </Provider>
   </StrictMode>,
 )

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();
@@ -36,6 +37,9 @@ const useMenteeEditProfile = () => {
           languages: data.languages || [],
         });
       } catch (err) {
+        logger.error("Failed to load mentee profile data", {
+          error: err?.message,
+        });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
         setFetchLoading(false);

@@ -12,7 +12,6 @@ import PreferencesSection from "./PreferencesSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
-import { isLoggedIn } from "@utils/cookies";
 
 const OnboardingFormShell = () => {
   const navigate = useNavigate();
@@ -26,6 +25,7 @@ const OnboardingFormShell = () => {
       const saved = sessionStorage.getItem("mentorOnboardingForm");
       return saved ? JSON.parse(saved) : {
         profilePicture: "",
+        profilePictureFileName: "",
         bio: "",
         currentRole: "",
         industry: "",
@@ -41,6 +41,7 @@ const OnboardingFormShell = () => {
     } catch {
       return {
         profilePicture: "",
+        profilePictureFileName: "",
         bio: "",
         currentRole: "",
         industry: "",
@@ -173,6 +174,7 @@ const OnboardingFormShell = () => {
 
     const payload = {
       ...form,
+      profilePictureFileName: form.profilePictureFileName || "",
       yearsOfExperience: Number(form.yearsOfExperience) || 0,
       hourlyRate: Number(form.hourlyRate) || 0,
       languages: typeof form.languages === "string"

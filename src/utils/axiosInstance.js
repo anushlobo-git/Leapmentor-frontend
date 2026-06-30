@@ -92,7 +92,12 @@ axiosInstance.interceptors.response.use(
     }
 
     // 2. 401 — try silent refresh first, redirect only if refresh fails
-    if (status === 401 && !originalRequest._retry && url !== "/auth/refresh") {
+    if (
+      status === 401 &&
+      !originalRequest._retry &&
+      url !== "/auth/refresh" &&
+      url !== "/auth/login"
+    ) {
       if (isRefreshing) {
         // Queue the request until refresh completes
         return new Promise((resolve, reject) => {

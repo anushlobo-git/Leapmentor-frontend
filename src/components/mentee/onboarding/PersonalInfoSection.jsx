@@ -40,6 +40,13 @@ const PersonalInfoSection = ({ form, handleChange }) => {
           value: res.data.url,
         },
       });
+      handleChange({ 
+        target: { 
+          name: "profilePictureFileName",
+           value: res.data.fileName 
+          } 
+        });
+
     } catch (err) {
       setUploadErr(
         err?.response?.data?.message || "Failed to upload image. Please try again."

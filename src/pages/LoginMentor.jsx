@@ -12,7 +12,7 @@ const LoginMentor = () => {
       <main className="flex-1 flex items-center justify-center bg-white px-6 py-12">
         <LoginForm
           placeholder="mentor@example.com"
-          registerPath="/register/mentor"
+          registerPath="/register"
         />
       </main>
     </div>

@@ -258,22 +258,22 @@ const LeapPointsPanel = ({ balance, loading }) => {
 
   // Check if there's already a pending request
   useEffect(() => {
-    const checkExistingRequest = async () => {
-      try {
-        const res = await axiosInstance.get(`/leap-requests/my-request`);
-        if (res.data?.status === "pending") {
-          setRequestStatus("pending");
-        }
-      } catch (err) {
-        // 404 means no existing request — safe to ignore
-        // Any other error is also non-blocking, just log it
-        if (err.response?.status !== 404) {
-          console.warn("Leap request check failed:", err.response?.data || err.message);
-        }
-      } finally {
-        setChecking(false);
-      }
-    };
+const checkExistingRequest = async () => {
+  try {
+    setChecking(true);
+    const res = await axiosInstance.get(`/leap-requests/my-request`);
+    
+    // Check inside res.data.data.status
+    if (res.data?.success && res.data?.data?.status === "pending") {
+      setRequestStatus("pending");
+    }
+  } catch (err) {
+    // With your new backend logic, this will rarely trigger unless the server is down
+    console.warn("Leap request check failed:", err.message);
+  } finally {
+    setChecking(false);
+  }
+};
     checkExistingRequest();
   }, []);
 

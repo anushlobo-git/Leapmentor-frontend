@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
-import { setAuthRole } from "@utils/cookies"; 
+import { setAuthRole } from "@utils/cookies";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -83,7 +83,10 @@ const useGoogleAuth = ({
 
               // ✅ Sync user into Redux (no token needed, it's in httpOnly cookie)
               callbackRef.dispatch?.(
-                callbackRef.setUser({ accessToken: res.data.accessToken, user: user || null }),
+                callbackRef.setUser({
+                  accessToken: res.data.accessToken,
+                  user: user || null,
+                }),
               );
 
               callbackRef.onSuccess?.(res.data);
@@ -126,7 +129,7 @@ const useGoogleAuth = ({
         return () => script.removeEventListener("load", initGoogle);
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentional run-once init; btnRef/onError read via stable callbackRef/ref to avoid re-initializing the Google script on every parent re-render
 };
 
 export default useGoogleAuth;

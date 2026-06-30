@@ -6,7 +6,11 @@ export const submitMenteeOnboarding = createAsyncThunk(
   "menteeOnboarding/submit",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/mentee-profile", payload);
+      const payloadToSend = {
+        ...payload,
+        profilePictureFileName: payload?.profilePictureFileName || "",
+      };
+      const res = await axiosInstance.post("/mentee-profile", payloadToSend);
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message);

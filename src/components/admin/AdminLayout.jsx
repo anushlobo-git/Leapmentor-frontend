@@ -1,9 +1,8 @@
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import axiosInstance from "@utils/axiosInstance";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import adminAxiosInstance from "@utils/adminAxiosInstance";
+import { useAdminAuth } from "../../context/AdminAuthContext";
 
 const NAV_ITEMS = [
   {
@@ -84,7 +83,7 @@ const NAV_ITEMS = [
             <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
           </svg>
         ),
-        badge: false,
+        badge: true,
       },
     ],
   },
@@ -108,32 +107,32 @@ const NAV_ITEMS = [
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
+  
+  const [adminUser, setAdminUser] = useState({ name: "Admin", email: "" });//not used 
+  const { admin, setAdmin } = useAdminAuth();
+
   const navigate = useNavigate();
-  const adminRaw = localStorage.getItem("adminUser");
-  const adminUser = adminRaw ? JSON.parse(adminRaw) : { name: "Admin" };
 
   // ── Fetch pending wallet request count for sidebar badge ──
   useEffect(() => {
     const fetchPendingCount = async () => {
-  try {
-    const res = await axiosInstance.get("/admin/leap-requests/pending-count");
-    // ✅ axiosInstance has withCredentials: true — no manual header needed
-    setPendingWalletCount(res.data.count ?? 499);
-  } catch {
-    // silent
-  }
-};
-
+      try {
+        const res = await adminAxiosInstance.get("/admin/leap-requests/pending-count");
+        setPendingWalletCount(res.data.count ?? 0);
+      } catch { /* silent */ }
+    };
     fetchPendingCount();
-    // Re-poll every 60 seconds so badge stays fresh
-    const interval = setInterval(fetchPendingCount, 60_000);
-    return () => clearInterval(interval);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUser");
-    navigate("/admin/login");
+  const handleLogout = async () => {
+    try {
+      await adminAxiosInstance.post("/admin/auth/logout");
+    } catch (err) {
+      console.error("Logout failed, but clearing local session.");
+    } finally {
+      setAdmin(null); // Clear global auth state
+      navigate("/admin/login");
+    }
   };
 
   const closeSidebar = () => setSidebarOpen(false);
@@ -247,11 +246,11 @@ const AdminLayout = ({ children }) => {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs text-white flex-shrink-0"
               style={{ background: "#2563eb", fontWeight: 700 }}>
-              {adminUser.name?.[0]?.toUpperCase() || "A"}
+              {admin?.name?.[0]?.toUpperCase() || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-slate-700 truncate" style={{ fontWeight: 600 }}>{adminUser.name}</p>
-              <p className="text-[10px] text-slate-400 truncate">{adminUser.email}</p>
+              <p className="text-xs text-slate-700 truncate" style={{ fontWeight: 600 }}>{admin?.name || "Admin"}</p>
+              <p className="text-[10px] text-slate-400 truncate">{admin?.email}</p>
             </div>
             <button
               onClick={handleLogout}
