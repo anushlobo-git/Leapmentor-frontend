@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
-
+import logger from "@utils/logger";
 
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -170,7 +170,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0 ml-2">
-                     
+
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5"
                         strokeLinecap="round" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
                         <polyline points="6 9 12 15 18 9"/>
@@ -217,7 +217,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
                                   <td className="px-3 py-2 text-slate-600">
                                     {slot.startTime && slot.endTime ? `${slot.startTime} – ${slot.endTime}` : "—"}
                                   </td>
-                                 
+
                                 </tr>
                               ))}
                             </tbody>

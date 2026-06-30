@@ -6,7 +6,11 @@ export const submitMentorOnboarding = createAsyncThunk(
   "mentorOnboarding/submit",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/mentor-profile", payload);
+      const payloadToSend = {
+        ...payload,
+        profilePictureFileName: payload?.profilePictureFileName || "",
+      };
+      const res = await axiosInstance.post("/mentor-profile", payloadToSend);
       return res.data;
     } catch (err) {
       return rejectWithValue(

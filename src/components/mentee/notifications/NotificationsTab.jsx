@@ -1,6 +1,7 @@
 // src/components/mentor/dashboard/NotificationsTab.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import EmptyState from "@components/common/EmptyState";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -432,16 +433,16 @@ const NotificationsTab = ({ setActiveTab }) => {
 
       {/* Empty state */}
       {notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 sm:py-24 text-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+        <EmptyState
+          title="No notifications"
+          message="You're all caught up!"
+          icon={
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
-          </div>
-          <p className="text-sm font-bold text-slate-800">No notifications</p>
-          <p className="text-xs text-slate-600">You're all caught up!</p>
-        </div>
+          }
+        />
       ) : (
         <div className="flex flex-col gap-3">
           {notifications.map((notif) => (

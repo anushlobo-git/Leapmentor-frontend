@@ -2,36 +2,43 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { submitMenteeOnboarding, clearOnboardingMessages } from "../store/slices/menteeOnboardingSlice";
-import {isLoggedIn} from "@utils/cookies";
+import {
+  submitMenteeOnboarding,
+  clearOnboardingMessages,
+} from "../store/slices/menteeOnboardingSlice";
 
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
-
+  const { loading, error, successMsg } = useSelector(
+    (state) => state.menteeOnboarding,
+  );
 
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem("menteeOnboardingForm");
-      return saved ? JSON.parse(saved) : {
-        profilePicture: "",
-        bio: "",
-        currentRole: "",
-        company: "",
-        industry: "",
-        yearsOfExperience: "",
-        interestedFields: [],
-        skills: [],
-        communicationPreferences: [],
-        languages: [],
-        linkedInUrl: "",
-        portfolioUrl: "",
-      };
+      return saved
+        ? JSON.parse(saved)
+        : {
+            profilePicture: "",
+            profilePictureFileName: "",
+            bio: "",
+            currentRole: "",
+            company: "",
+            industry: "",
+            yearsOfExperience: "",
+            interestedFields: [],
+            skills: [],
+            communicationPreferences: [],
+            languages: [],
+            linkedInUrl: "",
+            portfolioUrl: "",
+          };
     } catch {
       return {
         profilePicture: "",
+        profilePictureFileName: "",
         bio: "",
         currentRole: "",
         company: "",
@@ -50,25 +57,26 @@ const useMenteeOnboarding = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
 
-
   useEffect(() => {
     if (error) {
       setMsg({ type: "error", text: error });
     }
 
     if (successMsg) {
-  sessionStorage.removeItem("menteeOnboardingForm");
-  dispatch(clearOnboardingMessages());
-  setRedirecting(true);
-  setTimeout(() => navigate("/dashboard/mentee"), 1500);
-}
-  }, [error, successMsg]);
+      sessionStorage.removeItem("menteeOnboardingForm");
+      dispatch(clearOnboardingMessages());
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentee"), 1500);
+    }
+  }, [error, successMsg ,dispatch, navigate]);
 
   // ✅ Clear Redux messages on unmount so stale state never bleeds
   // into a future visit to this page
   useEffect(() => {
-    return () => { dispatch(clearOnboardingMessages()); };
-  }, []);
+    return () => {
+      dispatch(clearOnboardingMessages());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     sessionStorage.setItem("menteeOnboardingForm", JSON.stringify(form));
@@ -88,35 +96,64 @@ const useMenteeOnboarding = () => {
     if (!form.currentRole.trim())
       return setMsg({ type: "error", text: "Current Role is required." });
     if (!form.yearsOfExperience)
-      return setMsg({ type: "error", text: "Years of Experience is required." });
+      return setMsg({
+        type: "error",
+        text: "Years of Experience is required.",
+      });
     if (!form.industry)
       return setMsg({ type: "error", text: "Industry is required." });
     if (!form.interestedFields.length)
-      return setMsg({ type: "error", text: "Please add at least one Field of Interest." });
+      return setMsg({
+        type: "error",
+        text: "Please add at least one Field of Interest.",
+      });
     if (!form.skills.length)
-      return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
+      return setMsg({
+        type: "error",
+        text: "Please add at least one Skill of Interest.",
+      });
 
     const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
-      return setMsg({ type: "error", text: "Current Role cannot be a number." });
+      return setMsg({
+        type: "error",
+        text: "Current Role cannot be a number.",
+      });
     if (isOnlyNumbers(form.company))
-      return setMsg({ type: "error", text: "Company name cannot be a number." });
+      return setMsg({
+        type: "error",
+        text: "Company name cannot be a number.",
+      });
 
     const isValidUrl = (val) => {
       if (!val) return true;
-      try { new URL(val); return true; }
-      catch { return false; }
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
     };
     if (!isValidUrl(form.linkedInUrl))
-      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
+      return setMsg({
+        type: "error",
+        text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username).",
+      });
     if (!isValidUrl(form.portfolioUrl))
-      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
-    
+      return setMsg({
+        type: "error",
+        text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com).",
+      });
 
-    dispatch(submitMenteeOnboarding({ ...form }));
+    dispatch(
+      submitMenteeOnboarding({
+        ...form,
+        profilePictureFileName: form.profilePictureFileName || "",
+      }),
+    );
   };
 
-return { form, loading, msg, redirecting, handleChange, handleSubmit };
+  return { form, loading, msg, redirecting, handleChange, handleSubmit };
 };
 
 export default useMenteeOnboarding;

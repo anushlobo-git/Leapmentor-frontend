@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const useUnreadCount = () => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -21,10 +20,9 @@ const useUnreadCount = () => {
     }
   }, []);
 
-  // ✅ fetch once on mount only
-  useEffect(() => {
- fetchUnreadCount();
-}, []);
+ useEffect(() => {
+   fetchUnreadCount();
+ }, [fetchUnreadCount]);
 
   // ✅ increment badge when socket/push notification arrives
   const incrementBadge = useCallback(() => {

@@ -349,7 +349,7 @@ const AdminVerifications = () => {
     setVerifying(true);
     try {
       const res = await adminAxiosInstance.patch(`/admin/mentor-verifications/${mentorProfileId}/verify`);
-      if (!res.ok) throw new Error("Verification failed");
+      
 
       // Update local state
       setMentors(prev => prev.map(m =>

@@ -24,7 +24,6 @@ const useMentorDashboard = () => {
   };
 
   useEffect(() => {
-
     if (!isLoggedIn()) {
       navigate("/login");
       return;
@@ -32,7 +31,6 @@ const useMentorDashboard = () => {
 
     const fetchData = async () => {
       try {
-
         // 1) Fetch user
         const userRes = await axiosInstance.get("/users/me");
         const userData = userRes.data;
@@ -54,7 +52,7 @@ const useMentorDashboard = () => {
           if (profileErr?.response?.status === 404) {
             // New mentor — no profile yet
             if (!isEditPage) {
-               setLoading(false); 
+              setLoading(false);
               navigate("/onboarding/mentor");
             }
             return;
@@ -77,7 +75,6 @@ const useMentorDashboard = () => {
 
         // 5) All good — show dashboard
         setLoading(false);
-
       } catch (err) {
         if (err?.response?.status === 401) {
           navigate("/login");
@@ -89,7 +86,7 @@ const useMentorDashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [isEditPage, navigate]);
 
   return { user, profile, loading, error, refetchProfile };
 };

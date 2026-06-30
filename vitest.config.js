@@ -1,17 +1,15 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import path from "path";
-import { fileURLToPath } from "url";
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react()],
   resolve: {
     alias: {
-      // 2. Now __dirname will work perfectly here
       "@atoms": path.resolve(__dirname, "./src/atoms"),
       "@molecules": path.resolve(__dirname, "./src/molecules"),
       "@organisms": path.resolve(__dirname, "./src/organisms"),
@@ -22,21 +20,16 @@ export default defineConfig({
       "@api": path.resolve(__dirname, "./src/api"),
       "@store": path.resolve(__dirname, "./src/store"),
       "@context": path.resolve(__dirname, "./src/context"),
-      "@components": path.resolve(__dirname, "./src/components"),
     },
   },
-  build: {
-    cssMinify: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-redux": ["@reduxjs/toolkit", "react-redux"],
-
-        },
-      },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: "./src/test/setup.js",
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "lcov"],
+      exclude: ["node_modules/", "src/test/"],
     },
   },
 });
-
-
