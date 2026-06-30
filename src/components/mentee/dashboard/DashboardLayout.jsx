@@ -12,6 +12,8 @@ import NotificationsTab from "../notifications/NotificationsTab";
 import MenteeConnectsTab from "./connects/MenteeConnectsTab";
 import HelpCenter from "../../common/HelpCenter";
 import useSocketToast from "../../../hooks/useSocketToast"; 
+import { DashboardContext } from "../../../context/DashboardContext";
+import LeapBuddy from "../../LeapBuddy";
 
 const DashboardLayout = () => {
   const { user, profile, loading, error, refetch } = useMenteeDashboard();
@@ -87,6 +89,7 @@ useEffect(() => {
   */}
 
   return (
+    <DashboardContext.Provider value={{ user, profile, setActiveTab: handleSetTab }}>
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
       <div className="flex flex-1">
@@ -98,8 +101,8 @@ useEffect(() => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <HomeTab user={user} profile={profile} />}
-          {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
+          {activeTab === "home"          && <HomeTab />}
+          {activeTab === "profile"       && <ProfileTab/>}
           {activeTab === "findMentors"   && <FindMentorsTab />}
           {activeTab === "history"       && <RequestHistoryTab />}
           {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
@@ -109,6 +112,8 @@ useEffect(() => {
         </main>
       </div>
     </div>
+    <LeapBuddy role="mentee" user={user} profile={profile} />
+    </DashboardContext.Provider>
   );
 };
 export default DashboardLayout;

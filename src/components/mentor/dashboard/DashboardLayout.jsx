@@ -88,6 +88,7 @@ const DashboardLayout = () => {
   }
 
   return (
+    <DashboardContext.Provider value={{ user, profile, setActiveTab: handleSetTab,refetchProfile : refetchProfile }}>
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
       <div className="flex flex-1">
@@ -112,6 +113,8 @@ const DashboardLayout = () => {
         </main>
       </div>
     </div>
+    <LeapBuddy role="mentor" user={user} profile={profile} />
+    </DashboardContext.Provider>
   );
 };
 
