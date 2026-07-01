@@ -1,6 +1,7 @@
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
-import axiosInstance from "../../../../utils/axiosInstance"; 
+import axiosInstance from "../../../../utils/axiosInstance";
+import logger from "@utils/logger";
 
 const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) => {
   const [loading, setLoading] = useState(false);
@@ -17,13 +18,13 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
           setLoading(false);
         } else if (event.data?.type === "GOOGLE_CALENDAR_ERROR") {
           window.removeEventListener("message", handler);
-          console.error("Google Calendar error:", event.data.error);
+          logger.error("Google Calendar error:", { error: event.data.error });
           setLoading(false);
         }
       };
       window.addEventListener("message", handler);
     } catch (err) {
-      console.error(err);
+      logger.error("Google Calendar error:", { error: err.message || err });
       setLoading(false);
     }
   };
@@ -34,7 +35,7 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
       await axiosInstance.post("/google-calendar/disconnect");
       onConnectionChange(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Google Calendar error:", { error: err.message || err });
     } finally {
       setLoading(false);
     }

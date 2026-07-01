@@ -1,5 +1,6 @@
 // src/pages/admin/AdminUserManagement.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
+import logger from "@utils/logger";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import AdminLayout          from "../../components/admin/AdminLayout";
 import StatCard             from "../../components/admin/common/StatCard";
@@ -111,10 +112,10 @@ const AdminUserManagement = () => {
   const [roleFilter,  setRoleFilter]  = useState("");
   const [showBlocked, setShowBlocked] = useState(false); // ← NEW STATE FOR TOGGLE
   const [loading,     setLoading]     = useState(true);
-  
-  const [actionModal, setActionModal] = useState(null); 
+
+  const [actionModal, setActionModal] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
-  
+
   const [toast,       setToast]       = useState(null);
   const [growthData,  setGrowthData]  = useState([]);
   const [industryData, setIndustryData] = useState([]);
@@ -133,7 +134,7 @@ const AdminUserManagement = () => {
       const res = await adminAxiosInstance.get(`/admin/stats`);
       setStats(res.data);
     } catch (err) {
-      console.error("Error fetching stats", err);
+      logger.error("Error fetching stats", { error : err.message || err });
     }
   }, []);
 
@@ -142,7 +143,7 @@ const AdminUserManagement = () => {
       const res = await adminAxiosInstance.get(`/admin/user-growth`);
       setGrowthData(res.data);
     } catch (err) {
-      console.error("Failed to fetch growth data", err);
+      logger.error("Failed to fetch growth data", { error : err.message || err });
     }
   }, []);
 
@@ -151,7 +152,7 @@ const AdminUserManagement = () => {
       const res = await adminAxiosInstance.get(`/admin/stats/mentor-industries`);
       setIndustryData(res.data);
     } catch (err) {
-      console.error("Failed to fetch industry data", err);
+      logger.error("Failed to fetch industry data", { error : err.message || err });
     }
   }, []);
 
@@ -201,21 +202,21 @@ const AdminUserManagement = () => {
     if (!actionModal) return;
     const { user, mode } = actionModal;
     setActionLoading(true);
-    
+
     try {
       if (mode === "delete") {
         await adminAxiosInstance.delete(`/admin/users/${user._id}`);
         showToast(`${user.name} has been permanently deleted.`);
-      } 
+      }
       else if (mode === "block") {
         await adminAxiosInstance.patch(`/admin/users/${user._id}/block`, {});
         showToast(`${user.name} has been blocked.`);
-      } 
+      }
       else if (mode === "unblock") {
         await adminAxiosInstance.patch(`/admin/users/${user._id}/unblock`, {});
         showToast(`${user.name} has been restored.`);
       }
-      
+
       setActionModal(null);
       fetchStats();
       fetchUsers(pagination.page);
@@ -308,7 +309,7 @@ const AdminUserManagement = () => {
 
         <div className="rounded-2xl overflow-hidden" style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}>
           <div className="flex items-center justify-between gap-4 px-6 py-4 border-b" style={{ borderColor: "#e8eaf0" }}>
-            
+
             <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl">
               <button onClick={() => handleBlockedToggle(false)}
                 className="px-4 py-1.5 rounded-lg text-xs font-600 transition-all shadow-sm"

@@ -1,5 +1,6 @@
 // src/hooks/useNotes.js
 import { useState, useEffect, useCallback } from "react";
+import logger from "@utils/logger";
 import {
   getNotes        as apiGetNotes,
   uploadNote      as apiUploadNote,
@@ -39,7 +40,7 @@ const useNotes = (connectRequestId) => {
       setPrivateNotes(data.notes || []);
     } catch (err) {
       // ✅ Don't set global error for private notes — just log
-      console.warn("Private notes fetch failed:", err?.response?.data?.message);
+      logger.warn("Private notes fetch failed:", { error: err?.response?.data?.message });
     } finally {
       setPrivateLoading(false);
     }

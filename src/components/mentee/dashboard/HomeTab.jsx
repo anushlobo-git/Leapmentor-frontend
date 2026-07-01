@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
-
+import logger from "@utils/logger";
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
@@ -46,7 +46,7 @@ const useHomeData = (profile) => {
         setBalance(walletRes.data.balance ?? 0);
         setEscrow(walletRes.data.escrow ?? 0);
       } catch (err) {
-        console.error("HomeTab data fetch error:", err.message);
+        logger.error("HomeTab data fetch error:", { error: err.message  });
       } finally {
         setLoading(false);
       }
@@ -258,14 +258,14 @@ const checkExistingRequest = async () => {
   try {
     setChecking(true);
     const res = await axiosInstance.get(`/leap-requests/my-request`);
-    
+
     // Check inside res.data.data.status
     if (res.data?.success && res.data?.data?.status === "pending") {
       setRequestStatus("pending");
     }
   } catch (err) {
     // With your new backend logic, this will rarely trigger unless the server is down
-    console.warn("Leap request check failed:", err.message);
+    logger.warn("Leap request check failed:", { error: err.response?.data || err.message });
   } finally {
     setChecking(false);
   }

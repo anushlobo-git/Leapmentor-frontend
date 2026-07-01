@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
-import { useSelector } from "react-redux"; // ✅ added
+import { useSelector } from "react-redux";
 import { isLoggedIn } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
@@ -46,7 +47,7 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
     window.__leapSocket = socket;
 
     socket.on("connect_error", (err) => {
-      console.warn("⚠️ Socket error:", err.message);
+      logger.warn("⚠️ Socket error:", { error: err.message });
     });
 
     socket.on("reconnect", () => {

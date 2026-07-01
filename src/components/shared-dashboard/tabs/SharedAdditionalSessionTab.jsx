@@ -4,7 +4,7 @@ import axiosInstance from "@utils/axiosInstance";
 import useSessions from "../../../hooks/useSessions";
 import { payAdditionalEscrow } from "../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
-
+import logger from "@utils/logger";
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -180,7 +180,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
         setWalletBalance(res.data?.wallet?.balance ?? null);
         if (res.data?.commissionRate != null) setCommissionRate(res.data.commissionRate);
       } catch (err) {
-        console.warn("Could not fetch escrow status:", err.message);
+        logger.warn("Could not fetch escrow status:", { error: err.message });
       } finally {
         setFetching(false);
       }

@@ -1,6 +1,7 @@
 // src/hooks/useRequestHistory.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 
 const useRequestHistory = () => {
   const [requests, setRequests] = useState([]);
@@ -35,7 +36,7 @@ const useRequestHistory = () => {
       setRequests((prev) => prev.filter((r) => r._id !== id));
       setSelected((prev) => (prev?._id === id ? null : prev));
     } catch (err) {
-      console.error("Delete error:", err?.response?.data?.message || err.message);
+      logger.error("Delete error:", { error: err?.response?.data?.message || err.message });
     }
   }, []);
 

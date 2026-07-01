@@ -3,7 +3,7 @@ import { useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import RequestActionModal from "./RequestActionModal";
 import ReferModal from "./ReferModal";
-
+import logger from "@utils/logger";
 
 
 const formatTime = (time) => {
@@ -55,7 +55,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
     } catch (err) {
-      console.error("Respond error:", err);
+      logger.error("Respond error:", { error: err.message || err});
     } finally {
       setLoading(null);
     }

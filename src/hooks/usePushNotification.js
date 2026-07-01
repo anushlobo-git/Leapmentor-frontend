@@ -47,10 +47,11 @@ const usePushNotification = () => {
 
     const handleMessage = (event) => {
       logger.info("Message received from service worker", {
-        type: event.data?.type,
+        data: event.data
       });
       if (event.data?.type === "SHOW_TOAST") {
         const { title, message, type } = event.data.payload;
+        logger.info("Showing toast from service worker message", { title, message, type });
         showToast({ type: type || "info", title, message });
       }
     };

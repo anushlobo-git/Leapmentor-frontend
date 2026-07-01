@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -559,11 +560,11 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
 
   axiosInstance.get("/google-calendar/busy", { params })
     .then(({ data }) => updateBusySlots(data.busy || []))
-    .catch((err) => console.error("Failed to fetch busy slots:", err));
+    .catch((err) => logger.error("Failed to fetch busy slots:", { error: err.message || err }));
 
   axiosInstance.get("/google-calendar/events", { params })
     .then(({ data }) => setCalendarEvents(data.events || []))
-    .catch((err) => console.error("Failed to fetch events:", err));
+    .catch((err) => logger.error("Failed to fetch events:", { error: err.message || err }));
 
 }, [googleCalendarConnected, calYear, calMonth]);
 

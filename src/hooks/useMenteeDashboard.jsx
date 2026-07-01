@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
-
+import logger from "@utils/logger";
 
 const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
@@ -202,7 +202,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
         setPendingCount(pending.length);
         setActualSessionCount(completed.length + active.filter((r) => r.status === "ongoing").length);
       } catch (err) {
-        console.error("MentorHomeTab sessions error:", err.message);
+        logger.error("MentorHomeTab sessions error:", { error: err.message });
       } finally {
         setLoadingSessions(false);
       }
@@ -222,7 +222,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
           walletBalance: res.data.walletBalance || 0,
         });
       } catch (err) {
-        console.error("MentorHomeTab earnings error:", err.message);
+        logger.error("MentorHomeTab earnings error:", { error: err.message });
         setEarnings({ totalEarnings: 0, sessionsThisMonth: 0, pendingPayout: 0, walletBalance: 0 });
       } finally {
         setLoadingEarnings(false);

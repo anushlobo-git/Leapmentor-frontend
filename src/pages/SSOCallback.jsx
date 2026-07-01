@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authSlice";
 import axiosInstance from "@utils/axiosInstance";
 import { setAuthRole } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const SSOCallback = () => {
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ const SSOCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
-    console.log("SSOCallback mounted, code:", code?.slice(0, 10));
-    console.log("sessionStorage value:", sessionStorage.getItem("linkedin_code_used")?.slice(0, 10));
+    logger.info("SSOCallback mounted, code:", { code: code?.slice(0, 10) });
+    logger.info("sessionStorage value:", { value: sessionStorage.getItem("linkedin_code_used")?.slice(0, 10) });
 
     const state = params.get("state");
     const provider = params.get("provider");

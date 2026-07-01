@@ -31,7 +31,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
 
   // slotIndex now accepted and sent to backend
   const submitFeedback = useCallback(async (rating, comment, slotIndex) => {
-    logger.info("Sending feedback", { connectRequestId, rating, slotIndex });
+    logger.info("Sending feedback", { connectRequestId, rating,comment , slotIndex });
     if (!connectRequestId) return { success: false };
     try {
       setSubmitting(true);

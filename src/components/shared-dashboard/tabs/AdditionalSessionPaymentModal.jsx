@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { payAdditionalEscrow, getEscrowStatus } from "../../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
+import logger from "@utils/logger";
 
 const TokenIcon = ({ size = 13 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +39,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
         if (data?.commissionRate != null) setCommissionRate(data.commissionRate);
         if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
       } catch (err) {
-        console.warn("Could not fetch escrow status:", err.message);
+        logger.warn("Could not fetch escrow status:", { error: err.message });
       } finally {
         setFetching(false);
       }
