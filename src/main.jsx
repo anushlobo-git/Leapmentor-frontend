@@ -1,19 +1,22 @@
-import { StrictMode, lazy, Suspense } from 'react'
-import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux';
-import store from './store/index.js';
-import { injectStore } from './utils/axiosInstance.js'; // FIX: import injectStore
-import './index.css'
+import { StrictMode, lazy, Suspense } from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import store from "./store/index.js";
+import { injectStore } from "./utils/axiosInstance.js"; // FIX: import injectStore
+import "./index.css";
 import * as Sentry from "@sentry/react";
-import { ToastProvider } from './context/ToastContext.jsx';
-import { AdminAuthProvider } from './context/AdminAuthContext.jsx';
-import logger from './utils/logger.js';
+import { ToastProvider } from "./context/ToastContext.jsx";
+import logger from "./utils/logger.js";
 
-const App = lazy(() => import('./App.jsx'))
+const App = lazy(() => import("./App.jsx"));
 
 // FIX: give the Axios interceptor access to Redux store
 // Must be called before any API request fires — here is the right place
 injectStore(store);
+
+if (import.meta.env.DEV) {
+  window.store = store;
+}
 
 Sentry.init({
   dsn: "https://fb4accd47575799b807ef1b990ab5ebb@o4511471540240384.ingest.de.sentry.io/4511471555575888",
@@ -36,16 +39,14 @@ window.addEventListener("unhandledrejection", (event) => {
   });
 });
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      <AdminAuthProvider>
-        <ToastProvider>
-          <Suspense fallback={null}>
-            <App />
-          </Suspense>
-       </ToastProvider>
-      </AdminAuthProvider>
+      <ToastProvider>
+        <Suspense fallback={null}>
+          <App />
+        </Suspense>
+      </ToastProvider>
     </Provider>
   </StrictMode>,
-)
+);
