@@ -1,6 +1,7 @@
 // src/components/shared-dashboard/SharedDashboardLayout.jsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import SharedTopbar from "./SharedTopbar";
 import SharedSidebar from "./SharedSidebar";
 import SharedHomeTab from "./tabs/SharedHomeTab";
@@ -9,17 +10,26 @@ import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import useSocketToast from "../../hooks/useSocketToast";
-import { useSelector } from "react-redux";
+import {
+  setActiveTab,
+  selectActiveTab,
+  selectViewerRole,
+} from "../../store/slices/sharedDashboardSlice";
 
-const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
-  const activeTab = activeTabProp || "overview";
+const SharedDashboardLayout = () => {
+  const dispatch = useDispatch();
+  const [, setSearchParams] = useSearchParams();
+  const activeTab = useSelector(selectActiveTab) || "overview";
+  const viewerRole = useSelector(selectViewerRole);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   useSocketToast();
 
-  const viewerRole = connect?.viewerRole || "mentee";
+  const handleSetActiveTab = useCallback((tab) => {
+    dispatch(setActiveTab(tab));
+    setSearchParams({ tab }, { replace: true });
+  }, [dispatch, setSearchParams]);
 
   const backPath = viewerRole === "mentor"
     ? "/dashboard/mentor"
@@ -47,7 +57,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
         {/* Sidebar */}
         <SharedSidebar
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleSetActiveTab}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           viewerRole={viewerRole}
@@ -68,7 +78,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedHomeTab connect={connect} onTabChange={setActiveTab} />
+            <SharedHomeTab />
           </div>
 
           {/* Chat — always mounted so socket stays alive */}
@@ -79,7 +89,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             padding: "24px 32px",
             boxSizing: "border-box",
           }}>
-            <SharedChatTab connect={connect} />
+            <SharedChatTab />
           </div>
 
           {/* Goals */}
@@ -88,10 +98,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedGoalsTab
-              connect={connect}
-              onAllComplete={onAllComplete}
-            />
+            <SharedGoalsTab />
           </div>
 
           {/* Notes */}
@@ -100,7 +107,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedNotesTab connect={connect} myId={user?.id} />
+            <SharedNotesTab />
           </div>
 
           {/* Add Session */}
@@ -109,7 +116,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedAdditionalSessionTab connect={connect} onTabChange={setActiveTab} />
+            <SharedAdditionalSessionTab />
           </div>
 
         </main>

@@ -1,9 +1,16 @@
 // src/components/mentor/dashboard/MentorHomeTab.jsx
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
 import logger from "@utils/logger";
+import {
+  selectDashboardUser,
+  selectDashboardProfile,
+  refetchMentorProfile,
+} from "../../../store/slices/dashboardUserSlice";
 
 const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
@@ -163,8 +170,11 @@ const EarningsSkeleton = () => (
   </div>
 );
 
-const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
+const MentorHomeTab = ({ setActiveTab }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector(selectDashboardUser);
+  const profile = useSelector(selectDashboardProfile);
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
 
@@ -186,8 +196,8 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
   const unlockedCount = badges.filter((b) => b.unlocked).length;
 
   useEffect(() => {
-    if (refetchProfile) refetchProfile();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    dispatch(refetchMentorProfile());
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -454,6 +464,10 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
 
     </div>
   );
+};
+
+MentorHomeTab.propTypes = {
+  setActiveTab: PropTypes.func.isRequired,
 };
 
 export default MentorHomeTab;

@@ -1,7 +1,12 @@
 // src/components/shared-dashboard/tabs/PrivateNotesTab.jsx
 import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import useNotes from "../../../hooks/useNotes";
 import usePrivateNotes from "../../../hooks/usePrivateNotes";
+import {
+  selectConnectId,
+  selectConnectStatus,
+} from "../../../store/slices/sharedDashboardSlice";
 
 // ── Helpers ───────────────────────────────────────────────────
 const formatFileSize = (bytes) => {
@@ -489,10 +494,11 @@ const NotepadSection = ({ connectId, isCompleted }) => {
 };
 
 // ── Private Files Section ─────────────────────────────────────
-const PrivateFilesSection = ({ connect }) => {
+const PrivateFilesSection = () => {
+  const connectId = useSelector(selectConnectId);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
   const [showUpload, setShowUpload] = useState(false);
-  const { privateNotes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
-  const isCompleted = connect?.status === "completed";
+  const { privateNotes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connectId);
 
   const handleUpload = async (file, title) => uploadNote(file, title, true);
   const handleDelete = async (noteId) => deleteNote(noteId, true);
@@ -591,9 +597,10 @@ const PrivateFilesSection = ({ connect }) => {
 };
 
 // ── Main Private Tab ──────────────────────────────────────────
-const PrivateNotesTab = ({ connect }) => {
+const PrivateNotesTab = () => {
+  const connectId = useSelector(selectConnectId);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
   const [privateSubTab, setPrivateSubTab] = useState("files");
-  const isCompleted = connect?.status === "completed";
 
   return (
     <div className="w-full">
@@ -634,8 +641,8 @@ const PrivateNotesTab = ({ connect }) => {
         </button>
       </div>
 
-      {privateSubTab === "files" && <PrivateFilesSection connect={connect} />}
-      {privateSubTab === "notepad" && <NotepadSection connectId={connect._id} isCompleted={isCompleted} />}
+      {privateSubTab === "files" && <PrivateFilesSection />}
+      {privateSubTab === "notepad" && <NotepadSection connectId={connectId} isCompleted={isCompleted} />}
     </div>
   );
 };

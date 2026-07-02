@@ -1,13 +1,20 @@
 // components/mentor/dashboard/ProfileTab.jsx
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ProfileCard from "./ProfileCard";
 import ProfessionalInfoCard from "./ProfessionalInfoCard";
 import SkillsCard from "./SkillsCard";
 import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialCard from "./SocialCard";
+import {
+  selectDashboardUser,
+  selectDashboardProfile,
+} from "../../../store/slices/dashboardUserSlice";
 
-const ProfileTab = ({ user, profile }) => {
+const ProfileTab = () => {
   const navigate = useNavigate();
+  const user = useSelector(selectDashboardUser);
+  const profile = useSelector(selectDashboardProfile);
 
   return (
     <div className="space-y-4">

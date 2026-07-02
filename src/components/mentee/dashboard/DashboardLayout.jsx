@@ -1,19 +1,38 @@
 // src/components/mentee/dashboard/DashboardLayout.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { useDispatch } from "react-redux";
 import useMenteeDashboard from "../../../hooks/useMenteeDashboard";
+import { setUser, setProfile, resetDashboardUser } from "../../../store/slices/dashboardUserSlice";
 import useUnreadCount from "../../../hooks/useUnreadCount"; // ✅ added
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
-import HomeTab from "./HomeTab";
-import ProfileTab from "./ProfileTab";
-import FindMentorsTab from "./findMentors/FindMentorsTab";
-import RequestHistoryTab from "./history/RequestHistoryTab";
-import NotificationsTab from "../notifications/NotificationsTab";
-import MenteeConnectsTab from "./connects/MenteeConnectsTab";
-import HelpCenter from "../../common/HelpCenter";
-import useSocketToast from "../../../hooks/useSocketToast"; 
+import useSocketToast from "../../../hooks/useSocketToast";
+
+const HomeTab = lazy(() => import("./HomeTab"));
+const ProfileTab = lazy(() => import("./ProfileTab"));
+const FindMentorsTab = lazy(() => import("./findMentors/FindMentorsTab"));
+const RequestHistoryTab = lazy(() => import("./history/RequestHistoryTab"));
+const NotificationsTab = lazy(() => import("../notifications/NotificationsTab"));
+const MenteeConnectsTab = lazy(() => import("./connects/MenteeConnectsTab"));
+const HelpCenter = lazy(() => import("../../common/HelpCenter"));
+
+const TabSkeleton = () => (
+  <div className="w-full flex flex-col gap-4 animate-pulse pt-2">
+    <div className="h-7 w-48 bg-slate-200 rounded-xl" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="bg-white rounded-2xl border border-slate-100 p-5 h-24" />
+      ))}
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
+    </div>
+  </div>
+);
 
 const DashboardLayout = () => {
+  const dispatch = useDispatch();
   const { user, profile, loading, error, refetch } = useMenteeDashboard();
   const { unreadCount, clearBadge,incrementBadge } = useUnreadCount();
 
@@ -21,6 +40,16 @@ const DashboardLayout = () => {
   useSocketToast(onRequestChanged,incrementBadge);  
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) dispatch(setUser(user));
+  }, [user, dispatch]);
+
+  useEffect(() => {
+    if (profile) dispatch(setProfile(profile));
+  }, [profile, dispatch]);
+
+  useEffect(() => () => dispatch(resetDashboardUser()), [dispatch]);
   useEffect(() => {
     const handler = (e) => setActiveTab(e.detail);
     window.addEventListener("setDashboardTab", handler);
@@ -98,14 +127,15 @@ useEffect(() => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <HomeTab user={user} profile={profile} />}
-          {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
-          {activeTab === "findMentors"   && <FindMentorsTab />}
-          {activeTab === "history"       && <RequestHistoryTab />}
-          {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
-          {activeTab === "connects"      && <MenteeConnectsTab />}
-          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
-          
+          <Suspense fallback={<TabSkeleton />}>
+            {activeTab === "home"          && <HomeTab />}
+            {activeTab === "profile"       && <ProfileTab />}
+            {activeTab === "findMentors"   && <FindMentorsTab />}
+            {activeTab === "history"       && <RequestHistoryTab />}
+            {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
+            {activeTab === "connects"      && <MenteeConnectsTab />}
+            {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
+          </Suspense>
         </main>
       </div>
     </div>

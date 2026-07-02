@@ -1,6 +1,8 @@
 // src/components/mentor/dashboard/DashboardLayout.jsx
 import { useState, useEffect, lazy, Suspense } from "react";
+import { useDispatch } from "react-redux";
 import useMentorDashboard from "../../../hooks/useMentorDashboard";
+import { setUser, setProfile, resetDashboardUser } from "../../../store/slices/dashboardUserSlice";
 import useUnreadCount from "../../../hooks/useUnreadCount";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
@@ -31,12 +33,23 @@ const TabSkeleton = () => (
 );
 
 const DashboardLayout = () => {
-  const { user, profile, loading, error, refetchProfile } = useMentorDashboard();
+  const dispatch = useDispatch();
+  const { user, profile, loading, error } = useMentorDashboard();
   const { unreadCount, clearBadge, incrementBadge } = useUnreadCount(); // ✅ added incrementBadge
   useSocketToast(undefined, incrementBadge);                             // ✅ pass incrementBadge
 
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) dispatch(setUser(user));
+  }, [user, dispatch]);
+
+  useEffect(() => {
+    if (profile) dispatch(setProfile(profile));
+  }, [profile, dispatch]);
+
+  useEffect(() => () => dispatch(resetDashboardUser()), [dispatch]);
 
   useEffect(() => {
     if (activeTab === "notifications") clearBadge();
@@ -100,8 +113,8 @@ const DashboardLayout = () => {
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
           <Suspense fallback={<TabSkeleton />}>
-            {activeTab === "home"          && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab} />}
-            {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
+            {activeTab === "home"          && <MentorHomeTab setActiveTab={handleSetTab} />}
+            {activeTab === "profile"       && <ProfileTab />}
             {activeTab === "availability"  && <AvailabilityTab />}
             {activeTab === "requests"      && <RequestsTab />}
             {activeTab === "connects"      && <MentorConnectsTab />}

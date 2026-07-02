@@ -9,7 +9,8 @@ import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import FullScreenLoader from "../FullScreenLoader";
-import { setAuthRole } from "@utils/cookies"; 
+import { setAuthRole } from "@utils/cookies";
+import PropTypes from "prop-types";
 
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -31,10 +32,10 @@ const LoginForm = ({ placeholder, registerPath }) => {
   dispatch(setUser({ accessToken, user }));
 
   const roles = user?.roles || [];
-  const primaryRole = roles.includes("mentor") 
-    ? "mentor" 
-    : roles.includes("mentee") 
-    ? "mentee" 
+  const primaryRole = roles.includes("mentor")
+    ? "mentor"
+    : roles.includes("mentee")
+    ? "mentee"
     : null;
 
   if (primaryRole) {
@@ -189,6 +190,11 @@ const LoginForm = ({ placeholder, registerPath }) => {
       </p>
     </div>
   );
+};
+// PropTypes go BELOW the component, ABOVE the export
+LoginForm.propTypes = {
+  placeholder:  PropTypes.string,           // optional string
+  registerPath: PropTypes.string,           // optional string
 };
 
 export default LoginForm;

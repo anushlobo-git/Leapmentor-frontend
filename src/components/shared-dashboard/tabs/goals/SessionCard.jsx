@@ -637,7 +637,6 @@ const SessionCard = ({
   onRescheduleSlot,
   allSlots,
   connectRequestId,
-  connect,
 }) => {
   const saving = [...savingSlots].includes(slotIndex);
 
@@ -833,7 +832,6 @@ const SessionCard = ({
 
       {showSessionFeedback && (
         <FeedbackModal
-          connect={connect}
           slotIndex={slotIndex}
           onClose={() => setShowSessionFeedback(false)}
         />

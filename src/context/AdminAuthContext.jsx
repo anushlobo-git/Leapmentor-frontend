@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 
 const AdminAuthContext = createContext(null);
@@ -30,12 +30,12 @@ export const AdminAuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = (adminData) => {
+  const login = useCallback((adminData) => {
     didLogout.current = false;
     setAdmin(adminData);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     didLogout.current = true; // set BEFORE the API call
     try {
       await adminAxiosInstance.post("/admin/auth/logout");
@@ -44,11 +44,16 @@ export const AdminAuthProvider = ({ children }) => {
     } finally {
       setAdmin(null);
     }
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({ admin, loading, login, logout, isAuthenticated: !!admin, setAdmin }),
+    [admin, loading, login, logout],
+  );
 
   return (
     <AdminAuthContext.Provider
-      value={{ admin, loading, login, logout, isAuthenticated: !!admin, setAdmin }}
+      value={value}
     >
       {children}
     </AdminAuthContext.Provider>

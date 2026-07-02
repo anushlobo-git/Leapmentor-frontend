@@ -1,6 +1,11 @@
 // src/components/shared-dashboard/tabs/SharedChatTab.jsx
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useSelector } from "react-redux";
 import useChat from "../../../hooks/useChat";
+import {
+  selectConnectId,
+  selectViewerRole,
+} from "../../../store/slices/sharedDashboardSlice";
 
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
@@ -36,7 +41,7 @@ const isSameDay = (a, b) =>
   new Date(a).toDateString() === new Date(b).toDateString();
 
 // ── Avatar ────────────────────────────────────────────────────
-const Avatar = ({ name, picture, size = 32 }) => {
+const Avatar = memo(({ name, picture, size = 32 }) => {
   if (picture) {
     return (
       <img src={picture} alt={name} style={{
@@ -57,7 +62,7 @@ const Avatar = ({ name, picture, size = 32 }) => {
       {getInitials(name)}
     </div>
   );
-};
+});
 
 // ── Chat Header ───────────────────────────────────────────────
 const ChatHeader = ({ name, picture, otherOnline }) => (
@@ -85,7 +90,7 @@ const ChatHeader = ({ name, picture, otherOnline }) => (
 );
 
 // ── Date Separator ────────────────────────────────────────────
-const DateSeparator = ({ dateStr }) => (
+const DateSeparator = memo(({ dateStr }) => (
   <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "12px 0" }}>
     <div style={{ flex: 1, height: "1px", backgroundColor: "#f1f5f9" }} />
     <span style={{
@@ -98,7 +103,7 @@ const DateSeparator = ({ dateStr }) => (
     </span>
     <div style={{ flex: 1, height: "1px", backgroundColor: "#f1f5f9" }} />
   </div>
-);
+));
 
 // ── Read Receipt ──────────────────────────────────────────────
 const ReadReceipt = ({ readAt }) => (
@@ -117,7 +122,7 @@ const ReadReceipt = ({ readAt }) => (
 );
 
 // ── Message Bubble ────────────────────────────────────────────
-const MessageBubble = ({ message, isOwn, otherName, otherPicture }) => (
+const MessageBubble = memo(({ message, isOwn, otherName, otherPicture }) => (
   <div style={{
     display: "flex",
     flexDirection: isOwn ? "row-reverse" : "row",
@@ -145,10 +150,10 @@ const MessageBubble = ({ message, isOwn, otherName, otherPicture }) => (
       </div>
     </div>
   </div>
-);
+));
 
 // ── Typing Indicator ──────────────────────────────────────────
-const TypingIndicator = ({ name }) => (
+const TypingIndicator = memo(({ name }) => (
   <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0" }}>
     <div style={{
       padding: "10px 14px", borderRadius: "18px 18px 18px 4px",
@@ -171,7 +176,7 @@ const TypingIndicator = ({ name }) => (
       }
     `}</style>
   </div>
-);
+));
 
 // ── Load More ─────────────────────────────────────────────────
 const LoadMoreButton = ({ onClick, loading }) => (
@@ -289,34 +294,45 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
 };
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedChatTab = ({ connect }) => {
+const SharedChatTab = () => {
+  const connectId = useSelector(selectConnectId);
+  const viewerRole = useSelector(selectViewerRole);
+  const otherName = useSelector((state) => {
+    const c = state.sharedDashboard.connect;
+    if (!c) return "Partner";
+    return c.viewerRole === "mentee"
+      ? c.mentor?.name || "Mentor"
+      : c.mentee?.name || "Mentee";
+  });
+  const otherPicture = useSelector((state) => {
+    const c = state.sharedDashboard.connect;
+    if (!c) return "";
+    return c.viewerRole === "mentee"
+      ? c.mentorProfile?.profilePicture || ""
+      : c.menteeProfile?.profilePicture || "";
+  });
+  const myId = useSelector((state) => {
+    const c = state.sharedDashboard.connect;
+    if (!c) return "";
+    return c.viewerRole === "mentee"
+      ? c.mentee?._id?.toString()
+      : c.mentor?._id?.toString();
+  });
+
   const {
     messages, loading, loadingMore, hasMore, error,
     isTyping, otherOnline,
     sendMessage, loadMore, handleTyping, markRead,
-  } = useChat(connect?._id);
+  } = useChat(connectId);
 
   const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const prevScrollHeight = useRef(0);
 
-  // ── Determine other person ──────────────────────────────
-  const viewerRole = connect?.viewerRole;
-  const myId = viewerRole === "mentee"
-    ? connect?.mentee?._id?.toString()
-    : connect?.mentor?._id?.toString();
-
-  const isOwn = (msg) => {
+  const isOwn = useCallback((msg) => {
     const sid = msg.sender?._id?.toString() || msg.sender?.toString();
     return sid === myId;
-  };
-
-  const otherName = viewerRole === "mentee"
-    ? connect?.mentor?.name || "Mentor"
-    : connect?.mentee?.name || "Mentee";
-  const otherPicture = viewerRole === "mentee"
-    ? connect?.mentorProfile?.profilePicture || ""
-    : connect?.menteeProfile?.profilePicture || "";
+  }, [myId]);
 
   // ── Scroll to bottom on load ────────────────────────────
   const scrollToBottom = useCallback((smooth = false) => {

@@ -1,10 +1,15 @@
 // src/components/mentee/dashboard/HomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
 import logger from "@utils/logger";
+import {
+  selectDashboardUser,
+  selectDashboardProfile,
+} from "../../../store/slices/dashboardUserSlice";
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
@@ -402,8 +407,10 @@ const checkExistingRequest = async () => {
 };
 
 // ── Main HomeTab ──────────────────────────────────────────────
-const HomeTab = ({ user, profile }) => {
+const HomeTab = () => {
   const navigate = useNavigate();
+  const user = useSelector(selectDashboardUser);
+  const profile = useSelector(selectDashboardProfile);
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
   const completionPct = calculateProfileCompletion(profile);

@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   connect: null,
-  activeTab: "sessions",
+  activeTab: "overview",
 };
 
 const sharedDashboardSlice = createSlice({
@@ -22,5 +22,13 @@ const sharedDashboardSlice = createSlice({
 
 export const { setConnect, setActiveTab, resetSharedDashboard } =
   sharedDashboardSlice.actions;
+
+export const selectConnect = (state) => state.sharedDashboard.connect;
+export const selectConnectId = (state) => state.sharedDashboard.connect?._id ?? null;
+export const selectActiveTab = (state) => state.sharedDashboard.activeTab;
+export const selectViewerRole = (state) =>
+  state.sharedDashboard.connect?.viewerRole ?? "mentee";
+export const selectConnectStatus = (state) =>
+  state.sharedDashboard.connect?.status ?? null;
 
 export default sharedDashboardSlice.reducer;

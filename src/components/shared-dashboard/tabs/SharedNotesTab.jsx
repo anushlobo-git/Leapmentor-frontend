@@ -1,7 +1,14 @@
 // src/components/shared-dashboard/tabs/SharedNotesTab.jsx
 import { useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import useNotes from "../../../hooks/useNotes";
 import PrivateNotesTab from "./PrivateNotesTab";
+import {
+  selectConnectId,
+  selectConnectStatus,
+  selectViewerRole,
+  setActiveTab,
+} from "../../../store/slices/sharedDashboardSlice";
 
 // ── Helpers ───────────────────────────────────────────────────
 const formatFileSize = (bytes) => {
@@ -253,10 +260,11 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
 };
 
 // ── Shared Files Section ──────────────────────────────────────
-const SharedFilesSection = ({ connect ,myId }) => {
+const SharedFilesSection = ({ myId }) => {
+  const connectId = useSelector(selectConnectId);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
   const [showUpload, setShowUpload] = useState(false);
-  const { notes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
-  const isCompleted = connect?.status === "completed";
+  const { notes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connectId);
 
   const handleUpload = async (file, title) => uploadNote(file, title, false);
   const handleDelete = async (noteId) => deleteNote(noteId, false);
@@ -343,10 +351,12 @@ const SharedFilesSection = ({ connect ,myId }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const SharedNotesTab = ({ connect,myId }) => {
+const SharedNotesTab = () => {
+  const connectId = useSelector(selectConnectId);
+  const myId = useSelector((state) => state.auth.user?.id);
   const [activeView, setActiveView] = useState("shared");
 
-  if (!connect?._id) {
+  if (!connectId) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="w-7 h-7 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
@@ -381,8 +391,8 @@ const SharedNotesTab = ({ connect,myId }) => {
         </button>
       </div>
 
-      {activeView === "shared" && <SharedFilesSection connect={connect} myId={myId} />}
-      {activeView === "private" && <PrivateNotesTab connect={connect} />}
+      {activeView === "shared" && <SharedFilesSection myId={myId} />}
+      {activeView === "private" && <PrivateNotesTab />}
     </div>
   );
 };

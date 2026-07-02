@@ -1,7 +1,10 @@
 // src/components/shared-dashboard/tabs/SharedHomeTab.jsx
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
+import { selectConnect, setActiveTab } from "../../../store/slices/sharedDashboardSlice";
 
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -110,9 +113,19 @@ const QuickAction = ({ icon, label, onClick, color = "#2563eb" }) => (
 );
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
+const SharedHomeTab = ({ slots = [] }) => {
+  const dispatch = useDispatch();
+  const [, setSearchParams] = useSearchParams();
+  const connect = useSelector(selectConnect);
   const [showReport, setShowReport] = useState(false);
   const [reportDone, setReportDone] = useState(false);
+
+  const onTabChange = useCallback((tab) => {
+    dispatch(setActiveTab(tab));
+    setSearchParams({ tab }, { replace: true });
+  }, [dispatch, setSearchParams]);
+
+  if (!connect) return null;
 
   const {
     mentor, mentee,
@@ -282,7 +295,6 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
       {/* Report Modal */}
       {showReport && !reportDone && (
         <ReportModal
-          connect={connect}
           onClose={() => setShowReport(false)}
           onSuccess={() => { setShowReport(false); setReportDone(true); }}
         />

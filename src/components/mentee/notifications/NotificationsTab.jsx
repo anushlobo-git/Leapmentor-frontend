@@ -1,5 +1,6 @@
-// src/components/mentor/dashboard/NotificationsTab.jsx
+// src/components/mentee/notifications/NotificationsTab.jsx
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import axiosInstance from "@utils/axiosInstance";
 import EmptyState from "@components/common/EmptyState";
 
@@ -461,6 +462,39 @@ const NotificationsTab = ({ setActiveTab }) => {
       )}
     </div>
   );
+};
+
+NotificationsTab.propTypes = {
+  setActiveTab: PropTypes.func.isRequired,
+};
+
+NotifCard.propTypes = {
+  notif: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    read: PropTypes.bool,
+    type: PropTypes.string,
+    time: PropTypes.string,
+    accent: PropTypes.bool,
+    title: PropTypes.string,
+    senderName: PropTypes.string,
+    body: PropTypes.string,
+    actions: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string,
+        primary: PropTypes.bool,
+      })
+    ),
+  }).isRequired,
+  onMarkRead: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  setActiveTab: PropTypes.func,
+};
+
+StatCard.propTypes = {
+  icon: PropTypes.node,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  accent: PropTypes.bool,
 };
 
 export default NotificationsTab;

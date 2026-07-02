@@ -7,8 +7,8 @@ import { registerUser, clearMessages, setUser } from "../../store/slices/authSli
 import FullScreenLoader from "../FullScreenLoader";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
-import { LeapMentorLogo } from "./AuthIcons";
 import TermsAndConditionsModal from "../../molecules/TermsAndConditionsModal";
+import PropTypes from "prop-types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -267,6 +267,9 @@ const RegisterForm = ({ role }) => {
       />
     </>
   );
+};
+RegisterForm.propTypes = {
+  role: PropTypes.oneOf(["mentor", "mentee"]).isRequired, // required string, either "mentor" or "mentee"
 };
 
 export default RegisterForm;

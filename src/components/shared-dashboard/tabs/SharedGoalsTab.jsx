@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "@utils/axiosInstance";
 import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
 import useReport from "../../../hooks/useReport";
@@ -7,6 +9,12 @@ import TimelineTracker from "./goals/TimelineTracker";
 import MilestoneList from "./goals/MilestoneList";
 import SessionCard from "./goals/SessionCard";
 import FeedbackModal from "./FeedbackModal";
+import {
+  selectConnect,
+  selectConnectId,
+  selectViewerRole,
+  setConnect,
+} from "../../../store/slices/sharedDashboardSlice";
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -167,12 +175,25 @@ const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback
 };
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedGoalsTab = ({ connect, onAllComplete }) => {
+const SharedGoalsTab = () => {
+  const dispatch = useDispatch();
+  const connect = useSelector(selectConnect);
+  const connectRequestId = useSelector(selectConnectId);
+  const viewerRole = useSelector(selectViewerRole);
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-  const viewerRole = connect?.viewerRole || "mentee";
-  const connectRequestId = connect?._id;
+  const onAllComplete = useCallback(async () => {
+    if (!connectRequestId) return;
+    try {
+      const res = await axiosInstance.get(
+        `/connect-requests/${connectRequestId}/detail`,
+      );
+      dispatch(setConnect(res.data.connect));
+    } catch {
+      // silently fail
+    }
+  }, [connectRequestId, dispatch]);
 
   const otherName = viewerRole === "mentee"
     ? connect?.mentor?.name || "Mentor"
@@ -301,7 +322,6 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 onRescheduleSlot={rescheduleSlot}
                 allSlots={slots}
                 connectRequestId={connectRequestId}
-                connect={connect}
               />
             ))}
           </div>
@@ -311,7 +331,6 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
-          connect={connect}
           onClose={() => setShowFeedbackModal(false)}
           onFeedbackSubmitted={handleFeedbackSubmitted}  // ← passed down
         />

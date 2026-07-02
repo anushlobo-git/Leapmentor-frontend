@@ -1,5 +1,13 @@
 // src/components/common/EmptyState.jsx
 import React from "react";
+import PropTypes from "prop-types";
+
+EmptyState.propTypes = {
+  icon: PropTypes.node,
+  title: PropTypes.string,
+  message: PropTypes.string,
+  action: PropTypes.node,
+};
 
 export default function EmptyState({
   icon,
@@ -10,9 +18,7 @@ export default function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200">
       <div className="flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-slate-50 text-slate-400">
-        {icon ? (
-          icon
-        ) : (
+        {icon || (
           <svg
             className="w-6 h-6"
             fill="none"
@@ -34,3 +40,4 @@ export default function EmptyState({
     </div>
   );
 }
+

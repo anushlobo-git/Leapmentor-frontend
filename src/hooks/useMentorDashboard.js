@@ -14,15 +14,6 @@ const useMentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  const refetchProfile = async () => {
-    try {
-      const res = await axiosInstance.get("/mentor-profile/me");
-      setProfile(res.data);
-    } catch (err) {
-      console.error("Profile refetch failed:", err.message);
-    }
-  };
-
   useEffect(() => {
     if (!isLoggedIn()) {
       navigate("/login");
@@ -88,7 +79,7 @@ const useMentorDashboard = () => {
     fetchData();
   }, [isEditPage, navigate]);
 
-  return { user, profile, loading, error, refetchProfile };
+  return { user, profile, loading, error };
 };
 
 export default useMentorDashboard;
