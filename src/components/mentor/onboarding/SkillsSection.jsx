@@ -1,5 +1,6 @@
 // components/mentor/onboarding/SkillsSection.jsx
 import { useState, forwardRef } from "react";
+import PropTypes from "prop-types";
 
 const SkillsSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
   const [input, setInput] = useState("");
@@ -103,4 +104,14 @@ const SkillsSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
 });
 
 SkillsSection.displayName = "SkillsSection";
+
+SkillsSection.propTypes = {
+  form: PropTypes.shape({
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+  errors: PropTypes.shape({
+    skills: PropTypes.bool,
+  }),
+};
 export default SkillsSection;

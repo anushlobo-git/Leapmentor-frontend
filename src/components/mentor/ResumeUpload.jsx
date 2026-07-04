@@ -1,4 +1,5 @@
 // components/mentor/verification/ResumeUpload.jsx
+import PropTypes from "prop-types";
 
 const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_LABEL = "PDF, JPG, PNG, WEBP";
@@ -113,6 +114,15 @@ const ResumeUpload = ({ file, onChange, error }) => {
       </div>
     </div>
   );
+};
+
+ResumeUpload.propTypes = {
+  file: PropTypes.shape({
+    name: PropTypes.string,
+    size: PropTypes.number,
+  }),
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
 };
 
 export default ResumeUpload;

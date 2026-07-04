@@ -3,6 +3,9 @@ import {
   Home, User, Calendar, Bell, MessageSquare,
   Users, DollarSign, HelpCircle, X
 } from "lucide-react";
+import PropTypes from "prop-types";
+
+const NAV_KEYS = ["home","profile","availability","notifications","requests","connects","earnings","help"];
 
 const NAV_ITEMS = [
   { key: "home",          label: "Home",          icon: <Home size={16} /> },
@@ -299,5 +302,22 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) 
     </>
   );
 };
+Badge.propTypes = {
+  count: PropTypes.number,
+};
 
+SidebarContent.propTypes = {
+  activeTab: PropTypes.oneOf(NAV_KEYS).isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  unreadCount: PropTypes.number,
+};
+
+Sidebar.propTypes = {
+  activeTab: PropTypes.oneOf(NAV_KEYS).isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  unreadCount: PropTypes.number,
+};
 export default Sidebar;

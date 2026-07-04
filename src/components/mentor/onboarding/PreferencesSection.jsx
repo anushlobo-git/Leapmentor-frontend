@@ -1,5 +1,6 @@
 // components/mentor/onboarding/PreferencesSection.jsx
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 
 const COMMUNICATION_OPTIONS = [
   { value: "Video Call", label: "Video Meetings", icon: "🎥" },
@@ -181,5 +182,14 @@ const PreferencesSection = ({ form, onChange }) => {
     </div>
   );
 };
-
+PreferencesSection.propTypes = {
+  form: PropTypes.shape({
+    communicationPreferences: PropTypes.arrayOf(PropTypes.string),
+    languages: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
 export default PreferencesSection;

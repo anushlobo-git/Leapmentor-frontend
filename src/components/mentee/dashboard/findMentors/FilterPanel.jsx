@@ -1,5 +1,6 @@
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
 import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 const INDUSTRIES = [
   "Technology", "Finance", "Healthcare", "Education", "Marketing",
@@ -205,5 +206,9 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
     </div>
   );
 };
-
+FilterPanel.propTypes = {
+  filters: PropTypes.object.isRequired,
+  updateFilter: PropTypes.func.isRequired,
+  resetFilters: PropTypes.func.isRequired,
+};
 export default FilterPanel;

@@ -2,12 +2,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-EmptyState.propTypes = {
-  icon: PropTypes.node,
-  title: PropTypes.string,
-  message: PropTypes.string,
-  action: PropTypes.node,
-};
 
 export default function EmptyState({
   icon,
@@ -40,4 +34,9 @@ export default function EmptyState({
     </div>
   );
 }
-
+EmptyState.propTypes = {
+  icon: PropTypes.node.isRequired,
+  title: PropTypes.string,
+  message: PropTypes.string,
+  action: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};

@@ -1,4 +1,5 @@
 import Dot from "@atoms/Dot";
+import PropTypes from "prop-types";
 
 export default function DotIndicator({ total, active, onDotClick }) {
   return (
@@ -13,3 +14,9 @@ export default function DotIndicator({ total, active, onDotClick }) {
     </div>
   );
 }
+
+DotIndicator.propTypes = {
+  total: PropTypes.number.isRequired,
+  active: PropTypes.number.isRequired,
+  onDotClick: PropTypes.func.isRequired,
+};

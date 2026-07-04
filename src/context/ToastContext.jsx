@@ -1,5 +1,6 @@
 // src/context/ToastContext.jsx
 import { createContext, useContext, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 
 const ToastContext = createContext(null);
 
@@ -160,4 +161,18 @@ const Toast = ({ toast, onRemove }) => {
       </button>
     </div>
   );
+};
+
+ToastProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    type: PropTypes.oneOf(["success", "error", "info", "warning"]),
+    title: PropTypes.string,
+    message: PropTypes.string,
+  }).isRequired,
+  onRemove: PropTypes.func.isRequired,
 };

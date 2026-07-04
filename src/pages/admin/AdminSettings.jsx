@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
+import PropTypes from "prop-types";
 
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -96,7 +97,7 @@ const AdminSettings = () => {
         const [cmRes] = await Promise.all([
           adminAxiosInstance.get(`/admin/settings/commission`),
         ]);
-        
+
         setCommission(String(cmRes.data.commissionRate));
       } catch {
         showToast("Failed to load settings.", "error");
@@ -273,6 +274,36 @@ const AdminSettings = () => {
       </div>
     </AdminLayout>
   );
+};
+
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    msg: PropTypes.string,
+    type: PropTypes.oneOf(["success", "error"]),
+  }),
+};
+
+SectionCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  icon: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired,
+  accent: PropTypes.string,
+};
+
+SubmitBtn.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  accent: PropTypes.string,
+};
+
+OverviewCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.number,
+  icon: PropTypes.node.isRequired,
+  accent: PropTypes.string.isRequired,
+  sub: PropTypes.string,
 };
 
 export default AdminSettings;

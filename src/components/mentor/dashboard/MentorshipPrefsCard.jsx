@@ -1,4 +1,5 @@
 // components/mentor/dashboard/MentorshipPrefsCard.jsx
+import PropTypes from "prop-types";
 
 const COMM_ICONS = {
   "Video Call": "🎥",
@@ -56,5 +57,10 @@ const MentorshipPrefsCard = ({ profile }) => {
     </div>
   );
 };
-
+MentorshipPrefsCard.propTypes = {
+  profile: PropTypes.shape({
+    communicationPreferences: PropTypes.arrayOf(PropTypes.string),
+    languages: PropTypes.arrayOf(PropTypes.string),
+  }),
+};
 export default MentorshipPrefsCard;

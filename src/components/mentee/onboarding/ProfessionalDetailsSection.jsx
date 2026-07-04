@@ -1,4 +1,5 @@
 // components/mentee/onboarding/ProfessionalDetailsSection.jsx
+import PropTypes from "prop-types";
 
 const EXPERIENCE_OPTIONS = [
   "Student / Aspiring",
@@ -121,6 +122,26 @@ const ProfessionalDetailsSection = ({ form, handleChange, errors = {} }) => {
       </div>
     </div>
   );
+};
+ProfessionalDetailsSection.propTypes = {
+  form: PropTypes.shape({
+    currentRole: PropTypes.string.isRequired,
+    company: PropTypes.string.isRequired,
+    yearsOfExperience: PropTypes.oneOf([
+      "Student / Aspiring", "0-1 Years", "1-3 Years",
+      "3-5 Years", "5-10 Years", "10+ Years",
+    ]),
+    industry: PropTypes.oneOf([
+      "Technology", "Finance", "Healthcare", "Education", "Design",
+      "Marketing", "Legal", "Consulting", "Media", "Engineering", "Other",
+    ]),
+  }).isRequired,
+  handleChange: PropTypes.func.isRequired,
+  errors: PropTypes.shape({
+    currentRole: PropTypes.bool,
+    yearsOfExperience: PropTypes.bool,
+    industry: PropTypes.bool,
+  }),
 };
 
 export default ProfessionalDetailsSection;

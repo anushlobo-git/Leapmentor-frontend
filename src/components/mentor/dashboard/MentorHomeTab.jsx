@@ -12,6 +12,7 @@ import {
   refetchMentorProfile,
 } from "../../../store/slices/dashboardUserSlice";
 
+
 const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
 
@@ -469,5 +470,34 @@ const MentorHomeTab = ({ setActiveTab }) => {
 MentorHomeTab.propTypes = {
   setActiveTab: PropTypes.func.isRequired,
 };
+StatCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sub: PropTypes.string,
+  icon: PropTypes.node.isRequired,
+};
 
+SessionCard.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string,
+    status: PropTypes.string,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    confirmedSlot: PropTypes.shape({
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    selectedSlots: PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.string,
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      })
+    ),
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  navigate: PropTypes.func.isRequired,
+};
 export default MentorHomeTab;

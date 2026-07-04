@@ -6,6 +6,7 @@ import {
   selectConnectId,
   selectViewerRole,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 const COMPLAINT_ICONS = {
   inappropriate_behavior: "🚫",
@@ -46,7 +47,7 @@ const ReportModal = ({ onClose, onSuccess }) => {
       ? [{ value: "refund", label: " Refund Issue", sub: "Request a refund for a session or payment" }]
       : []
     ),
-    
+
   ].reduce((acc, ct) => {
     if (ct.value === "other") return acc; // drop dupes first
     acc.push(ct);
@@ -283,6 +284,11 @@ const ReportModal = ({ onClose, onSuccess }) => {
       </div>
     </div>
   );
+};
+
+ReportModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
 };
 
 export default ReportModal;

@@ -1,5 +1,5 @@
 // components/mentor/dashboard/SocialCard.jsx
-
+import PropTypes from "prop-types";
 const SocialCard = ({ profile }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
@@ -67,5 +67,10 @@ const SocialCard = ({ profile }) => {
     </div>
   );
 };
-
+SocialCard.propTypes = {
+  profile: PropTypes.shape({
+    portfolioUrl: PropTypes.string,
+    linkedInUrl: PropTypes.string,
+  }),
+};
 export default SocialCard;

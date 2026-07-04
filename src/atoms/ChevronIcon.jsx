@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 export default function ChevronIcon({ isOpen = false }) {
   return (
     <svg
@@ -15,3 +16,6 @@ export default function ChevronIcon({ isOpen = false }) {
     </svg>
   );
 }
+ChevronIcon.propTypes = {
+  isOpen: PropTypes.bool,
+};

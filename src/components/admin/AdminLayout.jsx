@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import PropTypes from "prop-types";
 
 const NAV_ITEMS = [
   {
@@ -107,8 +108,8 @@ const NAV_ITEMS = [
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
-  
-  const [adminUser, setAdminUser] = useState({ name: "Admin", email: "" });//not used 
+
+  const [adminUser, setAdminUser] = useState({ name: "Admin", email: "" });//not used
   const { admin, setAdmin } = useAdminAuth();
 
   const navigate = useNavigate();
@@ -308,5 +309,7 @@ const AdminLayout = ({ children }) => {
     </div>
   );
 };
-
+AdminLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 export default AdminLayout;

@@ -1,5 +1,6 @@
 // components/mentee/onboarding/InterestedFieldsSection.jsx
 import { useState, forwardRef } from "react";
+import PropTypes from "prop-types";
 
 const errorClass = "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
 
@@ -120,4 +121,24 @@ const InterestedFieldsSection = forwardRef(({ form, handleChange, errors = {} },
 });
 
 InterestedFieldsSection.displayName = "InterestedFieldsSection";
+
+TagInput.propTypes = {
+  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onAdd: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  error: PropTypes.bool,
+};
+
+InterestedFieldsSection.propTypes = {
+  form: PropTypes.shape({
+    interestedFields: PropTypes.arrayOf(PropTypes.string),
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+  handleChange: PropTypes.func.isRequired,
+  errors: PropTypes.shape({
+    interestedFields: PropTypes.bool,
+    skills: PropTypes.bool,
+  }),
+};
 export default InterestedFieldsSection;

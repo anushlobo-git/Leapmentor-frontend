@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import { logout } from "@store/slices/authSlice";
 import { clearAuthRole } from "@utils/cookies";
-
+import PropTypes from "prop-types";
 
 const Topbar = ({ onMenuToggle, onLogoClick }) => {
   const navigate = useNavigate();
@@ -65,5 +65,8 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
     </header>
   );
 };
-
+Topbar.propTypes = {
+  onMenuToggle: PropTypes.func.isRequired,
+  onLogoClick: PropTypes.func.isRequired,
+};
 export default Topbar;

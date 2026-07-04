@@ -1,7 +1,7 @@
 // src/components/mentor/dashboard/requests/ReferModal.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
-
+import PropTypes from "prop-types";
 
 const ReferModal = ({ request, onClose, onReferred }) => {
   const [mentors, setMentors]       = useState([]);
@@ -270,6 +270,18 @@ const ReferModal = ({ request, onClose, onReferred }) => {
       </div>
     </div>
   );
+};
+
+ReferModal.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onReferred: PropTypes.func.isRequired,
 };
 
 export default ReferModal;

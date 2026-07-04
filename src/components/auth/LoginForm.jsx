@@ -191,10 +191,9 @@ const LoginForm = ({ placeholder, registerPath }) => {
     </div>
   );
 };
-// PropTypes go BELOW the component, ABOVE the export
 LoginForm.propTypes = {
-  placeholder:  PropTypes.string,           // optional string
-  registerPath: PropTypes.string,           // optional string
+  placeholder: PropTypes.any.isRequired,
+  registerPath: PropTypes.any.isRequired,
 };
 
 export default LoginForm;

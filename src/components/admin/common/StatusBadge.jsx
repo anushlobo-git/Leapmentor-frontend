@@ -1,5 +1,5 @@
 // src/components/admin/common/StatusBadge.jsx
-
+import PropTypes from "prop-types";
 const STATUS_CONFIG = {
   pending:   { bg: "#fffbeb", color: "#d97706", border: "#fde68a", label: "Pending"   },
   accepted:  { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "Accepted"  },
@@ -35,5 +35,8 @@ const StatusBadge = ({ status }) => {
   );
 };
 
+StatusBadge.propTypes = {
+  status: PropTypes.any.isRequired,
+};
 
 export default StatusBadge;

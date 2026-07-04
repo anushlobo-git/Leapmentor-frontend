@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
 import logger from "@utils/logger";
+import PropTypes from "prop-types";
 
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -57,7 +58,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
         const res = await adminAxiosInstance.get(`/admin/engagements`, {
           params: { search: mentee.name, limit: 50 },
         });
-        const all = res.data.engagements || res.data.data || res.data || [];
+        const all = res.data.engagements || [];
         // Filter to only this mentee's engagements
         const filtered = all.filter(
           (e) => e.mentee?._id === mentee._id || e.mentee?.email === mentee.email
@@ -528,6 +529,48 @@ const AdminWalletRequests = () => {
       )}
     </AdminLayout>
   );
+};
+
+StatusBadge.propTypes = {
+  status: PropTypes.string,
+};
+
+MenteeHistoryModal.propTypes = {
+  mentee: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+EmptyState.propTypes = {
+  label: PropTypes.string.isRequired,
+};
+
+RequestRow.propTypes = {
+  req: PropTypes.shape({
+    _id: PropTypes.string,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+      profilePicture: PropTypes.string,
+    }),
+    currentBalance: PropTypes.number,
+    createdAt: PropTypes.string,
+    status: PropTypes.string,
+  }).isRequired,
+  onApprove: PropTypes.func.isRequired,
+  onReject: PropTypes.func.isRequired,
+  actionLoading: PropTypes.string,
+  onViewHistory: PropTypes.func.isRequired,
+};
+
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    message: PropTypes.string,
+    type: PropTypes.oneOf(["success", "error"]),
+  }),
 };
 
 export default AdminWalletRequests;

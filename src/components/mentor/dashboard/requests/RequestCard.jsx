@@ -1,11 +1,11 @@
 // src/components/mentor/dashboard/requests/RequestCard.jsx
 import { useState } from "react";
 import ReferredByProfileModal from "./ReferredByProfileModal";
-
+import PropTypes from "prop-types";
 const formatDate = (dateStr) => {
   if (!dateStr) return "—";
   const d = dateStr.includes("T") ? new Date(dateStr) : new Date(dateStr + "T00:00:00");
-  if (isNaN(d)) return "—";
+  if (Number.isNaN(d)) return "—";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -331,5 +331,47 @@ const RequestCard = ({ request, onViewProfile }) => {
     </>
   );
 };
+const slotShape = PropTypes.shape({
+  day: PropTypes.string,
+  date: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+});
 
+const requestShape = PropTypes.shape({
+  mentee: PropTypes.shape({
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }),
+  message: PropTypes.string,
+  selectedSlots: PropTypes.arrayOf(slotShape),
+  confirmedSlot: slotShape,
+  status: PropTypes.string,
+  requestedAt: PropTypes.string,
+  referredBy: PropTypes.shape({
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }),
+  referredByProfile: PropTypes.shape({
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    industry: PropTypes.string,
+    bio: PropTypes.string,
+    hourlyRate: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    avgRating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    yearsOfExperience: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    profilePicture: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+});
+
+SlotsModal.propTypes = {
+  request: requestShape.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+RequestCard.propTypes = {
+  request: requestShape.isRequired,
+  onViewProfile: PropTypes.func.isRequired,
+};
 export default RequestCard;

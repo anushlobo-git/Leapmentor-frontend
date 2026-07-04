@@ -1,4 +1,5 @@
 import Card from "@atoms/Card";
+import PropTypes from "prop-types";
 
 export default function StatCard({ value, label, gradientFrom, gradientTo }) {
   return (
@@ -17,3 +18,9 @@ export default function StatCard({ value, label, gradientFrom, gradientTo }) {
     </Card>
   );
 }
+StatCard.propTypes = {
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  label: PropTypes.string.isRequired,
+  gradientFrom: PropTypes.string.isRequired,
+  gradientTo: PropTypes.string.isRequired,
+};

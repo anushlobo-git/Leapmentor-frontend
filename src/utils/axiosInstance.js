@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/react";
 import { v4 as uuidv4 } from "uuid";
 import logger from "./logger";
 import { toast } from "sonner";
+import { unwrapApiResponse } from "./apiResponse";
 
 let _store = null;
 export const injectStore = (store) => {
@@ -56,6 +57,10 @@ const processQueue = (error, token = null) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
+    if (response.data && typeof response.data === "object" && !(response.data instanceof Blob)) {
+      response.data = unwrapApiResponse(response.data);
+    }
+
     const { correlationId, startTime } = response.config.metadata || {};
     logger.info("API Response", {
       status: response.status,
@@ -118,7 +123,7 @@ axiosInstance.interceptors.response.use(
         const { setUser } = await import("../store/slices/authSlice");
 
         const { data } = await axiosInstance.post("/auth/refresh");
-        const newAccessToken = data.accessToken;
+        const newAccessToken = data?.accessToken;
 
         // FIX: use _store (not undefined `store`) throughout
         _store.dispatch(

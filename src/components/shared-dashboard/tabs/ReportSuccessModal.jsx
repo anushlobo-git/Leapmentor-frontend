@@ -1,4 +1,5 @@
 // src/components/shared-dashboard/tabs/ReportSuccessModal.jsx
+import PropTypes from "prop-types";
 
 const ReportSuccessModal = ({ onBack }) => (
   <div
@@ -66,5 +67,9 @@ const ReportSuccessModal = ({ onBack }) => (
     </div>
   </div>
 );
+
+ReportSuccessModal.propTypes = {
+  onBack: PropTypes.func.isRequired,
+};
 
 export default ReportSuccessModal;

@@ -1,4 +1,5 @@
 // components/mentor/dashboard/ComingSoon.jsx
+import PropTypes from "prop-types";
 const ComingSoon = ({ icon, title, desc }) => (
   <div className="flex flex-col items-center justify-center py-24 text-center gap-3">
     <span className="text-5xl">{icon}</span>
@@ -10,5 +11,10 @@ const ComingSoon = ({ icon, title, desc }) => (
     </span>
   </div>
 );
+ComingSoon.propTypes = {
+  icon: PropTypes.node.isRequired,
+  title: PropTypes.string.isRequired,
+  desc: PropTypes.string.isRequired,
+};
 
 export default ComingSoon;

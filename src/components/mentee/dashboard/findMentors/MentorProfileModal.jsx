@@ -4,6 +4,8 @@ import axiosInstance from "@utils/axiosInstance";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
+import PropTypes from "prop-types";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const BADGES = [
   { key: "newcomer",     label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",        condition: () => true },
@@ -535,4 +537,57 @@ const handleSend = async () => {
 </div>
   );
 };
+
+StarRating.propTypes = {
+  rating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  reviewCount: PropTypes.number,
+};
+
+SlotPill.propTypes = {
+  slot: PropTypes.shape({
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+    isBooked: PropTypes.bool,
+  }).isRequired,
+  group: PropTypes.shape({
+    date: PropTypes.string,
+    day: PropTypes.string,
+    displayDate: PropTypes.string,
+  }).isRequired,
+  selected: PropTypes.bool.isRequired,
+  maxReached: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};
+
+SelectedSlotRow.propTypes = {
+  slot: PropTypes.shape({
+    displayDate: PropTypes.string,
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  onRemove: PropTypes.func.isRequired,
+};
+
+MentorProfileModal.propTypes = {
+  mentor: PropTypes.shape({
+    user: PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      name: PropTypes.string,
+    }).isRequired,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    industry: PropTypes.string,
+    bio: PropTypes.string,
+    hourlyRate: PropTypes.number,
+    avgRating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    reviewCount: PropTypes.number,
+    yearsOfExperience: PropTypes.number,
+    profilePicture: PropTypes.string,
+    location: PropTypes.string,
+    totalSessions: PropTypes.number,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
 export default MentorProfileModal;

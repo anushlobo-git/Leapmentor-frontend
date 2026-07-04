@@ -15,6 +15,9 @@ import {
   selectViewerRole,
   setConnect,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+
+
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -338,6 +341,32 @@ const SharedGoalsTab = () => {
 
     </div>
   );
+};
+
+GoalCard.propTypes = {
+  goal: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    status: PropTypes.string,
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  milestones: PropTypes.array.isRequired,
+  saving: PropTypes.bool.isRequired,
+  onAdd: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+NoGoalState.propTypes = {
+  onSetGoal: PropTypes.func.isRequired,
+};
+
+OverallProgress.propTypes = {
+  completedSlots: PropTypes.number.isRequired,
+  totalSlots: PropTypes.number.isRequired,
+  progress: PropTypes.number.isRequired,
+  onLeaveFeedback: PropTypes.func.isRequired,
+  feedbackSubmitted: PropTypes.bool.isRequired,
 };
 
 export default SharedGoalsTab;

@@ -1,6 +1,7 @@
 // src/components/mentee/dashboard/history/HistoryTable.jsx
 import StatusBadge from "./StatusBadge";
 import { formatDate, getInitials } from "./constants";
+import PropTypes from "prop-types";
 
 const DeleteIcon = ({ onClick, title }) => (
   <button type="button" onClick={onClick} title={title}
@@ -90,7 +91,7 @@ const HistoryTable = ({ requests, selected, onSelect, onDelete }) => {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800 truncate">{mentorName}</p>
-                
+
               </div>
             </div>
 
@@ -126,5 +127,31 @@ const HistoryTable = ({ requests, selected, onSelect, onDelete }) => {
     </div>
   );
 };
+DeleteIcon.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  title: PropTypes.string,
+};
+
+ViewButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+};
+
+HistoryTable.propTypes = {
+  requests: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      mentor: PropTypes.shape({ name: PropTypes.string }),
+      mentorProfile: PropTypes.shape({ currentRole: PropTypes.string }),
+      status: PropTypes.string,
+      requestedAt: PropTypes.string,
+    })
+  ).isRequired,
+  selected: PropTypes.shape({ _id: PropTypes.string }),
+  onSelect: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+
 
 export default HistoryTable;

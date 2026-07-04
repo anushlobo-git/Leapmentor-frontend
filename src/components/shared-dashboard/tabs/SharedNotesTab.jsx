@@ -9,6 +9,7 @@ import {
   selectViewerRole,
   setActiveTab,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 // ── Helpers ───────────────────────────────────────────────────
 const formatFileSize = (bytes) => {
@@ -395,6 +396,36 @@ const SharedNotesTab = () => {
       {activeView === "private" && <PrivateNotesTab />}
     </div>
   );
+};
+
+UploadModal.propTypes = {
+  onUpload: PropTypes.func.isRequired,
+  uploading: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  isPrivateView: PropTypes.bool.isRequired,
+};
+
+NoteCard.propTypes = {
+  note: PropTypes.shape({
+    _id: PropTypes.string,
+    title: PropTypes.string,
+    fileName: PropTypes.string,
+    fileType: PropTypes.string,
+    fileSize: PropTypes.number,
+    fileUrl: PropTypes.string,
+    createdAt: PropTypes.string,
+    uploadedBy: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({ _id: PropTypes.string, name: PropTypes.string }),
+    ]),
+  }).isRequired,
+  myId: PropTypes.string,
+  onDelete: PropTypes.func.isRequired,
+  isPrivateView: PropTypes.bool,
+};
+
+SharedFilesSection.propTypes = {
+  myId: PropTypes.string,
 };
 
 export default SharedNotesTab;

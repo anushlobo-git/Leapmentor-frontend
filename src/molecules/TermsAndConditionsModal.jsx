@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "@atoms/Button";
-
+import PropTypes from "prop-types";
 /**
  * TermsAndConditionsModal
  *
@@ -11,12 +11,12 @@ import Button from "@atoms/Button";
  * - role          {string}    — "mentor" | "mentee" (optional, affects heading copy)
  * - readOnly      {boolean}   — if true, hides the checkbox and action buttons (view-only mode)
  */
-export default function TermsAndConditionsModal({ 
-    isOpen, 
-    onClose, 
-    onAccept, 
-    role = "mentor", 
-    readOnly = false 
+export default function TermsAndConditionsModal({
+    isOpen,
+    onClose,
+    onAccept,
+    role = "mentor",
+    readOnly = false
 }) {
     const [agreed, setAgreed] = useState(false);
     const overlayRef = useRef(null);
@@ -188,3 +188,10 @@ export default function TermsAndConditionsModal({
         </div>
     );
 }
+TermsAndConditionsModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onAccept: PropTypes.func.isRequired,
+  role: PropTypes.oneOf(["mentor", "mentee"]),
+  readOnly: PropTypes.bool,
+};

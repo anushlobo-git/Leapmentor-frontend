@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 export default function Logo({ onClick,variant="dark" }) {
 
   // "dark" variant gets dark text (gray-900), "light" variant gets white text
@@ -20,4 +21,7 @@ export default function Logo({ onClick,variant="dark" }) {
     </div>
   );
 }
- 
+Logo.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  variant: PropTypes.string,
+};

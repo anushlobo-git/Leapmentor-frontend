@@ -1,14 +1,15 @@
-export default function LinkedInIcon({ 
-  className = "", 
-  width = "18", 
-  height = "18", 
-  fill = "#0A66C2" 
+import PropTypes from "prop-types";
+export default function LinkedInIcon({
+  className = "",
+  width = "18",
+  height = "18",
+  fill = "#0A66C2"
 }) {
   return (
-    <svg 
-      width={width} 
-      height={height} 
-      viewBox="0 0 24 24" 
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 24 24"
       fill={fill}
       className={className}
       aria-hidden="true"
@@ -17,3 +18,10 @@ export default function LinkedInIcon({
     </svg>
   );
 }
+
+LinkedInIcon.propTypes = {
+  className: PropTypes.string,
+  width: PropTypes.string,
+  height: PropTypes.string,
+  fill: PropTypes.string,
+};

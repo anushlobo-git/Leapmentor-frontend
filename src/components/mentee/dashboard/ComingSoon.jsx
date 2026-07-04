@@ -10,5 +10,10 @@ const ComingSoon = ({ icon, title, desc }) => (
     </span>
   </div>
 );
+ComingSoon.propTypes = {
+  icon: PropTypes.node.isRequired,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  desc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 export default ComingSoon;

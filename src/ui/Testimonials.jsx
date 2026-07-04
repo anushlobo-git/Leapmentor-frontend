@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 const testimonials = [
   {
@@ -238,4 +239,23 @@ function TestimonialCard({ testimonial, active, dimmed }) {
         <StarRating count={testimonial.rating} />
       </div>
     </div>
-  
+  );
+}
+
+StarRating.propTypes = {
+  count: PropTypes.number.isRequired,
+};
+
+TestimonialCard.propTypes = {
+  testimonial: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    role: PropTypes.string.isRequired,
+    company: PropTypes.string.isRequired,
+    avatar: PropTypes.string.isRequired,
+    color: PropTypes.string.isRequired,
+    rating: PropTypes.number.isRequired,
+    text: PropTypes.string.isRequired,
+  }).isRequired,
+  active: PropTypes.bool,
+  dimmed: PropTypes.bool,
+};

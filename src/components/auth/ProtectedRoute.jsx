@@ -6,7 +6,7 @@ import { isLoggedIn, getRole } from "@utils/cookies";
 // handled in App.jsx before any routes render. By the time ProtectedRoute
 // runs, Redux is already populated — or the user has been redirected to /login.
 // So this component only needs to check the authRole cookie for access control.
-
+import PropTypes from "prop-types";
 const ProtectedRoute = ({ children, role }) => {
   const loggedIn   = isLoggedIn();   // authRole cookie exists?
   const storedRole = getRole();      // "mentor" | "mentee" | "admin" | null
@@ -27,5 +27,8 @@ const ProtectedRoute = ({ children, role }) => {
 
   return children;
 };
-
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  role: PropTypes.string.isRequired,
+};
 export default ProtectedRoute;

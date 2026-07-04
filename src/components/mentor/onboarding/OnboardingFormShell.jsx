@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMentorOnboarding, clearMentorOnboardingMessages } from "../../../store/slices/mentorOnboardingSlice";
 import FullScreenLoader from "../../FullScreenLoader";
-
+import PropTypes from "prop-types";
 import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalInfoSection from "./ProfessionalInfoSection";
 import SkillsSection from "./SkillsSection";
@@ -18,7 +18,7 @@ const OnboardingFormShell = () => {
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
-  
+
 
   const [form, setForm] = useState(() => {
     try {
@@ -271,5 +271,11 @@ const OnboardingFormShell = () => {
     </div>
   );
 };
-
+PersonalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    bio: PropTypes.string,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
 export default OnboardingFormShell;

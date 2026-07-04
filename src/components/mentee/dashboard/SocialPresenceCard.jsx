@@ -1,5 +1,5 @@
 // components/mentee/dashboard/SocialPresenceCard.jsx
-
+import PropTypes from "prop-types";
 const SocialPresenceCard = ({ profile }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
@@ -64,6 +64,9 @@ const SocialPresenceCard = ({ profile }) => {
       </div>
     </div>
   );
+};
+SocialPresenceCard.propTypes = {
+  profile: PropTypes.shape({ linkedInUrl: PropTypes.any, portfolioUrl: PropTypes.any }).isRequired,
 };
 
 export default SocialPresenceCard;

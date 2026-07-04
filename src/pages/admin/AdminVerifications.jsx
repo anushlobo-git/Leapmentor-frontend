@@ -1,7 +1,7 @@
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
-
+import PropTypes from "prop-types";
 
 
 // ── Icons ────────────────────────────────────────────────
@@ -317,7 +317,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════
 const AdminVerifications = () => {
-  
+
 
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -340,7 +340,7 @@ const AdminVerifications = () => {
   } finally {
     setLoading(false);
   }
-}, []); 
+}, []);
 
   useEffect(() => { fetchMentors(); }, [fetchMentors]);
 
@@ -349,7 +349,7 @@ const AdminVerifications = () => {
     setVerifying(true);
     try {
       const res = await adminAxiosInstance.patch(`/admin/mentor-verifications/${mentorProfileId}/verify`);
-      
+
 
       // Update local state
       setMentors(prev => prev.map(m =>
@@ -598,6 +598,55 @@ const AdminVerifications = () => {
       )}
     </div>
   );
+};
+
+IconCheck.propTypes = { size: PropTypes.number };
+IconX.propTypes = { size: PropTypes.number };
+
+StatusBadge.propTypes = {
+  status: PropTypes.string,
+};
+
+DocCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  url: PropTypes.string,
+  icon: PropTypes.node,
+};
+
+Pill.propTypes = {
+  label: PropTypes.string.isRequired,
+};
+
+DetailDrawer.propTypes = {
+  mentor: PropTypes.shape({
+    user: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    mentorProfile: PropTypes.shape({
+      _id: PropTypes.string,
+      verificationStatus: PropTypes.string,
+      profilePicture: PropTypes.string,
+      currentRole: PropTypes.string,
+      company: PropTypes.string,
+      industry: PropTypes.string,
+      yearsOfExperience: PropTypes.number,
+      phoneNumber: PropTypes.string,
+      languages: PropTypes.arrayOf(PropTypes.string),
+      bio: PropTypes.string,
+      skills: PropTypes.arrayOf(PropTypes.string),
+      resumeDocument: PropTypes.shape({
+        url: PropTypes.string,
+        uploadedAt: PropTypes.string,
+      }),
+      workExperienceDocuments: PropTypes.arrayOf(
+        PropTypes.shape({ url: PropTypes.string })
+      ),
+    }),
+  }),
+  onClose: PropTypes.func.isRequired,
+  onVerify: PropTypes.func.isRequired,
+  verifying: PropTypes.bool.isRequired,
 };
 
 export default AdminVerifications;

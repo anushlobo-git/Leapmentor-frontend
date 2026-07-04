@@ -1,6 +1,6 @@
 // src/components/auth/AuthSSOButtons.jsx
 import { GoogleIcon, LinkedInIcon } from "./AuthIcons";
-
+import PropTypes from "prop-types";
 const AuthSSOButtons = ({ googleBtnRef, loading, onLinkedIn }) => {
   return (
     <div className="flex gap-2.5">
@@ -29,6 +29,12 @@ const AuthSSOButtons = ({ googleBtnRef, loading, onLinkedIn }) => {
       </button>
     </div>
   );
+};
+
+AuthSSOButtons.propTypes = {
+  googleBtnRef: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
+  onLinkedIn: PropTypes.func.isRequired,
 };
 
 export default AuthSSOButtons;

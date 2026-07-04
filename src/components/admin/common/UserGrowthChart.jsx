@@ -1,5 +1,6 @@
 // src/components/admin/common/UserGrowthChart.jsx
 import { useMemo, useState } from "react";
+import PropTypes from "prop-types";
 
 const smoothPath = (points, w, h, min, max) => {
   if (points.length < 2) return "";
@@ -145,6 +146,9 @@ const UserGrowthChart = ({ data = [] }) => {
       </div>
     </div>
   );
+};
+UserGrowthChart.propTypes = {
+  data: PropTypes.array,
 };
 
 export default UserGrowthChart;

@@ -4,6 +4,7 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import StatCard    from "../../components/admin/common/StatCard";
 import StatusBadge from "../../components/admin/common/StatusBadge";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
+import PropTypes from "prop-types";
 
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -400,6 +401,45 @@ const AdminEngagements = () => {
       </div>
     </AdminLayout>
   );
+};
+
+Avatar.propTypes = {
+  name: PropTypes.string,
+};
+
+UserCell.propTypes = {
+  user: PropTypes.shape({
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }),
+};
+
+SlotPill.propTypes = {
+  slot: PropTypes.shape({
+    status: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    startTime: PropTypes.string.isRequired,
+    endTime: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+ExpandedDetail.propTypes = {
+  eng: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    sessionRate: PropTypes.number,
+    sessionCount: PropTypes.number,
+    paymentStatus: PropTypes.string,
+    requestedAt: PropTypes.string,
+    respondedAt: PropTypes.string,
+    completedAt: PropTypes.string,
+  }).isRequired,
+};
+
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    type: PropTypes.string,
+    msg: PropTypes.string.isRequired,
+  }),
 };
 
 export default AdminEngagements;

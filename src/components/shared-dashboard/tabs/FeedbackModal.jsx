@@ -5,6 +5,8 @@ import useReport from "../../../hooks/useReport";
 import {
   selectConnectId,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+
 
 const StarRatingInput = ({ value, onChange, disabled }) => (
   <div className="flex items-center gap-1.5">
@@ -216,6 +218,18 @@ const FeedbackModal = ({ onClose, slotIndex, onFeedbackSubmitted }) => {
       </div>
     </div>
   );
+};
+
+StarRatingInput.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired,
+};
+
+FeedbackModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  slotIndex: PropTypes.number,
+  onFeedbackSubmitted: PropTypes.func,
 };
 
 export default FeedbackModal;

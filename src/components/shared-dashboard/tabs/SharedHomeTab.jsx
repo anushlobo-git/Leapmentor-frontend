@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
 import { selectConnect, setActiveTab } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -306,6 +307,35 @@ const SharedHomeTab = ({ slots = [] }) => {
       )}
     </>
   );
+};
+
+PersonCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  profile: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+  roleLabel: PropTypes.string.isRequired,
+};
+
+InfoRow.propTypes = {
+  icon: PropTypes.node.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  accent: PropTypes.string,
+};
+
+QuickAction.propTypes = {
+  icon: PropTypes.node.isRequired,
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  color: PropTypes.string,
+};
+
+SharedHomeTab.propTypes = {
+  slots: PropTypes.array,
 };
 
 export default SharedHomeTab;

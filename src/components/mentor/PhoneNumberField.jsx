@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import PropTypes from "prop-types";
 
 const PhoneNumberField = ({ value, onChange, error }) => {
   const [touched, setTouched] = useState(false);
@@ -140,6 +141,12 @@ const PhoneNumberField = ({ value, onChange, error }) => {
       `}</style>
     </div>
   );
+};
+
+PhoneNumberField.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
 };
 
 export default PhoneNumberField;

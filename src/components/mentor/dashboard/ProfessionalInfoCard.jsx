@@ -1,5 +1,5 @@
 // components/mentor/dashboard/ProfessionalInfoCard.jsx
-
+import PropTypes from "prop-types";
 const Field = ({ label, value }) => (
   <div>
     <p className="text-xs text-slate-600 font-medium mb-0.5">{label}</p>
@@ -38,5 +38,19 @@ const ProfessionalInfoCard = ({ profile }) => {
     </div>
   );
 };
+Field.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string,
+};
 
+ProfessionalInfoCard.propTypes = {
+  profile: PropTypes.shape({
+    currentRole: PropTypes.string,
+    industry: PropTypes.string,
+    company: PropTypes.string,
+    yearsOfExperience: PropTypes.number,
+    hourlyRate: PropTypes.number,
+    avgRating: PropTypes.number,
+  }),
+};
 export default ProfessionalInfoCard;

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 export default function StarIcon({ filled = true }) {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill={filled ? "#FBBF24" : "#D1D5DB"}>
@@ -5,3 +6,6 @@ export default function StarIcon({ filled = true }) {
     </svg>
   );
 }
+StarIcon.propTypes = {
+  filled: PropTypes.bool,
+};

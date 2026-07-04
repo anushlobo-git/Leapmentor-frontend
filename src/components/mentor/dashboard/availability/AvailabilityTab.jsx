@@ -4,12 +4,13 @@ import useAvailability from "../../../../hooks/useAvailability";
 import CalendarAvailabilitySection from "./CalendarAvailabilitySection";
 import TimezoneDurationSection from "./TimezoneDurationSection";
 import IntegrationsSection from "./IntegrationsSection";
+import PropTypes from "prop-types";
 
 // ─── Helper: convert "HH:MM" 24h to "h:MM AM/PM" ─────────────────────────────
 const formatSlotTime = (timeStr) => {
   if (!timeStr) return "";
   const [hhStr, mm] = timeStr.split(":");
-  let hh = parseInt(hhStr, 10);
+  let hh = Number.parseInt(hhStr, 10);
   const period = hh >= 12 ? "PM" : "AM";
   hh = hh % 12 || 12;
   return `${hh}:${mm} ${period}`;
@@ -75,6 +76,18 @@ const BusyConflictModal = ({ conflicts, onConfirm, onCancel }) => (
     </div>
   </div>
 );
+
+BusyConflictModal.propTypes = {
+  conflicts: PropTypes.arrayOf(
+    PropTypes.shape({
+      dateLabel: PropTypes.string,
+      slotTime: PropTypes.string,
+      busyTime: PropTypes.string,
+    })
+  ).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 
 // ─── Helper: collect all busy conflicts across all specificDates ──────────────
 const collectBusyConflicts = (specificDates, busySlots) => {

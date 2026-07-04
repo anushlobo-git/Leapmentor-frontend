@@ -269,7 +269,7 @@ const RegisterForm = ({ role }) => {
   );
 };
 RegisterForm.propTypes = {
-  role: PropTypes.oneOf(["mentor", "mentee"]).isRequired, // required string, either "mentor" or "mentee"
+  role: PropTypes.string.isRequired,
 };
 
 export default RegisterForm;

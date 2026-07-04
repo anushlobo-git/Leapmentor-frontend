@@ -1,4 +1,5 @@
-// src/components/mentee/dashboard/findMentors/MentorCardSkeleton.jsx
+// src/components/mentee/dashboard/findMentors/MentorCardSkeleton.js
+import PropTypes from "prop-types";
 
 const Shimmer = ({ className }) => (
   <div className={`bg-linear-to-r from-slate-100 via-slate-200 to-slate-100 rounded-xl animate-pulse ${className}`} />
@@ -39,6 +40,9 @@ const MentorCardSkeleton = () => {
       <Shimmer className="h-9 w-full rounded-xl mt-1" />
     </div>
   );
+};
+Shimmer.propTypes = {
+  className: PropTypes.string.isRequired,
 };
 
 export default MentorCardSkeleton;

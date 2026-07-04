@@ -1,4 +1,5 @@
 // src/components/admin/common/StatCard.jsx
+import PropTypes from "prop-types";
 
 const StatCard = ({ label, value, sub, icon, accent = "#2563eb", trend }) => (
   <div className="rounded-2xl p-5 flex flex-col gap-3 relative overflow-hidden"
@@ -40,5 +41,14 @@ const StatCard = ({ label, value, sub, icon, accent = "#2563eb", trend }) => (
     </div>
   </div>
 );
+
+StatCard.propTypes = {
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  value: PropTypes.object.isRequired,
+  sub: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  icon: PropTypes.node.isRequired,
+  accent: PropTypes.string,
+  trend: PropTypes.any.isRequired,
+};
 
 export default StatCard;

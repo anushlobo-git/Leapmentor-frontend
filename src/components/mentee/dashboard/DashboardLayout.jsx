@@ -36,8 +36,8 @@ const DashboardLayout = () => {
   const { user, profile, loading, error, refetch } = useMenteeDashboard();
   const { unreadCount, clearBadge,incrementBadge } = useUnreadCount();
 
-  const onRequestChanged = () => refetch?.(); 
-  useSocketToast(onRequestChanged,incrementBadge);  
+  const onRequestChanged = () => refetch?.();
+  useSocketToast(onRequestChanged,incrementBadge);
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -100,20 +100,6 @@ useEffect(() => {
       </div>
     );
   }
-{/*}
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-          <p className="text-xs text-slate-400" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
-  */}
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">

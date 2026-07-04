@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import FeedbackModal from "../FeedbackModal";
-
+import PropTypes from "prop-types";
 
 
 const formatSlotDate = (slot) => {
@@ -838,6 +838,103 @@ const SessionCard = ({
       )}
     </>
   );
+};
+
+const slotShape = PropTypes.shape({
+  date: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+  status: PropTypes.string,
+  meetingLink: PropTypes.string,
+  menteeMarked: PropTypes.bool,
+  mentorMarked: PropTypes.bool,
+  isRescheduled: PropTypes.bool,
+  cancelledBy: PropTypes.string,
+  cancellationReason: PropTypes.string,
+});
+
+CancelModal.propTypes = {
+  slot: slotShape.isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+SlotPill.propTypes = {
+  slot: PropTypes.shape({
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+  group: PropTypes.shape({
+    day: PropTypes.string,
+    date: PropTypes.string,
+  }).isRequired,
+  selected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  booked: PropTypes.bool.isRequired,
+};
+
+SlotTabPicker.propTypes = {
+  availability: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string,
+      slots: PropTypes.arrayOf(
+        PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string })
+      ),
+    })
+  ).isRequired,
+  selectedSlot: PropTypes.shape({
+    date: PropTypes.string,
+    startTime: PropTypes.string,
+  }),
+  onSelect: PropTypes.func.isRequired,
+  bookedSlots: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    })
+  ).isRequired,
+};
+
+RescheduleModal.propTypes = {
+  slotIndex: PropTypes.number.isRequired,
+  connectRequestId: PropTypes.string.isRequired,
+  existingSlots: PropTypes.array.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+MeetingLinkSection.propTypes = {
+  slot: slotShape.isRequired,
+  viewerRole: PropTypes.string.isRequired,
+  onSetLink: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+CompletionSection.propTypes = {
+  slot: slotShape.isRequired,
+  viewerRole: PropTypes.string.isRequired,
+  otherName: PropTypes.string.isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  onMarkComplete: PropTypes.func.isRequired,
+  onSessionComplete: PropTypes.func,
+};
+
+SessionCard.propTypes = {
+  slot: slotShape.isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  viewerRole: PropTypes.string.isRequired,
+  otherName: PropTypes.string.isRequired,
+  savingSlots: PropTypes.oneOfType([PropTypes.array, PropTypes.instanceOf(Set)]).isRequired,
+  onSetLink: PropTypes.func.isRequired,
+  onMarkComplete: PropTypes.func.isRequired,
+  onCancelSlot: PropTypes.func.isRequired,
+  onRescheduleSlot: PropTypes.func.isRequired,
+  allSlots: PropTypes.array.isRequired,
+  connectRequestId: PropTypes.string.isRequired,
 };
 
 export default SessionCard;

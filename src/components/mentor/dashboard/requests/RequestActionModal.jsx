@@ -1,4 +1,5 @@
 // src/components/mentor/dashboard/requests/RequestActionModal.jsx
+import PropTypes from "prop-types";
 
 const RequestActionModal = ({ type, menteeName, onBack }) => {
   const isAccepted = type === "accepted";
@@ -64,5 +65,9 @@ const RequestActionModal = ({ type, menteeName, onBack }) => {
     </div>
   );
 };
-
+RequestActionModal.propTypes = {
+  type: PropTypes.oneOf(["accepted", "rejected"]).isRequired,
+  menteeName: PropTypes.string.isRequired,
+  onBack: PropTypes.func.isRequired,
+};
 export default RequestActionModal;

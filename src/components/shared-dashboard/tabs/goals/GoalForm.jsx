@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
   const [title,       setTitle]       = useState(initial.title       || "");
@@ -102,6 +103,18 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
       </div>
     </div>
   );
+};
+
+GoalForm.propTypes = {
+  initial: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+  }),
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
 };
 
 export default GoalForm;

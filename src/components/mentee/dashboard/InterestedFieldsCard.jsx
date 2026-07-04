@@ -1,5 +1,5 @@
 // components/mentee/dashboard/InterestedFieldsCard.jsx
-
+import PropTypes from "prop-types";
 const TagChip = ({ label }) => {
   return (
     <span className={`inline-flex items-center text-sm font-m text-slate-600 px-3 py-1.5 rounded-full border `}>
@@ -44,6 +44,17 @@ const InterestedFieldsCard = ({ profile }) => {
 
     </div>
   );
+};
+TagChip.propTypes = {
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  color: PropTypes.string,
+};
+
+InterestedFieldsCard.propTypes = {
+  profile: PropTypes.shape({
+    interestedFields: PropTypes.arrayOf(PropTypes.string),
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
 };
 
 export default InterestedFieldsCard;

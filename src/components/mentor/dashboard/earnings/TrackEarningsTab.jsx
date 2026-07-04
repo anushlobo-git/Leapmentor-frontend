@@ -4,6 +4,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from "recharts";
 import useTrackEarnings from "../../../../hooks/useTrackEarnings";
+import PropTypes from "prop-types";
 
 // ── Helpers ───────────────────────────────────────────────────
 const fmt = (n) =>
@@ -321,5 +322,24 @@ const TrackEarningsTab = () => {
     </>
   );
 };
-
+StatCard.propTypes = {
+  label: PropTypes.node.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sub: PropTypes.node,
+  subColor: PropTypes.string,
+  icon: PropTypes.node,
+};
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.arrayOf(
+    PropTypes.shape({ value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]) })
+  ),
+  label: PropTypes.node,
+};
+StatusBadge.propTypes = {
+  status: PropTypes.oneOf(["paid", "completed", "pending", "refunded"]),
+};
+Skeleton.propTypes = {
+  className: PropTypes.string.isRequired,
+};
 export default TrackEarningsTab;

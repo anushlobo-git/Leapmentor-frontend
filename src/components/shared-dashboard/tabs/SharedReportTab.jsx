@@ -3,6 +3,7 @@ import { useState } from "react";
 import useReport from "../../../hooks/useReport";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
+import PropTypes from "prop-types";
 
 // ── Star Rating Input ─────────────────────────────────────────
 const StarRatingInput = ({ value, onChange, disabled }) => (
@@ -283,6 +284,36 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
       )}
     </>
   );
+};
+
+StarRatingInput.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
+
+StarRatingDisplay.propTypes = {
+  value: PropTypes.number.isRequired,
+};
+
+FeedbackCard.propTypes = {
+  feedback: PropTypes.shape({
+    rating: PropTypes.number,
+    comment: PropTypes.string,
+    createdAt: PropTypes.string,
+  }).isRequired,
+  label: PropTypes.string.isRequired,
+  isOwn: PropTypes.bool.isRequired,
+};
+
+SharedReportTab.propTypes = {
+  connect: PropTypes.shape({
+    _id: PropTypes.string,
+    viewerRole: PropTypes.string,
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    mentee: PropTypes.shape({ name: PropTypes.string }),
+  }),
+  reportRefreshKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default SharedReportTab;

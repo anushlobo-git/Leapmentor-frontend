@@ -10,7 +10,7 @@ import {
   selectDashboardUser,
   selectDashboardProfile,
 } from "../../../store/slices/dashboardUserSlice";
-
+import PropTypes from "prop-types";
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
   const [mentors, setMentors] = useState([]);
@@ -264,8 +264,7 @@ const checkExistingRequest = async () => {
     setChecking(true);
     const res = await axiosInstance.get(`/leap-requests/my-request`);
 
-    // Check inside res.data.data.status
-    if (res.data?.success && res.data?.data?.status === "pending") {
+    if (res.data?.status === "pending") {
       setRequestStatus("pending");
     }
   } catch (err) {
@@ -556,5 +555,46 @@ const HomeTab = () => {
     </>
   );
 };
+MentorCard.propTypes = {
+  mentor: PropTypes.shape({
+    _id: PropTypes.string,
+    profilePicture: PropTypes.string,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+    avgRating: PropTypes.number,
+    user: PropTypes.shape({
+      _id: PropTypes.string,
+      name: PropTypes.string,
+    }),
+  }).isRequired,
+  onViewProfile: PropTypes.func.isRequired,
+};
 
+SessionCard.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string,
+    status: PropTypes.string,
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    confirmedSlot: PropTypes.shape({
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    selectedSlots: PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.string,
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      })
+    ),
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  navigate: PropTypes.func.isRequired,
+};
+
+LeapPointsPanel.propTypes = {
+  balance: PropTypes.number.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
 export default HomeTab;

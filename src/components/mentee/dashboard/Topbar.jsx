@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import { logout } from "@store/slices/authSlice";
 import { clearAuthRole } from "@utils/cookies";
+import PropTypes from "prop-types";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
 
 const Topbar = ({ onMenuToggle, onLogoClick }) => {
@@ -18,7 +18,7 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
     } catch {
       // even if request fails, clear local state and redirect
     }
-    dispatch(logout()); 
+    dispatch(logout());
     clearAuthRole();  // clears Redux state
     navigate("/");
   };
@@ -68,4 +68,8 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
   );
 };
 
+Topbar.propTypes = {
+  onMenuToggle: PropTypes.func.isRequired,
+  onLogoClick: PropTypes.func.isRequired,
+};
 export default Topbar;

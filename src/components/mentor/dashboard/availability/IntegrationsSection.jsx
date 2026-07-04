@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
 import logger from "@utils/logger";
+import PropTypes from "prop-types";
 
 const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) => {
   const [loading, setLoading] = useState(false);
@@ -111,6 +112,10 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
       </p>
     </div>
   );
+};
+IntegrationsSection.propTypes = {
+  googleCalendarConnected: PropTypes.bool.isRequired,
+  onConnectionChange: PropTypes.func.isRequired,
 };
 
 export default IntegrationsSection;

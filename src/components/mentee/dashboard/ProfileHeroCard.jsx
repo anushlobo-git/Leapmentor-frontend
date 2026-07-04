@@ -1,6 +1,6 @@
 // components/mentee/dashboard/ProfileHeroCard.jsx
 import { useNavigate } from "react-router-dom";
-
+import PropTypes from "prop-types";
 const ProfileHeroCard = ({ user, profile }) => {
   const navigate = useNavigate();
 
@@ -70,6 +70,10 @@ const ProfileHeroCard = ({ user, profile }) => {
       </div>
     </div>
   );
+};
+ProfileHeroCard.propTypes = {
+  user: PropTypes.object.isRequired,
+  profile: PropTypes.shape({ bio: PropTypes.any, profilePicture: PropTypes.any }).isRequired,
 };
 
 export default ProfileHeroCard;

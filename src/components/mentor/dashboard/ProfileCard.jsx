@@ -1,5 +1,6 @@
 // components/mentor/dashboard/ProfileCard.jsx
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const ProfileCard = ({ user, profile, onEditClick }) => {
   const navigate = useNavigate();
@@ -101,5 +102,15 @@ const ProfileCard = ({ user, profile, onEditClick }) => {
     </div>
   );
 };
-
+ProfileCard.propTypes = {
+  user: PropTypes.shape({ name: PropTypes.string }),
+  profile: PropTypes.shape({
+    verificationStatus: PropTypes.string,
+    profilePicture: PropTypes.string,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    bio: PropTypes.string,
+  }),
+  onEditClick: PropTypes.func, // currently unused — flagged above
+};
 export default ProfileCard;

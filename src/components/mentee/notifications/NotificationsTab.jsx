@@ -491,7 +491,7 @@ NotifCard.propTypes = {
 };
 
 StatCard.propTypes = {
-  icon: PropTypes.node,
+  icon: PropTypes.node.isRequired,
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   accent: PropTypes.bool,

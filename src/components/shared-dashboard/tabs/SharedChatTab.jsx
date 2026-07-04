@@ -6,6 +6,7 @@ import {
   selectConnectId,
   selectViewerRole,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
@@ -481,6 +482,57 @@ const SharedChatTab = () => {
       <ChatInput onSend={sendMessage} onTyping={handleTyping} disabled={!!error} />
     </div>
   );
+};
+
+
+Avatar.propTypes = {
+  name: PropTypes.string,
+  picture: PropTypes.string,
+  size: PropTypes.number,
+};
+
+ChatHeader.propTypes = {
+  name: PropTypes.string.isRequired,
+  picture: PropTypes.string,
+  otherOnline: PropTypes.bool.isRequired,
+};
+
+DateSeparator.propTypes = {
+  dateStr: PropTypes.string.isRequired,
+};
+
+ReadReceipt.propTypes = {
+  readAt: PropTypes.string,
+};
+
+MessageBubble.propTypes = {
+  message: PropTypes.shape({
+    content: PropTypes.string,
+    createdAt: PropTypes.string,
+    readAt: PropTypes.string,
+  }).isRequired,
+  isOwn: PropTypes.bool.isRequired,
+  otherName: PropTypes.string.isRequired,
+  otherPicture: PropTypes.string,
+};
+
+TypingIndicator.propTypes = {
+  name: PropTypes.string.isRequired,
+};
+
+LoadMoreButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
+
+EmptyState.propTypes = {
+  otherName: PropTypes.string.isRequired,
+};
+
+ChatInput.propTypes = {
+  onSend: PropTypes.func.isRequired,
+  onTyping: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default SharedChatTab;

@@ -1,5 +1,6 @@
 // components/mentor/onboarding/ProfessionalInfoSection.jsx
 import { forwardRef } from "react";
+import PropTypes from "prop-types";
 
 const INDUSTRY_OPTIONS = [
   "Technology", "Finance", "Healthcare", "Education", "Design",
@@ -156,4 +157,25 @@ const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref
 });
 
 ProfessionalInfoSection.displayName = "ProfessionalInfoSection";
+
+ProfessionalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    currentRole: PropTypes.string.isRequired,
+    industry: PropTypes.oneOf([
+      "Technology", "Finance", "Healthcare", "Education", "Design",
+      "Marketing", "Legal", "Consulting", "Media", "Engineering", "Other",
+    ]).isRequired,
+    company: PropTypes.string.isRequired,
+    education: PropTypes.string,
+    yearsOfExperience: PropTypes.number.isRequired,
+    hourlyRate: PropTypes.number.isRequired,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+  errors: PropTypes.shape({
+    currentRole: PropTypes.bool,
+    industry: PropTypes.bool,
+    yearsOfExperience: PropTypes.bool,
+  }),
+};
+
 export default ProfessionalInfoSection;

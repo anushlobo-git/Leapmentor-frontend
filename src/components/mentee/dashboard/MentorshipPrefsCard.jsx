@@ -1,5 +1,5 @@
 // components/mentee/dashboard/MentorshipPrefsCard.jsx
-
+import PropTypes from "prop-types";
 const COMM_ICONS = {
   "Chat": "💬",
   "Video Call": "🎥",
@@ -67,5 +67,7 @@ const MentorshipPrefsCard = ({ profile }) => {
     </div>
   );
 };
-
+MentorshipPrefsCard.propTypes = {
+  profile: PropTypes.shape({ communicationPreferences: PropTypes.any, languages: PropTypes.any }).isRequired,
+};
 export default MentorshipPrefsCard;

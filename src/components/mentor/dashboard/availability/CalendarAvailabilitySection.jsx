@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import axiosInstance from "@utils/axiosInstance";
 import logger from "@utils/logger";
+import PropTypes from "prop-types";
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -697,6 +698,97 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
       </div>
     </div>
   );
+};
+
+XIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+TimePicker.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  hasError: PropTypes.bool,
+};
+
+EventTooltip.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      summary: PropTypes.string.isRequired,
+      start: PropTypes.string,
+      end: PropTypes.string,
+      allDay: PropTypes.bool,
+    })
+  ).isRequired,
+  isBusyOnly: PropTypes.bool.isRequired,
+};
+
+CalendarGrid.propTypes = {
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  specificDates: PropTypes.arrayOf(
+    PropTypes.shape({ date: PropTypes.string.isRequired })
+  ).isRequired,
+  onToggleDate: PropTypes.func.isRequired,
+  onNavPrev: PropTypes.func.isRequired,
+  onNavNext: PropTypes.func.isRequired,
+  calendarEvents: PropTypes.arrayOf(
+    PropTypes.shape({
+      start: PropTypes.string,
+      allDay: PropTypes.bool,
+      summary: PropTypes.string,
+    })
+  ),
+  busySlots: PropTypes.arrayOf(
+    PropTypes.shape({ start: PropTypes.string })
+  ),
+};
+
+BusyBadge.propTypes = {
+  overlaps: PropTypes.arrayOf(
+    PropTypes.shape({
+      start: PropTypes.string.isRequired,
+      end: PropTypes.string.isRequired,
+    })
+  ),
+};
+
+DateSlotEditor.propTypes = {
+  dateEntry: PropTypes.shape({
+    date: PropTypes.string.isRequired,
+    slots: PropTypes.arrayOf(
+      PropTypes.shape({
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      })
+    ).isRequired,
+  }).isRequired,
+  onAddSlot: PropTypes.func.isRequired,
+  onRemoveSlot: PropTypes.func.isRequired,
+  onUpdateSlot: PropTypes.func.isRequired,
+  onRemoveDate: PropTypes.func.isRequired,
+  busySlots: PropTypes.arrayOf(
+    PropTypes.shape({ start: PropTypes.string, end: PropTypes.string })
+  ),
+  minDuration: PropTypes.number,
+};
+
+CalendarAvailabilitySection.propTypes = {
+  specificDates: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string.isRequired,
+      slots: PropTypes.arrayOf(
+        PropTypes.shape({
+          startTime: PropTypes.string,
+          endTime: PropTypes.string,
+        })
+      ).isRequired,
+    })
+  ).isRequired,
+  setSpecificDates: PropTypes.func.isRequired,
+  googleCalendarConnected: PropTypes.bool.isRequired,
+  onBusySlotsChange: PropTypes.func,
+  sessionDurations: PropTypes.arrayOf(PropTypes.number),
+  onValidationChange: PropTypes.func,
 };
 
 export default CalendarAvailabilitySection;

@@ -1,5 +1,5 @@
 // components/mentor/dashboard/SkillsCard.jsx
-
+import PropTypes from "prop-types";
 const SkillsCard = ({ profile }) => {
   const skills = profile?.skills || [];
 
@@ -34,5 +34,9 @@ const SkillsCard = ({ profile }) => {
     </div>
   );
 };
-
+SkillsCard.propTypes = {
+  profile: PropTypes.shape({
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+};
 export default SkillsCard;

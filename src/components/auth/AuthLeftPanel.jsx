@@ -11,6 +11,7 @@
  *  - subtext      : JSX or string for the description below heading
  *  - stats        : array of { num, label } objects for the stat pills
  */
+import PropTypes from "prop-types";
 const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = [] }) => {
   return (
     <div className="relative hidden lg:flex lg:w-[48%] flex-col justify-end overflow-hidden bg-slate-900">
@@ -61,5 +62,12 @@ const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = []
     </div>
   );
 };
-
+AuthLeftPanel.propTypes = {
+  imageSrc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  imageAlt: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  badge: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  heading: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  subtext: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  stats: PropTypes.array,
+};
 export default AuthLeftPanel;

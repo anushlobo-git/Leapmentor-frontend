@@ -1,4 +1,5 @@
 // src/components/ui/connects/ConnectsLayout.jsx
+import PropTypes from "prop-types";
 
 // ── Skeleton card ─────────────────────────────────────────────
 const SkeletonCard = () => (
@@ -142,6 +143,35 @@ const ConnectsLayout = ({
 
     </div>
   );
+};
+
+EmptyState.propTypes = {
+  message: PropTypes.string.isRequired,
+  subMessage: PropTypes.string,
+  actionLabel: PropTypes.string,
+  onAction: PropTypes.func,
+};
+
+SectionDivider.propTypes = {
+  label: PropTypes.string.isRequired,
+  count: PropTypes.number.isRequired,
+};
+
+ConnectsLayout.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  count: PropTypes.number.isRequired,
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
+  emptyState: PropTypes.shape({
+    message: PropTypes.string,
+    subMessage: PropTypes.string,
+    actionLabel: PropTypes.string,
+    onAction: PropTypes.func,
+  }),
+  children: PropTypes.node,
+  completedChildren: PropTypes.node,
+  completedCount: PropTypes.number,
 };
 
 export default ConnectsLayout;

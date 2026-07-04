@@ -14,6 +14,8 @@ import {
   selectViewerRole,
   setActiveTab,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -583,5 +585,47 @@ const SharedAdditionalSessionTab = () => {
     </div>
   );
 };
+
+const slotShape = PropTypes.shape({
+  date: PropTypes.string,
+  day: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+});
+
+SlotPill.propTypes = {
+  slot: slotShape.isRequired,
+  group: PropTypes.shape({ date: PropTypes.string }).isRequired,
+  onToggle: PropTypes.func.isRequired,
+  isBooked: PropTypes.bool.isRequired,
+};
+
+ConfirmModal.propTypes = {
+  slot: slotShape.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+SuccessScreen.propTypes = {
+  slot: slotShape.isRequired,
+  onDone: PropTypes.func.isRequired,
+};
+
+TokenIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+LockIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+AdditionalSessionPaymentModal.propTypes = {
+  slot: slotShape.isRequired,
+  slotId: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+};
+
 
 export default SharedAdditionalSessionTab;

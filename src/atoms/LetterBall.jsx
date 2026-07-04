@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 export default function LetterBall({ letter, color, size = "md" }) {
   const sizes = {
     sm: "w-7 h-7 text-xs",
@@ -13,3 +14,8 @@ export default function LetterBall({ letter, color, size = "md" }) {
     </div>
   );
 }
+LetterBall.propTypes = {
+  letter: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  color: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  size: PropTypes.string,
+};

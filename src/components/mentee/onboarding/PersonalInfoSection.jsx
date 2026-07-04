@@ -1,6 +1,7 @@
 // components/mentee/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import PropTypes from "prop-types";
 
 const PersonalInfoSection = ({ form, handleChange }) => {
   const fileInputRef          = useRef(null);
@@ -24,7 +25,7 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     setUploading(true);
 
     try {
-      
+
 
       const formData = new FormData();
       formData.append("profilePicture", file);
@@ -40,11 +41,11 @@ const PersonalInfoSection = ({ form, handleChange }) => {
           value: res.data.url,
         },
       });
-      handleChange({ 
-        target: { 
+      handleChange({
+        target: {
           name: "profilePictureFileName",
-           value: res.data.fileName 
-          } 
+           value: res.data.fileName
+          }
         });
 
     } catch (err) {
@@ -143,5 +144,11 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     </div>
   );
 };
-
+PersonalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    bio: PropTypes.string.isRequired,
+  }).isRequired,
+  handleChange: PropTypes.func.isRequired,
+};
 export default PersonalInfoSection;

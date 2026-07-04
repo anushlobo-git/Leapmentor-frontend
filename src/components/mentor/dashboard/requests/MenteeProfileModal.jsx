@@ -4,7 +4,7 @@ import axiosInstance from "@utils/axiosInstance";
 import RequestActionModal from "./RequestActionModal";
 import ReferModal from "./ReferModal";
 import logger from "@utils/logger";
-
+import PropTypes from "prop-types";
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -216,4 +216,26 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
   );
 };
 
+Spinner.propTypes = {
+  light: PropTypes.bool,
+};
+MenteeProfileModal.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    selectedSlots: PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.string,
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      })
+    ),
+    message: PropTypes.string,
+    requestedAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]).isRequired,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+};
 export default MenteeProfileModal;

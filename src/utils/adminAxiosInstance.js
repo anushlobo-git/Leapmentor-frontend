@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
 import logger from "./logger";
 import { v4 as uuidv4 } from "uuid";
+import { unwrapApiResponse } from "./apiResponse";
 
 const adminAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
@@ -35,8 +36,15 @@ adminAxiosInstance.interceptors.request.use(
 // ── RESPONSE INTERCEPTOR ──────────────────────────────────────
 adminAxiosInstance.interceptors.response.use(
   (response) => {
-    const { correlationId, startTime } = response.config.metadata || {};
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      !(response.data instanceof Blob)
+    ) {
+      response.data = unwrapApiResponse(response.data);
+    }
 
+    const { correlationId, startTime } = response.config.metadata || {};
     logger.info("Admin API Response", {
       status: response.status,
       url: response.config.url,

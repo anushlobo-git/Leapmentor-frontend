@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
+import PropTypes from "prop-types";
 /**
  * TermsAndConditionsModal
  *
@@ -228,6 +228,14 @@ useEffect(() => {
       `}</style>
         </div>
     );
+};
+
+TermsAndConditionsModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onAccept: PropTypes.func.isRequired,
+  role: PropTypes.oneOf(["mentor", "mentee"]),
+  readOnly: PropTypes.bool,
 };
 
 export default TermsAndConditionsModal;

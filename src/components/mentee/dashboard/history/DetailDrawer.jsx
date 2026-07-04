@@ -4,6 +4,7 @@ import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } fro
 import StatusBadge from "./StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
+import PropTypes from "prop-types";
 
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
@@ -69,7 +70,7 @@ const AcceptedContent = ({ request, onClose, onPayClick }) => {
   </div>
 </div>
 
-      
+
       {message && (
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Your Message</p>
@@ -486,5 +487,115 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }) => {
     </>
   );
 };
+
+SlotRow.propTypes = {
+  slot: PropTypes.shape({
+    day: PropTypes.string,
+    date: PropTypes.string,
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+  isConfirmed: PropTypes.bool.isRequired,
+};
+
+PendingContent.propTypes = {
+  request: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+    requestedAt: PropTypes.string,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+AcceptedContent.propTypes = {
+  request: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onPayClick: PropTypes.func.isRequired,
+};
+
+OngoingContent.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    totalAmount: PropTypes.number.isRequired,
+    confirmedSlot: PropTypes.shape({
+      day: PropTypes.string,
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    sessionRate: PropTypes.number,
+    sessionCount: PropTypes.number,
+    paidAt: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+CompletedContent.propTypes = {
+  request: PropTypes.shape({
+    totalAmount: PropTypes.number.isRequired,
+    confirmedSlot: PropTypes.shape({
+      day: PropTypes.string,
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    completedAt: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+ReferredContent.propTypes = {
+  request: PropTypes.shape({
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    referredTo: PropTypes.shape({
+      _id: PropTypes.string,
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    referredToProfile: PropTypes.shape({
+      currentRole: PropTypes.string,
+      company: PropTypes.string,
+      industry: PropTypes.string,
+      bio: PropTypes.string,
+      hourlyRate: PropTypes.number,
+      avgRating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      yearsOfExperience: PropTypes.number,
+      profilePicture: PropTypes.string,
+      skills: PropTypes.arrayOf(PropTypes.string),
+    }),
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+RejectedContent.propTypes = {
+  request: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+    respondedAt: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+DetailDrawer.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string,
+    mentor: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    status: PropTypes.string,
+    requestedAt: PropTypes.string,
+    respondedAt: PropTypes.string,
+  }),
+  onClose: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onUpdateRequest: PropTypes.func.isRequired,
+};
+
 
 export default DetailDrawer;

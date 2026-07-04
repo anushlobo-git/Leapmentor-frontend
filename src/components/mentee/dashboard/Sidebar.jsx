@@ -3,6 +3,7 @@ import {
   Home, User, Search, Bell, History,
   Users, HelpCircle, X
 } from "lucide-react";
+import PropTypes from "prop-types";
 
 const NAV_ITEMS = [
   { key: "home", label: "Home", icon: <Home size={16} /> },
@@ -296,6 +297,24 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) 
       </aside>
     </>
   );
+};
+Badge.propTypes = {
+  count: PropTypes.number.isRequired,
+};
+
+SidebarContent.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  unreadCount: PropTypes.number,
+};
+
+Sidebar.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func,
+  unreadCount: PropTypes.number,
 };
 
 export default Sidebar;

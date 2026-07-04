@@ -1,5 +1,5 @@
 // components/mentee/dashboard/ProfessionalDetailsCard.jsx
-
+import PropTypes from "prop-types";
 const Field = ({ label, icon, value }) => (
   <div className="py-3 border-b border-slate-100 last:border-0">
     <p className="text-xs font-semibold text-slate-800 uppercase tracking-wide mb-1">{label}</p>
@@ -39,6 +39,20 @@ const ProfessionalDetailsCard = ({ profile }) => {
       </div>
     </div>
   );
+};
+Field.propTypes = {
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  icon: PropTypes.node.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
+
+ProfessionalDetailsCard.propTypes = {
+  profile: PropTypes.shape({
+    currentRole: PropTypes.string,
+    yearsOfExperience: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    company: PropTypes.string,
+    industry: PropTypes.string,
+  }),
 };
 
 export default ProfessionalDetailsCard;

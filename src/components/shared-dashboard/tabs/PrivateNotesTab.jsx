@@ -7,6 +7,7 @@ import {
   selectConnectId,
   selectConnectStatus,
 } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 // ── Helpers ───────────────────────────────────────────────────
 const formatFileSize = (bytes) => {
@@ -645,6 +646,52 @@ const PrivateNotesTab = () => {
       {privateSubTab === "notepad" && <NotepadSection connectId={connectId} isCompleted={isCompleted} />}
     </div>
   );
+};
+
+UploadModal.propTypes = {
+  onUpload: PropTypes.func.isRequired,
+  uploading: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+PrivateFileCard.propTypes = {
+  note: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    fileType: PropTypes.string,
+    title: PropTypes.string,
+    fileName: PropTypes.string.isRequired,
+    fileUrl: PropTypes.string.isRequired,
+    fileSize: PropTypes.number,
+    createdAt: PropTypes.string,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+NotepadEditor.propTypes = {
+  note: PropTypes.shape({
+    _id: PropTypes.string,
+    title: PropTypes.string,
+    content: PropTypes.string,
+  }),
+  onSave: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+NoteListItem.propTypes = {
+  note: PropTypes.shape({
+    content: PropTypes.string,
+    title: PropTypes.string,
+    updatedAt: PropTypes.string,
+  }).isRequired,
+  isActive: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+NotepadSection.propTypes = {
+  connectId: PropTypes.string.isRequired,
+  isCompleted: PropTypes.bool.isRequired,
 };
 
 export default PrivateNotesTab;

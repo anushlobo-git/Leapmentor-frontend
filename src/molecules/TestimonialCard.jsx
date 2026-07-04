@@ -1,6 +1,7 @@
 import Card from "@atoms/Card";
 import StarRating from "@molecules/StarRating";
 import LetterBall from "../atoms/LetterBall";
+import PropTypes from "prop-types";
 
 export default function TestimonialCard({ testimonial, active, dimmed }) {
   return (
@@ -46,3 +47,17 @@ export default function TestimonialCard({ testimonial, active, dimmed }) {
     </Card>
   );
 }
+
+TestimonialCard.propTypes = {
+  testimonial: PropTypes.shape({
+    text: PropTypes.string,
+    letter: PropTypes.string,
+    color: PropTypes.string,
+    name: PropTypes.string,
+    role: PropTypes.string,
+    company: PropTypes.string,
+    rating: PropTypes.number,
+  }).isRequired,
+  active: PropTypes.bool,
+  dimmed: PropTypes.bool,
+};

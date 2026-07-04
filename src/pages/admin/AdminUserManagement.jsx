@@ -6,7 +6,7 @@ import AdminLayout          from "../../components/admin/AdminLayout";
 import StatCard             from "../../components/admin/common/StatCard";
 import UserGrowthChart      from "../../components/admin/common/UserGrowthChart";
 import MentorIndustryChart  from "../../components/admin/common/MentorIndustryChart";
-
+import PropTypes from "prop-types";
 
 // ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
 const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
@@ -141,7 +141,7 @@ const AdminUserManagement = () => {
   const fetchGrowthData = useCallback(async () => {
     try {
       const res = await adminAxiosInstance.get(`/admin/user-growth`);
-      setGrowthData(res.data);
+      setGrowthData(res.data.data || res.data || []);
     } catch (err) {
       logger.error("Failed to fetch growth data", { error : err.message || err });
     }
@@ -150,7 +150,7 @@ const AdminUserManagement = () => {
   const fetchIndustryData = useCallback(async () => {
     try {
       const res = await adminAxiosInstance.get(`/admin/stats/mentor-industries`);
-      setIndustryData(res.data);
+      setIndustryData(res.data.data || res.data || []);
     } catch (err) {
       logger.error("Failed to fetch industry data", { error : err.message || err });
     }
@@ -499,6 +499,26 @@ const AdminUserManagement = () => {
       )}
     </AdminLayout>
   );
+};
+
+ConfirmActionModal.propTypes = {
+  user: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+  }),
+  mode: PropTypes.oneOf(["delete", "block", "unblock"]).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
+
+RoleBadge.propTypes = {
+  roles: PropTypes.arrayOf(PropTypes.string),
+};
+
+Avatar.propTypes = {
+  name: PropTypes.string,
+  picture: PropTypes.string,
 };
 
 export default AdminUserManagement;
