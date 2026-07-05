@@ -12,7 +12,9 @@ const HomeTab = lazy(() => import("./HomeTab"));
 const ProfileTab = lazy(() => import("./ProfileTab"));
 const FindMentorsTab = lazy(() => import("./findMentors/FindMentorsTab"));
 const RequestHistoryTab = lazy(() => import("./history/RequestHistoryTab"));
-const NotificationsTab = lazy(() => import("../notifications/NotificationsTab"));
+//u can remove if the new file wrok perfectly
+//const NotificationsTab = lazy(() => import("../notifications/NotificationsTab"));
+const NotificationsTab = lazy(() => import("@components/shared-dashboard/tabs/SharedNotificationsTab"));
 const MenteeConnectsTab = lazy(() => import("./connects/MenteeConnectsTab"));
 const HelpCenter = lazy(() => import("../../common/HelpCenter"));
 

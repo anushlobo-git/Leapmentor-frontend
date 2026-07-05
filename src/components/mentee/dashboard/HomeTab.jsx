@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
+import { mapMentorProfile } from "@mappers/mentorMapper";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
 import logger from "@utils/logger";
@@ -32,7 +33,7 @@ const useHomeData = (profile) => {
         const mentorRes = await axiosInstance.get(`/mentors/search`, {
           params: { skill: skillTerm, limit: 4 },
         });
-        setMentors(mentorRes.data.mentors || []);
+        setMentors((mentorRes.data.mentors || []).map(mapMentorProfile));
 
         const sessionRes = await axiosInstance.get(
           `/connect-requests/my-requests`
