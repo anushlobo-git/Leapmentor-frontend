@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { setAuthRole } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -40,6 +41,7 @@ const useGoogleAuth = ({
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
+      logger.error("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
       onError?.("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
       return;
     }
@@ -47,8 +49,8 @@ const useGoogleAuth = ({
     const initGoogle = () => {
       if (!btnRef.current) return;
 
-      if (!window.__googleInitialized) {
-        window.google.accounts.id.initialize({
+      if (!globalThis.__googleInitialized) {
+        globalThis.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
             const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
@@ -60,6 +62,7 @@ const useGoogleAuth = ({
 
             try {
               callbackRef.onLoadingChange?.(true);
+              logger.info("Google sign-in callback received");
 
               const res = await axiosInstance.post(`/auth/google`, {
                 credential: response.credential,
@@ -96,17 +99,18 @@ const useGoogleAuth = ({
                 err?.response?.data?.error ||
                 err?.message ||
                 "Google sign-in failed";
+              logger.warn("Google sign-in failed", { error: apiMsg });
               callbackRef.onError?.(apiMsg);
             } finally {
               callbackRef.onLoadingChange?.(false);
             }
           },
         });
-        window.__googleInitialized = true;
+        globalThis.__googleInitialized = true;
       }
 
       btnRef.current.innerHTML = "";
-      window.google.accounts.id.renderButton(btnRef.current, {
+      globalThis.google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",
         size: "large",
         width: 400,
@@ -114,7 +118,7 @@ const useGoogleAuth = ({
       });
     };
 
-    if (window.google) {
+      if (globalThis.google) {
       if ("requestIdleCallback" in window) {
         requestIdleCallback(initGoogle, { timeout: 2000 });
       } else {

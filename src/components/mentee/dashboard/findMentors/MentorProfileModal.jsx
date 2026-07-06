@@ -5,6 +5,7 @@ import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
 import PropTypes from "prop-types";
+import { HTTP_STATUS } from "../../../../constants/httpStatus";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const BADGES = [
@@ -145,7 +146,7 @@ const badges = BADGES.map((badge) => ({
         }
       }
     } catch (err) {
-      setSlotsError(err?.response?.status === 404
+      setSlotsError(err?.response?.status === HTTP_STATUS.NOT_FOUND
         ? "This mentor hasn't set their availability yet."
         : "Failed to load available slots.");
       setGroupedSlots([]);

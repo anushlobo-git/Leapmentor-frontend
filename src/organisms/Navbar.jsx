@@ -10,8 +10,8 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
-    if (window.location.pathname === "/") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (globalThis.location.pathname === "/") {
+      globalThis.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       navigate("/");
     }

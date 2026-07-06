@@ -139,7 +139,7 @@ const resolveNavigation = (notif, setActiveTab) => {
       break;
 
     case "connect_request_accepted":
-      setActiveTab("history");  // ← mentee goes here to make payment
+      setActiveTab(role === "mentee" ? "history" : "connects");  // ← mentee goes here to make payment
       break;
     case "upcoming_session":
     case "new_message":
@@ -310,7 +310,7 @@ const SharedNotificationsTab = ({ setActiveTab }) => {
     return (
       t.includes("minute") || t.includes("hour") ||
       t.toLowerCase() === "yesterday" ||
-      (t.includes("day") && parseInt(t) <= 7)
+      (t.includes("day") && Number.parseInt(t) <= 7)
     );
   }).length;
 

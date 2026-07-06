@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "./logger";
 import { toast } from "sonner";
 import { unwrapApiResponse } from "./apiResponse";
+import { HTTP_STATUS, isServerError } from "../constants/httpStatus";
 
 let _store = null;
 export const injectStore = (store) => {
@@ -96,9 +97,9 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 2. 401 — try silent refresh first, redirect only if refresh fails
+    // 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
     if (
-      status === 401 &&
+      status === HTTP_STATUS.UNAUTHORIZED &&
       !originalRequest._retry &&
       url !== "/auth/refresh" &&
       url !== "/auth/login"
@@ -147,26 +148,26 @@ axiosInstance.interceptors.response.use(
         logger.warn("Refresh token expired — redirecting to login", {
           correlationId,
         });
-        window.location.href = "/login";
+        globalThis.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // 3. 403 — blocked user
+    // 3. FORBIDDEN — blocked user
     // FIX: replaced require() (CommonJS) with _store — we already have the reference
-    if (status === 403 && message?.includes("blocked")) {
+    if (status === HTTP_STATUS.FORBIDDEN && message?.includes("blocked")) {
       const { logout } = await import("../store/slices/authSlice");
       _store.dispatch(logout());
       clearAuthRole();
       logger.warn("Blocked user terminated", { url, correlationId });
-      window.location.href = "/login?reason=blocked";
+      globalThis.location.href = "/login?reason=blocked";
       return Promise.reject(error);
     }
 
     // 4. 5xx — server crash
-    if (status >= 500) {
+    if (isServerError(status)) {
       logger.error("Server internal error response", {
         status,
         url,

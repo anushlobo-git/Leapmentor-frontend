@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
+import { HTTP_STATUS } from "../constants/httpStatus";
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const useMenteeDashboard = () => {
         const profileRes = await axiosInstance.get("/mentee-profile/me");
         profileData = profileRes.data;
       } catch (profileErr) {
-        if (profileErr?.response?.status === 404) {
+        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
           if (!isEditPage) {
             setLoading(false);
             navigate("/onboarding/mentee");
@@ -56,7 +57,7 @@ const useMenteeDashboard = () => {
       setLoading(false);
 
     } catch (err) {
-      if (err?.response?.status !== 401) {
+      if (err?.response?.status !== HTTP_STATUS.UNAUTHORIZED) {
         setError("Something went wrong. Please try again.");
         setLoading(false);
       }

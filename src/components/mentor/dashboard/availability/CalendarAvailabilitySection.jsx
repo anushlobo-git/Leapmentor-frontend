@@ -173,7 +173,7 @@ const TimePicker = ({ value, onChange, hasError = false }) => {
   useEffect(() => {
     if (!open || !wrapperRef.current) return;
     const rect = wrapperRef.current.getBoundingClientRect();
-    setPos({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX });
+    setPos({ top: rect.bottom + globalThis.scrollY + 4, left: rect.left + globalThis.scrollX });
   }, [open]);
 
   useEffect(() => {

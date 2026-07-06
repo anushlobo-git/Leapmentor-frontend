@@ -59,7 +59,7 @@ const DashboardLayout = () => {
   }, [activeTab, clearBadge]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const tab = params.get("tab");
     const validTabs = ["home", "profile", "availability", "requests", "connects", "notifications", "earnings", "help"];
     if (tab && validTabs.includes(tab)) {
@@ -70,13 +70,13 @@ const DashboardLayout = () => {
   const handleSetTab = (tab) => {
     setActiveTab(tab);
     setSidebarOpen(false);
-    const url = new URL(window.location.href);
+    const url = new URL(globalThis.location.href);
     if (tab === "home") {
       url.searchParams.delete("tab");
     } else {
       url.searchParams.set("tab", tab);
     }
-    window.history.replaceState(null, "", url.toString());
+    globalThis.history.replaceState(null, "", url.toString());
   };
 
   if (error) {

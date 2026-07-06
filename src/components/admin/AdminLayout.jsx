@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import PropTypes from "prop-types";
+import logger from "@utils/logger";
 
 const NAV_ITEMS = [
   {
@@ -129,7 +130,7 @@ const AdminLayout = ({ children }) => {
     try {
       await adminAxiosInstance.post("/admin/auth/logout");
     } catch (err) {
-      console.error("Logout failed, but clearing local session.");
+      logger.error("Admin logout failed, but clearing local session.", { error: err?.message });
     } finally {
       setAdmin(null); // Clear global auth state
       navigate("/admin/login");

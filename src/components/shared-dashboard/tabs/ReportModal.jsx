@@ -7,6 +7,7 @@ import {
   selectViewerRole,
 } from "../../../store/slices/sharedDashboardSlice";
 import PropTypes from "prop-types";
+import { validateScreenshotFile } from "../../../utils/validation/schemas";
 
 const COMPLAINT_ICONS = {
   inappropriate_behavior: "🚫",
@@ -58,13 +59,19 @@ const ReportModal = ({ onClose, onSuccess }) => {
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    globalThis.addEventListener("keydown", handler);
+    return () => globalThis.removeEventListener("keydown", handler);
   }, [onClose]);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validation = validateScreenshotFile(file);
+    if (!validation.valid) {
+      setError(validation.error);
+      return;
+    }
+    setError(null);
     setScreenshot(file);
     setPreview(URL.createObjectURL(file));
   };

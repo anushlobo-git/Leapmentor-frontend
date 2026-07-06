@@ -1,7 +1,7 @@
 // components/mentor/verification/ResumeUpload.jsx
 import PropTypes from "prop-types";
+import { validateResumeFile } from "@utils/validation/schemas";
 
-const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_LABEL = "PDF, JPG, PNG, WEBP";
 
 const ResumeUpload = ({ file, onChange, error }) => {
@@ -10,8 +10,9 @@ const ResumeUpload = ({ file, onChange, error }) => {
     const selected = e.target.files[0];
     if (!selected) return;
 
-    if (!ACCEPTED_TYPES.includes(selected.type)) {
-      onChange(null, `File type not supported. Please upload: ${ACCEPTED_LABEL}`);
+    const validation = validateResumeFile(selected);
+    if (!validation.valid) {
+      onChange(null, validation.error);
       return;
     }
     onChange(selected, null);
@@ -21,8 +22,9 @@ const ResumeUpload = ({ file, onChange, error }) => {
     e.preventDefault();
     const dropped = e.dataTransfer.files[0];
     if (!dropped) return;
-    if (!ACCEPTED_TYPES.includes(dropped.type)) {
-      onChange(null, `File type not supported. Please upload: ${ACCEPTED_LABEL}`);
+    const validation = validateResumeFile(dropped);
+    if (!validation.valid) {
+      onChange(null, validation.error);
       return;
     }
     onChange(dropped, null);

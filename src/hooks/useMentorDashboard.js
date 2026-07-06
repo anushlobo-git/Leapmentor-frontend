@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
+import { HTTP_STATUS } from "../constants/httpStatus";
 
 const useMentorDashboard = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const useMentorDashboard = () => {
           const profileRes = await axiosInstance.get("/mentor-profile/me");
           profileData = profileRes.data;
         } catch (profileErr) {
-          if (profileErr?.response?.status === 404) {
+          if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
             // New mentor — no profile yet
             if (!isEditPage) {
               setLoading(false);
@@ -48,7 +49,7 @@ const useMentorDashboard = () => {
             }
             return;
           }
-          if (profileErr?.response?.status === 401) {
+          if (profileErr?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
             navigate("/login");
             return;
           }
@@ -67,7 +68,7 @@ const useMentorDashboard = () => {
         // 5) All good — show dashboard
         setLoading(false);
       } catch (err) {
-        if (err?.response?.status === 401) {
+        if (err?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
           navigate("/login");
           return;
         }

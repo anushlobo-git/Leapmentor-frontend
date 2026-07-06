@@ -2,6 +2,7 @@
 import { useToast } from "../context/ToastContext";
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "../utils/axiosInstance";
+import logger from "../utils/logger";
 
 const useGoals = (connectRequestId) => {
   const [goal, setGoal] = useState(null);
@@ -33,6 +34,7 @@ const useGoals = (connectRequestId) => {
       setGoal(data.goal);
       setMilestones(data.milestones || []);
     } catch (err) {
+      logger.warn("Failed to fetch goal details", { connectRequestId, error: err?.message });
       setError(err.message);
     } finally {
       setLoading(false);
@@ -120,24 +122,25 @@ const useGoals = (connectRequestId) => {
 
     // ✅ Use shared socket, wait for it
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        window.__leapSocket.emit("join_room", { connectRequestId });
-        window.__leapSocket.on("goal_created", handleGoalCreated);
-        window.__leapSocket.on("goal_updated", handleGoalUpdated);
-        window.__leapSocket.on("milestone_added", handleMilestoneAdded);
-        window.__leapSocket.on("milestone_updated", handleMilestoneUpdated);
-        window.__leapSocket.on("milestone_deleted", handleMilestoneDeleted);
+        logger.info("Goal socket connected, joining room", { connectRequestId });
+        globalThis.__leapSocket.emit("join_room", { connectRequestId });
+        globalThis.__leapSocket.on("goal_created", handleGoalCreated);
+        globalThis.__leapSocket.on("goal_updated", handleGoalUpdated);
+        globalThis.__leapSocket.on("milestone_added", handleMilestoneAdded);
+        globalThis.__leapSocket.on("milestone_updated", handleMilestoneUpdated);
+        globalThis.__leapSocket.on("milestone_deleted", handleMilestoneDeleted);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket?.off("goal_created", handleGoalCreated);
-      window.__leapSocket?.off("goal_updated", handleGoalUpdated);
-      window.__leapSocket?.off("milestone_added", handleMilestoneAdded);
-      window.__leapSocket?.off("milestone_updated", handleMilestoneUpdated);
-      window.__leapSocket?.off("milestone_deleted", handleMilestoneDeleted);
+      globalThis.__leapSocket?.off("goal_created", handleGoalCreated);
+      globalThis.__leapSocket?.off("goal_updated", handleGoalUpdated);
+      globalThis.__leapSocket?.off("milestone_added", handleMilestoneAdded);
+      globalThis.__leapSocket?.off("milestone_updated", handleMilestoneUpdated);
+      globalThis.__leapSocket?.off("milestone_deleted", handleMilestoneDeleted);
     };
   }, [connectRequestId]);
 

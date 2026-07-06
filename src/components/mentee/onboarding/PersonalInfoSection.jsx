@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import PropTypes from "prop-types";
+import { validateImageFile } from "../../../utils/validation/schemas";
 
 const PersonalInfoSection = ({ form, handleChange }) => {
   const fileInputRef          = useRef(null);
@@ -12,12 +13,9 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setUploadErr("Only image files are allowed.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadErr("Image must be under 5MB.");
+    const validation = validateImageFile(file, 5);
+    if (!validation.valid) {
+      setUploadErr(validation.error);
       return;
     }
 

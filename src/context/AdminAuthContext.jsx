@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import PropTypes from "prop-types";
+import logger from "@utils/logger";
 
 const AdminAuthContext = createContext(null);
 
@@ -41,7 +42,7 @@ export const AdminAuthProvider = ({ children }) => {
     try {
       await adminAxiosInstance.post("/admin/auth/logout");
     } catch (err) {
-      console.error("Logout API failed", err);
+      logger.error("Admin logout failed", { error: err.message });
     } finally {
       setAdmin(null);
     }

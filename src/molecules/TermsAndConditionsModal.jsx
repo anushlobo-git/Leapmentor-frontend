@@ -30,8 +30,8 @@ export default function TermsAndConditionsModal({
     useEffect(() => {
         if (!isOpen) return;
         const handler = (e) => { if (e.key === "Escape") onClose(); };
-        window.addEventListener("keydown", handler);
-        return () => window.removeEventListener("keydown", handler);
+        globalThis.addEventListener("keydown", handler);
+        return () => globalThis.removeEventListener("keydown", handler);
     }, [isOpen, onClose]);
 
     // Prevent background scroll while open

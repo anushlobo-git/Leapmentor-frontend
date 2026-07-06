@@ -1,4 +1,5 @@
 // src/components/mentee/dashboard/history/RequestHistoryTab.jsx
+import logger from "@utils/logger";
 import useRequestHistory from "../../../../hooks/useRequestHistory";
 import { useEffect } from "react";
 import { TABS } from "./constants";
@@ -16,20 +17,24 @@ const RequestHistoryTab = () => {
   } = useRequestHistory();
 
   useEffect(() => {
-  const handleRequestChanged = () => fetchRequests();
+    const handleRequestChanged = (data) => {
+      logger.info("Request history socket event received", { data });
+      fetchRequests();
+    };
 
-  const waitForSocket = setInterval(() => {
-    if (window.__leapSocket?.connected) {
+    const waitForSocket = setInterval(() => {
+      if (globalThis.__leapSocket?.connected) {
+        clearInterval(waitForSocket);
+        logger.info("Request history socket connected, registering request_status_changed listener");
+        globalThis.__leapSocket.on("request_status_changed", handleRequestChanged);
+      }
+    }, 200);
+
+    return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket.on("request_status_changed", handleRequestChanged);
-    }
-  }, 200);
-
-  return () => {
-    clearInterval(waitForSocket);
-    window.__leapSocket?.off("request_status_changed", handleRequestChanged);
-  };
-}, [fetchRequests]);
+      globalThis.__leapSocket?.off("request_status_changed", handleRequestChanged);
+    };
+  }, [fetchRequests]);
 
   if (loading) {
     return (

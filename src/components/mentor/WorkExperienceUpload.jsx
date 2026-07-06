@@ -1,7 +1,7 @@
 // components/mentor/verification/WorkExperienceUpload.jsx
 import PropTypes from "prop-types";
+import { validateWorkExperienceFiles } from "@utils/validation/schemas";
 
-const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILES = 3;
 
 const WorkExperienceUpload = ({ files, onChange, error }) => {
@@ -10,14 +10,9 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
     const selected = Array.from(e.target.files);
     const combined = [...files, ...selected];
 
-    if (combined.length > MAX_FILES) {
-      onChange(files, `Maximum ${MAX_FILES} files allowed`);
-      return;
-    }
-
-    const invalid = selected.find((f) => !ACCEPTED_TYPES.includes(f.type));
-    if (invalid) {
-      onChange(files, "Only PDF, JPG, PNG, WEBP files are allowed");
+    const validation = validateWorkExperienceFiles(combined, MAX_FILES);
+    if (!validation.valid) {
+      onChange(files, validation.error);
       return;
     }
 
@@ -31,13 +26,9 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
     const dropped = Array.from(e.dataTransfer.files);
     const combined = [...files, ...dropped];
 
-    if (combined.length > MAX_FILES) {
-      onChange(files, `Maximum ${MAX_FILES} files allowed`);
-      return;
-    }
-    const invalid = dropped.find((f) => !ACCEPTED_TYPES.includes(f.type));
-    if (invalid) {
-      onChange(files, "Only PDF, JPG, PNG, WEBP files are allowed");
+    const validation = validateWorkExperienceFiles(combined, MAX_FILES);
+    if (!validation.valid) {
+      onChange(files, validation.error);
       return;
     }
     onChange(combined, null);

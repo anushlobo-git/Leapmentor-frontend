@@ -19,7 +19,8 @@ class ErrorBoundary extends React.Component {
 
   handleReset = () => {
     this.setState({ hasError: false, error: null });
-    window.location.href = "/";
+    logger.info("ErrorBoundary reset — navigating to homepage");
+    globalThis.location.href = "/";
   };
 
   render() {

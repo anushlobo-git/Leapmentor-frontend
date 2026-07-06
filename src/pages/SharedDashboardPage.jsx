@@ -10,6 +10,7 @@ import {
   setActiveTab,
   resetSharedDashboard,
 } from "../store/slices/sharedDashboardSlice";
+import { HTTP_STATUS } from "../constants/httpStatus";
 
 const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
 
@@ -45,8 +46,8 @@ const SharedDashboardPage = () => {
       dispatch(setConnect(res.data.connect));
     } catch (err) {
       const status = err?.response?.status;
-      if (status === 401) return navigate("/login");
-      if (status === 403) return navigate(-1);
+      if (status === HTTP_STATUS.UNAUTHORIZED) return navigate("/login");
+      if (status === HTTP_STATUS.FORBIDDEN) return navigate(-1);
       setError(err?.response?.data?.message || "Failed to load session.");
     } finally {
       setLoading(false);

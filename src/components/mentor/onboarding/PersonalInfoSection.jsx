@@ -1,7 +1,8 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
-
+import { validateImageFile } from "@utils/validation/schemas";
+import PropTypes from "prop-types";
 
 
 const PersonalInfoSection = ({ form, onChange }) => {
@@ -17,13 +18,9 @@ const PersonalInfoSection = ({ form, onChange }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ Client-side validation before uploading
-    if (!file.type.startsWith("image/")) {
-      setUploadErr("Only image files are allowed.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadErr("Image must be under 5MB.");
+    const validation = validateImageFile(file, 5);
+    if (!validation.valid) {
+      setUploadErr(validation.error);
       return;
     }
 
@@ -31,7 +28,7 @@ const PersonalInfoSection = ({ form, onChange }) => {
     setUploading(true);
 
     try {
-      
+
 
       // ✅ Send as multipart/form-data — NOT Base64
       const formData = new FormData();
@@ -49,9 +46,9 @@ const PersonalInfoSection = ({ form, onChange }) => {
           value: res.data.url,
         },
       });
-      onChange({ 
-        target: { name: "profilePictureFileName", 
-          value: res.data.fileName } 
+      onChange({
+        target: { name: "profilePictureFileName",
+          value: res.data.fileName }
         });
     } catch (err) {
       setUploadErr(
@@ -159,6 +156,15 @@ const PersonalInfoSection = ({ form, onChange }) => {
       </div>
     </div>
   );
+};
+
+PersonalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    profilePictureFileName: PropTypes.string,
+    bio: PropTypes.string,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default PersonalInfoSection;

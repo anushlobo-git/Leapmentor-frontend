@@ -65,7 +65,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
         );
         setEngagements(filtered);
       } catch (err) {
-        console.error("Failed to fetch engagements:", err.message);
+        logger.error("Failed to fetch engagements", { menteeId: mentee._id, error: err.message });
       } finally {
         setLoading(false);
       }

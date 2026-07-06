@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import logger from "./logger";
 import { v4 as uuidv4 } from "uuid";
 import { unwrapApiResponse } from "./apiResponse";
+import { HTTP_STATUS, isServerError } from "../constants/httpStatus";
 
 const adminAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
@@ -73,8 +74,8 @@ adminAxiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 2. 401 / 403 — skip redirect for silent auth probes (e.g. /auth/me on mount)
-    if (status === 401 || status === 403) {
+    // 2. UNAUTHORIZED / FORBIDDEN — skip redirect for silent auth probes (e.g. /auth/me on mount)
+    if (status === HTTP_STATUS.UNAUTHORIZED || status === HTTP_STATUS.FORBIDDEN) {
       const isSkipped = error.config?._skipAuthRedirect;
 
       logger.warn("Admin session expired or unauthorized", {
@@ -85,14 +86,14 @@ adminAxiosInstance.interceptors.response.use(
       });
 
       if (!isSkipped) {
-        window.location.href = "/admin/login";
+        globalThis.location.href = "/admin/login";
       }
 
       return Promise.reject(error);
     }
 
     // 3. 5xx — server crash
-    if (status >= 500) {
+    if (isServerError(status)) {
       logger.error("Admin API Server Error", {
         status,
         url,

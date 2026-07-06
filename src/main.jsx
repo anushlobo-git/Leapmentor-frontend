@@ -15,7 +15,7 @@ const App = lazy(() => import("./App.jsx"));
 injectStore(store);
 
 if (import.meta.env.DEV) {
-  window.store = store;
+  globalThis.store = store;
 }
 
 Sentry.init({
@@ -24,7 +24,7 @@ Sentry.init({
 });
 
 // Catch unhandled React/UI errors
-window.addEventListener("error", (event) => {
+globalThis.addEventListener("error", (event) => {
   logger.error("Unhandled UI Error", {
     message: event.message,
     filename: event.filename,
@@ -33,7 +33,7 @@ window.addEventListener("error", (event) => {
 });
 
 // Catch unhandled asynchronous errors
-window.addEventListener("unhandledrejection", (event) => {
+globalThis.addEventListener("unhandledrejection", (event) => {
   logger.error("Unhandled Promise Rejection", {
     reason: event.reason?.message || event.reason,
   });

@@ -13,14 +13,15 @@ const SSOCallback = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const code = params.get("code");
 
-    logger.info("SSOCallback mounted, code:", { code: code?.slice(0, 10) });
-    logger.info("sessionStorage value:", { value: sessionStorage.getItem("linkedin_code_used")?.slice(0, 10) });
+    // Do not log sensitive OAuth codes or raw sessionStorage values. Log only presence.
 
     const state = params.get("state");
     const provider = params.get("provider");
+
+    logger.info("SSOCallback mounted", { provider, hasCode: !!code });
 
     if (!code || provider !== "linkedin") {
       setError("Invalid callback. Missing code or unsupported provider.");

@@ -5,6 +5,7 @@ import StatusBadge from "./StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
 import PropTypes from "prop-types";
+import logger from "@utils/logger";
 
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
@@ -115,19 +116,22 @@ const OngoingContent = ({ request, onClose }) => {
   const handleDownload = async () => {
     try {
       setDownloading(true);
+      logger.info("Downloading invoice", { requestId: request._id });
       const res = await axiosInstance.get(
         `/invoices/${request._id}`,
         { responseType: "blob" }
       );
-      const url  = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      const url  = globalThis.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
       const link = document.createElement("a");
       link.href     = url;
       link.download = `Invoice-${request._id.slice(-6).toUpperCase()}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
+      logger.info("Invoice downloaded", { requestId: request._id });
     } catch (err) {
+      logger.warn("Failed to download invoice", { requestId: request._id, error: err?.message || err });
       alert("Failed to download invoice. Please try again.");
     } finally {
       setDownloading(false);

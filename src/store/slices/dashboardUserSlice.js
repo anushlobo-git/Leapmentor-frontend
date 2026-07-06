@@ -1,6 +1,7 @@
 // src/store/slices/dashboardUserSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 
 const initialState = {
   user: null,
@@ -15,7 +16,7 @@ export const refetchMentorProfile = createAsyncThunk(
       const res = await axiosInstance.get("/mentor-profile/me");
       return res.data;
     } catch (err) {
-      console.error("Profile refetch failed:", err.message);
+      logger.error("Profile refetch failed", { error: err.message });
       return rejectWithValue(err.message);
     }
   }

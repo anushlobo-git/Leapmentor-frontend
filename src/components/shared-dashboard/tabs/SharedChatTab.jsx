@@ -372,8 +372,8 @@ const SharedChatTab = () => {
   useEffect(() => {
     markRead();
     const onFocus = () => markRead();
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+    globalThis.addEventListener("focus", onFocus);
+    return () => globalThis.removeEventListener("focus", onFocus);
   }, [markRead]);
 
   if (loading) {

@@ -54,8 +54,8 @@ const DashboardLayout = () => {
   useEffect(() => () => dispatch(resetDashboardUser()), [dispatch]);
   useEffect(() => {
     const handler = (e) => setActiveTab(e.detail);
-    window.addEventListener("setDashboardTab", handler);
-    return () => window.removeEventListener("setDashboardTab", handler);
+    globalThis.addEventListener("setDashboardTab", handler);
+    return () => globalThis.removeEventListener("setDashboardTab", handler);
   }, []);
   // ✅ Clear badge when notifications tab is opened
   useEffect(() => {
@@ -63,8 +63,8 @@ const DashboardLayout = () => {
   }, [activeTab, clearBadge]);
 
   // Deep link: read ?tab= from URL on mount (e.g. from email links)
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
+  useEffect(() => {
+    const params = new URLSearchParams(globalThis.location.search);
   const tab = params.get("tab");
   const validTabs = ["home", "profile", "findMentors", "history", "notifications", "connects", "help"];
   if (tab && validTabs.includes(tab)) {
@@ -74,13 +74,13 @@ useEffect(() => {
   const handleSetTab = (tab) => {
   setActiveTab(tab);
   setSidebarOpen(false);
-  const url = new URL(window.location.href);
+    const url = new URL(globalThis.location.href);
   if (tab === "home") {
     url.searchParams.delete("tab");
   } else {
     url.searchParams.set("tab", tab);
   }
-  window.history.replaceState(null, "", url.toString());
+    globalThis.history.replaceState(null, "", url.toString());
 };
   if (loading) {
     return (

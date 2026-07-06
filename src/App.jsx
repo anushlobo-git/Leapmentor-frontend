@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser, logout } from "./store/slices/authSlice";
 import { isLoggedIn, clearAuthRole } from "./utils/cookies";
 import axiosInstance from "./utils/axiosInstance";
+import logger from "./utils/logger";
 
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home     from "@pages/shared/Home";
@@ -100,7 +101,8 @@ const AppRoutes = () => {
         // Refresh token expired — cookies are stale, clean up
         dispatch(logout());
         clearAuthRole();
-        window.location.href = "/login";
+        logger.warn("Silent refresh failed — redirecting to login");
+        globalThis.location.href = "/login";
       } finally {
         setRehydrating(false);
       }

@@ -1,6 +1,7 @@
 // src/hooks/useAvailability.js
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import { HTTP_STATUS } from "../constants/httpStatus";
 
 const useAvailability = () => {
   const [availability, setAvailability] = useState({
@@ -28,7 +29,7 @@ const useAvailability = () => {
           specificDates: data.specificDates || [],
         }));
       } catch (err) {
-        if (err?.response?.status !== 404) {
+        if (err?.response?.status !== HTTP_STATUS.NOT_FOUND) {
           setMsg({ type: "error", text: "Failed to load availability." });
         }
       } finally {
