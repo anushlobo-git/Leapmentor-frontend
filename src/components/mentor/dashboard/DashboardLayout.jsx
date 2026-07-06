@@ -1,134 +1,45 @@
 // src/components/mentor/dashboard/DashboardLayout.jsx
-import { useState, useEffect, lazy, Suspense } from "react";
-import { useDispatch } from "react-redux";
+import { lazy } from "react";
 import useMentorDashboard from "../../../hooks/useMentorDashboard";
-import { setUser, setProfile, resetDashboardUser } from "../../../store/slices/dashboardUserSlice";
-import useUnreadCount from "../../../hooks/useUnreadCount";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
-import useSocketToast from "../../../hooks/useSocketToast";
+import DashboardShell from "@components/shared/DashboardShell";
 
 const MentorHomeTab = lazy(() => import("./MentorHomeTab"));
 const ProfileTab = lazy(() => import("./ProfileTab"));
 const AvailabilityTab = lazy(() => import("./availability/AvailabilityTab"));
 const RequestsTab = lazy(() => import("./requests/RequestsTab"));
-const MentorConnectsTab = lazy(() => import("./connects/MentorConnectsTab"));
-//u can delete if the new file work perfectly
-//const NotificationsTab = lazy(() => import("./notifications/NotificationsTab"));
 const NotificationsTab = lazy(() => import("@components/shared-dashboard/tabs/SharedNotificationsTab"));
-
 const TrackEarningsTab = lazy(() => import("./earnings/TrackEarningsTab"));
 const HelpCenter = lazy(() => import("../../common/HelpCenter"));
+const ConnectsTab = lazy(() => import("@components/shared/ConnectsTab"));
 
-const TabSkeleton = () => (
-  <div className="w-full flex flex-col gap-4 animate-pulse pt-2">
-    <div className="h-7 w-48 bg-slate-200 rounded-xl" />
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white rounded-2xl border border-slate-100 p-5 h-24" />
-      ))}
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
-    </div>
-  </div>
-);
+const TABS = [
+  { key: "home", Component: MentorHomeTab, getProps: (setTab) => ({ setActiveTab: setTab }) },
+  { key: "profile", Component: ProfileTab },
+  { key: "availability", Component: AvailabilityTab },
+  { key: "requests", Component: RequestsTab },
+  { key: "connects", Component: ConnectsTab, getProps: () => ({ role: "mentor" }) },
+  { key: "notifications", Component: NotificationsTab, getProps: (setTab) => ({ setActiveTab: setTab }) },
+  { key: "earnings", Component: TrackEarningsTab },
+  { key: "help", Component: HelpCenter },
+];
 
-const DashboardLayout = () => {
-  const dispatch = useDispatch();
-  const { user, profile, loading, error } = useMentorDashboard();
-  const { unreadCount, clearBadge, incrementBadge } = useUnreadCount(); // ✅ added incrementBadge
-  useSocketToast(undefined, incrementBadge);                             // ✅ pass incrementBadge
-
-  const [activeTab, setActiveTab] = useState("home");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (user) dispatch(setUser(user));
-  }, [user, dispatch]);
-
-  useEffect(() => {
-    if (profile) dispatch(setProfile(profile));
-  }, [profile, dispatch]);
-
-  useEffect(() => () => dispatch(resetDashboardUser()), [dispatch]);
-
-  useEffect(() => {
-    if (activeTab === "notifications") clearBadge();
-  }, [activeTab, clearBadge]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(globalThis.location.search);
-    const tab = params.get("tab");
-    const validTabs = ["home", "profile", "availability", "requests", "connects", "notifications", "earnings", "help"];
-    if (tab && validTabs.includes(tab)) {
-      setActiveTab(tab);
-    }
-  }, []);
-
-  const handleSetTab = (tab) => {
-    setActiveTab(tab);
-    setSidebarOpen(false);
-    const url = new URL(globalThis.location.href);
-    if (tab === "home") {
-      url.searchParams.delete("tab");
-    } else {
-      url.searchParams.set("tab", tab);
-    }
-    globalThis.history.replaceState(null, "", url.toString());
-  };
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
-          <span className="text-red-500">⚠</span>
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-          <p className="text-xs text-slate-400" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
-      <div className="flex flex-1">
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={handleSetTab}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          unreadCount={unreadCount}
-        />
-        <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          <Suspense fallback={<TabSkeleton />}>
-            {activeTab === "home"          && <MentorHomeTab setActiveTab={handleSetTab} />}
-            {activeTab === "profile"       && <ProfileTab />}
-            {activeTab === "availability"  && <AvailabilityTab />}
-            {activeTab === "requests"      && <RequestsTab />}
-            {activeTab === "connects"      && <MentorConnectsTab />}
-            {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
-            {activeTab === "earnings"      && <TrackEarningsTab />}
-            {activeTab === "help"          && <HelpCenter />}
-          </Suspense>
-        </main>
-      </div>
-    </div>
-  );
+const LOADING_CONFIG = {
+  spinnerBorderClass: "border-t-blue-600",
+  message: "Loading...",
+  textClass: "text-xs text-slate-400",
+  textStyle: { fontFamily: "'DM Sans', sans-serif" },
 };
+
+const DashboardLayout = () => (
+  <DashboardShell
+    useDashboardData={useMentorDashboard}
+    Topbar={Topbar}
+    Sidebar={Sidebar}
+    tabs={TABS}
+    loadingConfig={LOADING_CONFIG}
+  />
+);
 
 export default DashboardLayout;

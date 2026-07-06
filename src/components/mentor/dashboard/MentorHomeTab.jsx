@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
-import SessionCard from "@components/shared-dashboard/SessionCard";
-import SessionSkeleton from "@components/shared-dashboard/SessionSkeleton";
+import SessionCard from "@components/shared/SessionCard";
+import SessionSkeleton from "@components/shared/SessionSkeleton";
 import LeapBuddy from "../../LeapBuddy";
 import logger from "@utils/logger";
 import {
