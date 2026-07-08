@@ -12,12 +12,13 @@ import useGoogleAuth from "../../hooks/useGoogleAuth";
 import { registerUser, clearMessages, setUser } from "../../store/slices/authSlice";
 import FullScreenLoader from "../FullScreenLoader";
 import AuthSSOButtons from "./AuthSSOButtons";
-import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
+import { AuthMessageBanner, AuthDivider, AuthField } from "./AuthUI";
 import TermsAndConditionsModal from "../../molecules/TermsAndConditionsModal";
 import PropTypes from "prop-types";
 import { registerSchema, passwordSchema } from "../../utils/validation/schemas";
+import logger from "@utils/logger";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
 const passwordRules = [
   { id: "length",    label: "At least 8 characters",       test: (p) => p.length >= 8 },
@@ -44,7 +45,7 @@ const RegisterForm = ({ role }) => {
   const dispatch = useDispatch();
 
   const googleBtnRef      = useRef(null);
-  const termsAcceptedRef  = useRef(true);
+  const termsAcceptedRef  = useRef(false);
 
   const { loading, error } = useSelector((state) => state.auth);
 
@@ -112,14 +113,19 @@ const RegisterForm = ({ role }) => {
 
   // ── LinkedIn redirect ──────────────────────────────────────────────────────
   const handleLinkedIn = () => {
-    if (!termsAcceptedRef.current) {
-      setLocalMsg({ type: "error", text: "Please accept the terms before continuing with LinkedIn." });
-      return;
-    }
-    const url = `${BASE_URL}/auth/linkedin?role=${role}&termsAccepted=true`;
-    logger.info("Redirecting to LinkedIn SSO (register)", { url });
-    globalThis.location.href = url;
-  };
+  if (!termsAcceptedRef.current) {
+    setLocalMsg({ type: "error", text: "Please accept the terms before continuing with LinkedIn." });
+    return;
+  }
+  if (!role) {
+    setLocalMsg({ type: "error", text: "Something went wrong — please refresh and try again." });
+    logger.info("LinkedIn SSO blocked — role missing", { role });
+    return;
+  }
+  const url = `${BASE_URL}/auth/linkedin?role=${encodeURIComponent(role)}&termsAccepted=true`;
+  logger.info("Redirecting to LinkedIn SSO (register)", { url });
+  globalThis.location.href = url;
+};
 
   const onSubmit = async (data) => {
     setLocalMsg({ type: "", text: "" });
@@ -329,7 +335,7 @@ const RegisterForm = ({ role }) => {
 
         <button
           type="submit"
-          disabled={!isValid || isSubmitting || loading}
+          disabled={!isValid || isSubmitting || loading || !termsAccepted}
           className="w-full bg-blue-900 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-lg py-2.5 mt-1 transition-colors"
         >
           {loading || isSubmitting ? (
@@ -347,6 +353,7 @@ const RegisterForm = ({ role }) => {
         <AuthSSOButtons
           googleBtnRef={googleBtnRef}
           loading={loading}
+          disabled={!termsAccepted}
           onLinkedIn={handleLinkedIn}
         />
       </div>

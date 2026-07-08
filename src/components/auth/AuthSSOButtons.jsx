@@ -1,20 +1,19 @@
-/**
- * Copyright (c) 2026 Leapmentor. All rights reserved.
- */
-
-// src/components/auth/AuthSSOButtons.jsx
 import { GoogleIcon, LinkedInIcon } from "./AuthIcons";
 import PropTypes from "prop-types";
-const AuthSSOButtons = ({ googleBtnRef, loading, onLinkedIn }) => {
+
+const AuthSSOButtons = ({ googleBtnRef, loading, disabled, onLinkedIn }) => {
+  const isDisabled = loading || disabled;
+
   return (
     <div className="flex gap-2.5">
       {/* Google */}
-      <div className={`flex-1 ${loading ? "opacity-60 pointer-events-none" : ""}`}>
+      <div className={`flex-1 ${isDisabled ? "opacity-60 pointer-events-none" : ""}`}>
         <div ref={googleBtnRef} className="hidden" />
         <button
           type="button"
           onClick={() => googleBtnRef.current?.querySelector("div[role=button]")?.click()}
-          className="w-full flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 transition-colors"
+          disabled={isDisabled}
+          className="w-full flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           <GoogleIcon />
           Google
@@ -25,7 +24,7 @@ const AuthSSOButtons = ({ googleBtnRef, loading, onLinkedIn }) => {
       <button
         type="button"
         onClick={onLinkedIn}
-        disabled={loading}
+        disabled={isDisabled}
         className="flex-1 flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
       >
         <LinkedInIcon />
@@ -38,7 +37,12 @@ const AuthSSOButtons = ({ googleBtnRef, loading, onLinkedIn }) => {
 AuthSSOButtons.propTypes = {
   googleBtnRef: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
   onLinkedIn: PropTypes.func.isRequired,
+};
+
+AuthSSOButtons.defaultProps = {
+  disabled: false,
 };
 
 export default AuthSSOButtons;
