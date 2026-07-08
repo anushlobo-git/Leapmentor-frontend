@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/requests/MenteeProfileModal.jsx
 import { useState } from "react";
 import axiosInstance from "@utils/axiosInstance";

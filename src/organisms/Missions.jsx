@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import FeatureCard from "@molecules/FeatureCard";
 
 const features = [

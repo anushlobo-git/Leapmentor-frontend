@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/auth/RegisterForm.jsx
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/history/EscrowPaymentModal.jsx
 import { useState, useEffect } from "react";
 import { payEscrow, getEscrowStatus } from "../../../../api/escrow.api";

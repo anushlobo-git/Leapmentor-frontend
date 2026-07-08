@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
@@ -12,6 +16,10 @@ const urlBase64ToUint8Array = (base64String) => {
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 };
+/**
+ * Custom hook for push notification.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const usePushNotification = () => {
   const { showToast } = useToast();

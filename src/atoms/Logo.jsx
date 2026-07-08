@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import PropTypes from "prop-types";
+import { IMAGES } from "@constants/images";
 export default function Logo({ onClick,variant="dark" }) {
 
   // "dark" variant gets dark text (gray-900), "light" variant gets white text
@@ -9,7 +14,7 @@ export default function Logo({ onClick,variant="dark" }) {
       onClick={onClick}
     >
       <img
-        src="/images/logo.webp"
+        src={IMAGES.LOGO}
         alt="LeapMentor logo"
         className="h-8 w-8"
         width={32}

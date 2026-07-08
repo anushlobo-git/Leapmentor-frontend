@@ -1,7 +1,12 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import logger from "@utils/logger";
+import { mapMentorSettings } from "@mappers/settingsMapper";
 
 const BADGES = [
   {
@@ -33,6 +38,10 @@ const BADGES = [
     condition: (profile) => (profile?.totalSessions || 0) >= 50,
   },
 ];
+/**
+ * Custom hook for mentor settings.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMentorSettings = (initialProfile) => {
   const [profile, setProfile]   = useState(initialProfile || null);
@@ -49,9 +58,11 @@ const useMentorSettings = (initialProfile) => {
   useEffect(() => {
   if (initialProfile) {
     // Profile already passed in — just pre-fill the form, no API call needed
-    setHourlyRate(initialProfile.hourlyRate ?? "");
-    setEmailNotifications(initialProfile.emailNotifications ?? true);
-    setPublicProfile(initialProfile.isProfilePublished ?? true);
+    const mapped = mapMentorSettings(initialProfile);
+    setProfile(initialProfile);
+    setHourlyRate(mapped.hourlyRate);
+    setEmailNotifications(mapped.emailNotifications);
+    setPublicProfile(mapped.isProfilePublished);
     setFetching(false);
     return;
   }
@@ -61,11 +72,11 @@ const useMentorSettings = (initialProfile) => {
     try {
       setFetching(true);
       const res = await axiosInstance.get("/mentor-profile/me");
-      const p = res.data;
-      setProfile(p);
-      setHourlyRate(p.hourlyRate ?? "");
-      setEmailNotifications(p.emailNotifications ?? true);
-      setPublicProfile(p.isProfilePublished ?? true);
+      const mapped = mapMentorSettings(res.data);
+      setProfile(res.data);
+      setHourlyRate(mapped.hourlyRate);
+      setEmailNotifications(mapped.emailNotifications);
+      setPublicProfile(mapped.isProfilePublished);
     } catch (err) {
        logger.error("Failed to load mentor settings", { error: err?.message });
       setMsg({ type: "error", text: "Failed to load settings." });

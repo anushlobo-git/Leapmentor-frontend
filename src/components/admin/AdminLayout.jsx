@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -5,6 +9,7 @@ import adminAxiosInstance from "@utils/adminAxiosInstance";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import PropTypes from "prop-types";
 import logger from "@utils/logger";
+import { IMAGES } from "../../constants/images";
 
 const NAV_ITEMS = [
   {
@@ -172,7 +177,7 @@ const AdminLayout = ({ children }) => {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
               <img
-                src="/images/logo.webp"
+                src={IMAGES.LOGO}
                 alt="LeapMentor logo"
                 width={32}
                 height={32}

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/utils/logger.js
 import { Logtail } from "@logtail/browser"; // ✅ Uses the browser SDK, NOT node
 

@@ -1,8 +1,13 @@
-// components/mentor/dashboard/ProfileCard.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
 const ProfileCard = ({ user, profile, onEditClick }) => {
+  const [imgError, setImgError] = useState(false);
   const navigate = useNavigate();
   const isVerified  = profile?.verificationStatus === "verified";
   const isPending   = profile?.verificationStatus === "pending";
@@ -13,10 +18,11 @@ const ProfileCard = ({ user, profile, onEditClick }) => {
         {/* Avatar */}
         <div className="relative shrink-0">
           <div className="w-20 h-20 rounded-2xl bg-blue-100 overflow-hidden border-2 border-blue-100">
-            {profile?.profilePicture ? (
+            {profile?.profilePicture && !imgError ? (
               <img
                 src={profile.profilePicture}
                 alt={user?.name}
+                onError={() => setImgError(true)}
                 className="w-full h-full object-cover"
               />
             ) : (

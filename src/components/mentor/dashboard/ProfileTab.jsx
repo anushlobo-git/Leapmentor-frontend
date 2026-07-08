@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/ProfileTab.jsx
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";

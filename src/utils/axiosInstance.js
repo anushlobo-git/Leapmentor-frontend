@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import axios from "axios";
 import { clearAuthRole } from "./cookies";
 import * as Sentry from "@sentry/react";
@@ -5,9 +9,19 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "./logger";
 import { toast } from "sonner";
 import { unwrapApiResponse } from "./apiResponse";
-import { HTTP_STATUS, isServerError } from "../constants/httpStatus";
+import {
+  HTTP_STATUS,
+  isServerError,
+  isRateLimited,
+} from "../constants/httpStatus";
 
 let _store = null;
+/**
+ * Injects the Redux store so the axios interceptor can read the current access token
+ * and dispatch auth updates during refresh handling.
+ * @param {import('@reduxjs/toolkit').EnhancedStore} store - App Redux store instance.
+ * @returns {void}
+ */
 export const injectStore = (store) => {
   _store = store;
 };
@@ -15,6 +29,7 @@ export const injectStore = (store) => {
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1",
   withCredentials: true,
+  timeout: 15000, // 15s default; override per-call for slow endpoints (e.g. exports)
 });
 
 // ─── REQUEST INTERCEPTOR ─────────────────────────────────────────────────────
@@ -58,7 +73,11 @@ const processQueue = (error, token = null) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (response.data && typeof response.data === "object" && !(response.data instanceof Blob)) {
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      !(response.data instanceof Blob)
+    ) {
       response.data = unwrapApiResponse(response.data);
     }
 
@@ -83,10 +102,13 @@ axiosInstance.interceptors.response.use(
     const message = error?.response?.data?.message || error.message;
     const originalRequest = error?.config;
 
-    // 1. Network error
+    // 1. Network error / timeout
     if (!error.response) {
+      const isTimeout = error.code === "ECONNABORTED";
       logger.error(
-        "API Network Failure — Server unreachable or CORS rejection",
+        isTimeout
+          ? "API Request Timeout"
+          : "API Network Failure — Server unreachable or CORS rejection",
         {
           url,
           correlationId,
@@ -94,6 +116,9 @@ axiosInstance.interceptors.response.use(
           stack: error.stack,
         },
       );
+      if (isTimeout) {
+        toast.error("This is taking longer than expected. Please try again.");
+      }
       return Promise.reject(error);
     }
 
@@ -163,6 +188,15 @@ axiosInstance.interceptors.response.use(
       clearAuthRole();
       logger.warn("Blocked user terminated", { url, correlationId });
       globalThis.location.href = "/login?reason=blocked";
+      return Promise.reject(error);
+    }
+
+    // 3.5 — Rate limited
+    if (isRateLimited(status)) {
+      logger.warn("API rate limit hit", { url, correlationId });
+      toast.error(
+        "You're making requests too quickly. Please wait a moment and try again.",
+      );
       return Promise.reject(error);
     }
 

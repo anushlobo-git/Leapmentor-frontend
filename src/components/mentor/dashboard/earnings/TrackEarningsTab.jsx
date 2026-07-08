@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/earnings/TrackEarningsTab.jsx
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,

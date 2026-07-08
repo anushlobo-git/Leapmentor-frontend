@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/onboarding/InterestedFieldsSection.jsx
 import { useState, forwardRef } from "react";
 import PropTypes from "prop-types";

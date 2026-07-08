@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/history/HistoryTable.jsx
 import StatusBadge from "./StatusBadge";
 import { formatDate, getInitials } from "./constants";

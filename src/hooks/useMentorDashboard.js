@@ -1,9 +1,18 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMentorDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
 import { HTTP_STATUS } from "../constants/httpStatus";
+import { mapMentorProfile } from "@mappers/mentorMapper";
+/**
+ * Custom hook for mentor dashboard.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMentorDashboard = () => {
   const navigate = useNavigate();
@@ -56,10 +65,11 @@ const useMentorDashboard = () => {
           throw profileErr; // re-throw unexpected errors
         }
 
-        setProfile(profileData);
+        const mappedProfile = mapMentorProfile(profileData);
+        setProfile(mappedProfile);
 
         // 4) Onboarding incomplete → redirect
-        if (!profileData?.isProfileComplete && !isEditPage) {
+        if (!mappedProfile.isProfileComplete && !isEditPage) {
           setLoading(false);
           navigate("/onboarding/mentor");
           return;

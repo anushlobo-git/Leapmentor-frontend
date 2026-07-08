@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
 import PropTypes from "prop-types";
 
@@ -10,7 +14,10 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
 
   const handleSave = async () => {
     if (!title.trim()) { setErr("Goal title is required"); return; }
-    if (startDate && endDate && endDate < startDate) {
+    if (!startDate || !endDate) {
+      setErr("Please set both a start date and an end date"); return;
+    }
+    if (endDate < startDate) {
       setErr("End date cannot be before start date"); return;
     }
     setErr("");
@@ -51,7 +58,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
-            Start Date
+            Start Date <span className="text-red-400">*</span>
           </label>
           <input
             type="date"
@@ -62,7 +69,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
         </div>
         <div className="flex-1">
           <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
-            End Date
+            End Date <span className="text-red-400">*</span>
           </label>
           <input
             type="date"
@@ -87,7 +94,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
         </button>
         <button
           onClick={handleSave}
-          disabled={saving || !title.trim()}
+          disabled={saving || !title.trim() }
           className={`flex-1 py-2.5 rounded-xl border-none text-xs font-bold transition-colors flex items-center justify-center gap-1.5
             ${title.trim() && !saving
               ? "bg-violet-600 text-white cursor-pointer hover:bg-violet-700"

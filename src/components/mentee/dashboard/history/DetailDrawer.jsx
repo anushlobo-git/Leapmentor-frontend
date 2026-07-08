@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } from "./constants";

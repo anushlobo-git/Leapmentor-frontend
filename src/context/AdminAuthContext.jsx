@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import PropTypes from "prop-types";

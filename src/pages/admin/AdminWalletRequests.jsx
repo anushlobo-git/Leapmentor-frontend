@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminWalletRequests.jsx
 import { useState, useEffect, useCallback } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";

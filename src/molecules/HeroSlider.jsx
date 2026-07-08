@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState, useEffect } from "react";
 import SuccessCard from "@molecules/SuccessCard";
 

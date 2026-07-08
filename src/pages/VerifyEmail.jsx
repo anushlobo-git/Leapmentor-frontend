@@ -1,9 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/VerifyEmail.jsx
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../store/slices/authSlice";
 import FullScreenLoader from "../components/FullScreenLoader";
+import { IMAGES } from "../constants/images";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
@@ -132,7 +137,7 @@ const VerifyEmail = () => {
       {/* ── Left image panel ── */}
       <div className="relative hidden lg:flex lg:w-[48%] overflow-hidden bg-slate-900">
         <img
-          src="/images/imageverify.webp"
+          src={IMAGES.VERIFY_EMAIL}
           alt="A mentor and mentee in a professional setting"
           className="absolute inset-0 w-full h-full object-cover object-top"
           fetchPriority="high"
@@ -155,7 +160,7 @@ const VerifyEmail = () => {
         <div className="w-full max-w-[400px]">
           <div className="flex items-center gap-2.5 mb-8 justify-center">
             <img
-              src="/images/logo.webp"
+              src={IMAGES.LOGO}
               alt="LeapMentor logo"
               className="h-8 w-8"
               width={32}

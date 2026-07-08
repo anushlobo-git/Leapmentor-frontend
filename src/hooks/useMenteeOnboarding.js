@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMenteeOnboarding.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +10,10 @@ import {
   submitMenteeOnboarding,
   clearOnboardingMessages,
 } from "../store/slices/menteeOnboardingSlice";
+/**
+ * Custom hook for mentee onboarding.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();

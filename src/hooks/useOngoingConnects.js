@@ -1,6 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useOngoingConnects.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import { mapConnectRequest } from "@mappers/connectsMapper";
+/**
+ * Custom hook for ongoing connects.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useOngoingConnects = () => {
   const [ongoing,   setOngoing]   = useState([]);
@@ -13,7 +22,7 @@ const useOngoingConnects = () => {
       setLoading(true);
       setError(null);
       const res = await axiosInstance.get("/connect-requests/ongoing");
-      const all = res.data.connects || [];
+      const all = Array.isArray(res.data.connects) ? res.data.connects.map(mapConnectRequest) : [];
 
       // ✅ Split into ongoing and completed
       setOngoing(all.filter((c) => c.status === "ongoing"));

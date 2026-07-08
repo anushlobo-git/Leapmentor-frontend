@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/context/ToastContext.jsx
 import { createContext, useContext, useState, useCallback } from "react";
 import PropTypes from "prop-types";

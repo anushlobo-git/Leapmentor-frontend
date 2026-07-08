@@ -1,5 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import { mapSlot, mapSessionSlotsResponse } from "@mappers/sessionsMapper";
+/**
+ * Custom hook for sessions.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useSessions = (connectRequestId, onAllComplete) => {
   const [slots, setSlots] = useState([]);
@@ -9,7 +18,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const [completedSlots, setCompletedSlots] = useState(0);
   const [totalSlots, setTotalSlots] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [allComplete, setAllComplete] = useState(false); // ✅ NEW
+  const [allComplete, setAllComplete] = useState(false); 
 
   const onAllCompleteRef = useRef(onAllComplete);
   useEffect(() => {
@@ -23,13 +32,14 @@ const useSessions = (connectRequestId, onAllComplete) => {
       return next;
     });
 
-  // ✅ now also sets allComplete
+  //  now also sets allComplete
   const applySlotUpdate = useCallback((data) => {
-    if (data.slots) setSlots(data.slots);
-    if (data.completedSlots !== undefined) setCompletedSlots(data.completedSlots);
-    if (data.totalSlots !== undefined) setTotalSlots(data.totalSlots);
-    if (data.progress !== undefined) setProgress(data.progress);
-    if (data.allComplete !== undefined) setAllComplete(data.allComplete); // ✅ NEW
+    const mapped = mapSessionSlotsResponse(data);
+    setSlots(mapped.slots);
+    setCompletedSlots(mapped.completedSlots);
+    setTotalSlots(mapped.totalSlots);
+    setProgress(mapped.progress);
+    setAllComplete(mapped.allComplete);
   }, []);
 
   const fetchSlots = useCallback(async (silent = false) => {
@@ -50,14 +60,14 @@ const useSessions = (connectRequestId, onAllComplete) => {
     fetchSlots();
   }, [fetchSlots]);
 
-  // ✅ Poll every 5s — real-time sync without sockets
+  //  Poll every 5s — real-time sync without sockets
   useEffect(() => {
     if (!connectRequestId) return;
     const interval = setInterval(() => fetchSlots(true), 5000);
     return () => clearInterval(interval);
   }, [connectRequestId, fetchSlots]);
 
-  // ✅ Keep socket listeners ONLY for goals (chat uses its own)
+  //  Keep socket listeners ONLY for goals (chat uses its own)
   // Session sync is now handled by polling above — socket block removed
 
   const setMeetingLink = useCallback(
@@ -67,9 +77,10 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSavingSlot(slotIndex, true);
         setError(null);
         const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/meeting-link`, { meetingLink });
+        const mappedSlot = mapSlot(res.data.slot);
         setSlots((prev) =>
           prev.map((s, i) =>
-            i === slotIndex ? { ...s, meetingLink: res.data.slot.meetingLink } : s,
+            i === slotIndex ? { ...s, meetingLink: mappedSlot.meetingLink } : s,
           ),
         );
         return { success: true };
@@ -83,7 +94,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     [connectRequestId],
   );
 
-  // ✅ now uses applySlotUpdate so allComplete is set correctly
+  //  now uses applySlotUpdate so allComplete is set correctly
   const markSlotComplete = useCallback(
     async (slotIndex) => {
       try {
@@ -93,8 +104,8 @@ const useSessions = (connectRequestId, onAllComplete) => {
           `/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
           {},
         );
-        applySlotUpdate(res.data); // ✅ replaces manual setSlots/setCompletedSlots/setProgress
-        return { success: true, ...res.data };
+        applySlotUpdate(res.data); //  replaces manual setSlots/setCompletedSlots/setProgress
+        return { ...res.data, success: true };
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to mark session complete.");
         return { success: false, message: err?.response?.data?.message };
@@ -131,7 +142,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setError(null);
         const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/cancel`, { reason });
         applySlotUpdate(res.data);
-        return { success: true, ...res.data };
+        return { ...res.data, success: true };
       } catch (err) {
         const msg = err?.response?.data?.message || "Failed to cancel slot.";
         setError(msg);
@@ -150,7 +161,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setError(null);
         const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/reschedule`, { date, startTime, endTime });
         applySlotUpdate(res.data);
-        return { success: true, ...res.data };
+        return { ...res.data, success: true };
       } catch (err) {
         const msg = err?.response?.data?.message || "Failed to reschedule slot.";
         setError(msg);
@@ -170,7 +181,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     completedSlots,
     totalSlots,
     progress,
-    allComplete, // ✅ NEW
+    allComplete,
     setMeetingLink,
     markSlotComplete,
     addSlot,

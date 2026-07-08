@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/history/StatusBadge.jsx
 import { STATUS_STYLES } from "./constants";
 import PropTypes from "prop-types";

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminUserManagement.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import logger from "@utils/logger";

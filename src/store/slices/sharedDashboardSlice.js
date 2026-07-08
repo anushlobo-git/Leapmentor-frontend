@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/store/slices/sharedDashboardSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 

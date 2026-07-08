@@ -1,8 +1,13 @@
-// components/mentee/dashboard/ProfileHeroCard.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 const ProfileHeroCard = ({ user, profile }) => {
   const navigate = useNavigate();
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
@@ -11,10 +16,11 @@ const ProfileHeroCard = ({ user, profile }) => {
         {/* Avatar */}
         <div className="shrink-0">
           <div className="w-24 h-24 rounded-full bg-blue-100 overflow-hidden border-2 border-blue-100">
-            {profile?.profilePicture ? (
+            {profile?.profilePicture && !imgError ? (
               <img
                 src={profile.profilePicture}
                 alt={user?.name}
+                onError={() => setImgError(true)}
                 className="w-full h-full object-cover"
               />
             ) : (

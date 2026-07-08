@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/ui/OnboardingProgressBar.jsx
 import PropTypes from "prop-types";
 

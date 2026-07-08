@@ -1,7 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useRespondToRequest.js
 import { useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { useToast } from "../context/ToastContext"; // ✅
+/**
+ * Custom hook for respond to request.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 
 const useRespondToRequest = () => {

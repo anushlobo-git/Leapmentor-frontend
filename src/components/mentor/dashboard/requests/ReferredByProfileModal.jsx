@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/requests/ReferredByProfileModal.jsx
 import PropTypes from "prop-types";
 const StarRating = ({ rating }) => {

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect, useRef, useState } from "react";
 import Button from "@atoms/Button";
 import PropTypes from "prop-types";

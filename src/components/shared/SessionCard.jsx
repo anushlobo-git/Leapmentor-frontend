@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import PropTypes from "prop-types";
 import { formatSlotDate, formatSlotTime } from "@utils/sessionFormat";
 

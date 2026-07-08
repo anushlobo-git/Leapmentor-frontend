@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/MentorProfileModal.jsx
 import { useState, useEffect,useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
@@ -120,6 +124,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const { sending, error, sendRequest, reset } = useConnectRequest();
   const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
   const [lockError, setLockError] = useState("");
+  const [imgError, setImgError] = useState(false);
 const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location, totalSessions } = mentor;
 const badges = BADGES.map((badge) => ({
   ...badge,
@@ -220,10 +225,11 @@ const handleSend = async () => {
           <div className="flex items-center gap-4">
             {/* Profile picture with green online dot */}
             <div className="relative shrink-0">
-              {profilePicture ? (
+              {profilePicture && !imgError ? (
                 <img
                   src={profilePicture}
                   alt={user?.name}
+                  onError={() => setImgError(true)}
                   className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 shadow-sm"
                 />
               ) : (

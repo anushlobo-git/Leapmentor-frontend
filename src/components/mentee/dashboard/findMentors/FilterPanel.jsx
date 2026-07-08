@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";

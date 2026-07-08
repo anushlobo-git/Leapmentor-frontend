@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/common/ErrorBoundary.jsx
 import React from "react";
 import logger from "@utils/logger";

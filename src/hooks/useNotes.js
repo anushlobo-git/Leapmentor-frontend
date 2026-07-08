@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useNotes.js
 import { useState, useEffect, useCallback } from "react";
 import logger from "@utils/logger";
@@ -7,6 +11,10 @@ import {
   deleteNote      as apiDeleteNote,
   getPrivateNotes as apiGetPrivateNotes,
 } from "../api/notes.ap.js";
+/**
+ * Custom hook for notes.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useNotes = (connectRequestId) => {
   const [notes,          setNotes]          = useState([]);

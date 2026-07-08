@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/mappers/mentorMapper.js
 //
 // Single source of truth for turning a raw mentor object (as sent by the
@@ -38,7 +42,10 @@ export const mapMentorProfile = (raw = {}) => ({
   skills: Array.isArray(raw.skills) ? raw.skills : [],
 
   hourlyRate: typeof raw.hourlyRate === "number" ? raw.hourlyRate : null,
-  avgRating: typeof raw.avgRating === "number" ? raw.avgRating : Number(raw.avgRating) || 0,
+  avgRating:
+    typeof raw.avgRating === "number"
+      ? raw.avgRating
+      : Number(raw.avgRating) || 0,
   reviewCount: typeof raw.reviewCount === "number" ? raw.reviewCount : 0,
   totalSessions: typeof raw.totalSessions === "number" ? raw.totalSessions : 0,
   yearsOfExperience:
@@ -46,6 +53,10 @@ export const mapMentorProfile = (raw = {}) => ({
 
   profilePicture: raw.profilePicture || null,
   verificationStatus: raw.verificationStatus ?? "unverified",
+
+  isProfileComplete: Boolean(raw.isProfileComplete),
+  createdAt: raw.createdAt ?? null,
+  updatedAt: raw.updatedAt ?? null,
 });
 
 /**

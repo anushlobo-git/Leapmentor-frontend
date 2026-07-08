@@ -1,10 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/escrow.api.js
 import axiosInstance from "@utils/axiosInstance"; // Use the configured axios instance with interceptors
 
-// ─────────────────────────────────────────────────────────────
-// POST /escrow/pay
-// Mentee locks tokens into escrow
-// ─────────────────────────────────────────────────────────────
+/**
+ * Locks tokens into escrow for a connect request.
+ * @param {{ connectRequestId: string, sessionRate: number, sessionCount: number }} params - Escrow payment payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const payEscrow = async ({
   connectRequestId,
   sessionRate,
@@ -17,10 +22,11 @@ export const payEscrow = async ({
   return res.data;
 };
 
-// ─────────────────────────────────────────────────────────────
-// POST /escrow/release/:requestId
-// Mentee confirms session complete — tokens go to mentor
-// ─────────────────────────────────────────────────────────────
+/**
+ * Releases escrowed tokens for a completed session.
+ * @param {string} requestId - Connect request identifier.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const releaseEscrow = async (requestId) => {
   const res = await axiosInstance.post(
     `/escrow/release/${requestId}`,
@@ -29,10 +35,11 @@ export const releaseEscrow = async (requestId) => {
   return res.data;
 };
 
-// ─────────────────────────────────────────────────────────────
-// POST /escrow/refund/:requestId
-// Either party cancels — tokens return to mentee
-// ─────────────────────────────────────────────────────────────
+/**
+ * Refunds escrowed tokens back to the mentee.
+ * @param {string} requestId - Connect request identifier.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const refundEscrow = async (requestId) => {
   const res = await axiosInstance.post(
     `/escrow/refund/${requestId}`,
@@ -41,19 +48,21 @@ export const refundEscrow = async (requestId) => {
   return res.data;
 };
 
-// ─────────────────────────────────────────────────────────────
-// GET /escrow/status/:requestId
-// Get payment + wallet snapshot for a connect request
-// ─────────────────────────────────────────────────────────────
+/**
+ * Fetches escrow status and wallet snapshot for a connect request.
+ * @param {string} requestId - Connect request identifier.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const getEscrowStatus = async (requestId) => {
   const res = await axiosInstance.get(`/escrow/status/${requestId}`);
   return res.data;
 };
 
-// ─────────────────────────────────────────────────────────────
-// POST /escrow/pay-additional
-// Mentee locks tokens for a single additional session slot
-// ─────────────────────────────────────────────────────────────
+/**
+ * Pays escrow for a single additional session slot.
+ * @param {{ connectRequestId: string, sessionRate: number, slotId: string }} params - Additional session payment payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const payAdditionalEscrow = async ({ connectRequestId, sessionRate, slotId }) => {
   const res = await axiosInstance.post(
     `/escrow/pay-additional`,
@@ -61,7 +70,10 @@ export const payAdditionalEscrow = async ({ connectRequestId, sessionRate, slotI
   );
   return res.data;
 };
-// GET /escrow/commission-rate
+/**
+ * Fetches the platform commission rate used by escrow calculations.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const getPlatformCommissionRate = async () => {
   const res = await axiosInstance.get(`/escrow/commission-rate`);
   return res.data;

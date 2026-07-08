@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/AdminSupportMessages.jsx
 import { useEffect, useState } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";

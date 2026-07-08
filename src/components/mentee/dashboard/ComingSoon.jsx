@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/dashboard/ComingSoon.jsx
 const ComingSoon = ({ icon, title, desc }) => (
   <div className="flex flex-col items-center justify-center py-24 text-center gap-3">

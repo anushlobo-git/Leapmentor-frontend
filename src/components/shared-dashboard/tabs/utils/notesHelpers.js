@@ -1,4 +1,8 @@
 /**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+/**
  * Shared utility functions for notes functionality
  */
 //used nowhere else so can delete later

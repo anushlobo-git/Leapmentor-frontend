@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/SharedChatTab.jsx
 import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useSelector } from "react-redux";
@@ -43,13 +47,20 @@ const isSameDay = (a, b) =>
 
 // ── Avatar ────────────────────────────────────────────────────
 const Avatar = memo(({ name, picture, size = 32 }) => {
-  if (picture) {
+  const [imgError, setImgError] = useState(false);
+
+  if (picture && !imgError) {
     return (
-      <img src={picture} alt={name} style={{
-        width: size, height: size, borderRadius: "50%",
-        objectFit: "cover", flexShrink: 0,
-        border: "2px solid #f1f5f9",
-      }} />
+      <img 
+        src={picture} 
+        alt={name} 
+        onError={() => setImgError(true)}
+        style={{
+          width: size, height: size, borderRadius: "50%",
+          objectFit: "cover", flexShrink: 0,
+          border: "2px solid #f1f5f9",
+        }} 
+      />
     );
   }
   return (

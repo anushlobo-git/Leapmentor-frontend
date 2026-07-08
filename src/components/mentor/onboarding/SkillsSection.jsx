@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/onboarding/SkillsSection.jsx
 import { useState, forwardRef } from "react";
 import PropTypes from "prop-types";

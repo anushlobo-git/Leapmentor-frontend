@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { z } from "zod";
 
 // Base schemas that can be reused and composed
@@ -52,7 +56,7 @@ export const addAdminSchema = z.object({
 });
 
 // File upload validation helpers
-const DOCUMENT_TYPES =new Set([
+const DOCUMENT_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
   "image/jpg",
@@ -68,7 +72,12 @@ const DOCUMENT_TYPES =new Set([
   "text/plain",
 ]);
 
-const IMAGE_TYPES =new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+const IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
 
 const RESUME_TYPES = new Set([
   "application/pdf",
@@ -85,6 +94,12 @@ export const FileValidationResult = z.object({
 });
 
 // File validation functions
+/**
+ * Validates a document upload on the client.
+ * Browser-reported `file.type` can be spoofed, so the backend must re-check the file signature.
+ * @param {File | null | undefined} file - File selected by the user.
+ * @returns {{ valid: boolean, error?: string }} Validation result.
+ */
 export const validateDocumentFile = (file) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!DOCUMENT_TYPES.has(file.type)) {
@@ -100,6 +115,13 @@ export const validateDocumentFile = (file) => {
   return { valid: true };
 };
 
+/**
+ * Validates an image upload on the client.
+ * Browser-reported `file.type` can be spoofed, so the backend must re-check the file signature.
+ * @param {File | null | undefined} file - File selected by the user.
+ * @param {number} [maxSizeMB=5] - Maximum permitted file size in megabytes.
+ * @returns {{ valid: boolean, error?: string }} Validation result.
+ */
 export const validateImageFile = (file, maxSizeMB = 5) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!file.type.startsWith("image/")) {
@@ -111,6 +133,12 @@ export const validateImageFile = (file, maxSizeMB = 5) => {
   return { valid: true };
 };
 
+/**
+ * Validates a screenshot upload on the client.
+ * Browser-reported `file.type` can be spoofed, so the backend must re-check the file signature.
+ * @param {File | null | undefined} file - File selected by the user.
+ * @returns {{ valid: boolean, error?: string }} Validation result.
+ */
 export const validateScreenshotFile = (file) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!IMAGE_TYPES.has(file.type)) {
@@ -125,6 +153,12 @@ export const validateScreenshotFile = (file) => {
   return { valid: true };
 };
 
+/**
+ * Validates a resume upload on the client.
+ * Browser-reported `file.type` can be spoofed, so the backend must re-check the file signature.
+ * @param {File | null | undefined} file - File selected by the user.
+ * @returns {{ valid: boolean, error?: string }} Validation result.
+ */
 export const validateResumeFile = (file) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!RESUME_TYPES.has(file.type)) {
@@ -139,6 +173,13 @@ export const validateResumeFile = (file) => {
   return { valid: true };
 };
 
+/**
+ * Validates a list of work-experience files on the client.
+ * Browser-reported `file.type` can be spoofed, so the backend must re-check the file signature.
+ * @param {File[] | null | undefined} files - Files selected by the user.
+ * @param {number} [maxFiles=3] - Maximum number of files allowed.
+ * @returns {{ valid: boolean, error?: string }} Validation result.
+ */
 export const validateWorkExperienceFiles = (files, maxFiles = 3) => {
   if (!files || files.length === 0) return { valid: true };
   if (files.length > maxFiles) {

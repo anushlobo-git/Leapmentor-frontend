@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/requests/RequestCard.jsx
 import { useState } from "react";
 import ReferredByProfileModal from "./ReferredByProfileModal";

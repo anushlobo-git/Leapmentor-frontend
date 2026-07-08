@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/dashboard/InterestedFieldsCard.jsx
 import PropTypes from "prop-types";
 const TagChip = ({ label }) => {

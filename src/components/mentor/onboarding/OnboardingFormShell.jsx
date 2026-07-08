@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/onboarding/OnboardingFormShell.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +16,7 @@ import PreferencesSection from "./PreferencesSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
+import { IMAGES } from "../../../constants/images";
 
 const OnboardingFormShell = () => {
   const navigate = useNavigate();
@@ -199,7 +204,7 @@ const OnboardingFormShell = () => {
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/images/logo.png"
+              src={IMAGES.LOGO_PNG}
               alt="Leapmentor logo"
               className="h-8 w-auto"
             />

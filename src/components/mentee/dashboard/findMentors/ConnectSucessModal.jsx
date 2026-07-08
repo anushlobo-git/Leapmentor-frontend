@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/ConnectSuccessModal.jsx
 import PropTypes from "prop-types";
 const ConnectSuccessModal = ({ mentorName, onBackToDashboard }) => {

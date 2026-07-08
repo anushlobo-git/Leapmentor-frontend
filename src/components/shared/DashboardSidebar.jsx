@@ -1,29 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/components/shared/DashboardSidebar.jsx
 import { useEffect } from "react";
-import {
-  Home, User, Calendar, Bell, MessageSquare,
-  Users, DollarSign, HelpCircle, X
-} from "lucide-react";
+import { HelpCircle, X } from "lucide-react";
 import PropTypes from "prop-types";
-
-const NAV_KEYS = ["home","profile","availability","notifications","requests","connects","earnings","help"];
-
-const NAV_ITEMS = [
-  { key: "home",          label: "Home",          icon: <Home size={16} /> },
-  { key: "profile",       label: "Profile",       icon: <User size={16} /> },
-  { key: "availability",  label: "Availability",  icon: <Calendar size={16} /> },
-  { key: "notifications", label: "Notifications", icon: <Bell size={16} /> },
-  { key: "requests",      label: "Requests",      icon: <MessageSquare size={16} /> },
-  { key: "connects",      label: "Connects",      icon: <Users size={16} /> },
-  { key: "earnings",      label: "Track Earnings",icon: <DollarSign size={16} /> },
-];
 
 const Badge = ({ count }) => {
   if (!count || count === 0) return null;
-  return (
-    <span className="sidebar-badge">
-      {count > 99 ? "99+" : count}
-    </span>
-  );
+  return <span className="sidebar-badge">{count > 99 ? "99+" : count}</span>;
 };
 
 const CSS = `
@@ -65,7 +51,6 @@ const CSS = `
     pointer-events: none;
   }
 
-  /* ── Nav ── */
   .sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -154,7 +139,6 @@ const CSS = `
     letter-spacing: 0.02em;
   }
 
-  /* ── Support ── */
   .sidebar-support {
     padding: 0 10px 28px;
   }
@@ -176,29 +160,28 @@ const CSS = `
     display: block;
   }
 
-  /* ── Mobile ── */
-  .mentor-sidebar-desktop {
+  .dashboard-sidebar-desktop {
     display: flex;
     position: sticky;
     top: 0;
     height: 100vh;
     align-self: flex-start;
   }
-  .mentor-sidebar-backdrop,
-  .mentor-sidebar-drawer { display: none; }
+  .dashboard-sidebar-backdrop,
+  .dashboard-sidebar-drawer { display: none; }
 
   @media (max-width: 767px) {
-    .mentor-sidebar-desktop { display: none !important; }
-    .mentor-sidebar-backdrop { display: block; }
-    .mentor-sidebar-drawer { display: flex; }
+    .dashboard-sidebar-desktop { display: none !important; }
+    .dashboard-sidebar-backdrop { display: block; }
+    .dashboard-sidebar-drawer { display: flex; }
   }
 `;
 
-const SidebarContent = ({ activeTab, setActiveTab, onClose, unreadCount }) => (
+const SidebarContent = ({ navItems, activeTab, setActiveTab, onClose, unreadCount }) => (
   <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", position: "relative", zIndex: 1 }}>
     <div>
       <nav className="sidebar-nav">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive = activeTab === item.key;
           return (
             <button
@@ -231,7 +214,7 @@ const SidebarContent = ({ activeTab, setActiveTab, onClose, unreadCount }) => (
   </div>
 );
 
-const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) => {
+const DashboardSidebar = ({ navItems, activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) => {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -242,16 +225,16 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) 
       <style>{CSS}</style>
 
       {/* Desktop */}
-      <aside className="mentor-sidebar-desktop sidebar-root">
+      <aside className="dashboard-sidebar-desktop sidebar-root">
         <div className="sidebar-blob-top" />
         <div className="sidebar-blob-mid" />
         <div className="sidebar-blob-bottom" />
-        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} unreadCount={unreadCount} />
+        <SidebarContent navItems={navItems} activeTab={activeTab} setActiveTab={setActiveTab} unreadCount={unreadCount} />
       </aside>
 
       {/* Mobile backdrop */}
       <div
-        className="mentor-sidebar-backdrop"
+        className="dashboard-sidebar-backdrop"
         onClick={onClose}
         style={{
           position: "fixed", inset: 0,
@@ -266,7 +249,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) 
 
       {/* Mobile drawer */}
       <aside
-        className="mentor-sidebar-drawer sidebar-root"
+        className="dashboard-sidebar-drawer sidebar-root"
         style={{
           position: "fixed",
           top: 0, left: 0,
@@ -283,7 +266,6 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) 
         <div className="sidebar-blob-mid" />
         <div className="sidebar-blob-bottom" />
 
-        {/* Close button */}
         <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 16px 0", flexShrink: 0 }}>
           <button
             onClick={onClose}
@@ -297,27 +279,35 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }) 
           </button>
         </div>
 
-        <SidebarContent activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} unreadCount={unreadCount} />
+        <SidebarContent navItems={navItems} activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} unreadCount={unreadCount} />
       </aside>
     </>
   );
 };
-Badge.propTypes = {
-  count: PropTypes.number,
-};
+
+Badge.propTypes = { count: PropTypes.number };
+
+const navItemShape = PropTypes.shape({
+  key: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  icon: PropTypes.node.isRequired,
+});
 
 SidebarContent.propTypes = {
-  activeTab: PropTypes.oneOf(NAV_KEYS).isRequired,
+  navItems: PropTypes.arrayOf(navItemShape).isRequired,
+  activeTab: PropTypes.string.isRequired,
   setActiveTab: PropTypes.func.isRequired,
   onClose: PropTypes.func,
   unreadCount: PropTypes.number,
 };
 
-Sidebar.propTypes = {
-  activeTab: PropTypes.oneOf(NAV_KEYS).isRequired,
+DashboardSidebar.propTypes = {
+  navItems: PropTypes.arrayOf(navItemShape).isRequired,
+  activeTab: PropTypes.string.isRequired,
   setActiveTab: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   unreadCount: PropTypes.number,
 };
-export default Sidebar;
+
+export default DashboardSidebar;

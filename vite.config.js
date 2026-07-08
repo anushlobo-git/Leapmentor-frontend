@@ -24,6 +24,7 @@ export default defineConfig({
       "@context": path.resolve(__dirname, "./src/context"),
       "@components": path.resolve(__dirname, "./src/components"),
       "@mappers": path.resolve(__dirname, "./src/mappers"),
+      "@constants": path.resolve(__dirname, "./src/constants"),
     },
   },
   build: {

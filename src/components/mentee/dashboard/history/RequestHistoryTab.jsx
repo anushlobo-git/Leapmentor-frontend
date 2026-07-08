@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/history/RequestHistoryTab.jsx
 import logger from "@utils/logger";
 import useRequestHistory from "../../../../hooks/useRequestHistory";

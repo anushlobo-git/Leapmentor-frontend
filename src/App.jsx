@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/App.jsx
 import { Toaster } from "sonner";
 import { lazy, Suspense, useEffect, useState } from "react";

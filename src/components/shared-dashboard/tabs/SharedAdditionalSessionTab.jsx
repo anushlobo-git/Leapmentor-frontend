@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/SharedAdditionalSessionTab.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";

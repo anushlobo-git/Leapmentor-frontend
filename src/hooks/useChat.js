@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useChat.js
 import { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
@@ -6,6 +10,10 @@ import logger from "@utils/logger";
 
 const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
+/**
+ * Custom hook for chat.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useChat = (connectRequestId) => {
   const [messages, setMessages] = useState([]);

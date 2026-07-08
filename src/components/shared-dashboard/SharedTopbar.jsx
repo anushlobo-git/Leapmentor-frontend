@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/SharedTopbar.jsx
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { IMAGES } from "../../constants/images";
 
 const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
   const navigate = useNavigate();
@@ -57,7 +62,7 @@ const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
 
         >
           <img
-            src="/images/logo.webp"
+            src={IMAGES.LOGO}
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}

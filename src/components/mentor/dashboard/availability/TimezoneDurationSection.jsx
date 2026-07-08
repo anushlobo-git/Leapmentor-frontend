@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/availability/TimezoneDurationSection.jsx
 import PropTypes from "prop-types";
 

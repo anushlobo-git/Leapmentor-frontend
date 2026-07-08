@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/LeapBuddy.jsx
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 

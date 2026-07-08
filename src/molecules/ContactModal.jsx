@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import PropTypes from 'prop-types';
 export default function ContactModal({ isOpen, onClose }) {
   if (!isOpen) return null;

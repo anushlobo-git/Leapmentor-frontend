@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/auth/LoginLeftPanel.jsx
+import { IMAGES } from "../../constants/images";
 
 const LoginLeftPanel = () => {
 
@@ -6,7 +11,7 @@ const LoginLeftPanel = () => {
     <div className="relative w-full h-full min-h-screen overflow-hidden">
       {/* Background image */}
       <img
-        src="/images/login.webp"
+        src={IMAGES.LOGIN}
         alt="Login visual"
         className="absolute inset-0 w-full h-full object-cover"
       />

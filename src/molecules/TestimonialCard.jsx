@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import Card from "@atoms/Card";
 import StarRating from "@molecules/StarRating";
 import LetterBall from "../atoms/LetterBall";

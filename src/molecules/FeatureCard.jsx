@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import Card from "@atoms/Card";
 import PropTypes from "prop-types";
 

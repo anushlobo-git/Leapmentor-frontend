@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import PropTypes from "prop-types";
 const SearchBar = ({ skill, setSkill, totalCount, hasSearched }) => {
 const handleChange = (e) => {

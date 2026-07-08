@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/verification/PhoneNumberField.jsx
 
 import { useState } from "react";

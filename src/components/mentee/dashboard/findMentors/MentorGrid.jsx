@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/MentorGrid.jsx
 import MentorCard from "./MentorCard";
 import MentorCardSkeleton from "./MentorCardSkeleton";

@@ -1,7 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useAvailability.js
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { HTTP_STATUS } from "../constants/httpStatus";
+/**
+ * Custom hook for availability.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useAvailability = () => {
   const [availability, setAvailability] = useState({

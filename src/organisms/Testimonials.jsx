@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import TestimonialCard from "@molecules/TestimonialCard";
 import StatCard from "@molecules/StatCard";

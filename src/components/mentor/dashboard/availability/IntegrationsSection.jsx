@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";

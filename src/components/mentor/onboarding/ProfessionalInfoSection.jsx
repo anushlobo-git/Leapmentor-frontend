@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/onboarding/ProfessionalInfoSection.jsx
 import { forwardRef } from "react";
 import PropTypes from "prop-types";

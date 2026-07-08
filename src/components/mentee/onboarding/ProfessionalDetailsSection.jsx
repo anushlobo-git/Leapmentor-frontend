@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/onboarding/ProfessionalDetailsSection.jsx
 import PropTypes from "prop-types";
 

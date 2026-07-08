@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
@@ -185,6 +189,7 @@ const SharedGoalsTab = () => {
   const viewerRole = useSelector(selectViewerRole);
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackSlotIndex, setFeedbackSlotIndex] = useState(null);
 
   const onAllComplete = useCallback(async () => {
     if (!connectRequestId) return;
@@ -295,12 +300,12 @@ const SharedGoalsTab = () => {
       {/* Overall progress */}
       {activeSlots.length > 0 && (
         <OverallProgress
-          completedSlots={completedSlots}
-          totalSlots={totalSlots}
-          progress={progress}
-          onLeaveFeedback={() => setShowFeedbackModal(true)}
-          feedbackSubmitted={!!myFeedback}  // ← drives button state reactively
-        />
+            completedSlots={completedSlots}
+            totalSlots={totalSlots}
+            progress={progress}
+            onLeaveFeedback={() => { setFeedbackSlotIndex(null); setShowFeedbackModal(true); }}
+            feedbackSubmitted={!!myFeedback}  // ← drives button state reactively
+          />
       )}
 
       {/* Sessions */}
@@ -312,7 +317,7 @@ const SharedGoalsTab = () => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {slots.map((slot, index) => (
-              <SessionCard
+               <SessionCard
                 key={index}
                 slot={slot}
                 slotIndex={index}
@@ -321,6 +326,7 @@ const SharedGoalsTab = () => {
                 savingSlots={savingSlots}
                 onSetLink={setMeetingLink}
                 onMarkComplete={markSlotComplete}
+                onSessionComplete={() => { setFeedbackSlotIndex(index); setShowFeedbackModal(true); }}
                 onCancelSlot={cancelSlot}
                 onRescheduleSlot={rescheduleSlot}
                 allSlots={slots}
@@ -334,6 +340,7 @@ const SharedGoalsTab = () => {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
+          slotIndex={feedbackSlotIndex}
           onClose={() => setShowFeedbackModal(false)}
           onFeedbackSubmitted={handleFeedbackSubmitted}  // ← passed down
         />

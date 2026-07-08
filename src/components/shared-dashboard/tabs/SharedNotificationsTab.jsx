@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/SharedNotificationsTab.jsx
 // Used by both mentee and mentor dashboards — the notification model,
 // styling, and behavior are identical for both roles.
@@ -5,6 +9,7 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axiosInstance from "@utils/axiosInstance";
 import EmptyState from "@components/common/EmptyState";
+import { normalizeApiNotif } from "@mappers/notificationMapper";
 
 // ── Type config ───────────────────────────────────────────────
 const TYPE_CONFIG = {
@@ -98,49 +103,28 @@ const INITIAL_NOTIFICATIONS = [
   },
 ];
 
-const timeAgo = (dateStr) => {
-  if (!dateStr) return "";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins} minute${mins > 1 ? "s" : ""} ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hour${hrs > 1 ? "s" : ""} ago`;
-  const days = Math.floor(hrs / 24);
-  if (days === 1) return "Yesterday";
-  return `${days} days ago`;
-};
-
-const normalizeApiNotif = (notif) => ({
-  id: notif._id,
-  _id: notif._id,
-  type: notif.type,
-  read: notif.read,
-  time: timeAgo(notif.createdAt),
-  accent: notif.type === "upcoming_session" && !notif.read,
-  title: notif.title,
-  senderName: notif.senderName || "",
-  body: notif.message,
-  actions: [],
-  isApi: true,
-  metadata: notif.metadata || {},
-});
-
 // ── Resolve where each notification type navigates ────────────
-const resolveNavigation = (notif, setActiveTab) => {
+const resolveNavigation = (notif, setActiveTab , role) => {
   if (!setActiveTab) return;
-
   const type = notif.type;
 
   switch (type) {
     case "connect_request_received":
+      // Mentors get this when a mentee sends a request.
+      setActiveTab(role === "mentee" ? "findMentors" : "requests");
+      break;
+
     case "connect_request_declined":
-      setActiveTab("requests");
+    case "connect_request_referred":
+      // Mentee's request was declined/referred → nothing to act on in
+      // a "requests" tab they don't have, so send them to browse mentors.
+      setActiveTab(role === "mentee" ? "findMentors" : "requests");
       break;
 
     case "connect_request_accepted":
       setActiveTab(role === "mentee" ? "history" : "connects");  // ← mentee goes here to make payment
       break;
+
     case "upcoming_session":
     case "new_message":
     case "session_completed":
@@ -160,7 +144,7 @@ const resolveNavigation = (notif, setActiveTab) => {
   }
 };
 // ── Notification Card ─────────────────────────────────────────
-const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
+const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab ,role }) => {
   const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG["new_message"];
   const initials = getInitials(notif.senderName || notif.title);
   const avatarBg = getAvatarColor(notif.id);
@@ -169,7 +153,7 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
     <div
       onClick={() => {
         if (!notif.read) onMarkRead(notif.id);
-        resolveNavigation(notif, setActiveTab);
+        resolveNavigation(notif, setActiveTab, role);
       }}
       className={`relative rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
         ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
@@ -279,7 +263,7 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const SharedNotificationsTab = ({ setActiveTab }) => {
+const SharedNotificationsTab = ({ setActiveTab ,role }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -453,6 +437,7 @@ const SharedNotificationsTab = ({ setActiveTab }) => {
               onMarkRead={markRead}
               onDelete={deleteOne}
               setActiveTab={setActiveTab}
+              role={role}
             />
           ))}
           <button className="w-full py-3 text-xs font-bold text-blue-900 hover:text-blue-700 transition-colors">
@@ -466,6 +451,11 @@ const SharedNotificationsTab = ({ setActiveTab }) => {
 
 SharedNotificationsTab.propTypes = {
   setActiveTab: PropTypes.func.isRequired,
+};
+
+SharedNotificationsTab.propTypes = {
+  setActiveTab: PropTypes.func.isRequired,
+  role: PropTypes.oneOf(["mentee", "mentor"]),
 };
 
 NotifCard.propTypes = {
@@ -488,6 +478,7 @@ NotifCard.propTypes = {
   onMarkRead: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   setActiveTab: PropTypes.func,
+  role: PropTypes.oneOf(["mentee", "mentor"]),
 };
 
 StatCard.propTypes = {

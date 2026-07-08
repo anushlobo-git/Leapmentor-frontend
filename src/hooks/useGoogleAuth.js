@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { setAuthRole } from "@utils/cookies";
@@ -14,6 +18,10 @@ const callbackRef = {
   dispatch: null,
   setUser: null,
 };
+/**
+ * Custom hook for google auth.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useGoogleAuth = ({
   btnRef,

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/verification/WorkExperienceUpload.jsx
 import PropTypes from "prop-types";
 import { validateWorkExperienceFiles } from "@utils/validation/schemas";

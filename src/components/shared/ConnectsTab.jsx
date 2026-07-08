@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared/ConnectsTab.jsx
 import { useNavigate } from "react-router-dom";
 import useOngoingConnects from "@hooks/useOngoingConnects";

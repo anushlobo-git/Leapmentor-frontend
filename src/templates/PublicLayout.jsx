@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // templates/PublicLayout.jsx
 import Navbar from "@organisms/Navbar";
 import Footer from "@organisms/Footer";

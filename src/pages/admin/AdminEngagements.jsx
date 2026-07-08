@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminEngagements.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";

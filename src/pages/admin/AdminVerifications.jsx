@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
@@ -133,6 +137,7 @@ const Pill = ({ label }) => (
 // DETAIL DRAWER (Updated)
 // ══════════════════════════════════════════════════════════
 const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
+  const [imgError, setImgError] = useState(false);
   if (!mentor) return null;
   const { user, mentorProfile } = mentor;
   const isVerified = mentorProfile?.verificationStatus === "verified";
@@ -160,8 +165,9 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
         <div className="flex items-center justify-between px-6 py-4 flex-shrink-0 border-b"
           style={{ borderColor: "#e8eaf0", background: "#f8fafc" }}>
           <div className="flex items-center gap-3">
-            {mentorProfile?.profilePicture
+            {mentorProfile?.profilePicture && !imgError
               ? <img src={mentorProfile.profilePicture} alt={user?.name}
+                  onError={() => setImgError(true)}
                   className="w-11 h-11 rounded-2xl object-cover border-2 border-white shadow-sm" />
               : <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-base font-bold text-white flex-shrink-0"
                   style={{ background: "linear-gradient(135deg, #1e40af, #3b82f6)" }}>
@@ -526,67 +532,20 @@ const AdminVerifications = () => {
             <p className="text-sm text-slate-400">No mentors found.</p>
           </div>
         ) : (
-          filtered.map((m, i) => {
-            const isVerified = m.mentorProfile?.verificationStatus === "verified";
-            const docCount =
-              (m.mentorProfile?.resumeDocument?.url ? 1 : 0) +
-              (m.mentorProfile?.workExperienceDocuments?.length || 0);
-
-            return (
-              <div
-                key={m.user?._id || i}
-                className="grid items-center px-5 py-4 transition-all duration-150 hover:bg-blue-50/40 cursor-pointer"
-                style={{
-                  gridTemplateColumns: "2fr 2fr 1fr 1fr 1.2fr 80px",
-                  borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                }}
-                onClick={() => setSelected(m)}
-              >
-                {/* Name + avatar */}
-                <div className="flex items-center gap-3 min-w-0">
-                  {m.mentorProfile?.profilePicture
-                    ? <img src={m.mentorProfile.profilePicture} alt={m.user?.name}
-                        className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100" />
-                    : <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg,#1e40af,#3b82f6)" }}>
-                        {m.user?.name?.[0]?.toUpperCase() || "?"}
-                      </div>
-                  }
-                  <p className="text-sm font-semibold text-slate-800 truncate">{m.user?.name || "—"}</p>
-                </div>
-
-                {/* Email */}
-                <p className="text-xs text-slate-500 truncate">{m.user?.email || "—"}</p>
-
-                {/* Doc count */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400"><IconDoc /></span>
-                  <span className="text-xs font-semibold text-slate-700">{docCount}</span>
-                  {docCount === 0 && <span className="text-[10px] text-slate-400">none</span>}
-                </div>
-
-                {/* Phone */}
-                <p className="text-xs text-slate-600">{m.mentorProfile?.phoneNumber || <span className="text-slate-300">—</span>}</p>
-
-                {/* Status badge */}
-                <StatusBadge status={m.mentorProfile?.verificationStatus} />
-
-                {/* View button */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={e => { e.stopPropagation(); setSelected(m); }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all"
-                    style={isVerified
-                      ? { background: "#f1f5f9", color: "#64748b" }
-                      : { background: "#eff6ff", color: "#1d4ed8" }
-                    }
-                  >
-                    <IconEye /> View
-                  </button>
-                </div>
-              </div>
-            );
-          })
+          filtered.map((m, i) => (
+            <MentorRow
+              key={m.user?._id || i}
+              m={m}
+              i={i}
+              filteredLength={filtered.length}
+              isVerified={m.mentorProfile?.verificationStatus === "verified"}
+              setSelected={setSelected}
+              docCount={
+                (m.mentorProfile?.resumeDocument?.url ? 1 : 0) +
+                (m.mentorProfile?.workExperienceDocuments?.length || 0)
+              }
+            />
+          ))
         )}
       </div>
 
@@ -647,6 +606,89 @@ DetailDrawer.propTypes = {
   onClose: PropTypes.func.isRequired,
   onVerify: PropTypes.func.isRequired,
   verifying: PropTypes.bool.isRequired,
+};
+
+// ── Mentor Row Component ──────────────────────────────
+const MentorRow = ({ m, i, filteredLength, isVerified, setSelected, docCount }) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div
+      className="grid items-center px-5 py-4 transition-all duration-150 hover:bg-blue-50/40 cursor-pointer"
+      style={{
+        gridTemplateColumns: "2fr 2fr 1fr 1fr 1.2fr 80px",
+        borderBottom: i < filteredLength - 1 ? "1px solid #f1f5f9" : "none",
+      }}
+      onClick={() => setSelected(m)}
+    >
+      {/* Name + avatar */}
+      <div className="flex items-center gap-3 min-w-0">
+        {m.mentorProfile?.profilePicture && !imgError ? (
+          <img
+            src={m.mentorProfile.profilePicture}
+            alt={m.user?.name}
+            onError={() => setImgError(true)}
+            className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100"
+          />
+        ) : (
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+            style={{ background: "linear-gradient(135deg,#1e40af,#3b82f6)" }}
+          >
+            {m.user?.name?.[0]?.toUpperCase() || "?"}
+          </div>
+        )}
+        <p className="text-sm font-semibold text-slate-800 truncate">{m.user?.name || "—"}</p>
+      </div>
+
+      {/* Email */}
+      <p className="text-xs text-slate-500 truncate">{m.user?.email || "—"}</p>
+
+      {/* Doc count */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-slate-400">
+          <IconDoc />
+        </span>
+        <span className="text-xs font-semibold text-slate-700">{docCount}</span>
+        {docCount === 0 && <span className="text-[10px] text-slate-400">none</span>}
+      </div>
+
+      {/* Phone */}
+      <p className="text-xs text-slate-600">
+        {m.mentorProfile?.phoneNumber || <span className="text-slate-300">—</span>}
+      </p>
+
+      {/* Status badge */}
+      <StatusBadge status={m.mentorProfile?.verificationStatus} />
+
+      {/* View button */}
+      <div className="flex justify-end">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelected(m);
+          }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all"
+          style={
+            isVerified
+              ? { background: "#f1f5f9", color: "#64748b" }
+              : { background: "#eff6ff", color: "#1d4ed8" }
+          }
+        >
+          <IconEye /> View
+        </button>
+      </div>
+    </div>
+  );
+};
+
+MentorRow.propTypes = {
+  m: PropTypes.object.isRequired,
+  i: PropTypes.number.isRequired,
+  filteredLength: PropTypes.number.isRequired,
+  isVerified: PropTypes.bool.isRequired,
+  setSelected: PropTypes.func.isRequired,
+  docCount: PropTypes.number.isRequired,
 };
 
 export default AdminVerifications;

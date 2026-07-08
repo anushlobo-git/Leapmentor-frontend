@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn, getRole } from "@utils/cookies";

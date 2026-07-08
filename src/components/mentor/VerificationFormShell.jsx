@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/verification/VerificationFormShell.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +12,7 @@ import PhoneNumberField     from "./PhoneNumberField";
 import ResumeUpload         from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
 import VerificationInstructionsModal from "./VerificationInstructionsModal"; // ✅ 1. IMPORT
+import { IMAGES } from "../../constants/images";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -31,6 +36,7 @@ const VerificationFormShell = () => {
 
   // ── Submission state ──
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [msg,     setMsg]     = useState({ type: "", text: "" });
 
   // ── Handlers ──
@@ -69,6 +75,7 @@ const VerificationFormShell = () => {
     }
 
     setLoading(true);
+    setProgress(0);
 
     try {
       const formData = new FormData();
@@ -78,7 +85,11 @@ const VerificationFormShell = () => {
         formData.append("workExperienceDocs", file);
       });
 
-      await axiosInstance.post(`/upload/verification-documents`, formData);
+      await axiosInstance.post(`/upload/verification-documents`, formData, {
+        onUploadProgress: (e) => {
+          if (e.total) setProgress(Math.round((e.loaded * 100) / e.total));
+        },
+      });
 
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentor"), 1500);
@@ -89,6 +100,7 @@ const VerificationFormShell = () => {
       });
     } finally {
       setLoading(false);
+      setProgress(0);
     }
   };
 
@@ -110,7 +122,7 @@ const VerificationFormShell = () => {
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/images/logo.png"
+              src={IMAGES.LOGO_PNG}
               alt="Leapmentor logo"
               className="h-8 w-auto"
             />
@@ -177,7 +189,7 @@ const VerificationFormShell = () => {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                Uploading documents…
+                Uploading documents ({progress}%)…
               </span>
             ) : (
               "Submit for Verification →"

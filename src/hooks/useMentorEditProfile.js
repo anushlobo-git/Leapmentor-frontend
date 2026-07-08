@@ -1,9 +1,17 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
+/**
+ * Custom hook for mentor edit profile.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMentorEditProfile = () => {
   const navigate = useNavigate();

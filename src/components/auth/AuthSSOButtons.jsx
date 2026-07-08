@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/auth/AuthSSOButtons.jsx
 import { GoogleIcon, LinkedInIcon } from "./AuthIcons";
 import PropTypes from "prop-types";

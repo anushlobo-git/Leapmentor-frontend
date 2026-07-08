@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import axios from "axios";
 import * as Sentry from "@sentry/react";
 import { toast } from "sonner";
@@ -9,6 +13,7 @@ import { HTTP_STATUS, isServerError } from "../constants/httpStatus";
 const adminAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
   withCredentials: true,
+  timeout: 15000, // 15s default; override per-call for slow endpoints (e.g. exports)
 });
 
 // ── REQUEST INTERCEPTOR ───────────────────────────────────────
@@ -62,20 +67,31 @@ adminAxiosInstance.interceptors.response.use(
     const { correlationId } = error?.config?.metadata || {};
     const message = error?.response?.data?.message || error.message;
 
-    // 1. Network error — server unreachable
+    // 1. Network error / timeout — server unreachable
     if (!error.response) {
-      logger.error("Admin API Network Failure", {
-        url,
-        correlationId,
-        message,
-        stack: error.stack,
-      });
-      toast.error("Network error. Please check your connection.");
+      const isTimeout = error.code === "ECONNABORTED";
+      logger.error(
+        isTimeout ? "Admin API Request Timeout" : "Admin API Network Failure",
+        {
+          url,
+          correlationId,
+          message,
+          stack: error.stack,
+        },
+      );
+      toast.error(
+        isTimeout
+          ? "This is taking longer than expected. Please try again."
+          : "Network error. Please check your connection.",
+      );
       return Promise.reject(error);
     }
 
     // 2. UNAUTHORIZED / FORBIDDEN — skip redirect for silent auth probes (e.g. /auth/me on mount)
-    if (status === HTTP_STATUS.UNAUTHORIZED || status === HTTP_STATUS.FORBIDDEN) {
+    if (
+      status === HTTP_STATUS.UNAUTHORIZED ||
+      status === HTTP_STATUS.FORBIDDEN
+    ) {
       const isSkipped = error.config?._skipAuthRedirect;
 
       logger.warn("Admin session expired or unauthorized", {

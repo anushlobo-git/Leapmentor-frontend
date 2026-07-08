@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -5,6 +9,11 @@ import axiosInstance from "@utils/axiosInstance";
 import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
 import { HTTP_STATUS } from "../constants/httpStatus";
+import { mapMenteeProfile } from "@mappers/menteeMapper";
+/**
+ * Custom hook for mentee dashboard.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
@@ -46,9 +55,10 @@ const useMenteeDashboard = () => {
         throw profileErr;
       }
 
-      setProfile(profileData);
+      const mappedProfile = mapMenteeProfile(profileData);
+       setProfile(mappedProfile);
 
-      if (!profileData?.isProfileComplete && !isEditPage) {
+      if (!mappedProfile.isProfileComplete && !isEditPage) {
         setLoading(false);
         navigate("/onboarding/mentee");
         return;

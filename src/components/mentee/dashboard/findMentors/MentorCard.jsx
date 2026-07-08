@@ -1,4 +1,8 @@
-// src/components/mentee/dashboard/findMentors/MentorCard.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { useState } from "react";
 import PropTypes from "prop-types";
 const MAX_SKILLS_SHOWN = 3;
 
@@ -60,16 +64,19 @@ const MentorCard = ({ mentor, onViewProfile }) => {
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
 
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-200 p-5 flex flex-col gap-3">
 
       {/* ── Top row: avatar + name + industry badge + verification badge ── */}
       <div className="flex items-start gap-3">
         <div className="shrink-0">
-          {profilePicture ? (
+          {profilePicture && !imgError ? (
             <img
               src={profilePicture}
               alt={user?.name}
+              onError={() => setImgError(true)}
               className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
             />
           ) : (

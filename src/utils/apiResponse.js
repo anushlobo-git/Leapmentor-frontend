@@ -1,6 +1,12 @@
 /**
- * Unwrap the standard backend API envelope into a flat payload for callers.
- * { success, data, message } → { ...data, success, message }
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+/**
+ * Unwraps the standard backend API envelope into a flatter payload for callers.
+ * `{ success, data, message }` becomes `{ ...data, success, message }`.
+ * @param {unknown} body - Raw axios response body.
+ * @returns {unknown} Either the original payload or the flattened envelope.
  */
 export const unwrapApiResponse = (body) => {
   if (

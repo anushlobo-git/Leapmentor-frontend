@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/AdminRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";

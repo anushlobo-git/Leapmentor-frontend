@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMentorSearch.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
@@ -5,6 +9,10 @@ import { mapMentorSearchResponse } from "@mappers/mentorMapper";
 
 const DEBOUNCE_MS = 300;
 const LIMIT = 6;
+/**
+ * Custom hook for mentor search.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMentorSearch = () => {
   const [skill, setSkill] = useState("");

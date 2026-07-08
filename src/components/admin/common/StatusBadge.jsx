@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/common/StatusBadge.jsx
 import PropTypes from "prop-types";
 const STATUS_CONFIG = {

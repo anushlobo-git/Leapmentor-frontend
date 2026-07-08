@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/availability/AvailabilityTab.jsx
 import { useState } from "react";
 import useAvailability from "../../../../hooks/useAvailability";

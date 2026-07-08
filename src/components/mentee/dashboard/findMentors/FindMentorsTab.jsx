@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/FindMentorsTab.jsx
 import { useState, useEffect } from "react";
 import useMentorSearch from "../../../../hooks/useMentorSearch";

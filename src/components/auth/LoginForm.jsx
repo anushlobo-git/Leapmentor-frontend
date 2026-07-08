@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/auth/LoginForm.jsx
 import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";

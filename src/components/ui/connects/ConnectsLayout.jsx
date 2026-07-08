@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/ui/connects/ConnectsLayout.jsx
 import PropTypes from "prop-types";
 

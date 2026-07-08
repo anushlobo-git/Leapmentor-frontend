@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/SharedHomeTab.jsx
 import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +45,7 @@ const formatDate = (d) => d
 
 // ── Person Card ───────────────────────────────────────────────
 const PersonCard = ({ name, profile, roleLabel }) => {
+  const [imgError, setImgError] = useState(false);
   const picture = profile?.profilePicture || "";
   const role = profile?.currentRole || "";
   const company = profile?.company || "";
@@ -52,8 +57,9 @@ const PersonCard = ({ name, profile, roleLabel }) => {
         {roleLabel}
       </p>
       <div className="flex items-center gap-3">
-        {picture ? (
+        {picture && !imgError ? (
           <img src={picture} alt={name}
+            onError={() => setImgError(true)}
             className="w-12 h-12 rounded-[14px] object-cover border-2 border-slate-100 shrink-0" />
         ) : (
           <div

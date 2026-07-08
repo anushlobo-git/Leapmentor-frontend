@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/ui/connects/ConnectCard.jsx
+import { useState } from "react";
 import PropTypes from "prop-types";
 
 const getInitials = (name = "") =>
@@ -50,11 +55,14 @@ const SkillTag = ({ label }) => (
 );
 
 const Avatar = ({ name, picture, isCompleted }) => {
-  if (picture) {
+  const [imgError, setImgError] = useState(false);
+
+  if (picture && !imgError) {
     return (
       <img
         src={picture}
         alt={name}
+        onError={() => setImgError(true)}
         className={`w-14 h-14 rounded-2xl object-cover border-2 shadow-sm shrink-0
           ${isCompleted ? "border-slate-200 opacity-75" : "border-white"}`}
       />

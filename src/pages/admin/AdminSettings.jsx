@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminSettings.jsx
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";

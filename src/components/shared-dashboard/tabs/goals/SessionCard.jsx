@@ -1,7 +1,10 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
-import FeedbackModal from "../FeedbackModal";
 import PropTypes from "prop-types";
 
 
@@ -567,8 +570,15 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
   const handleClick = async () => {
     setLocalSaving(true);
     const result = await onMarkComplete(slotIndex);
+     console.log("[DEBUG] mark-complete result:", result);
+    console.log("[DEBUG] mark-complete result:", result);
     setLocalSaving(false);
-    if (result?.success && onSessionComplete) onSessionComplete();
+    if (result?.success && onSessionComplete) {
+      console.log("[DEBUG] calling onSessionComplete");
+      onSessionComplete();
+    } else {
+      console.log("[DEBUG] NOT calling onSessionComplete — success:", result?.success, "handler present:", !!onSessionComplete);
+    }
   };
 
   return (
@@ -633,6 +643,7 @@ const SessionCard = ({
   savingSlots,
   onSetLink,
   onMarkComplete,
+  onSessionComplete,
   onCancelSlot,
   onRescheduleSlot,
   allSlots,
@@ -642,11 +653,6 @@ const SessionCard = ({
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
-  const [showSessionFeedback, setShowSessionFeedback] = useState(false);
-
-  const onSessionComplete = () => {
-    setTimeout(() => setShowSessionFeedback(true), 1200);
-  };
 
   const cancelled = slot?.status === "cancelled";
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
@@ -829,13 +835,6 @@ const SessionCard = ({
           saving={saving}
         />
       )}
-
-      {showSessionFeedback && (
-        <FeedbackModal
-          slotIndex={slotIndex}
-          onClose={() => setShowSessionFeedback(false)}
-        />
-      )}
     </>
   );
 };
@@ -931,6 +930,7 @@ SessionCard.propTypes = {
   savingSlots: PropTypes.oneOfType([PropTypes.array, PropTypes.instanceOf(Set)]).isRequired,
   onSetLink: PropTypes.func.isRequired,
   onMarkComplete: PropTypes.func.isRequired,
+  onSessionComplete: PropTypes.func,
   onCancelSlot: PropTypes.func.isRequired,
   onRescheduleSlot: PropTypes.func.isRequired,
   allSlots: PropTypes.array.isRequired,

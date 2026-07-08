@@ -1,24 +1,35 @@
-// components/mentee/dashboard/Topbar.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/components/shared-dashboard/DashboardTopbar.jsx
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import { logout } from "@store/slices/authSlice";
 import { clearAuthRole } from "@utils/cookies";
 import PropTypes from "prop-types";
+import { IMAGES } from "@constants/images";
 
-const Topbar = ({ onMenuToggle, onLogoClick }) => {
+/**
+ * Shared top bar for the mentee and mentor dashboards.
+ * The only behavioral difference between the two roles is where logout
+ * redirects to, so that's passed in as a prop rather than duplicating
+ * this whole component per role.
+ */
+const DashboardTopbar = ({ onMenuToggle, onLogoClick, logoutRedirectPath }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post(`/auth/logout`);
+      await axiosInstance.post("/auth/logout");
     } catch {
-      // clear state and redirect regardless
+      // even if the request fails, clear local state and redirect regardless
     }
     dispatch(logout());
     clearAuthRole();
-    navigate("/login/mentor");
+    navigate(logoutRedirectPath);
   };
 
   return (
@@ -45,7 +56,7 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
           aria-label="Go to Home"
         >
           <img
-            src="/images/logo.webp"
+            src={IMAGES.LOGO}
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}
@@ -65,8 +76,11 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
     </header>
   );
 };
-Topbar.propTypes = {
+
+DashboardTopbar.propTypes = {
   onMenuToggle: PropTypes.func.isRequired,
   onLogoClick: PropTypes.func.isRequired,
+  logoutRedirectPath: PropTypes.string.isRequired,
 };
-export default Topbar;
+
+export default DashboardTopbar;

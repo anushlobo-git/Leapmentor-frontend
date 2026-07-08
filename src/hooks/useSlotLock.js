@@ -1,7 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import logger from "@utils/logger";
+/**
+ * Custom hook for slot lock.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useSlotLock = (mentorId) => {
   const lockedKeys = useRef(new Set()); // tracks keys this session locked

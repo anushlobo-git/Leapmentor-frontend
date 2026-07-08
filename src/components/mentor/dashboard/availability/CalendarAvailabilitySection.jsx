@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";

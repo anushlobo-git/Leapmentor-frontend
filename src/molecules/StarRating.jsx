@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import StarIcon from "@atoms/StarIcon";
 import PropTypes from "prop-types";
 

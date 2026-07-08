@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@utils/axiosInstance";
+import { mapAuthUser } from "@mappers/userMapper";
 
 export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
@@ -13,6 +18,11 @@ export const redirectByRole = (roles = [], targetRole, navigate) => {
 
 // ── Thunks ──────────────────────────────────────────────────
 //action type prefix ,
+/**
+ * Registers a new user account.
+ * @param {{ name: string, email: string, password: string, roles: string[], termsAccepted: boolean }} payload - Registration payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ name, email, password, roles, termsAccepted }, { rejectWithValue }) => {
@@ -27,6 +37,11 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+/**
+ * Authenticates a user and returns access/session data.
+ * @param {{ email: string, password: string }} payload - Login payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
@@ -39,6 +54,11 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+/**
+ * Requests that the backend send an OTP to the provided email address.
+ * @param {{ email: string }} payload - OTP request payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
   async ({ email }, { rejectWithValue }) => {
@@ -51,6 +71,11 @@ export const sendOtp = createAsyncThunk(
   }
 );
 
+/**
+ * Verifies a registration email via OTP.
+ * @param {{ email: string, otp: string }} payload - Verification payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
   async ({ email, otp }, { rejectWithValue }) => {
@@ -66,6 +91,11 @@ export const verifyEmail = createAsyncThunk(
   }
 );
 
+/**
+ * Verifies email ownership via magic-link token.
+ * @param {{ token: string, email: string }} payload - Magic-link verification payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const verifyMagicLink = createAsyncThunk(
   "auth/verifyMagicLink",
   async ({ token, email }, { rejectWithValue }) => {
@@ -80,6 +110,11 @@ export const verifyMagicLink = createAsyncThunk(
   }
 );
 
+/**
+ * Starts the password-reset flow by sending a reset OTP.
+ * @param {{ email: string }} payload - Password reset request payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
@@ -92,6 +127,11 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
+/**
+ * Verifies the OTP entered during password reset.
+ * @param {{ email: string, otp: string }} payload - Reset OTP payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
   async ({ email, otp }, { rejectWithValue }) => {
@@ -107,6 +147,11 @@ export const verifyResetOtp = createAsyncThunk(
   }
 );
 
+/**
+ * Submits the new password after OTP verification.
+ * @param {{ email: string, otp: string, newPassword: string }} payload - Reset password payload.
+ * @returns {Promise<any>} Backend response payload.
+ */
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
@@ -136,6 +181,11 @@ const authSlice = createSlice({
     verifiedRole: null,
   },
   reducers: {
+    /**
+     * Clears client-side auth state without calling the backend.
+     * @param {Object} state - Slice state.
+     * @returns {void}
+     */
     logout(state) {
       state.user       = null;
       state.accessToken      = null;
@@ -143,10 +193,21 @@ const authSlice = createSlice({
       state.successMsg = null;
     },
     //manually sets user data and token
+    /**
+     * Stores the authenticated user and access token in Redux.
+     * @param {Object} state - Slice state.
+     * @param {{ payload: { user?: Object, accessToken?: string } }} action - Login payload.
+     * @returns {void}
+     */
     setUser(state, action) {
-      state.user  = action.payload.user;
+      state.user  = action.payload.user ? mapAuthUser(action.payload.user) : null;
       state.accessToken = action.payload.accessToken;
     },
+    /**
+     * Clears transient auth feedback messages.
+     * @param {Object} state - Slice state.
+     * @returns {void}
+     */
     clearMessages(state) {
       state.error      = null;
       state.successMsg = null;
@@ -163,7 +224,7 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading    = false;
         state.accessToken  = action.payload.accessToken || null;
-        state.user       = action.payload.user  || null;
+        state.user       = action.payload.user ? mapAuthUser(action.payload.user) : null;
         state.successMsg = "Account created! Please verify your email.";
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -181,7 +242,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading    = false;
         state.accessToken = action.payload.accessToken || null;
-        state.user       = action.payload.user  || null;
+        state.user       = action.payload.user ? mapAuthUser(action.payload.user) : null;
         state.successMsg = "Login successful!";
       })
       .addCase(loginUser.rejected, (state, action) => {

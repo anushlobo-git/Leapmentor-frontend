@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
@@ -8,6 +12,7 @@ const PersonalInfoSection = ({ form, handleChange }) => {
   const fileInputRef          = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
+  const [progress, setProgress]   = useState(0);
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -21,16 +26,20 @@ const PersonalInfoSection = ({ form, handleChange }) => {
 
     setUploadErr("");
     setUploading(true);
+    setProgress(0);
 
     try {
-
-
       const formData = new FormData();
       formData.append("profilePicture", file);
 
       const res = await axiosInstance.post(
         `/upload/profile-picture`,
         formData,
+        {
+          onUploadProgress: (e) => {
+            if (e.total) setProgress(Math.round((e.loaded * 100) / e.total));
+          },
+        }
       );
 
       handleChange({
@@ -42,9 +51,9 @@ const PersonalInfoSection = ({ form, handleChange }) => {
       handleChange({
         target: {
           name: "profilePictureFileName",
-           value: res.data.fileName
-          }
-        });
+          value: res.data.fileName
+        }
+      });
 
     } catch (err) {
       setUploadErr(
@@ -52,9 +61,12 @@ const PersonalInfoSection = ({ form, handleChange }) => {
       );
     } finally {
       setUploading(false);
+      setProgress(0);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
+
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
@@ -83,10 +95,11 @@ const PersonalInfoSection = ({ form, handleChange }) => {
           >
             {uploading ? (
               <div className="w-6 h-6 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
-            ) : form.profilePicture ? (
+            ) : form.profilePicture && !imgError ? (
               <img
                 src={form.profilePicture}
                 alt="Profile"
+                onError={() => setImgError(true)}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -98,12 +111,21 @@ const PersonalInfoSection = ({ form, handleChange }) => {
             )}
           </button>
 
+          {uploading && (
+            <div className="w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div 
+                className="bg-blue-950 h-full rounded-full transition-all duration-150" 
+                style={{ width: `${progress}%` }} 
+              />
+            </div>
+          )}
+
           <span
             className={`text-xs font-semibold text-blue-900
               ${uploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:underline"}`}
             onClick={() => !uploading && fileInputRef.current?.click()}
           >
-            {uploading ? "Uploading..." : "Upload Photo"}
+            {uploading ? `Uploading (${progress}%)` : "Upload Photo"}
           </span>
 
           <p className="text-[10px] text-slate-400">PNG, JPG · Max 5MB</p>

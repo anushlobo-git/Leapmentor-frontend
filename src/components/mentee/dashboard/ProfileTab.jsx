@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/dashboard/ProfileTab.jsx
 import { useSelector } from "react-redux";
 import ProfileHeroCard from "./ProfileHeroCard";

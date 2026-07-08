@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/DashboardShell.jsx
 import { useState, useEffect, Suspense } from "react";
 import { useDispatch } from "react-redux";

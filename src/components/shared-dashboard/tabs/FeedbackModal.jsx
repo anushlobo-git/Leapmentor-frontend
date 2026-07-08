@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/FeedbackModal.jsx
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -43,6 +47,7 @@ const FeedbackModal = ({ onClose, slotIndex, onFeedbackSubmitted }) => {
       ? c.mentor?.name || "Mentor"
       : c.mentee?.name || "Mentee";
   });
+  console.log("[DEBUG] FeedbackModal rendering, connectId:", connectId);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [done, setDone] = useState(false);

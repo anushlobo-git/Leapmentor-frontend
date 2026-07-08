@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
@@ -6,6 +10,10 @@ import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
+/**
+ * Custom hook for socket toast.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useSocketToast = (onRequestChanged, incrementBadge) => {
   // ✅ incrementBadge as param

@@ -1,8 +1,21 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useTrackEarnings.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import logger from "@utils/logger";
+import { mapEarningsSummary, mapChartPoint, mapPayoutsResponse } from "@mappers/earningsMapper";
 
+/**
+ * Loads mentor earnings summary, chart data, payout history, and withdrawal actions.
+ * @returns {Object} Earnings state and action handlers used by the earnings dashboard.
+ */
+/**
+ * Custom hook for track earnings.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 const useTrackEarnings = () => {
   // ── Stats ─────────────────────────────────────────────────
   const [stats, setStats]           = useState({
@@ -42,13 +55,7 @@ const useTrackEarnings = () => {
     try {
       setLoadingStats(true);
       const res = await axiosInstance.get("/mentor/earnings");
-      setStats({
-        totalEarnings:     res.data.totalEarnings     || 0,
-        sessionsThisMonth: res.data.sessionsThisMonth || 0,
-        avgRating:         res.data.avgRating         || 0,
-        pendingPayout:     res.data.pendingPayout     || 0,
-        walletBalance:     res.data.walletBalance     || 0,
-      });
+      setStats(mapEarningsSummary(res.data));
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load earnings.");
     } finally {
@@ -61,7 +68,7 @@ const useTrackEarnings = () => {
     try {
       setLoadingChart(true);
       const res = await axiosInstance.get(`/mentor/earnings/chart?period=${period}`);
-      setChartData(res.data.data || []);
+      setChartData(Array.isArray(res.data.data) ? res.data.data.map(mapChartPoint) : []);
     } catch (err) {
       logger.error("Chart fetch error:", { error: err.message });
     } finally {
@@ -79,10 +86,10 @@ const useTrackEarnings = () => {
         ...(currentSearch ? { search: currentSearch } : {}),
       });
       const res = await axiosInstance.get(`/mentor/earnings/payouts?${params.toString()}`);
-      const newPayouts = res.data.payouts || [];
-      setPayouts((prev) => append ? [...prev, ...newPayouts] : newPayouts);
-      setHasMore(res.data.pagination?.hasMore || false);
-      setTotalCount(res.data.pagination?.totalCount || 0);
+      const mapped = mapPayoutsResponse(res.data);
+      setPayouts((prev) => append ? [...prev, ...mapped.payouts] : mapped.payouts);
+      setHasMore(mapped.pagination.hasMore);
+      setTotalCount(mapped.pagination.totalCount);
     } catch (err) {
       logger.error("Payouts fetch error:", { error: err.message });
     } finally {

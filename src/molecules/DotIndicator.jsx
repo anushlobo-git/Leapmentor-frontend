@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import Dot from "@atoms/Dot";
 import PropTypes from "prop-types";
 

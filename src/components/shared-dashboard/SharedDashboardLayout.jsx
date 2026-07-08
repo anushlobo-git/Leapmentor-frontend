@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/SharedDashboardLayout.jsx
 import { useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";

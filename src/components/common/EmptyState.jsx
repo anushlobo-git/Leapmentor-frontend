@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/common/EmptyState.jsx
 import React from "react";
 import PropTypes from "prop-types";

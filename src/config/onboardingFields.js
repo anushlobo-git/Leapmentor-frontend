@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/config/onboardingFields.js
 
 export const MENTEE_ONBOARDING_FIELDS = [

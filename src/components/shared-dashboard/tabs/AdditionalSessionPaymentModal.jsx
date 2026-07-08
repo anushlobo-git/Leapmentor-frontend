@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/AdditionalSessionPaymentModal.jsx
 import { useState, useEffect } from "react";
 import { payAdditionalEscrow, getEscrowStatus } from "../../../../api/escrow.api";

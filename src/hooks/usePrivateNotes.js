@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/usePrivateNotes.js
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -6,6 +10,10 @@ import {
   updatePrivateNote  as apiUpdate,
   deletePrivateNote  as apiDelete,
 } from "../api/privateNotes.api";
+/**
+ * Custom hook for private notes.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const usePrivateNotes = (connectRequestId) => {
   const [notes,   setNotes]   = useState([]);

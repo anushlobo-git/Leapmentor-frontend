@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/HomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -124,6 +128,7 @@ const calculateProfileCompletion = (profile) => {
 
 // ── Mentor Card ───────────────────────────────────────────────
 const MentorCard = ({ mentor, onViewProfile }) => {
+  const [imgError, setImgError] = useState(false);
   const name = mentor.user?.name || "Mentor";
   const initials = getInitials(name);
   const avatarBg = getAvatarColor(name);
@@ -135,10 +140,11 @@ const MentorCard = ({ mentor, onViewProfile }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          {mentor.profilePicture ? (
+          {mentor.profilePicture && !imgError ? (
             <img
               src={mentor.profilePicture}
               alt={name}
+              onError={() => setImgError(true)}
               className="w-10 h-10 rounded-full object-cover shrink-0"
             />
           ) : (
