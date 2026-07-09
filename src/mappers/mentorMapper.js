@@ -11,6 +11,8 @@ export const mapMentorProfile = (raw = {}) => ({
   user: {
     _id: raw.user?._id ?? raw.user?.id ?? null,
     name: raw.user?.name ?? "",
+    email: raw.user?.email ?? "",
+    isEmailVerified: Boolean(raw.user?.isEmailVerified ?? raw.isEmailVerified),
   },
 
   currentRole: raw.currentRole ?? "",
@@ -38,8 +40,16 @@ export const mapMentorProfile = (raw = {}) => ({
   yearsOfExperience:
     typeof raw.yearsOfExperience === "number" ? raw.yearsOfExperience : null,
 
-  profilePicture: raw.profilePicture || null,
+  profilePicture: raw.profilePicture ?? raw.avatar ?? null,
+  profilePictureFileName: raw.profilePictureFileName ?? null,
   verificationStatus: raw.verificationStatus ?? "unverified",
+  isProfilePublished: raw.isProfilePublished ?? true,
+  emailNotifications: raw.emailNotifications ?? true,
+  phoneNumber: raw.phoneNumber ?? null,
+  resumeDocument: raw.resumeDocument ?? null,
+  workExperienceDocuments: Array.isArray(raw.workExperienceDocuments)
+    ? raw.workExperienceDocuments
+    : [],
 
   isProfileComplete: Boolean(raw.isProfileComplete),
   createdAt: raw.createdAt ?? null,

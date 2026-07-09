@@ -33,15 +33,25 @@ export const mapConnectRequest = (raw = {}) => ({
   referredByProfile: raw.referredByProfile ?? null,
   referredTo: mapPerson(raw.referredTo),
   referredToProfile: raw.referredToProfile ?? null,
+  referredRequestId: raw.referredRequestId ?? null,
 
   requestedAt: raw.requestedAt ?? raw.createdAt ?? null,
   respondedAt: raw.respondedAt ?? null,
   selectedSlots: Array.isArray(raw.selectedSlots) ? raw.selectedSlots : [],
   confirmedSlot: raw.confirmedSlot ?? null,
+  additionalSlots: Array.isArray(raw.additionalSlots)
+    ? raw.additionalSlots
+    : [],
 
+  sessionRate: raw.sessionRate ?? null,
+  sessionCount: raw.sessionCount ?? null,
   totalAmount: raw.totalAmount ?? null,
+  paymentStatus: raw.paymentStatus ?? null,
   paidAt: raw.paidAt ?? null,
   completedAt: raw.completedAt ?? null,
+  commissionRate: raw.commissionRate ?? null,
+  commissionAmount: raw.commissionAmount ?? null,
+  mentorPayout: raw.mentorPayout ?? null,
 
   createdAt: raw.createdAt ?? null,
   updatedAt: raw.updatedAt ?? null,

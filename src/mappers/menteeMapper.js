@@ -11,14 +11,24 @@
 export const mapMenteeProfile = (raw = {}) => ({
   _id: raw._id ?? raw.id ?? null,
 
-  profilePicture: raw.profilePicture ?? null,
+  user: {
+    _id: raw.user?._id ?? raw.user?.id ?? null,
+    name: raw.user?.name ?? "",
+    email: raw.user?.email ?? "",
+    isEmailVerified: Boolean(raw.user?.isEmailVerified ?? raw.isEmailVerified),
+  },
+
+  profilePicture: raw.profilePicture ?? raw.avatar ?? null,
+  profilePictureFileName: raw.profilePictureFileName ?? null,
   bio: raw.bio ?? "",
 
   currentRole: raw.currentRole ?? "",
   company: raw.company ?? "",
   industry: raw.industry ?? "",
   yearsOfExperience:
-    typeof raw.yearsOfExperience === "number" ? raw.yearsOfExperience : null,
+    typeof raw.yearsOfExperience === "number"
+      ? raw.yearsOfExperience
+      : Number(raw.yearsOfExperience) || null,
 
   skills: Array.isArray(raw.skills) ? raw.skills : [],
   interestedFields: Array.isArray(raw.interestedFields)
@@ -31,6 +41,10 @@ export const mapMenteeProfile = (raw = {}) => ({
 
   linkedInUrl: raw.linkedInUrl ?? null,
   portfolioUrl: raw.portfolioUrl ?? null,
+  phoneNumber: raw.phoneNumber ?? null,
+  isProfilePublished: raw.isProfilePublished ?? false,
+  emailNotifications: raw.emailNotifications ?? true,
+  marketingPreferences: raw.marketingPreferences ?? false,
 
   isProfileComplete: Boolean(raw.isProfileComplete),
 

@@ -15,9 +15,12 @@ export const mapAuthUser = (raw = {}) => ({
   name: raw.name ?? "",
   email: raw.email ?? "",
   roles: Array.isArray(raw.roles) ? raw.roles : [],
-  profilePicture: raw.profilePicture ?? raw.avatar ?? null,
-  isVerified: Boolean(raw.isEmailVerified),
-  termsAccepted: Boolean(raw.termsAccepted),
+  profilePicture:
+    raw.profilePicture ?? raw.avatar ?? raw.user?.profilePicture ?? null,
+  isVerified: Boolean(
+    raw.isEmailVerified ?? raw.isVerified ?? raw.emailVerified,
+  ),
+  termsAccepted: Boolean(raw.termsAccepted ?? false),
   createdAt: raw.createdAt ?? null,
   updatedAt: raw.updatedAt ?? null,
 });
