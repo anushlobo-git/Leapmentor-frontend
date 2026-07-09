@@ -6,7 +6,6 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
 import { useSelector } from "react-redux";
-import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
@@ -38,13 +37,9 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      logger.info("Socket toast not initialized: user not logged in");
-      return;
-    }
     if (!accessToken) {
       logger.info("Socket toast waiting for access token before connecting");
-      return; // ✅ wait for silent refresh
+      return; 
     }
     if (globalThis.__leapSocket?.connected) {
       logger.info("Socket already connected, skipping initialization");

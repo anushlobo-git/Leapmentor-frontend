@@ -9,9 +9,10 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { AdminAuthProvider } from "./context/AdminAuthContext.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, logout } from "./store/slices/authSlice";
-import { isLoggedIn, clearAuthRole } from "./utils/cookies";
 import axiosInstance from "./utils/axiosInstance";
 import logger from "./utils/logger";
+import { hasSessionHint, clearAuthRole } from "./utils/cookies";
+
 
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home     from "@pages/shared/Home";
@@ -87,11 +88,11 @@ const AppRoutes = () => {
   // to rehydrate Redux before rendering any protected route.
   const [rehydrating, setRehydrating] = useState(() => {
     // Only block render if we actually need to rehydrate
-    return isLoggedIn() && !accessToken;
+    return hasSessionHint() && !accessToken;
   });
 
   useEffect(() => {
-    if (!isLoggedIn() || accessToken) {
+    if (!hasSessionHint() || accessToken) {
       // Not logged in, or token already in Redux — nothing to do
       setRehydrating(false);
       return;

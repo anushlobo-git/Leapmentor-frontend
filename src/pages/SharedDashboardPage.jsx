@@ -8,17 +8,19 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import SharedDashboardLayout from "../components/shared-dashboard/SharedDashboardLayout";
-import { isLoggedIn } from "@utils/cookies";
 import {
   setConnect,
   setActiveTab,
   resetSharedDashboard,
 } from "../store/slices/sharedDashboardSlice";
 import { HTTP_STATUS } from "../constants/httpStatus";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
 
 const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
 
 const SharedDashboardPage = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const { connectRequestId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -43,7 +45,7 @@ const SharedDashboardPage = () => {
 
   const fetchConnect = useCallback(async () => {
     try {
-      if (!isLoggedIn()) { navigate("/login"); return; }
+      if (!isAuthenticated) { navigate("/login"); return; }
       const res = await axiosInstance.get(
         `/connect-requests/${connectRequestId}/detail`,
       );
@@ -56,7 +58,7 @@ const SharedDashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [connectRequestId, navigate, dispatch]);
+  }, [connectRequestId, navigate, dispatch, isAuthenticated]);
 
   useEffect(() => { fetchConnect(); }, [fetchConnect]);
 

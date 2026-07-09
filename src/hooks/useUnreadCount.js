@@ -5,8 +5,10 @@
 // src/hooks/useUnreadCount.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
-import { isLoggedIn } from "@utils/cookies";
 import { normalizeApiNotif } from "@mappers/notificationMapper";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
+
 /**
  * Custom hook for unread count.
  * @returns {Object} Hook state and handlers for the caller.
@@ -14,25 +16,28 @@ import { normalizeApiNotif } from "@mappers/notificationMapper";
 
 
 const useUnreadCount = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      if (!isLoggedIn()) return;
+      if (!isAuthenticated) return;
       const res = await axiosInstance.get("/notifications");
-      const normalized = Array.isArray(res.data.notifications) ? res.data.notifications.map(normalizeApiNotif) : [];
+      const normalized = Array.isArray(res.data.notifications)
+        ? res.data.notifications.map(normalizeApiNotif)
+        : [];
       const count = normalized.filter((n) => !n.read).length;
       setUnreadCount(count);
     } catch {
       // silently fail
     }
-  }, []);
+  }, [isAuthenticated]);
 
  useEffect(() => {
    fetchUnreadCount();
  }, [fetchUnreadCount]);
 
-  // ✅ increment badge when socket/push notification arrives
+  // increment badge when socket/push notification arrives
   const incrementBadge = useCallback(() => {
     setUnreadCount((prev) => prev + 1);
   }, []);

@@ -31,11 +31,15 @@ export const clearCookie = (name) => {
  */
 export const getRole = () => getCookie("authRole");
 
+
+export const hasSessionHint = () => !!getCookie("authRole");
+
+
 /**
  * Checks whether the role cookie exists.
  * @returns {boolean} `true` when the browser still has an auth role cookie.
  */
-export const isLoggedIn = () => !!getCookie("authRole");
+export const isLoggedIn =hasSessionHint;
 
 /**
  * Removes the persisted role cookie without touching the HttpOnly token.

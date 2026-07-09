@@ -5,8 +5,9 @@
 // src/hooks/useMentorDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
-import { isLoggedIn } from "@utils/cookies";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
 import { HTTP_STATUS } from "../constants/httpStatus";
 import { mapMentorProfile } from "@mappers/mentorMapper";
 /**
@@ -18,14 +19,15 @@ const useMentorDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isEditPage = location.pathname.includes("/edit-profile");
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!isLoggedIn()) {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }
@@ -88,7 +90,7 @@ const useMentorDashboard = () => {
     };
 
     fetchData();
-  }, [isEditPage, navigate]);
+  }, [isEditPage, navigate, isAuthenticated]);
 
   return { user, profile, loading, error };
 };

@@ -6,10 +6,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
-import { isLoggedIn } from "@utils/cookies";
-import logger from "@utils/logger";
 import { HTTP_STATUS } from "../constants/httpStatus";
 import { mapMenteeProfile } from "@mappers/menteeMapper";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
+import { useSelector } from "react-redux";
+
 /**
  * Custom hook for mentee dashboard.
  * @returns {Object} Hook state and handlers for the caller.
@@ -19,14 +20,16 @@ const useMenteeDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isEditPage = location.pathname.includes("/edit-profile");
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
 
   const [user, setUser]       = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  const fetchData = async () => {  // ✅ moved outside useEffect
-    if (!isLoggedIn()) {
+  const fetchData = async () => {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }
@@ -76,7 +79,7 @@ const useMenteeDashboard = () => {
 
   useEffect(() => {
     fetchData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   return { user, profile, loading, error, refetch: fetchData }; // ✅ exposed
 };

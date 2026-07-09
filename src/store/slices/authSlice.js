@@ -349,5 +349,11 @@ const authSlice = createSlice({
   },
 });
 
+export const selectIsAuthenticated = (state) =>
+  Boolean(state.auth.accessToken && state.auth.user);
+
+export const selectIsVerified = (state) => state.auth.user?.isVerified === true;
+
 export const { logout, setUser, clearMessages } = authSlice.actions;
+
 export default authSlice.reducer;

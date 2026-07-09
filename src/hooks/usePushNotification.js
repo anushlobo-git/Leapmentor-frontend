@@ -5,8 +5,9 @@
 import { useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
-import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
@@ -22,10 +23,11 @@ const urlBase64ToUint8Array = (base64String) => {
  */
 
 const usePushNotification = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const { showToast } = useToast();
 
   useEffect(() => {
-    if (!isLoggedIn()) return;
+    if (!isAuthenticated) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     const setup = async () => {
@@ -48,7 +50,7 @@ const usePushNotification = () => {
     };
 
     setup();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
