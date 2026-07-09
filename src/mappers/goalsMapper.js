@@ -11,15 +11,15 @@
 export const mapGoal = (raw) => {
   if(!raw) return null;
   return {
-  _id: raw._id ?? raw.id ?? null,
-  title: raw.title ?? "",
-  description: raw.description ?? "",
-  startDate: raw.startDate ?? null,
-  endDate: raw.endDate ?? null,
-  connectRequestId: raw.connectRequestId ?? null,
-  createdAt: raw.createdAt ?? null,
-  updatedAt: raw.updatedAt ?? null,
-  }
+    _id: raw._id ?? raw.id ?? null,
+    title: raw.title ?? "",
+    description: raw.description ?? "",
+    startDate: raw.startDate ?? null,
+    endDate: raw.endDate ?? null,
+    connectRequestId: raw.connectRequestId ?? raw.connectRequest,
+    createdAt: raw.createdAt ?? null,
+    updatedAt: raw.updatedAt ?? null,
+  };
 };
 
 /**

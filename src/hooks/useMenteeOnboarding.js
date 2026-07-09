@@ -78,7 +78,7 @@ const useMenteeOnboarding = () => {
     }
   }, [error, successMsg ,dispatch, navigate]);
 
-  // ✅ Clear Redux messages on unmount so stale state never bleeds
+  //  Clear Redux messages on unmount so stale state never bleeds
   // into a future visit to this page
   useEffect(() => {
     return () => {

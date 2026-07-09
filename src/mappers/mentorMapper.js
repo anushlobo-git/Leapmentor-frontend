@@ -1,26 +1,6 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
-
-// src/mappers/mentorMapper.js
-//
-// Single source of truth for turning a raw mentor object (as sent by the
-// backend, via `mentorSearch.service.js` -> toMentorProfileDTO) into the
-// shape our components actually rely on.
-//
-// Why this exists:
-// MentorCard, MentorProfileModal, MentorGrid, and HomeTab each destructure
-// mentor fields directly from whatever the API happens to send. If the
-// backend renames a field, nests something differently, or omits an object
-// on some code path (e.g. Atlas search vs plain list vs regex fallback),
-// every one of those components can break independently and silently
-// (PropTypes only warns in dev, it doesn't stop a crash on `undefined.name`).
-//
-// Mapping once, at the data-fetching boundary, means:
-//   - one place to update when the backend DTO changes
-//   - guaranteed defaults, so components never do `mentor?.skills?.length` etc.
-//   - a single, testable function instead of re-derived assumptions in 5 files
-
 /**
  * Normalize a single raw mentor record from the API into the internal shape
  * used across the app.
@@ -40,6 +20,13 @@ export const mapMentorProfile = (raw = {}) => ({
   location: raw.location ?? "",
 
   skills: Array.isArray(raw.skills) ? raw.skills : [],
+
+  communicationPreferences: Array.isArray(raw.communicationPreferences)
+    ? raw.communicationPreferences
+    : [],
+  languages: Array.isArray(raw.languages) ? raw.languages : [],
+  portfolioUrl: raw.portfolioUrl ?? null,
+  linkedInUrl: raw.linkedInUrl ?? null,
 
   hourlyRate: typeof raw.hourlyRate === "number" ? raw.hourlyRate : null,
   avgRating:
@@ -79,6 +66,8 @@ export const mapPagination = (raw = {}) => ({
  * Defensive against either field being missing entirely.
  */
 export const mapMentorSearchResponse = (data = {}) => ({
-  mentors: Array.isArray(data.mentors) ? data.mentors.map(mapMentorProfile) : [],
+  mentors: Array.isArray(data.mentors)
+    ? data.mentors.map(mapMentorProfile)
+    : [],
   pagination: mapPagination(data.pagination ?? {}),
 });
