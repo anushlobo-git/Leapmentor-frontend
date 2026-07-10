@@ -11,7 +11,6 @@ import SessionCard from "@components/shared/SessionCard";
 import SessionSkeleton from "@components/shared/SessionSkeleton";
 import MentorCardSkeleton from "./findMentors/MentorCardSkeleton";
 
-
 import { mapMentorProfile } from "@mappers/mentorMapper";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
@@ -23,12 +22,9 @@ import {
 import PropTypes from "prop-types";
 import { HTTP_STATUS } from "../../../constants/httpStatus";
 
-
 const MENTEE_ACCENT_COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f97316"];
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
-const useHomeData = () => {
-  // context pulling from prop drilling
-  const { profile } = useDashboardContext();
+const useHomeData = (profile) => {
   const [mentors, setMentors] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,9 +37,7 @@ const useHomeData = () => {
         setLoading(true);
 
         const skillTerm =
-          profile?.skills?.[0] ||
-          profile?.interestedFields?.[0] ||
-          "";
+          profile?.skills?.[0] || profile?.interestedFields?.[0] || "";
 
         const mentorRes = await axiosInstance.get(`/mentors/search`, {
           params: { skill: skillTerm, limit: 4 },
@@ -51,7 +45,7 @@ const useHomeData = () => {
         setMentors((mentorRes.data.mentors || []).map(mapMentorProfile));
 
         const sessionRes = await axiosInstance.get(
-          `/connect-requests/my-requests`
+          `/connect-requests/my-requests`,
         );
         const allRequests = sessionRes.data.requests || [];
         const upcoming = allRequests
@@ -67,7 +61,7 @@ const useHomeData = () => {
         setBalance(walletRes.data.balance ?? 0);
         setEscrow(walletRes.data.escrow ?? 0);
       } catch (err) {
-        logger.error("HomeTab data fetch error:", { error: err.message  });
+        logger.error("HomeTab data fetch error:", { error: err.message });
       } finally {
         setLoading(false);
       }
@@ -81,7 +75,12 @@ const useHomeData = () => {
 
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
-  name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
 const AVATAR_COLORS = [
   "bg-rose-100 text-rose-600",
@@ -96,7 +95,9 @@ const getAvatarColor = (name = "") =>
 const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
   return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "short", month: "short", day: "numeric",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
   });
 };
 
@@ -137,7 +138,8 @@ const MentorCard = ({ mentor, onViewProfile }) => {
   const skills = mentor.skills?.slice(0, 2) || [];
 
   return (
-    <div onClick={() => onViewProfile(mentor)}
+    <div
+      onClick={() => onViewProfile(mentor)}
       className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
       <div className="flex items-start justify-between">
@@ -150,15 +152,23 @@ const MentorCard = ({ mentor, onViewProfile }) => {
               className="w-10 h-10 rounded-full object-cover shrink-0"
             />
           ) : (
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${avatarBg}`}>
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${avatarBg}`}
+            >
               {initials}
             </div>
           )}
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-800 truncate">{name}</p>
-            <p className="text-xs text-slate-800 truncate">{mentor.currentRole}</p>
+            <p className="text-sm font-semibold text-slate-800 truncate">
+              {name}
+            </p>
+            <p className="text-xs text-slate-800 truncate">
+              {mentor.currentRole}
+            </p>
             {mentor.company && (
-              <p className="text-xs text-slate-800 truncate">@ {mentor.company}</p>
+              <p className="text-xs text-slate-800 truncate">
+                @ {mentor.company}
+              </p>
             )}
           </div>
         </div>
@@ -167,8 +177,10 @@ const MentorCard = ({ mentor, onViewProfile }) => {
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {skills.map((skill) => (
-            <span key={skill}
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide bg-amber-50 text-slate-800 border border-blue-100">
+            <span
+              key={skill}
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-full tracking-wide bg-amber-50 text-slate-800 border border-blue-100"
+            >
               {skill.toUpperCase()}
             </span>
           ))}
@@ -191,31 +203,30 @@ const LeapPointsPanel = ({ balance, loading }) => {
 
   // Check if there's already a pending request
   useEffect(() => {
-const checkExistingRequest = async () => {
-  try {
-    setChecking(true);
-    const res = await axiosInstance.get(`/leap-requests/my-request`);
+    const checkExistingRequest = async () => {
+      try {
+        setChecking(true);
+        const res = await axiosInstance.get(`/leap-requests/my-request`);
 
-    if (res.data?.status === "pending") {
-      setRequestStatus("pending");
-    }
-  } catch (err) {
-    // With your new backend logic, this will rarely trigger unless the server is down
-    logger.warn("Leap request check failed:", { error: err.response?.data || err.message });
-  } finally {
-    setChecking(false);
-  }
-};
+        if (res.data?.status === "pending") {
+          setRequestStatus("pending");
+        }
+      } catch (err) {
+        // With your new backend logic, this will rarely trigger unless the server is down
+        logger.warn("Leap request check failed:", {
+          error: err.response?.data || err.message,
+        });
+      } finally {
+        setChecking(false);
+      }
+    };
     checkExistingRequest();
   }, []);
 
   const handleUpgradeRequest = async () => {
     try {
       setRequestStatus("sending");
-      await axiosInstance.post(
-        `/leap-requests`,
-        { reason: "balance_refill" }
-      );
+      await axiosInstance.post(`/leap-requests`, { reason: "balance_refill" });
       setRequestStatus("sent");
     } catch (err) {
       const msg = err.response?.data?.message || "";
@@ -225,22 +236,41 @@ const checkExistingRequest = async () => {
       ) {
         setRequestStatus("pending");
       } else {
-        logger.error("Leap request error", { error: err.response?.data || err.message });
+        logger.error("Leap request error", {
+          error: err.response?.data || err.message,
+        });
         setRequestStatus("error");
         setTimeout(() => setRequestStatus(null), 3000);
       }
     }
   };
 
-  const isAlreadyRequested = requestStatus === "pending" || requestStatus === "sent";
+  const isAlreadyRequested =
+    requestStatus === "pending" || requestStatus === "sent";
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <circle cx="12" cy="12" r="10" fill="#F59E0B" />
           <circle cx="12" cy="12" r="7.5" fill="#FBBF24" />
-          <text x="12" y="16" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#92400E" fontFamily="serif">LP</text>
+          <text
+            x="12"
+            y="16"
+            textAnchor="middle"
+            fontSize="9"
+            fontWeight="bold"
+            fill="#92400E"
+            fontFamily="serif"
+          >
+            LP
+          </text>
         </svg>
         <p className="text-base font-bold text-slate-800">Leap Points</p>
       </div>
@@ -262,9 +292,10 @@ const checkExistingRequest = async () => {
 
       <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
         <p className="text-[10px] text-amber-800 leading-relaxed">
-          Leap Points are the platform currency used to book and pay for mentoring sessions.
-          Each point is equivalent to <span className="font-bold">$1.00</span>.
-          Points never expire and are non-refundable once used for booking.
+          Leap Points are the platform currency used to book and pay for
+          mentoring sessions. Each point is equivalent to{" "}
+          <span className="font-bold">$1.00</span>. Points never expire and are
+          non-refundable once used for booking.
         </p>
       </div>
 
@@ -275,7 +306,16 @@ const checkExistingRequest = async () => {
             <>
               {isAlreadyRequested ? (
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-100">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#059669"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
@@ -285,7 +325,9 @@ const checkExistingRequest = async () => {
                 </div>
               ) : requestStatus === "error" ? (
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 border border-red-100">
-                  <p className="text-[11px] font-semibold text-red-600">Something went wrong. Try again.</p>
+                  <p className="text-[11px] font-semibold text-red-600">
+                    Something went wrong. Try again.
+                  </p>
                 </div>
               ) : (
                 <button
@@ -298,14 +340,34 @@ const checkExistingRequest = async () => {
                 >
                   {requestStatus === "sending" ? (
                     <>
-                      <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="40 20" />
+                      <svg
+                        className="animate-spin w-3.5 h-3.5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="white"
+                          strokeWidth="3"
+                          strokeDasharray="40 20"
+                        />
                       </svg>
                       Sending request…
                     </>
                   ) : (
                     <>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="17 11 12 6 7 11" />
                         <line x1="12" y1="6" x2="12" y2="18" />
                       </svg>
@@ -324,7 +386,16 @@ const checkExistingRequest = async () => {
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold
                 bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
@@ -347,7 +418,7 @@ const HomeTab = () => {
   const completionPct = calculateProfileCompletion(profile);
   const [selectedMentor, setSelectedMentor] = useState(null);
 
-  const { mentors, sessions, loading, balance } = useHomeData();
+  const { mentors, sessions, loading, balance } = useHomeData(profile);
 
   return (
     <>
@@ -524,7 +595,7 @@ const HomeTab = () => {
           onClose={() => setSelectedMentor(null)}
         />
       )}
-      <LeapBuddy role="mentee"/>
+      <LeapBuddy role="mentee" user={user} profile={profile} />
     </>
   );
 };
@@ -559,7 +630,7 @@ SessionCard.propTypes = {
         date: PropTypes.string,
         startTime: PropTypes.string,
         endTime: PropTypes.string,
-      })
+      }),
     ),
   }).isRequired,
   index: PropTypes.number.isRequired,
@@ -571,4 +642,3 @@ LeapPointsPanel.propTypes = {
   loading: PropTypes.bool.isRequired,
 };
 export default HomeTab;
-
