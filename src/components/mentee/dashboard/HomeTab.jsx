@@ -26,7 +26,9 @@ import { HTTP_STATUS } from "../../../constants/httpStatus";
 
 const MENTEE_ACCENT_COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f97316"];
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
-const useHomeData = (profile) => {
+const useHomeData = () => {
+  // context pulling from prop drilling
+  const { profile } = useDashboardContext();
   const [mentors, setMentors] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -345,7 +347,7 @@ const HomeTab = () => {
   const completionPct = calculateProfileCompletion(profile);
   const [selectedMentor, setSelectedMentor] = useState(null);
 
-  const { mentors, sessions, loading, balance } = useHomeData(profile);
+  const { mentors, sessions, loading, balance } = useHomeData();
 
   return (
     <>
@@ -522,7 +524,7 @@ const HomeTab = () => {
           onClose={() => setSelectedMentor(null)}
         />
       )}
-      <LeapBuddy role="mentee" user={user} profile={profile} />
+      <LeapBuddy role="mentee"/>
     </>
   );
 };

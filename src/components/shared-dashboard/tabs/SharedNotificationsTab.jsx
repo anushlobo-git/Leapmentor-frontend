@@ -269,6 +269,7 @@ const SharedNotificationsTab = ({ setActiveTab ,role }) => {
   const [error, setError] = useState("");
   const [useStatic, setUseStatic] = useState(false);
 
+
   const fetchNotifications = async () => {
     try {
       setLoading(true);
@@ -299,7 +300,7 @@ const SharedNotificationsTab = ({ setActiveTab ,role }) => {
   }).length;
 
   const markAllRead = async () => {
-    if (!useStatic) await axiosInstance.patch(`/notifications/mark-all-read`, {});
+    if (!useStatic) await axiosInstance.patch(`/notifications/mark-all-read`);
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
@@ -309,7 +310,7 @@ const SharedNotificationsTab = ({ setActiveTab ,role }) => {
   };
 
   const markRead = async (id) => {
-    if (!useStatic) await axiosInstance.patch(`/notifications/${id}/read`, {});
+    if (!useStatic) await axiosInstance.patch(`/notifications/${id}/read`);
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
@@ -351,6 +352,7 @@ const SharedNotificationsTab = ({ setActiveTab ,role }) => {
           <button
             onClick={markAllRead}
             className="flex items-center gap-1.5 text-xs font-bold text-blue-900 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-bold text-blue-900 hover:text-blue-700 transition-colors"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
@@ -361,7 +363,9 @@ const SharedNotificationsTab = ({ setActiveTab ,role }) => {
           <button
             onClick={clearAll}
             className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-red-500 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-red-500 transition-colors"
           >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
