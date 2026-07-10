@@ -1,5 +1,16 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/components/shared-dashboard/tabs/FeedbackModal.jsx
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import useReport from "../../../hooks/useReport";
+import {
+  selectConnectId,
+} from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+
 
 const StarRatingInput = ({ value, onChange, disabled }) => (
   <div className="flex items-center gap-1.5">
@@ -27,16 +38,21 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
   </div>
 );
 
-const FeedbackModal = ({ connect, onClose, slotIndex, onFeedbackSubmitted }) => {
+const FeedbackModal = ({ onClose, slotIndex, onFeedbackSubmitted }) => {
+  const connectId = useSelector(selectConnectId);
+  const otherName = useSelector((state) => {
+    const c = state.sharedDashboard.connect;
+    if (!c) return "Partner";
+    return c.viewerRole === "mentee"
+      ? c.mentor?.name || "Mentor"
+      : c.mentee?.name || "Mentee";
+  });
+  console.log("[DEBUG] FeedbackModal rendering, connectId:", connectId);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [done, setDone] = useState(false);
 
-  const { submitFeedback, submitting, error } = useReport(connect?._id);
-
-  const otherName = connect?.viewerRole === "mentee"
-    ? connect?.mentor?.name || "Mentor"
-    : connect?.mentee?.name || "Mentee";
+  const { submitFeedback, submitting, error } = useReport(connectId);
 
   const handleSubmit = async () => {
     if (rating === 0) return;
@@ -207,6 +223,18 @@ const FeedbackModal = ({ connect, onClose, slotIndex, onFeedbackSubmitted }) => 
       </div>
     </div>
   );
+};
+
+StarRatingInput.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired,
+};
+
+FeedbackModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  slotIndex: PropTypes.number,
+  onFeedbackSubmitted: PropTypes.func,
 };
 
 export default FeedbackModal;

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/store/slices/mentorOnboardingSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@utils/axiosInstance";
@@ -28,6 +32,11 @@ const mentorOnboardingSlice = createSlice({
     successMsg: null,
   },
   reducers: {
+    /**
+     * Clears mentor onboarding success and error messages.
+     * @param {Object} state - Slice state.
+     * @returns {void}
+     */
     clearMentorOnboardingMessages(state) {
       state.error = null;
       state.successMsg = null;

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import PropTypes from "prop-types";
 export default function SideArrow({ onClick }) {
   return (
     <button
@@ -10,3 +15,6 @@ export default function SideArrow({ onClick }) {
     </button>
     );
     }
+    SideArrow.propTypes = {
+  onClick: PropTypes.func.isRequired,
+};

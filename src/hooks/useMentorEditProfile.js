@@ -1,11 +1,22 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
-import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
+
+/**
+ * Custom hook for mentor edit profile.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMentorEditProfile = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -28,6 +39,7 @@ const useMentorEditProfile = () => {
 
   // Pre-fill form with existing profile data
   useEffect(() => {
+
 
     const fetchProfile = async () => {
       try {
@@ -84,7 +96,7 @@ const useMentorEditProfile = () => {
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
 
-    if (!isLoggedIn()) {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }

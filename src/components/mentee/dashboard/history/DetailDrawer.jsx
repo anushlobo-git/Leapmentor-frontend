@@ -1,9 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } from "./constants";
 import StatusBadge from "./StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
+import PropTypes from "prop-types";
+import logger from "@utils/logger";
 
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
@@ -69,7 +75,7 @@ const AcceptedContent = ({ request, onClose, onPayClick }) => {
   </div>
 </div>
 
-      
+
       {message && (
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Your Message</p>
@@ -114,19 +120,22 @@ const OngoingContent = ({ request, onClose }) => {
   const handleDownload = async () => {
     try {
       setDownloading(true);
+      logger.info("Downloading invoice", { requestId: request._id });
       const res = await axiosInstance.get(
         `/invoices/${request._id}`,
         { responseType: "blob" }
       );
-      const url  = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      const url  = globalThis.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
       const link = document.createElement("a");
       link.href     = url;
       link.download = `Invoice-${request._id.slice(-6).toUpperCase()}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
+      logger.info("Invoice downloaded", { requestId: request._id });
     } catch (err) {
+      logger.warn("Failed to download invoice", { requestId: request._id, error: err?.message || err });
       alert("Failed to download invoice. Please try again.");
     } finally {
       setDownloading(false);
@@ -486,5 +495,115 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }) => {
     </>
   );
 };
+
+SlotRow.propTypes = {
+  slot: PropTypes.shape({
+    day: PropTypes.string,
+    date: PropTypes.string,
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+  isConfirmed: PropTypes.bool.isRequired,
+};
+
+PendingContent.propTypes = {
+  request: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+    requestedAt: PropTypes.string,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+AcceptedContent.propTypes = {
+  request: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onPayClick: PropTypes.func.isRequired,
+};
+
+OngoingContent.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    totalAmount: PropTypes.number.isRequired,
+    confirmedSlot: PropTypes.shape({
+      day: PropTypes.string,
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    sessionRate: PropTypes.number,
+    sessionCount: PropTypes.number,
+    paidAt: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+CompletedContent.propTypes = {
+  request: PropTypes.shape({
+    totalAmount: PropTypes.number.isRequired,
+    confirmedSlot: PropTypes.shape({
+      day: PropTypes.string,
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    completedAt: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+ReferredContent.propTypes = {
+  request: PropTypes.shape({
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    referredTo: PropTypes.shape({
+      _id: PropTypes.string,
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    referredToProfile: PropTypes.shape({
+      currentRole: PropTypes.string,
+      company: PropTypes.string,
+      industry: PropTypes.string,
+      bio: PropTypes.string,
+      hourlyRate: PropTypes.number,
+      avgRating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      yearsOfExperience: PropTypes.number,
+      profilePicture: PropTypes.string,
+      skills: PropTypes.arrayOf(PropTypes.string),
+    }),
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+RejectedContent.propTypes = {
+  request: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    message: PropTypes.string,
+    respondedAt: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+DetailDrawer.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string,
+    mentor: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    status: PropTypes.string,
+    requestedAt: PropTypes.string,
+    respondedAt: PropTypes.string,
+  }),
+  onClose: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onUpdateRequest: PropTypes.func.isRequired,
+};
+
 
 export default DetailDrawer;

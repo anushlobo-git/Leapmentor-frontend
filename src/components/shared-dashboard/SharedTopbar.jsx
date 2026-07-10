@@ -1,5 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/SharedTopbar.jsx
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import { IMAGES } from "../../constants/images";
 
 const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
   const navigate = useNavigate();
@@ -52,11 +58,11 @@ const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
         {/* Logo */}
         <div
           className="flex items-center gap-2 cursor-pointer"
-          onClick={onLogoClick} 
+          onClick={onLogoClick}
 
         >
           <img
-            src="/images/logo.webp"
+            src={IMAGES.LOGO}
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}
@@ -131,4 +137,9 @@ const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
   );
 };
 
+SharedTopbar.propTypes = {
+  viewerRole: PropTypes.oneOf(["mentor", "mentee"]),
+  onMenuToggle: PropTypes.func.isRequired,
+  onLogoClick: PropTypes.func.isRequired,
+};
 export default SharedTopbar;

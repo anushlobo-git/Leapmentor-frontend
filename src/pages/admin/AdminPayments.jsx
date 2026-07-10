@@ -1,9 +1,13 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminPayments.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
 import StatCard from "../../components/admin/common/StatCard";
-
+import PropTypes from "prop-types";
 
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -202,7 +206,7 @@ const AdminPayments = () => {
   const fetchStats = useCallback(async () => {
     try {
       const res = await adminAxiosInstance.get(`/admin/payments/stats`);
-      setStats(res.data.data || {});
+      setStats(res.data.data || res.data || {});
     } catch { showToast("Failed to load payment stats."); }
   }, []);
 
@@ -487,6 +491,35 @@ const AdminPayments = () => {
       </div>
     </AdminLayout>
   );
+};
+
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    type: PropTypes.string,
+    msg: PropTypes.string.isRequired,
+  }),
+};
+
+Avatar.propTypes = {
+  name: PropTypes.string,
+};
+
+TypeBadge.propTypes = {
+  type: PropTypes.string,
+};
+
+TxStatusBadge.propTypes = {
+  status: PropTypes.string,
+};
+
+RevenueChart.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      amount: PropTypes.number.isRequired,
+      label: PropTypes.string,
+    })
+  ),
+  loading: PropTypes.bool.isRequired,
 };
 
 export default AdminPayments;

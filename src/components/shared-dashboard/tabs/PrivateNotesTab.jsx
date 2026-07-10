@@ -1,7 +1,19 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/PrivateNotesTab.jsx
 import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import useNotes from "../../../hooks/useNotes";
 import usePrivateNotes from "../../../hooks/usePrivateNotes";
+import logger from "@utils/logger";
+import {
+  selectConnectId,
+  selectConnectStatus,
+} from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+import { validateDocumentFile } from "../../../utils/validation/schemas";
 
 // ── Helpers ───────────────────────────────────────────────────
 const formatFileSize = (bytes) => {
@@ -44,23 +56,14 @@ const UploadModal = ({ onUpload, uploading, onClose }) => {
   const [fileError, setFileError] = useState("");
   const fileInputRef = useRef(null);
 
-  const ALLOWED_TYPES = [
-    "application/pdf",
-    "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "text/plain",
-  ];
-
   const validateAndSet = (file) => {
     setFileError("");
     if (!file) return;
-    if (!ALLOWED_TYPES.includes(file.type)) { setFileError("File type not supported."); return; }
-    if (file.size > 10 * 1024 * 1024) { setFileError("File too large. Maximum size is 10MB."); return; }
+    const validation = validateDocumentFile(file);
+    if (!validation.valid) {
+      setFileError(validation.error);
+      return;
+    }
     setSelectedFile(file);
     setTitle(file.name.replace(/\.[^/.]+$/, ""));
   };
@@ -163,22 +166,26 @@ const PrivateFileCard = ({ note, onDelete }) => {
   const cfg = FILE_TYPE_CONFIG[note.fileType] || FILE_TYPE_CONFIG.other;
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this file?")) return;
+    if (!globalThis.confirm("Delete this file?")) return;
     setDeleting(true);
     await onDelete(note._id);
     setDeleting(false);
   };
 
   const handleDownload = async () => {
+    logger.info("Downloading private note file", { fileId: note._id, fileUrl: note.fileUrl });
     try {
       const response = await fetch(note.fileUrl);
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url; a.download = note.fileName || "download";
       document.body.appendChild(a); a.click(); a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch { window.open(note.fileUrl, "_blank"); }
+      globalThis.URL.revokeObjectURL(url);
+    } catch (err) {
+      logger.warn("Private note download failed, falling back to browser open", { fileId: note._id, fileUrl: note.fileUrl, error: err?.message });
+      globalThis.open(note.fileUrl, "_blank");
+    }
   };
 
   return (
@@ -251,7 +258,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }) => {
   };
 
   const downloadPdf = () => {
-    const win = window.open("", "_blank");
+    const win = globalThis.open("", "_blank");
     win.document.write(`
       <html><head><title>${title || "Note"}</title>
       <style>body{font-family:Georgia,serif;padding:48px;max-width:680px;margin:auto;color:#1e293b;line-height:1.7;}
@@ -391,7 +398,7 @@ const NotepadSection = ({ connectId, isCompleted }) => {
   };
 
   const handleDelete = async (noteId) => {
-    if (!window.confirm("Delete this note?")) return;
+    if (!globalThis.confirm("Delete this note?")) return;
     await deleteNote(noteId);
     setActiveNoteId(notes.find((n) => n._id !== noteId)?._id || null);
     setMobileView("list");
@@ -489,10 +496,11 @@ const NotepadSection = ({ connectId, isCompleted }) => {
 };
 
 // ── Private Files Section ─────────────────────────────────────
-const PrivateFilesSection = ({ connect }) => {
+const PrivateFilesSection = () => {
+  const connectId = useSelector(selectConnectId);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
   const [showUpload, setShowUpload] = useState(false);
-  const { privateNotes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
-  const isCompleted = connect?.status === "completed";
+  const { privateNotes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connectId);
 
   const handleUpload = async (file, title) => uploadNote(file, title, true);
   const handleDelete = async (noteId) => deleteNote(noteId, true);
@@ -591,9 +599,10 @@ const PrivateFilesSection = ({ connect }) => {
 };
 
 // ── Main Private Tab ──────────────────────────────────────────
-const PrivateNotesTab = ({ connect }) => {
+const PrivateNotesTab = () => {
+  const connectId = useSelector(selectConnectId);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
   const [privateSubTab, setPrivateSubTab] = useState("files");
-  const isCompleted = connect?.status === "completed";
 
   return (
     <div className="w-full">
@@ -634,10 +643,56 @@ const PrivateNotesTab = ({ connect }) => {
         </button>
       </div>
 
-      {privateSubTab === "files" && <PrivateFilesSection connect={connect} />}
-      {privateSubTab === "notepad" && <NotepadSection connectId={connect._id} isCompleted={isCompleted} />}
+      {privateSubTab === "files" && <PrivateFilesSection />}
+      {privateSubTab === "notepad" && <NotepadSection connectId={connectId} isCompleted={isCompleted} />}
     </div>
   );
+};
+
+UploadModal.propTypes = {
+  onUpload: PropTypes.func.isRequired,
+  uploading: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+PrivateFileCard.propTypes = {
+  note: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    fileType: PropTypes.string,
+    title: PropTypes.string,
+    fileName: PropTypes.string.isRequired,
+    fileUrl: PropTypes.string.isRequired,
+    fileSize: PropTypes.number,
+    createdAt: PropTypes.string,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+NotepadEditor.propTypes = {
+  note: PropTypes.shape({
+    _id: PropTypes.string,
+    title: PropTypes.string,
+    content: PropTypes.string,
+  }),
+  onSave: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+NoteListItem.propTypes = {
+  note: PropTypes.shape({
+    content: PropTypes.string,
+    title: PropTypes.string,
+    updatedAt: PropTypes.string,
+  }).isRequired,
+  isActive: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+NotepadSection.propTypes = {
+  connectId: PropTypes.string.isRequired,
+  isCompleted: PropTypes.bool.isRequired,
 };
 
 export default PrivateNotesTab;

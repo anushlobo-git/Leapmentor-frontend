@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const formatDate = (d) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
@@ -160,6 +165,17 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
       )}
     </div>
   );
+};
+
+TimelineTracker.propTypes = {
+  goal: PropTypes.shape({
+    _id: PropTypes.string,
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+  }),
+  viewerRole: PropTypes.string.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
 };
 
 export default TimelineTracker;

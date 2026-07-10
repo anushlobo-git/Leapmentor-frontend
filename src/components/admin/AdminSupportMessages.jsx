@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/AdminSupportMessages.jsx
 import { useEffect, useState } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
@@ -22,8 +26,8 @@ export default function AdminSupportMessages() {
     setError("");
     try {
       const res = await adminAxiosInstance.get(`/support/messages`);
-      
-      setMessages(res.data);
+
+      setMessages(res.data.data || res.data.messages || res.data || []);
     } catch (err) {
       setError(err.message);
     } finally {

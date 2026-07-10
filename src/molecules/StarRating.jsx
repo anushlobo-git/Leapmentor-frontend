@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import StarIcon from "@atoms/StarIcon";
+import PropTypes from "prop-types";
 
 export default function StarRating({ count = 5, total = 5 }) {
   return (
@@ -9,3 +14,8 @@ export default function StarRating({ count = 5, total = 5 }) {
     </div>
   );
 }
+
+StarRating.propTypes = {
+  count: PropTypes.number,
+  total: PropTypes.number,
+};

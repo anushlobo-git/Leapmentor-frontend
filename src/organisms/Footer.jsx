@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@atoms/Logo";

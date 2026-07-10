@@ -1,5 +1,11 @@
-import { createContext, useContext, useState, useEffect, useRef } from "react";
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
+import PropTypes from "prop-types";
+import logger from "@utils/logger";
 
 const AdminAuthContext = createContext(null);
 
@@ -30,29 +36,38 @@ export const AdminAuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = (adminData) => {
+  const login = useCallback((adminData) => {
     didLogout.current = false;
     setAdmin(adminData);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     didLogout.current = true; // set BEFORE the API call
     try {
       await adminAxiosInstance.post("/admin/auth/logout");
     } catch (err) {
-      console.error("Logout API failed", err);
+      logger.error("Admin logout failed", { error: err.message });
     } finally {
       setAdmin(null);
     }
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({ admin, loading, login, logout, isAuthenticated: !!admin, setAdmin }),
+    [admin, loading, login, logout],
+  );
 
   return (
     <AdminAuthContext.Provider
-      value={{ admin, loading, login, logout, isAuthenticated: !!admin, setAdmin }}
+      value={value}
     >
       {children}
     </AdminAuthContext.Provider>
   );
+};
+
+AdminAuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useAdminAuth = () => useContext(AdminAuthContext);

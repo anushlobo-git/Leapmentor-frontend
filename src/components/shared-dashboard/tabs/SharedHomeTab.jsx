@@ -1,7 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/SharedHomeTab.jsx
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
+import { selectConnect, setActiveTab } from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -24,7 +32,7 @@ const formatSlot = (slot) => {
   });
   const fmt = (t) => {
     const [h, m] = t.split(":");
-    const hour = parseInt(h);
+    const hour = Number.parseInt(h);
     const ampm = hour >= 12 ? "PM" : "AM";
     return `${hour % 12 || 12}:${m} ${ampm}`;
   };
@@ -37,6 +45,7 @@ const formatDate = (d) => d
 
 // ── Person Card ───────────────────────────────────────────────
 const PersonCard = ({ name, profile, roleLabel }) => {
+  const [imgError, setImgError] = useState(false);
   const picture = profile?.profilePicture || "";
   const role = profile?.currentRole || "";
   const company = profile?.company || "";
@@ -48,8 +57,9 @@ const PersonCard = ({ name, profile, roleLabel }) => {
         {roleLabel}
       </p>
       <div className="flex items-center gap-3">
-        {picture ? (
+        {picture && !imgError ? (
           <img src={picture} alt={name}
+            onError={() => setImgError(true)}
             className="w-12 h-12 rounded-[14px] object-cover border-2 border-slate-100 shrink-0" />
         ) : (
           <div
@@ -110,9 +120,19 @@ const QuickAction = ({ icon, label, onClick, color = "#2563eb" }) => (
 );
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
+const SharedHomeTab = ({ slots = [] }) => {
+  const dispatch = useDispatch();
+  const [, setSearchParams] = useSearchParams();
+  const connect = useSelector(selectConnect);
   const [showReport, setShowReport] = useState(false);
   const [reportDone, setReportDone] = useState(false);
+
+  const onTabChange = useCallback((tab) => {
+    dispatch(setActiveTab(tab));
+    setSearchParams({ tab }, { replace: true });
+  }, [dispatch, setSearchParams]);
+
+  if (!connect) return null;
 
   const {
     mentor, mentee,
@@ -282,7 +302,6 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
       {/* Report Modal */}
       {showReport && !reportDone && (
         <ReportModal
-          connect={connect}
           onClose={() => setShowReport(false)}
           onSuccess={() => { setShowReport(false); setReportDone(true); }}
         />
@@ -294,6 +313,35 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
       )}
     </>
   );
+};
+
+PersonCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  profile: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+  roleLabel: PropTypes.string.isRequired,
+};
+
+InfoRow.propTypes = {
+  icon: PropTypes.node.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  accent: PropTypes.string,
+};
+
+QuickAction.propTypes = {
+  icon: PropTypes.node.isRequired,
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  color: PropTypes.string,
+};
+
+SharedHomeTab.propTypes = {
+  slots: PropTypes.array,
 };
 
 export default SharedHomeTab;

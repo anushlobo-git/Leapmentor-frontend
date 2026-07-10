@@ -1,9 +1,24 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/SharedAdditionalSessionTab.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import useSessions from "../../../hooks/useSessions";
 import { payAdditionalEscrow } from "../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
+import logger from "@utils/logger";
+import {
+  selectConnect,
+  selectConnectId,
+  selectConnectStatus,
+  selectViewerRole,
+  setActiveTab,
+} from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
 
 
 const formatTime = (time) => {
@@ -158,7 +173,9 @@ const LockIcon = ({ size = 13 }) => (
   </svg>
 );
 
-const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSuccess }) => {
+const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }) => {
+  const connect = useSelector(selectConnect);
+  const connectId = useSelector(selectConnectId);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
@@ -176,17 +193,17 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
     const fetchWallet = async () => {
       try {
         setFetching(true);
-        const res = await axiosInstance.get(`/escrow/status/${connect._id}`);
+        const res = await axiosInstance.get(`/escrow/status/${connectId}`);
         setWalletBalance(res.data?.wallet?.balance ?? null);
         if (res.data?.commissionRate != null) setCommissionRate(res.data.commissionRate);
       } catch (err) {
-        console.warn("Could not fetch escrow status:", err.message);
+        logger.warn("Could not fetch escrow status:", { error: err.message });
       } finally {
         setFetching(false);
       }
     };
-    if (connect?._id) fetchWallet();
-  }, [connect?._id]);
+    if (connectId) fetchWallet();
+  }, [connectId]);
 
   const handlePay = async () => {
     setError("");
@@ -194,7 +211,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
     if (insufficient) { setError(`Need ${totalAmount - walletBalance} more tokens.`); return; }
     try {
       setLoading(true);
-      await payAdditionalEscrow({ connectRequestId: connect._id, sessionRate, slotId });
+      await payAdditionalEscrow({ connectRequestId: connectId, sessionRate, slotId });
       setShowSuccess(true);
     } catch (err) {
       setError(err?.response?.data?.message || "Payment failed. Please try again.");
@@ -284,7 +301,20 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
 };
 
 // ── Main Component ────────────────────────────────────────────
-const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
+const SharedAdditionalSessionTab = () => {
+  const dispatch = useDispatch();
+  const [, setSearchParams] = useSearchParams();
+  const connectId = useSelector(selectConnectId);
+  const connect = useSelector(selectConnect);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
+  const isMentor = useSelector(selectViewerRole) === "mentor";
+  const mentorName = connect?.mentor?.name || "Mentor";
+
+  const onTabChange = useCallback((tab) => {
+    dispatch(setActiveTab(tab));
+    setSearchParams({ tab }, { replace: true });
+  }, [dispatch, setSearchParams]);
+
   const [availability, setAvailability] = useState([]);
   const [sessionDurations, setSessionDurations] = useState([30, 60]);
   const [duration, setDuration] = useState(60);
@@ -298,19 +328,19 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
   const [successSlot, setSuccessSlot] = useState(null);
   const [paymentSlot, setPaymentSlot] = useState(null);
 
-  const { slots, additionalSlots, saving, addSlot } = useSessions(connect?._id);
+  const { slots, additionalSlots, saving, addSlot } = useSessions(connectId);
 
   const existingSlotDates = [...slots, ...(additionalSlots || [])].map((s) => ({
     date: s.date, startTime: s.startTime, endTime: s.endTime,
   }));
 
   const fetchAvailability = async (dur) => {
-    if (!connect?._id) return;
+    if (!connectId) return;
     try {
       setAvailLoading(true);
       setAvailError("");
       const res = await axiosInstance.get(
-        `/sessions/${connect._id}/mentor-availability?duration=${dur}`
+        `/sessions/${connectId}/mentor-availability?duration=${dur}`
       );
       setAvailability(res.data.slots || []);
       if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);
@@ -323,17 +353,13 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
 
   useEffect(() => {
     fetchAvailability(duration);
-  }, [connect?._id]);
+  }, [connectId]);
 
   const handleDurationChange = (dur) => {
     setDuration(dur);
     setActiveDayIndex(0);
     fetchAvailability(dur);
   };
-
-  const isMentor = (connect?.viewerRole || "mentee") === "mentor";
-  const mentorName = connect?.mentor?.name || "Mentor";
-  const isCompleted = connect?.status === "completed";
 
   const availableGroups = availability.filter((g) =>
     g.slots.some((s) => !existingSlotDates.some((e) => e.date === g.date && e.startTime === s.startTime))
@@ -371,7 +397,7 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
     }
   };
 
-  if (!connect?._id) return null;
+  if (!connectId) return null;
 
   if (successSlot) {
     return (
@@ -554,7 +580,6 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
       {/* Payment modal */}
       {paymentSlot && (
         <AdditionalSessionPaymentModal
-          connect={connect}
           slot={paymentSlot.slot}
           slotId={paymentSlot.slotId}
           onClose={() => setPaymentSlot(null)}
@@ -564,5 +589,47 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
     </div>
   );
 };
+
+const slotShape = PropTypes.shape({
+  date: PropTypes.string,
+  day: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+});
+
+SlotPill.propTypes = {
+  slot: slotShape.isRequired,
+  group: PropTypes.shape({ date: PropTypes.string }).isRequired,
+  onToggle: PropTypes.func.isRequired,
+  isBooked: PropTypes.bool.isRequired,
+};
+
+ConfirmModal.propTypes = {
+  slot: slotShape.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+SuccessScreen.propTypes = {
+  slot: slotShape.isRequired,
+  onDone: PropTypes.func.isRequired,
+};
+
+TokenIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+LockIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+AdditionalSessionPaymentModal.propTypes = {
+  slot: slotShape.isRequired,
+  slotId: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+};
+
 
 export default SharedAdditionalSessionTab;

@@ -1,5 +1,10 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/goals/MilestoneList.jsx
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const isOverdue = (dueDate) => dueDate && new Date(dueDate) < new Date();
 const formatDate = (d) =>
@@ -285,6 +290,45 @@ const MilestoneList = ({ goal, milestones, saving, onAdd, onToggle, onDelete }) 
       )}
     </>
   );
+};
+
+const milestoneShape = PropTypes.shape({
+  _id: PropTypes.string,
+  title: PropTypes.string,
+  isCompleted: PropTypes.bool,
+  dueDate: PropTypes.string,
+});
+
+MilestoneProgress.propTypes = {
+  completed: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+};
+
+AddMilestoneForm.propTypes = {
+  onAdd: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+DeleteMilestoneModal.propTypes = {
+  milestone: milestoneShape.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
+
+MilestoneRow.propTypes = {
+  milestone: milestoneShape.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onRequestDelete: PropTypes.func.isRequired,
+};
+
+MilestoneList.propTypes = {
+  goal: PropTypes.shape({ _id: PropTypes.string }).isRequired,
+  milestones: PropTypes.arrayOf(milestoneShape).isRequired,
+  saving: PropTypes.bool.isRequired,
+  onAdd: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default MilestoneList;

@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/MentorGrid.jsx
 import MentorCard from "./MentorCard";
 import MentorCardSkeleton from "./MentorCardSkeleton";
+import PropTypes from "prop-types";
 
 // ✅ Added onViewProfile prop — passed down to each MentorCard
 const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, totalCount, onLoadMore, onViewProfile }) => {
@@ -92,6 +97,17 @@ const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, total
       )}
     </div>
   );
+};
+
+MentorGrid.propTypes = {
+  mentors: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+  loadingMore: PropTypes.bool.isRequired,
+  hasMore: PropTypes.bool.isRequired,
+  hasSearched: PropTypes.bool.isRequired,
+  totalCount: PropTypes.number.isRequired,
+  onLoadMore: PropTypes.func.isRequired,
+  onViewProfile: PropTypes.func.isRequired,
 };
 
 export default MentorGrid;

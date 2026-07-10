@@ -1,6 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
 import axiosInstance from "../utils/axiosInstance";
+import logger from "@utils/logger";
+/**
+ * Custom hook for slot lock.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useSlotLock = (mentorId) => {
   const lockedKeys = useRef(new Set()); // tracks keys this session locked
@@ -31,7 +40,7 @@ const useSlotLock = (mentorId) => {
       lockedKeys.current.delete(`${date}-${startTime}`);
     } catch (err) {
       // Silently fail — lock will expire via TTL anyway
-      console.warn("unlock failed silently:", err?.message);
+      logger.warn("unlock failed silently:", { error: err.message });
     }
   }, [mentorId]);
 
@@ -40,10 +49,10 @@ const useSlotLock = (mentorId) => {
   // ─────────────────────────────────────────────
   const unlockAll = useCallback(async () => {
     try {
-      await axiosInstance.post("/slot-locks/unlock-all", { mentorId }); 
+      await axiosInstance.post("/slot-locks/unlock-all", { mentorId });
       lockedKeys.current.clear();
     } catch (err) {
-      console.warn("unlock-all failed silently:", err?.message);
+      logger.warn("unlock-all failed silently:", { error: err.message });
     }
   }, [mentorId]);
 

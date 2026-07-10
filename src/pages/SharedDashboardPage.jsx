@@ -1,55 +1,66 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/SharedDashboardPage.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
 import SharedDashboardLayout from "../components/shared-dashboard/SharedDashboardLayout";
-import { isLoggedIn } from "@utils/cookies";
+import {
+  setConnect,
+  setActiveTab,
+  resetSharedDashboard,
+} from "../store/slices/sharedDashboardSlice";
+import { HTTP_STATUS } from "../constants/httpStatus";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
 
 const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
 
 const SharedDashboardPage = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const { connectRequestId } = useParams();
-  const navigate             = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
 
-  const [connect, setConnect] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [error, setError] = useState(null);
 
-  // ── Read initial tab from URL, fallback to "overview" ──
-  const tabFromUrl = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(
-    VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "overview"
-  );
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    dispatch(
+      setActiveTab(VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "overview"),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync URL tab once on mount
+  }, [dispatch]);
 
-  // ── When tab changes, sync to URL ──
-  const handleSetActiveTab = useCallback((tab) => {
-    setActiveTab(tab);
-    setSearchParams({ tab }, { replace: true });
-  }, [setSearchParams]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetSharedDashboard());
+    };
+  }, [dispatch]);
 
   const fetchConnect = useCallback(async () => {
     try {
-      if (!isLoggedIn()) { navigate("/login"); return; }
+      if (!isAuthenticated) { navigate("/login"); return; }
       const res = await axiosInstance.get(
-        `/connect-requests/${connectRequestId}/detail`
+        `/connect-requests/${connectRequestId}/detail`,
       );
-      setConnect(res.data.connect);
+      dispatch(setConnect(res.data.connect));
     } catch (err) {
       const status = err?.response?.status;
-      if (status === 401) return navigate("/login");
-      if (status === 403) return navigate(-1);
+      if (status === HTTP_STATUS.UNAUTHORIZED) return navigate("/login");
+      if (status === HTTP_STATUS.FORBIDDEN) return navigate(-1);
       setError(err?.response?.data?.message || "Failed to load session.");
     } finally {
       setLoading(false);
     }
-  }, [connectRequestId, navigate]);
+  }, [connectRequestId, navigate, dispatch, isAuthenticated]);
 
   useEffect(() => { fetchConnect(); }, [fetchConnect]);
-
-  const handleAllComplete = useCallback(() => {
-    fetchConnect();
-  }, [fetchConnect]);
 
   if (loading) {
     return (
@@ -81,14 +92,7 @@ const SharedDashboardPage = () => {
     );
   }
 
-  return (
-    <SharedDashboardLayout
-      connect={connect}
-      onAllComplete={handleAllComplete}
-      activeTab={activeTab}
-      setActiveTab={handleSetActiveTab}
-    />
-  );
+  return <SharedDashboardLayout />;
 };
 
 export default SharedDashboardPage;

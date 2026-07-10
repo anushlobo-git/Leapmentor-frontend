@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/auth/AuthIcons.jsx
+import { IMAGES } from "../../constants/images";
 
 export const LinkedInIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="#0A66C2">
@@ -23,7 +28,7 @@ export const GoogleIcon = () => (
 
 export const LeapMentorLogo = () => (
   <img
-    src="/images/logo.webp"
+    src={IMAGES.LOGO}
     alt="LeapMentor logo"
     className="h-8 w-8"
     width={32}

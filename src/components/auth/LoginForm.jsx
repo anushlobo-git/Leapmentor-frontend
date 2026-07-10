@@ -1,7 +1,13 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/auth/LoginForm.jsx
 import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axiosInstance from "@utils/axiosInstance";
 import { setUser } from "../../store/slices/authSlice";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
@@ -9,7 +15,11 @@ import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import FullScreenLoader from "../FullScreenLoader";
-import { setAuthRole } from "@utils/cookies"; 
+import { setAuthRole } from "@utils/cookies";
+import PropTypes from "prop-types";
+import { loginSchema } from "@utils/validation/schemas";
+import logger from "@utils/logger";
+import { HTTP_STATUS } from "../../constants/httpStatus";
 
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -19,7 +29,19 @@ const LoginForm = ({ placeholder, registerPath }) => {
   const dispatch    = useDispatch();
   const googleBtnRef = useRef(null);
 
-  const [form,        setForm]        = useState({ email: "", password: "" });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onTouched",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
   const [showPw,      setShowPw]      = useState(false);
   const [loading,     setLoading]     = useState(false);
   const [msg,         setMsg]         = useState({ type: "", text: "" });
@@ -31,10 +53,10 @@ const LoginForm = ({ placeholder, registerPath }) => {
   dispatch(setUser({ accessToken, user }));
 
   const roles = user?.roles || [];
-  const primaryRole = roles.includes("mentor") 
-    ? "mentor" 
-    : roles.includes("mentee") 
-    ? "mentee" 
+  const primaryRole = roles.includes("mentor")
+    ? "mentor"
+    : roles.includes("mentee")
+    ? "mentee"
     : null;
 
   if (primaryRole) {
@@ -62,27 +84,27 @@ const LoginForm = ({ placeholder, registerPath }) => {
   const handleLinkedIn = () => {
     // On login we don't know the role yet — backend will resolve it
     // via the existing OAuthAccount → user lookup in socialAuthUser()
-    window.location.href = `${API_BASE}/auth/linkedin?termsAccepted=true`;
+    logger.info("Redirecting to LinkedIn SSO (login)", { url: `${API_BASE}/auth/linkedin?termsAccepted=true` });
+    globalThis.location.href = `${API_BASE}/auth/linkedin?termsAccepted=true`;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setMsg({ type: "", text: "" });
     try {
       setLoading(true);
       const res = await axiosInstance.post(`/auth/login`, {
-        email:    form.email.trim(),
-        password: form.password },
+        email:    data.email.trim(),
+        password: data.password },
     );
 
       handlePostAuth( res.data?.user, res.data?.accessToken);
     } catch (err) {
       const status = err?.response?.status;
-      const data   = err?.response?.data;
-      const apiMsg = data?.message || err?.message || "Invalid credentials";
-      if (status === 403 && data?.isEmailVerified === false) {
+      const errData = err?.response?.data;
+      const apiMsg = errData?.message || err?.message || "Invalid credentials";
+      if (status === HTTP_STATUS.FORBIDDEN && errData?.isEmailVerified === false) {
         setMsg({ type: "error", text: "Please verify your email first. Redirecting…" });
-        setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(data.email)}`), 1000);
+        setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(errData.email)}`), 1000);
         return;
       }
       setMsg({ type: "error", text: apiMsg });
@@ -109,24 +131,33 @@ const LoginForm = ({ placeholder, registerPath }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email Address</label>
           <input
-            type="email" name="email" value={form.email}
-            onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-            placeholder={placeholder || "you@example.com"} required
+            {...register("email")}
+            type="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            placeholder={placeholder || "you@example.com"}
             className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150 placeholder:text-slate-400"
           />
+          {errors.email && (
+            <span id="email-error" role="alert" className="text-red-600 text-xs mt-1">
+              {errors.email.message}
+            </span>
+          )}
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Password</label>
           <div className="relative">
             <input
-              type={showPw ? "text" : "password"} name="password" value={form.password}
-              onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-              placeholder="••••••••" required
+              {...register("password")}
+              type={showPw ? "text" : "password"}
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
+              placeholder="••••••••"
               className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
             />
             <button type="button" onClick={() => setShowPw((p) => !p)}
@@ -146,6 +177,11 @@ const LoginForm = ({ placeholder, registerPath }) => {
               )}
             </button>
           </div>
+          {errors.password && (
+            <span id="password-error" role="alert" className="text-red-600 text-xs mt-1">
+              {errors.password.message}
+            </span>
+          )}
           <div className="text-right mt-1.5">
             <span onClick={() => navigate("/forgot-password")}
               className="text-xs text-blue-900 font-semibold cursor-pointer hover:underline">
@@ -154,9 +190,9 @@ const LoginForm = ({ placeholder, registerPath }) => {
           </div>
         </div>
 
-        <button type="submit" disabled={loading}
+        <button type="submit" disabled={!isValid || isSubmitting || loading}
           className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-blue-200 flex items-center justify-center gap-2 mt-2">
-          {loading ? (
+          {loading || isSubmitting ? (
             <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />Logging in…</>
           ) : (
             <>Login to Dashboard
@@ -189,6 +225,10 @@ const LoginForm = ({ placeholder, registerPath }) => {
       </p>
     </div>
   );
+};
+LoginForm.propTypes = {
+  placeholder: PropTypes.any.isRequired,
+  registerPath: PropTypes.any.isRequired,
 };
 
 export default LoginForm;

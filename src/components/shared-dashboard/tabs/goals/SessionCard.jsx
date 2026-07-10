@@ -1,8 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
-import FeedbackModal from "../FeedbackModal";
-
+import PropTypes from "prop-types";
 
 
 const formatSlotDate = (slot) => {
@@ -567,8 +570,15 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
   const handleClick = async () => {
     setLocalSaving(true);
     const result = await onMarkComplete(slotIndex);
+     console.log("[DEBUG] mark-complete result:", result);
+    console.log("[DEBUG] mark-complete result:", result);
     setLocalSaving(false);
-    if (result?.success && onSessionComplete) onSessionComplete();
+    if (result?.success && onSessionComplete) {
+      console.log("[DEBUG] calling onSessionComplete");
+      onSessionComplete();
+    } else {
+      console.log("[DEBUG] NOT calling onSessionComplete — success:", result?.success, "handler present:", !!onSessionComplete);
+    }
   };
 
   return (
@@ -633,21 +643,16 @@ const SessionCard = ({
   savingSlots,
   onSetLink,
   onMarkComplete,
+  onSessionComplete,
   onCancelSlot,
   onRescheduleSlot,
   allSlots,
   connectRequestId,
-  connect,
 }) => {
   const saving = [...savingSlots].includes(slotIndex);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
-  const [showSessionFeedback, setShowSessionFeedback] = useState(false);
-
-  const onSessionComplete = () => {
-    setTimeout(() => setShowSessionFeedback(true), 1200);
-  };
 
   const cancelled = slot?.status === "cancelled";
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
@@ -830,16 +835,106 @@ const SessionCard = ({
           saving={saving}
         />
       )}
-
-      {showSessionFeedback && (
-        <FeedbackModal
-          connect={connect}
-          slotIndex={slotIndex}
-          onClose={() => setShowSessionFeedback(false)}
-        />
-      )}
     </>
   );
+};
+
+const slotShape = PropTypes.shape({
+  date: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+  status: PropTypes.string,
+  meetingLink: PropTypes.string,
+  menteeMarked: PropTypes.bool,
+  mentorMarked: PropTypes.bool,
+  isRescheduled: PropTypes.bool,
+  cancelledBy: PropTypes.string,
+  cancellationReason: PropTypes.string,
+});
+
+CancelModal.propTypes = {
+  slot: slotShape.isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+SlotPill.propTypes = {
+  slot: PropTypes.shape({
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+  group: PropTypes.shape({
+    day: PropTypes.string,
+    date: PropTypes.string,
+  }).isRequired,
+  selected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  booked: PropTypes.bool.isRequired,
+};
+
+SlotTabPicker.propTypes = {
+  availability: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string,
+      slots: PropTypes.arrayOf(
+        PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string })
+      ),
+    })
+  ).isRequired,
+  selectedSlot: PropTypes.shape({
+    date: PropTypes.string,
+    startTime: PropTypes.string,
+  }),
+  onSelect: PropTypes.func.isRequired,
+  bookedSlots: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    })
+  ).isRequired,
+};
+
+RescheduleModal.propTypes = {
+  slotIndex: PropTypes.number.isRequired,
+  connectRequestId: PropTypes.string.isRequired,
+  existingSlots: PropTypes.array.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+MeetingLinkSection.propTypes = {
+  slot: slotShape.isRequired,
+  viewerRole: PropTypes.string.isRequired,
+  onSetLink: PropTypes.func.isRequired,
+  saving: PropTypes.bool.isRequired,
+};
+
+CompletionSection.propTypes = {
+  slot: slotShape.isRequired,
+  viewerRole: PropTypes.string.isRequired,
+  otherName: PropTypes.string.isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  onMarkComplete: PropTypes.func.isRequired,
+  onSessionComplete: PropTypes.func,
+};
+
+SessionCard.propTypes = {
+  slot: slotShape.isRequired,
+  slotIndex: PropTypes.number.isRequired,
+  viewerRole: PropTypes.string.isRequired,
+  otherName: PropTypes.string.isRequired,
+  savingSlots: PropTypes.oneOfType([PropTypes.array, PropTypes.instanceOf(Set)]).isRequired,
+  onSetLink: PropTypes.func.isRequired,
+  onMarkComplete: PropTypes.func.isRequired,
+  onSessionComplete: PropTypes.func,
+  onCancelSlot: PropTypes.func.isRequired,
+  onRescheduleSlot: PropTypes.func.isRequired,
+  allSlots: PropTypes.array.isRequired,
+  connectRequestId: PropTypes.string.isRequired,
 };
 
 export default SessionCard;

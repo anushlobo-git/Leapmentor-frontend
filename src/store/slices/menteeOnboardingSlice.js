@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/store/slices/menteeOnboardingSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@utils/axiosInstance";
@@ -22,6 +26,11 @@ const menteeOnboardingSlice = createSlice({
   name: "menteeOnboarding",
   initialState: { loading: false, error: null, successMsg: null },
   reducers: {
+    /**
+     * Clears onboarding success and error messages.
+     * @param {Object} state - Slice state.
+     * @returns {void}
+     */
     clearOnboardingMessages(state) {
       state.error = null;
       state.successMsg = null;

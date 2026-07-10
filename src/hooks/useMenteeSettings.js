@@ -1,6 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMenteeSettings.js
 import { useState, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import { mapMenteeSettings, mapWallet, mapUserPasswordInfo } from "@mappers/settingsMapper";
+/**
+ * Custom hook for mentee settings.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMenteeSettings = (initialProfile) => {
   const [fetching, setFetching]   = useState(!initialProfile);
@@ -25,8 +34,9 @@ const useMenteeSettings = (initialProfile) => {
   // ── Pre-fill from profile ─────────────────────────────────
   useEffect(() => {
     if (initialProfile) {
-      setEmailNotifications(initialProfile.emailNotifications ?? true);
-      setMarketingPreferences(initialProfile.marketingPreferences ?? false);
+      const mapped = mapMenteeSettings(initialProfile);
+      setEmailNotifications(mapped.emailNotifications);
+      setMarketingPreferences(mapped.marketingPreferences);
       setFetching(false);
       return;
     }
@@ -35,9 +45,9 @@ const useMenteeSettings = (initialProfile) => {
       try {
         setFetching(true);
         const res = await axiosInstance.get("/mentee-profile/me");
-        const p = res.data;
-        setEmailNotifications(p.emailNotifications ?? true);
-        setMarketingPreferences(p.marketingPreferences ?? false);
+        const mapped = mapMenteeSettings(res.data);
+        setEmailNotifications(mapped.emailNotifications);
+        setMarketingPreferences(mapped.marketingPreferences);
       } catch (err) { // eslint-disable-line no-unused-vars
         setMsg({ type: "error", text: "Failed to load settings." });
       } finally {
@@ -54,7 +64,8 @@ const useMenteeSettings = (initialProfile) => {
     const fetchUser = async () => {
       try {
         const res = await axiosInstance.get("/users/me");
-        setPasswordChangedAt(res.data.passwordChangedAt || null);
+        const mapped = mapUserPasswordInfo(res.data);
+        setPasswordChangedAt(mapped.passwordChangedAt);
       } catch (err) { // eslint-disable-line no-unused-vars
         // silent fail — not critical
       }
@@ -68,8 +79,9 @@ useEffect(() => {
   const fetchWallet = async () => {
     try {
       const res = await axiosInstance.get("/escrow/wallet");
-      setBalance(res.data.balance);
-      setEscrow(res.data.escrow);
+      const mapped = mapWallet(res.data);
+      setBalance(mapped.balance);
+      setEscrow(mapped.escrow);
     } catch (err) { // eslint-disable-line no-unused-vars
       // silent fail
     }
@@ -91,8 +103,8 @@ useEffect(() => {
       setSaving(false);
     }
   };
-  
-   //not sure but not used anywhere 
+
+   //not sure but not used anywhere
   // ── Change password ───────────────────────────────────────
   const handleChangePassword = async () => {
     setPwMsg({ type: "", text: "" });

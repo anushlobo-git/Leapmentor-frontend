@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/LoginMentee.jsx
 import LoginLeftPanel from "../components/auth/LoginLeftPanel";
 import LoginForm from "../components/auth/LoginForm";

@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/verification/VerificationInstructionsModal.jsx
 
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const steps = [
   {
@@ -178,6 +183,9 @@ const VerificationInstructionsModal = ({ onClose }) => {
       </div>
     </div>
   );
+};
+VerificationInstructionsModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
 };
 
 export default VerificationInstructionsModal;

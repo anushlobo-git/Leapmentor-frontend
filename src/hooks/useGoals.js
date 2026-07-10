@@ -1,7 +1,17 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useGoals.js
 import { useToast } from "../context/ToastContext";
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "../utils/axiosInstance";
+import logger from "../utils/logger";
+import { mapGoal, mapMilestone } from "@mappers/goalsMapper";
+/**
+ * Custom hook for goals.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useGoals = (connectRequestId) => {
   const [goal, setGoal] = useState(null);
@@ -30,9 +40,10 @@ const useGoals = (connectRequestId) => {
     setError(null);
     try {
       const { data } = await axiosInstance.get(`/goals/${connectRequestId}`);
-      setGoal(data.goal);
-      setMilestones(data.milestones || []);
+      setGoal(mapGoal(data.goal));
+      setMilestones(Array.isArray(data.milestones) ? data.milestones.map(mapMilestone) : []);
     } catch (err) {
+      logger.warn("Failed to fetch goal details", { connectRequestId, error: err?.message });
       setError(err.message);
     } finally {
       setLoading(false);
@@ -53,12 +64,13 @@ const useGoals = (connectRequestId) => {
         pendingOwnGoalCreate.current -= 1;
         return;
       }
-      setGoal(goal);
+      const mappedGoal = mapGoal(goal);
+      setGoal(mappedGoal);
       setMilestones([]);
       showToastRef.current({
         type: "success",
         title: "Goal Set!",
-        message: `"${goal.title}"`,
+        message: `"${mappedGoal.title}"`,
       });
     };
 
@@ -67,11 +79,12 @@ const useGoals = (connectRequestId) => {
         pendingOwnGoalUpdate.current -= 1;
         return;
       }
-      setGoal(goal);
+      const mappedGoal = mapGoal(goal);
+      setGoal(mappedGoal);
       showToastRef.current({
         type: "info",
         title: "Goal Updated",
-        message: `"${goal.title}"`,
+        message: `"${mappedGoal.title}"`,
       });
     };
 
@@ -80,11 +93,12 @@ const useGoals = (connectRequestId) => {
         pendingOwnMilestoneAdd.current -= 1;
         return;
       }
-      setMilestones((prev) => [...prev, milestone]);
+      const mappedMilestone = mapMilestone(milestone);
+      setMilestones((prev) => [...prev, mappedMilestone]);
       showToastRef.current({
         type: "info",
         title: "Milestone Added",
-        message: `"${milestone.title}"`,
+        message: `"${mappedMilestone.title}"`,
       });
     };
 
@@ -93,15 +107,16 @@ const useGoals = (connectRequestId) => {
         pendingOwnMilestoneToggle.current.delete(milestone._id);
         return;
       }
+      const mappedMilestone = mapMilestone(milestone);
       setMilestones((prev) =>
-        prev.map((m) => (m._id === milestone._id ? milestone : m)),
+        prev.map((m) => (m._id === milestone._id ? mappedMilestone : m)),
       );
       showToastRef.current({
-        type: milestone.isCompleted ? "success" : "warning",
-        title: milestone.isCompleted
+        type: mappedMilestone.isCompleted ? "success" : "warning",
+        title: mappedMilestone.isCompleted
           ? "Milestone Completed!"
           : "Milestone Reopened",
-        message: `"${milestone.title}"`,
+        message: `"${mappedMilestone.title}"`,
       });
     };
 
@@ -120,24 +135,25 @@ const useGoals = (connectRequestId) => {
 
     // ✅ Use shared socket, wait for it
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        window.__leapSocket.emit("join_room", { connectRequestId });
-        window.__leapSocket.on("goal_created", handleGoalCreated);
-        window.__leapSocket.on("goal_updated", handleGoalUpdated);
-        window.__leapSocket.on("milestone_added", handleMilestoneAdded);
-        window.__leapSocket.on("milestone_updated", handleMilestoneUpdated);
-        window.__leapSocket.on("milestone_deleted", handleMilestoneDeleted);
+        logger.info("Goal socket connected, joining room", { connectRequestId });
+        globalThis.__leapSocket.emit("join_room", { connectRequestId });
+        globalThis.__leapSocket.on("goal_created", handleGoalCreated);
+        globalThis.__leapSocket.on("goal_updated", handleGoalUpdated);
+        globalThis.__leapSocket.on("milestone_added", handleMilestoneAdded);
+        globalThis.__leapSocket.on("milestone_updated", handleMilestoneUpdated);
+        globalThis.__leapSocket.on("milestone_deleted", handleMilestoneDeleted);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket?.off("goal_created", handleGoalCreated);
-      window.__leapSocket?.off("goal_updated", handleGoalUpdated);
-      window.__leapSocket?.off("milestone_added", handleMilestoneAdded);
-      window.__leapSocket?.off("milestone_updated", handleMilestoneUpdated);
-      window.__leapSocket?.off("milestone_deleted", handleMilestoneDeleted);
+      globalThis.__leapSocket?.off("goal_created", handleGoalCreated);
+      globalThis.__leapSocket?.off("goal_updated", handleGoalUpdated);
+      globalThis.__leapSocket?.off("milestone_added", handleMilestoneAdded);
+      globalThis.__leapSocket?.off("milestone_updated", handleMilestoneUpdated);
+      globalThis.__leapSocket?.off("milestone_deleted", handleMilestoneDeleted);
     };
   }, [connectRequestId]);
 
@@ -160,12 +176,13 @@ const useGoals = (connectRequestId) => {
           startDate,
           endDate,
         });
-        setGoal(data.goal);
+        setGoal(mapGoal(data.goal));
         setMilestones([]);
         return { success: true };
       } catch (err) {
-        setError(err.message);
-        return { success: false, error: err.message };
+        const message = err.response?.data?.message || err.message;
+        setError(message);
+        return { success: false, error: message };
       } finally {
         setSaving(false);
       }
@@ -180,7 +197,7 @@ const useGoals = (connectRequestId) => {
     pendingOwnGoalUpdate.current += 1;
     try {
       const { data } = await axiosInstance.patch(`/goals/${goalId}`, fields);
-      setGoal(data.goal);
+      setGoal(mapGoal(data.goal));
       return { success: true };
     } catch (err) {
       setError(err.message);
@@ -200,7 +217,7 @@ const useGoals = (connectRequestId) => {
        title,
        dueDate,
      });
-     setMilestones((prev) => [...prev, data.milestone]);
+     setMilestones((prev) => [...prev, mapMilestone(data.milestone)]);
       return { success: true };
     } catch (err) {
       setError(err.message);
@@ -222,7 +239,7 @@ const useGoals = (connectRequestId) => {
         { isCompleted },
       );
       setMilestones((prev) =>
-        prev.map((m) => (m._id === milestoneId ? data.milestone : m)),
+        prev.map((m) => (m._id === milestoneId ? mapMilestone(data.milestone) : m)),
       );
     } catch (err) {
       pendingOwnMilestoneToggle.current.delete(milestoneId);

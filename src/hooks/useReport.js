@@ -1,7 +1,16 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useReport.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import logger from "@utils/logger";
+import { mapFeedback } from "@mappers/reportMapper";
+/**
+ * Custom hook for report.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useReport = (connectRequestId, refreshKey = 0) => {
   const [myFeedback, setMyFeedback] = useState(null);
@@ -17,8 +26,8 @@ const useReport = (connectRequestId, refreshKey = 0) => {
       setLoading(true);
       setError(null);
       const res = await axiosInstance.get(`/feedback/${connectRequestId}`);
-      setMyFeedback(res.data.myFeedback || null);
-      setTheirFeedback(res.data.theirFeedback || null);
+      setMyFeedback(res.data.myFeedback ? mapFeedback(res.data.myFeedback) : null);
+      setTheirFeedback(res.data.theirFeedback ? mapFeedback(res.data.theirFeedback) : null);
       setSessionStatus(res.data.sessionStatus || null);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load feedback.");
@@ -31,7 +40,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
 
   // slotIndex now accepted and sent to backend
   const submitFeedback = useCallback(async (rating, comment, slotIndex) => {
-    logger.info("Sending feedback", { connectRequestId, rating, slotIndex });
+    logger.info("Sending feedback", { connectRequestId, rating,comment , slotIndex });
     if (!connectRequestId) return { success: false };
     try {
       setSubmitting(true);
@@ -42,7 +51,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
         comment,
         slotIndex
       });
-      setMyFeedback(res.data.feedback);
+      setMyFeedback(mapFeedback(res.data.feedback));
       return { success: true };
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to submit feedback.";

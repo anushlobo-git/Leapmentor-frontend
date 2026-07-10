@@ -1,5 +1,10 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/onboarding/MentorshipPrefsSection.jsx
 import { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 
 const COMM_OPTIONS = [
   { value: "Chat",       label: "Chat",       icon: "💬" },
@@ -178,6 +183,23 @@ const MentorshipPrefsSection = ({ form, handleChange }) => {
       </div>
     </div>
   );
+};
+
+MentorshipPrefsSection.propTypes = {
+  form: PropTypes.shape({
+    communicationPreferences: PropTypes.arrayOf(
+      PropTypes.oneOf(["Chat", "Video Call", "Email", "Phone Call", "In-Person"])
+    ),
+    languages: PropTypes.arrayOf(
+      PropTypes.oneOf([
+        "English", "Hindi", "Spanish", "French", "German",
+        "Mandarin", "Arabic", "Portuguese", "Japanese", "Korean",
+        "Italian", "Russian", "Dutch", "Turkish", "Swedish",
+        "Polish", "Indonesian", "Bengali", "Tamil", "Urdu",
+      ])
+    ),
+  }).isRequired,
+  handleChange: PropTypes.func.isRequired,
 };
 
 export default MentorshipPrefsSection;

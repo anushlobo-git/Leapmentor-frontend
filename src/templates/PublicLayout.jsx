@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // templates/PublicLayout.jsx
 import Navbar from "@organisms/Navbar";
 import Footer from "@organisms/Footer";
+import PropTypes from "prop-types";
 
 export default function PublicLayout({ children }) {
   return (
@@ -11,3 +16,6 @@ export default function PublicLayout({ children }) {
     </div>
   );
 }
+PublicLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};

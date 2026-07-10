@@ -1,11 +1,13 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/LeapBuddy.jsx
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 
 import { useState, useRef, useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance"; // Use the configured axios instance with interceptors
-
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import PropTypes from "prop-types";
 
 const INDIGO = "#4f46e5";
 const INDIGO_LIGHT = "#eef2ff";
@@ -77,7 +79,7 @@ INSTRUCTIONS:
   * Refund requests or payment disputes
   * Account access, login issues or account deletion
   * Reporting a mentor or mentee for any reason
-  * Inappropriate behavior or harassment complaints  
+  * Inappropriate behavior or harassment complaints
   * Bug reports or technical issues not resolved by basic troubleshooting
   * Any request that requires looking up a specific account or transaction
 - Never show [ESCALATE] to the user — it is an internal signal only.
@@ -465,3 +467,8 @@ const submitTicket = async (idx) => {
     </>
   );
 }
+LeapBuddy.propTypes = {
+  role: PropTypes.string,
+  user: PropTypes.shape({ email: PropTypes.any, name: PropTypes.any }),
+  profile: PropTypes.shape({ company: PropTypes.any, currentRole: PropTypes.any, interestedFields: PropTypes.any, skills: PropTypes.any }),
+};

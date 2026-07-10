@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/SharedSidebar.jsx
 import { useEffect } from "react";
 import {
@@ -8,6 +12,10 @@ import {
   CalendarPlus,
   X,
 } from "lucide-react";
+import PropTypes from "prop-types";
+
+const VIEWER_ROLES = ["mentor", "mentee"];
+const NAV_KEYS = ["overview", "chat", "goals", "notes", "addSession"];
 
 const getNavItems = (viewerRole) => [
   { key: "overview",   label: "Overview",    icon: LayoutDashboard },
@@ -179,6 +187,21 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole })
       </aside>
     </>
   );
+};
+
+SidebarContent.propTypes = {
+  activeTab: PropTypes.oneOf(NAV_KEYS).isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  viewerRole: PropTypes.oneOf(VIEWER_ROLES),
+};
+
+SharedSidebar.propTypes = {
+  activeTab: PropTypes.oneOf(NAV_KEYS).isRequired,
+  setActiveTab: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  viewerRole: PropTypes.oneOf(VIEWER_ROLES),
 };
 
 export default SharedSidebar;

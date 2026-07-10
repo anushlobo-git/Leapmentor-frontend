@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/history/EscrowSuccessModal.jsx
+import PropTypes from "prop-types";
 
 const LockIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -97,5 +102,16 @@ const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }) => {
     </>
   );
 };
+
+LockIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+EscrowSuccessModal.propTypes = {
+  totalAmount: PropTypes.number.isRequired,
+  mentorName: PropTypes.string.isRequired,
+  onDone: PropTypes.func.isRequired,
+};
+
 
 export default EscrowSuccessModal;

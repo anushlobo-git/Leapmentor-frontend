@@ -1,5 +1,10 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 import axiosInstance from "@utils/axiosInstance"; // Use the configured axios instance with interceptors
 // ─── MENTOR FAQS ─────────────────────────────────────────────────────────────
 
@@ -327,3 +332,8 @@ const handleSubmit = async (e) => {
     </div>
   );
 }
+FaqItem.propTypes = {
+  item: PropTypes.shape({ a: PropTypes.any, q: PropTypes.any }).isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};

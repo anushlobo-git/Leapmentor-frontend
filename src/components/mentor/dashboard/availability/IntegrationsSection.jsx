@@ -1,6 +1,12 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
-import axiosInstance from "../../../../utils/axiosInstance"; 
+import axiosInstance from "../../../../utils/axiosInstance";
+import logger from "@utils/logger";
+import PropTypes from "prop-types";
 
 const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) => {
   const [loading, setLoading] = useState(false);
@@ -9,21 +15,23 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
     setLoading(true);
     try {
       const { data } = await axiosInstance.get("/google-calendar/auth-url");
-      const popup = window.open(data.url, "gcal_auth", "width=500,height=600");
+      logger.info("Opening Google Calendar auth popup", { url: data.url });
+      const popup = globalThis.open(data.url, "gcal_auth", "width=500,height=600");
       const handler = (event) => {
         if (event.data?.type === "GOOGLE_CALENDAR_CONNECTED") {
-          window.removeEventListener("message", handler);
+          globalThis.removeEventListener("message", handler);
+          logger.info("Google Calendar connected via popup");
           onConnectionChange(true);
           setLoading(false);
         } else if (event.data?.type === "GOOGLE_CALENDAR_ERROR") {
-          window.removeEventListener("message", handler);
-          console.error("Google Calendar error:", event.data.error);
+          globalThis.removeEventListener("message", handler);
+          logger.error("Google Calendar error from popup", { error: event.data.error });
           setLoading(false);
         }
       };
-      window.addEventListener("message", handler);
+      globalThis.addEventListener("message", handler);
     } catch (err) {
-      console.error(err);
+      logger.error("Google Calendar error:", { error: err.message || err });
       setLoading(false);
     }
   };
@@ -34,7 +42,7 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
       await axiosInstance.post("/google-calendar/disconnect");
       onConnectionChange(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Google Calendar error:", { error: err.message || err });
     } finally {
       setLoading(false);
     }
@@ -110,6 +118,10 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
       </p>
     </div>
   );
+};
+IntegrationsSection.propTypes = {
+  googleCalendarConnected: PropTypes.bool.isRequired,
+  onConnectionChange: PropTypes.func.isRequired,
 };
 
 export default IntegrationsSection;

@@ -1,6 +1,16 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useRequestHistory.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
+import { mapConnectRequest } from "@mappers/connectsMapper";
+/**
+ * Custom hook for request history.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useRequestHistory = () => {
   const [requests, setRequests] = useState([]);
@@ -15,7 +25,7 @@ const useRequestHistory = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/connect-requests/my-requests");
-      setRequests(res.data.requests || []);
+      setRequests(Array.isArray(res.data.requests) ? res.data.requests.map(mapConnectRequest) : []);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load requests.");
     } finally {
@@ -35,7 +45,7 @@ const useRequestHistory = () => {
       setRequests((prev) => prev.filter((r) => r._id !== id));
       setSelected((prev) => (prev?._id === id ? null : prev));
     } catch (err) {
-      console.error("Delete error:", err?.response?.data?.message || err.message);
+      logger.error("Delete error:", { error: err?.response?.data?.message || err.message });
     }
   }, []);
 

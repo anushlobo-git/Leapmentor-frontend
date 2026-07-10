@@ -1,5 +1,9 @@
-// src/components/auth/AuthUI.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
 
+// src/components/auth/AuthUI.jsx
+import PropTypes from "prop-types";
 /**
  * Message banner for success / info / error states.
  * Props: type ("success" | "info" | "error"), text (string)
@@ -19,6 +23,10 @@ export const AuthMessageBanner = ({ type, text }) => {
     </div>
   );
 };
+AuthMessageBanner.propTypes = {
+  type: PropTypes.oneOf(["success", "info", "error"]),
+  text: PropTypes.string,
+};
 
 /**
  * "Or sign up/in with" divider.
@@ -31,6 +39,11 @@ export const AuthDivider = ({ label = "Or sign up with" }) => (
     <div className="flex-1 h-px bg-slate-200" />
   </div>
 );
+
+AuthDivider.propTypes = {
+  label: PropTypes.string,
+};
+
 /**
  * Reusable labeled input field.
  * Props: label, all standard <input> props
@@ -45,6 +58,10 @@ export const AuthField = ({ label, hint, ...inputProps }) => (
     {hint && <p className="text-xs text-slate-400">{hint}</p>}
   </div>
 );
+AuthField.propTypes = {
+  label: PropTypes.string.isRequired,
+  hint: PropTypes.string,
+};
 
 /**
  * Brand header row — logo + "LeapMentor" text.
@@ -56,3 +73,6 @@ export const AuthBrand = ({ logo }) => (
     <span className="text-xl font-bold text-slate-900 tracking-tight">LeapMentor</span>
   </div>
 );
+AuthBrand.propTypes = {
+  logo: PropTypes.node.isRequired,
+};

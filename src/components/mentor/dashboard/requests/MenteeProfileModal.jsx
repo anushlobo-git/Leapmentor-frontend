@@ -1,10 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/requests/MenteeProfileModal.jsx
 import { useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import RequestActionModal from "./RequestActionModal";
 import ReferModal from "./ReferModal";
-
-
+import logger from "@utils/logger";
+import PropTypes from "prop-types";
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -55,7 +59,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
     } catch (err) {
-      console.error("Respond error:", err);
+      logger.error("Respond error:", { error: err.message || err});
     } finally {
       setLoading(null);
     }
@@ -216,4 +220,26 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
   );
 };
 
+Spinner.propTypes = {
+  light: PropTypes.bool,
+};
+MenteeProfileModal.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    selectedSlots: PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.string,
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      })
+    ),
+    message: PropTypes.string,
+    requestedAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]).isRequired,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+};
 export default MenteeProfileModal;

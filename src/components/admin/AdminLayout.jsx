@@ -1,8 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import PropTypes from "prop-types";
+import logger from "@utils/logger";
+import { IMAGES } from "../../constants/images";
 
 const NAV_ITEMS = [
   {
@@ -107,8 +114,8 @@ const NAV_ITEMS = [
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
-  
-  const [adminUser, setAdminUser] = useState({ name: "Admin", email: "" });//not used 
+
+  const [adminUser, setAdminUser] = useState({ name: "Admin", email: "" });//not used
   const { admin, setAdmin } = useAdminAuth();
 
   const navigate = useNavigate();
@@ -128,7 +135,7 @@ const AdminLayout = ({ children }) => {
     try {
       await adminAxiosInstance.post("/admin/auth/logout");
     } catch (err) {
-      console.error("Logout failed, but clearing local session.");
+      logger.error("Admin logout failed, but clearing local session.", { error: err?.message });
     } finally {
       setAdmin(null); // Clear global auth state
       navigate("/admin/login");
@@ -170,7 +177,7 @@ const AdminLayout = ({ children }) => {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
               <img
-                src="/images/logo.webp"
+                src={IMAGES.LOGO}
                 alt="LeapMentor logo"
                 width={32}
                 height={32}
@@ -308,5 +315,7 @@ const AdminLayout = ({ children }) => {
     </div>
   );
 };
-
+AdminLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 export default AdminLayout;

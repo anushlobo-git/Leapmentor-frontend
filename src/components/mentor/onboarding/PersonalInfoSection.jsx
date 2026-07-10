@@ -1,13 +1,19 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
 import axiosInstance from "@utils/axiosInstance";
-
+import { validateImageFile } from "@utils/validation/schemas";
+import PropTypes from "prop-types";
 
 
 const PersonalInfoSection = ({ form, onChange }) => {
   const fileInputRef              = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
+  const [progress, setProgress]   = useState(0);
 
   const handlePhotoClick = () => {
     if (!uploading) fileInputRef.current?.click();
@@ -17,21 +23,18 @@ const PersonalInfoSection = ({ form, onChange }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ Client-side validation before uploading
-    if (!file.type.startsWith("image/")) {
-      setUploadErr("Only image files are allowed.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadErr("Image must be under 5MB.");
+    const validation = validateImageFile(file, 5);
+    if (!validation.valid) {
+      setUploadErr(validation.error);
       return;
     }
 
     setUploadErr("");
     setUploading(true);
+    setProgress(0);
 
     try {
-      
+
 
       // ✅ Send as multipart/form-data — NOT Base64
       const formData = new FormData();
@@ -40,6 +43,11 @@ const PersonalInfoSection = ({ form, onChange }) => {
       const res = await axiosInstance.post(
         `/upload/profile-picture`,
         formData,
+        {
+          onUploadProgress: (e) => {
+            if (e.total) setProgress(Math.round((e.loaded * 100) / e.total));
+          },
+        }
       );
 
       // ✅ Store Cloudinary URL in form state
@@ -49,9 +57,9 @@ const PersonalInfoSection = ({ form, onChange }) => {
           value: res.data.url,
         },
       });
-      onChange({ 
-        target: { name: "profilePictureFileName", 
-          value: res.data.fileName } 
+      onChange({
+        target: { name: "profilePictureFileName",
+          value: res.data.fileName }
         });
     } catch (err) {
       setUploadErr(
@@ -59,10 +67,13 @@ const PersonalInfoSection = ({ form, onChange }) => {
       );
     } finally {
       setUploading(false);
+      setProgress(0);
       // ✅ Reset so same file can be re-selected
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
+
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
@@ -96,11 +107,12 @@ const PersonalInfoSection = ({ form, onChange }) => {
               {uploading ? (
                 /* ✅ Spinner while uploading to Cloudinary */
                 <div className="w-6 h-6 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
-              ) : form.profilePicture ? (
+              ) : form.profilePicture && !imgError ? (
                 /* ✅ Shows Cloudinary URL — fast CDN delivery */
                 <img
                   src={form.profilePicture}
                   alt="Profile"
+                  onError={() => setImgError(true)}
                   className="w-full h-full object-cover rounded-2xl"
                 />
               ) : (
@@ -112,12 +124,21 @@ const PersonalInfoSection = ({ form, onChange }) => {
               )}
             </button>
 
+            {uploading && (
+              <div className="w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-blue-950 h-full rounded-full transition-all duration-150" 
+                  style={{ width: `${progress}%` }} 
+                />
+              </div>
+            )}
+
             <span
               onClick={handlePhotoClick}
               className={`text-xs font-semibold text-blue-900
                 ${uploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:underline"}`}
             >
-              {uploading ? "Uploading..." : "Upload Photo"}
+              {uploading ? `Uploading (${progress}%)` : "Upload Photo"}
             </span>
 
             <p className="text-[10px] text-slate-400">PNG, JPG · Max 5MB</p>
@@ -159,6 +180,15 @@ const PersonalInfoSection = ({ form, onChange }) => {
       </div>
     </div>
   );
+};
+
+PersonalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    profilePictureFileName: PropTypes.string,
+    bio: PropTypes.string,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default PersonalInfoSection;

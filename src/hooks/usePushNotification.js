@@ -1,8 +1,13 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
-import { isLoggedIn } from "@utils/cookies";
 import logger from "@utils/logger";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
@@ -12,12 +17,17 @@ const urlBase64ToUint8Array = (base64String) => {
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 };
+/**
+ * Custom hook for push notification.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const usePushNotification = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const { showToast } = useToast();
 
   useEffect(() => {
-    if (!isLoggedIn()) return;
+    if (!isAuthenticated) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     const setup = async () => {
@@ -40,17 +50,18 @@ const usePushNotification = () => {
     };
 
     setup();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
     const handleMessage = (event) => {
       logger.info("Message received from service worker", {
-        type: event.data?.type,
+        data: event.data
       });
       if (event.data?.type === "SHOW_TOAST") {
         const { title, message, type } = event.data.payload;
+        logger.info("Showing toast from service worker message", { title, message, type });
         showToast({ type: type || "info", title, message });
       }
     };

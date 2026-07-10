@@ -1,10 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/onboarding/OnboardingFormShell.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMentorOnboarding, clearMentorOnboardingMessages } from "../../../store/slices/mentorOnboardingSlice";
 import FullScreenLoader from "../../FullScreenLoader";
-
+import PropTypes from "prop-types";
 import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalInfoSection from "./ProfessionalInfoSection";
 import SkillsSection from "./SkillsSection";
@@ -12,13 +16,14 @@ import PreferencesSection from "./PreferencesSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
+import { IMAGES } from "../../../constants/images";
 
 const OnboardingFormShell = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
-  
+
 
   const [form, setForm] = useState(() => {
     try {
@@ -199,7 +204,7 @@ const OnboardingFormShell = () => {
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/images/logo.png"
+              src={IMAGES.LOGO_PNG}
               alt="Leapmentor logo"
               className="h-8 w-auto"
             />
@@ -271,5 +276,11 @@ const OnboardingFormShell = () => {
     </div>
   );
 };
-
+PersonalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    bio: PropTypes.string,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
 export default OnboardingFormShell;

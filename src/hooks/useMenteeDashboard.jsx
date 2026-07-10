@@ -1,21 +1,35 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
-import { isLoggedIn } from "@utils/cookies";
+import { HTTP_STATUS } from "../constants/httpStatus";
+import { mapMenteeProfile } from "@mappers/menteeMapper";
+import { selectIsAuthenticated } from "@store/slices/authSlice";
+import { useSelector } from "react-redux";
+
+/**
+ * Custom hook for mentee dashboard.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isEditPage = location.pathname.includes("/edit-profile");
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
 
   const [user, setUser]       = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  const fetchData = async () => {  // ✅ moved outside useEffect
-    if (!isLoggedIn()) {
+  const fetchData = async () => {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }
@@ -34,7 +48,7 @@ const useMenteeDashboard = () => {
         const profileRes = await axiosInstance.get("/mentee-profile/me");
         profileData = profileRes.data;
       } catch (profileErr) {
-        if (profileErr?.response?.status === 404) {
+        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
           if (!isEditPage) {
             setLoading(false);
             navigate("/onboarding/mentee");
@@ -44,9 +58,10 @@ const useMenteeDashboard = () => {
         throw profileErr;
       }
 
-      setProfile(profileData);
+      const mappedProfile = mapMenteeProfile(profileData);
+       setProfile(mappedProfile);
 
-      if (!profileData?.isProfileComplete && !isEditPage) {
+      if (!mappedProfile.isProfileComplete && !isEditPage) {
         setLoading(false);
         navigate("/onboarding/mentee");
         return;
@@ -55,7 +70,7 @@ const useMenteeDashboard = () => {
       setLoading(false);
 
     } catch (err) {
-      if (err?.response?.status !== 401) {
+      if (err?.response?.status !== HTTP_STATUS.UNAUTHORIZED) {
         setError("Something went wrong. Please try again.");
         setLoading(false);
       }
@@ -64,7 +79,7 @@ const useMenteeDashboard = () => {
 
   useEffect(() => {
     fetchData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   return { user, profile, loading, error, refetch: fetchData }; // ✅ exposed
 };

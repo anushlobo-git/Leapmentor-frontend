@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/admin/common/MentorIndustryChart.jsx
 import {
   BarChart,
@@ -10,6 +14,7 @@ import {
   Cell,
   LabelList,
 } from "recharts";
+import PropTypes from "prop-types";
 
 const PALETTE = [
   "#2563eb", "#7c3aed", "#0891b2", "#059669",
@@ -169,4 +174,8 @@ const MentorIndustryChart = ({ data = [] }) => {
   );
 };
 
+CustomTooltip.propTypes = {
+  active: PropTypes.bool.isRequired,
+  payload: PropTypes.shape({ length: PropTypes.any, value: PropTypes.any }).isRequired,
+};
 export default MentorIndustryChart;

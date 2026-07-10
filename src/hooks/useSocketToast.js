@@ -1,10 +1,18 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
-import { useSelector } from "react-redux"; // ✅ added
-import { isLoggedIn } from "@utils/cookies";
+import { useSelector } from "react-redux";
+import logger from "@utils/logger";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
+/**
+ * Custom hook for socket toast.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useSocketToast = (onRequestChanged, incrementBadge) => {
   // ✅ incrementBadge as param
@@ -29,10 +37,16 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    if (!isLoggedIn()) return;
-    if (!accessToken) return; // ✅ wait for silent refresh
-    if (window.__leapSocket?.connected) return;
+    if (!accessToken) {
+      logger.info("Socket toast waiting for access token before connecting");
+      return; 
+    }
+    if (globalThis.__leapSocket?.connected) {
+      logger.info("Socket already connected, skipping initialization");
+      return;
+    }
 
+    logger.info("Initializing socket connection", { url: BASE_URL });
     const socket = io(BASE_URL, {
       withCredentials: true,
       auth: { token: accessToken }, // ✅ real token from Redux
@@ -43,45 +57,63 @@ const useSocketToast = (onRequestChanged, incrementBadge) => {
     });
 
     socketRef.current = socket;
-    window.__leapSocket = socket;
+    globalThis.__leapSocket = socket;
 
-    socket.on("connect_error", (err) => {
-      console.warn("⚠️ Socket error:", err.message);
+    socket.on("connect", () => {
+      logger.info("Socket connected", { socketId: socket.id });
     });
 
-    socket.on("reconnect", () => {
-      window.__leapSocket = socket;
+    socket.on("connect_error", (err) => {
+      logger.warn("Socket connect error", { error: err.message });
+    });
+
+    socket.on("disconnect", (reason) => {
+      logger.warn("Socket disconnected", { reason });
+      if (globalThis.__leapSocket === socket) {
+        globalThis.__leapSocket = null;
+      }
+    });
+
+    socket.on("reconnect", (attempt) => {
+      logger.info("Socket reconnected", { attempt });
+      globalThis.__leapSocket = socket;
     });
 
     socket.on("new_connect_request", ({ title, message, type }) => {
+      logger.info("Socket event: new_connect_request", { title, message });
       showToastRef.current({ type: type || "info", title, message });
       incrementBadgeRef.current?.(); // ✅ safe call
     });
 
     socket.on("request_accepted", ({ title, message, type }) => {
+      logger.info("Socket event: request_accepted", { title, message });
       showToastRef.current({ type: type || "success", title, message });
       incrementBadgeRef.current?.(); // ✅
     });
 
     socket.on("request_declined", ({ title, message, type }) => {
+      logger.info("Socket event: request_declined", { title, message });
       showToastRef.current({ type: type || "warning", title, message });
       incrementBadgeRef.current?.(); // ✅
     });
 
     socket.on("request_referred", ({ title, message, type }) => {
+      logger.info("Socket event: request_referred", { title, message });
       showToastRef.current({ type: type || "info", title, message });
       incrementBadgeRef.current?.(); // ✅
     });
 
     socket.on("request_status_changed", (data) => {
+      logger.info("Socket event: request_status_changed", { data });
       if (onRequestChangedRef.current) onRequestChangedRef.current(data);
     });
 
     return () => {
+      logger.info("Disconnecting socket");
       socket.disconnect();
       socketRef.current = null;
-      if (window.__leapSocket === socket) {
-        window.__leapSocket = null;
+      if (globalThis.__leapSocket === socket) {
+        globalThis.__leapSocket = null;
       }
     };
   }, [accessToken]); // ✅ re-run when token is ready

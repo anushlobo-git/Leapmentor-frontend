@@ -1,8 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/history/EscrowPaymentModal.jsx
 import { useState, useEffect } from "react";
 import { payEscrow, getEscrowStatus } from "../../../../api/escrow.api";
 import { formatTime } from "./constants";
 import EscrowSuccessModal from "./EscrowSuccessModal";
+import logger from "@utils/logger";
+import PropTypes from "prop-types";
 
 const TokenIcon = ({ size = 13 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -49,7 +55,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
         if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
         if (data?.sessionCount != null) setRemoteSessionCount(data.sessionCount);
       } catch (err) {
-        console.warn("⚠️ Could not fetch escrow status:", err?.response?.data || err.message);
+        logger.warn("⚠️ Could not fetch escrow status:", { error: err.response?.data || err.message });
       } finally {
         setFetching(false);
       }
@@ -247,5 +253,34 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
     </>
   );
 };
+
+TokenIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+LockIcon.propTypes = {
+  size: PropTypes.number,
+};
+
+EscrowPaymentModal.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    selectedSlots: PropTypes.array,
+    mentorProfile: PropTypes.shape({
+      hourlyRate: PropTypes.number,
+    }),
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    confirmedSlot: PropTypes.shape({
+      day: PropTypes.string,
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+};
+
+
 
 export default EscrowPaymentModal;

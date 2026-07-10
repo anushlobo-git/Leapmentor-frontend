@@ -1,119 +1,55 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/DashboardLayout.jsx
-import { useState, useEffect } from "react";
+import { lazy } from "react";
 import useMenteeDashboard from "../../../hooks/useMenteeDashboard";
-import useUnreadCount from "../../../hooks/useUnreadCount"; // ✅ added
-import Topbar from "./Topbar";
-import Sidebar from "./Sidebar";
-import HomeTab from "./HomeTab";
-import ProfileTab from "./ProfileTab";
-import FindMentorsTab from "./findMentors/FindMentorsTab";
-import RequestHistoryTab from "./history/RequestHistoryTab";
-import NotificationsTab from "../notifications/NotificationsTab";
-import MenteeConnectsTab from "./connects/MenteeConnectsTab";
-import HelpCenter from "../../common/HelpCenter";
-import useSocketToast from "../../../hooks/useSocketToast"; 
-import { DashboardContext } from "../../../context/DashboardContext";
-import LeapBuddy from "../../LeapBuddy";
+import DashboardShell from "@components/shared/DashboardShell";
+import DashboardSidebar from "@components/shared/DashboardSidebar";
+import { MENTEE_NAV_ITEMS } from "@constants/menteeNavItems";
+import DashboardTopbar from "@components/shared/DashboardTopbar";
 
-const DashboardLayout = () => {
-  const { user, profile, loading, error, refetch } = useMenteeDashboard();
-  const { unreadCount, clearBadge,incrementBadge } = useUnreadCount();
+const HomeTab = lazy(() => import("./HomeTab"));
+const ProfileTab = lazy(() => import("./ProfileTab"));
+const FindMentorsTab = lazy(() => import("./findMentors/FindMentorsTab"));
+const RequestHistoryTab = lazy(() => import("./history/RequestHistoryTab"));
+const NotificationsTab = lazy(() => import("@components/shared-dashboard/tabs/SharedNotificationsTab"));
+const HelpCenter = lazy(() => import("../../common/HelpCenter"));
+const ConnectsTab = lazy(() => import("@components/shared/ConnectsTab"));
+const Topbar = (props) => <DashboardTopbar {...props} logoutRedirectPath="/" />;
 
-  const onRequestChanged = () => refetch?.(); 
-  useSocketToast(onRequestChanged,incrementBadge);  
-  const [activeTab, setActiveTab] = useState("home");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  useEffect(() => {
-    const handler = (e) => setActiveTab(e.detail);
-    window.addEventListener("setDashboardTab", handler);
-    return () => window.removeEventListener("setDashboardTab", handler);
-  }, []);
-  // ✅ Clear badge when notifications tab is opened
-  useEffect(() => {
-    if (activeTab === "notifications") clearBadge();
-  }, [activeTab, clearBadge]);
+// DashboardShell doesn't know about navItems (it's shared with mentor), so this
+// wrapper "pre-fills" navItems before DashboardShell renders <Sidebar ... /> internally.
+const MenteeSidebar = (props) => (
+  <DashboardSidebar {...props} navItems={MENTEE_NAV_ITEMS} />
+);
 
-  // Deep link: read ?tab= from URL on mount (e.g. from email links)
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab");
-  const validTabs = ["home", "profile", "findMentors", "history", "notifications", "connects", "help"];
-  if (tab && validTabs.includes(tab)) {
-    setActiveTab(tab);
-  }
-}, []);
-  const handleSetTab = (tab) => {
-  setActiveTab(tab);
-  setSidebarOpen(false);
-  const url = new URL(window.location.href);
-  if (tab === "home") {
-    url.searchParams.delete("tab");
-  } else {
-    url.searchParams.set("tab", tab);
-  }
-  window.history.replaceState(null, "", url.toString());
+const TABS = [
+  { key: "home", Component: HomeTab },
+  { key: "profile", Component: ProfileTab },
+  { key: "findMentors", Component: FindMentorsTab },
+  { key: "history", Component: RequestHistoryTab },
+  { key: "notifications", Component: NotificationsTab, getProps: (setTab) => ({ setActiveTab: setTab,role: "mentee" }) },
+  { key: "connects", Component: ConnectsTab, getProps: () => ({ role: "mentee" }) },
+  { key: "help", Component: HelpCenter },
+];
+
+const LOADING_CONFIG = {
+  spinnerBorderClass: "border-t-blue-900",
+  message: "Loading your dashboard…",
+  textClass: "text-sm text-slate-400 font-medium",
 };
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">Loading your dashboard…</p>
-        </div>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
-          <span className="text-red-500">⚠</span>
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      </div>
-    );
-  }
-{/*}
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-          <p className="text-xs text-slate-400" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
-  */}
 
-  return (
-    <DashboardContext.Provider value={{ user, profile, setActiveTab: handleSetTab }}>
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
-      <div className="flex flex-1">
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={handleSetTab}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          unreadCount={unreadCount}
-        />
-        <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <HomeTab />}
-          {activeTab === "profile"       && <ProfileTab/>}
-          {activeTab === "findMentors"   && <FindMentorsTab />}
-          {activeTab === "history"       && <RequestHistoryTab />}
-          {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
-          {activeTab === "connects"      && <MenteeConnectsTab />}
-          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
-          
-        </main>
-      </div>
-    </div>
-    <LeapBuddy role="mentee" user={user} profile={profile} />
-    </DashboardContext.Provider>
-  );
-};
+const DashboardLayout = () => (
+  <DashboardShell
+    useDashboardData={useMenteeDashboard}
+    Topbar={Topbar}
+    Sidebar={MenteeSidebar}
+    tabs={TABS}
+    listenForTabEvent
+    loadingConfig={LOADING_CONFIG}
+  />
+);
+
 export default DashboardLayout;

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 export default function SuccessCard() {
   return (
     <div className="absolute bottom-6 right-4 bg-white rounded-2xl shadow-xl p-4 w-52 border border-gray-100">

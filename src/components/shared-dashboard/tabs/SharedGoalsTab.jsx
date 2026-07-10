@@ -1,4 +1,10 @@
-import { useState } from "react";
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "@utils/axiosInstance";
 import useGoals from "../../../hooks/useGoals";
 import useSessions from "../../../hooks/useSessions";
 import useReport from "../../../hooks/useReport";
@@ -7,6 +13,15 @@ import TimelineTracker from "./goals/TimelineTracker";
 import MilestoneList from "./goals/MilestoneList";
 import SessionCard from "./goals/SessionCard";
 import FeedbackModal from "./FeedbackModal";
+import {
+  selectConnect,
+  selectConnectId,
+  selectViewerRole,
+  setConnect,
+} from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+
+
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -167,12 +182,26 @@ const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback
 };
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedGoalsTab = ({ connect, onAllComplete }) => {
+const SharedGoalsTab = () => {
+  const dispatch = useDispatch();
+  const connect = useSelector(selectConnect);
+  const connectRequestId = useSelector(selectConnectId);
+  const viewerRole = useSelector(selectViewerRole);
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackSlotIndex, setFeedbackSlotIndex] = useState(null);
 
-  const viewerRole = connect?.viewerRole || "mentee";
-  const connectRequestId = connect?._id;
+  const onAllComplete = useCallback(async () => {
+    if (!connectRequestId) return;
+    try {
+      const res = await axiosInstance.get(
+        `/connect-requests/${connectRequestId}/detail`,
+      );
+      dispatch(setConnect(res.data.connect));
+    } catch {
+      // silently fail
+    }
+  }, [connectRequestId, dispatch]);
 
   const otherName = viewerRole === "mentee"
     ? connect?.mentor?.name || "Mentor"
@@ -271,12 +300,12 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       {/* Overall progress */}
       {activeSlots.length > 0 && (
         <OverallProgress
-          completedSlots={completedSlots}
-          totalSlots={totalSlots}
-          progress={progress}
-          onLeaveFeedback={() => setShowFeedbackModal(true)}
-          feedbackSubmitted={!!myFeedback}  // ← drives button state reactively
-        />
+            completedSlots={completedSlots}
+            totalSlots={totalSlots}
+            progress={progress}
+            onLeaveFeedback={() => { setFeedbackSlotIndex(null); setShowFeedbackModal(true); }}
+            feedbackSubmitted={!!myFeedback}  // ← drives button state reactively
+          />
       )}
 
       {/* Sessions */}
@@ -288,7 +317,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {slots.map((slot, index) => (
-              <SessionCard
+               <SessionCard
                 key={index}
                 slot={slot}
                 slotIndex={index}
@@ -297,11 +326,11 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 savingSlots={savingSlots}
                 onSetLink={setMeetingLink}
                 onMarkComplete={markSlotComplete}
+                onSessionComplete={() => { setFeedbackSlotIndex(index); setShowFeedbackModal(true); }}
                 onCancelSlot={cancelSlot}
                 onRescheduleSlot={rescheduleSlot}
                 allSlots={slots}
                 connectRequestId={connectRequestId}
-                connect={connect}
               />
             ))}
           </div>
@@ -311,7 +340,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
-          connect={connect}
+          slotIndex={feedbackSlotIndex}
           onClose={() => setShowFeedbackModal(false)}
           onFeedbackSubmitted={handleFeedbackSubmitted}  // ← passed down
         />
@@ -319,6 +348,32 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
 
     </div>
   );
+};
+
+GoalCard.propTypes = {
+  goal: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    status: PropTypes.string,
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  milestones: PropTypes.array.isRequired,
+  saving: PropTypes.bool.isRequired,
+  onAdd: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
+
+NoGoalState.propTypes = {
+  onSetGoal: PropTypes.func.isRequired,
+};
+
+OverallProgress.propTypes = {
+  completedSlots: PropTypes.number.isRequired,
+  totalSlots: PropTypes.number.isRequired,
+  progress: PropTypes.number.isRequired,
+  onLeaveFeedback: PropTypes.func.isRequired,
+  feedbackSubmitted: PropTypes.bool.isRequired,
 };
 
 export default SharedGoalsTab;

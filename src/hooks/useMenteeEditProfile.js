@@ -1,8 +1,16 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useMenteeEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@utils/axiosInstance";
 import logger from "@utils/logger";
+/**
+ * Custom hook for mentee edit profile.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();

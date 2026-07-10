@@ -1,9 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/ForgotPassword.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword, verifyResetOtp, resetPassword, clearMessages } from "../store/slices/authSlice";
 import FullScreenLoader from "../components/FullScreenLoader";
+import { IMAGES } from "../constants/images";
 
 
 // ── Steps: 1 = enter email, 2 = enter OTP, 3 = new password ──
@@ -150,7 +155,7 @@ const ForgotPassword = () => {
         {/* ── Logo ── */}
         <div className="flex items-center gap-2.5 mb-8 justify-center">
           <img
-            src="/images/logo.webp"
+            src={IMAGES.LOGO}
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}

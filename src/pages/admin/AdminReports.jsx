@@ -1,9 +1,13 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/admin/AdminReports.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import adminAxiosInstance from "@utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
 import StatCard from "../../components/admin/common/StatCard";
-
+import PropTypes from "prop-types";
 
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -631,6 +635,54 @@ const AdminReports = () => {
       )}
     </AdminLayout>
   );
+};
+
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    type: PropTypes.string,
+    msg: PropTypes.string.isRequired,
+  }),
+};
+
+StatusBadge.propTypes = {
+  status: PropTypes.oneOf(["open", "under_review", "resolved", "dismissed"]),
+};
+
+CategoryBadge.propTypes = {
+  category: PropTypes.oneOf(["vulgar_chat", "harassment", "refund", "other"]),
+};
+
+ConfirmDialog.propTypes = {
+  title: PropTypes.node.isRequired,
+  message: PropTypes.node.isRequired,
+  confirmLabel: PropTypes.node.isRequired,
+  confirmColor: PropTypes.string.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
+
+HandleModal.propTypes = {
+  report: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    status: PropTypes.string,
+    adminNote: PropTypes.string,
+    category: PropTypes.oneOf(["vulgar_chat", "harassment", "refund", "other"]),
+    connectRequestId: PropTypes.oneOfType([PropTypes.string, PropTypes.oneOf([null])]),
+    refundProcessed: PropTypes.bool,
+    totalAmount: PropTypes.number,
+    paymentStatus: PropTypes.string,
+    mentee: PropTypes.string,
+    mentor: PropTypes.string,
+    reportedBy: PropTypes.string,
+    date: PropTypes.string,
+    description: PropTypes.string,
+    screenshotUrl: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onRefund: PropTypes.func.isRequired,
+  onDeleteSession: PropTypes.func.isRequired,
 };
 
 export default AdminReports;

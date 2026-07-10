@@ -1,5 +1,9 @@
-// src/components/mentee/dashboard/findMentors/ConnectSuccessModal.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
 
+// src/components/mentee/dashboard/findMentors/ConnectSuccessModal.jsx
+import PropTypes from "prop-types";
 const ConnectSuccessModal = ({ mentorName, onBackToDashboard }) => {
   return (
     // ── Overlay ──────────────────────────────────────────────
@@ -34,6 +38,10 @@ const ConnectSuccessModal = ({ mentorName, onBackToDashboard }) => {
       </div>
     </div>
   );
+};
+ConnectSuccessModal.propTypes = {
+  mentorName: PropTypes.any.isRequired,
+  onBackToDashboard: PropTypes.func.isRequired,
 };
 
 export default ConnectSuccessModal;

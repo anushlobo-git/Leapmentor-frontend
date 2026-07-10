@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +24,8 @@ export default defineConfig({
       "@store": path.resolve(__dirname, "./src/store"),
       "@context": path.resolve(__dirname, "./src/context"),
       "@components": path.resolve(__dirname, "./src/components"),
+      "@mappers": path.resolve(__dirname, "./src/mappers"),
+      "@constants": path.resolve(__dirname, "./src/constants"),
     },
   },
   build: {
@@ -33,7 +35,6 @@ export default defineConfig({
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-redux": ["@reduxjs/toolkit", "react-redux"],
-
         },
       },
     },

@@ -1,5 +1,9 @@
-// src/components/mentor/dashboard/requests/ReferredByProfileModal.jsx
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
 
+// src/components/mentor/dashboard/requests/ReferredByProfileModal.jsx
+import PropTypes from "prop-types";
 const StarRating = ({ rating }) => {
   const r = Number(rating) || 0;
   return (
@@ -145,6 +149,27 @@ const ReferredByProfileModal = ({ mentor, onClose }) => {
       </div>
     </div>
   );
+};
+
+StarRating.propTypes = {
+  rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
+
+ReferredByProfileModal.propTypes = {
+  mentor: PropTypes.shape({
+    name: PropTypes.string,
+    email: PropTypes.string,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    industry: PropTypes.string,
+    bio: PropTypes.string,
+    hourlyRate: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    avgRating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    yearsOfExperience: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    profilePicture: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+  onClose: PropTypes.func.isRequired,
 };
 
 export default ReferredByProfileModal;

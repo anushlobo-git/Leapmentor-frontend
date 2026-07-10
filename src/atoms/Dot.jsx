@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import PropTypes from "prop-types";
 export default function Dot({ isActive, onClick }) {
   return (
     <button
@@ -13,3 +18,7 @@ export default function Dot({ isActive, onClick }) {
     />
   );
 }
+Dot.propTypes = {
+  isActive: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};

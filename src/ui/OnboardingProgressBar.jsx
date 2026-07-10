@@ -1,4 +1,10 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/ui/OnboardingProgressBar.jsx
+import PropTypes from "prop-types";
+
 const OnboardingProgressBar = ({ form, fields }) => {
   const filled = fields.filter(({ key, type }) => {
     const val = form[key];
@@ -42,6 +48,16 @@ const OnboardingProgressBar = ({ form, fields }) => {
       </div>
     </div>
   );
+};
+
+OnboardingProgressBar.propTypes = {
+  form: PropTypes.object.isRequired,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      type: PropTypes.string,
+    })
+  ).isRequired,
 };
 
 export default OnboardingProgressBar;

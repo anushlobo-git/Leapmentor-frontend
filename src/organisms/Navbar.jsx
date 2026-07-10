@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@atoms/Logo";
@@ -10,8 +14,8 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
-    if (window.location.pathname === "/") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (globalThis.location.pathname === "/") {
+      globalThis.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       navigate("/");
     }

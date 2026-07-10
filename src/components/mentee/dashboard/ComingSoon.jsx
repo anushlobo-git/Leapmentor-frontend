@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/dashboard/ComingSoon.jsx
 const ComingSoon = ({ icon, title, desc }) => (
   <div className="flex flex-col items-center justify-center py-24 text-center gap-3">
@@ -10,5 +14,10 @@ const ComingSoon = ({ icon, title, desc }) => (
     </span>
   </div>
 );
+ComingSoon.propTypes = {
+  icon: PropTypes.node.isRequired,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  desc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 export default ComingSoon;

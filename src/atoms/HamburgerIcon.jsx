@@ -1,10 +1,15 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import PropTypes from "prop-types";
 export default function HamburgerIcon({ isOpen }) {
   return (
-    <svg 
-      width="24" 
-      height="24" 
-      fill="none" 
-      viewBox="0 0 24 24" 
+    <svg
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
       stroke="currentColor"
       className="transition-transform duration-200"
     >
@@ -16,3 +21,6 @@ export default function HamburgerIcon({ isOpen }) {
     </svg>
   );
 }
+HamburgerIcon.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+};

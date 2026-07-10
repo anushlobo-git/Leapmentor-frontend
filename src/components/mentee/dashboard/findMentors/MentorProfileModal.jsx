@@ -1,9 +1,16 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentee/dashboard/findMentors/MentorProfileModal.jsx
 import { useState, useEffect,useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
+import PropTypes from "prop-types";
+import { HTTP_STATUS } from "../../../../constants/httpStatus";
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const BADGES = [
   { key: "newcomer",     label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",        condition: () => true },
@@ -117,6 +124,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const { sending, error, sendRequest, reset } = useConnectRequest();
   const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
   const [lockError, setLockError] = useState("");
+  const [imgError, setImgError] = useState(false);
 const { user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount, yearsOfExperience, profilePicture, location, totalSessions } = mentor;
 const badges = BADGES.map((badge) => ({
   ...badge,
@@ -143,7 +151,7 @@ const badges = BADGES.map((badge) => ({
         }
       }
     } catch (err) {
-      setSlotsError(err?.response?.status === 404
+      setSlotsError(err?.response?.status === HTTP_STATUS.NOT_FOUND
         ? "This mentor hasn't set their availability yet."
         : "Failed to load available slots.");
       setGroupedSlots([]);
@@ -217,10 +225,11 @@ const handleSend = async () => {
           <div className="flex items-center gap-4">
             {/* Profile picture with green online dot */}
             <div className="relative shrink-0">
-              {profilePicture ? (
+              {profilePicture && !imgError ? (
                 <img
                   src={profilePicture}
                   alt={user?.name}
+                  onError={() => setImgError(true)}
                   className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 shadow-sm"
                 />
               ) : (
@@ -535,4 +544,57 @@ const handleSend = async () => {
 </div>
   );
 };
+
+StarRating.propTypes = {
+  rating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  reviewCount: PropTypes.number,
+};
+
+SlotPill.propTypes = {
+  slot: PropTypes.shape({
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+    isBooked: PropTypes.bool,
+  }).isRequired,
+  group: PropTypes.shape({
+    date: PropTypes.string,
+    day: PropTypes.string,
+    displayDate: PropTypes.string,
+  }).isRequired,
+  selected: PropTypes.bool.isRequired,
+  maxReached: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};
+
+SelectedSlotRow.propTypes = {
+  slot: PropTypes.shape({
+    displayDate: PropTypes.string,
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  onRemove: PropTypes.func.isRequired,
+};
+
+MentorProfileModal.propTypes = {
+  mentor: PropTypes.shape({
+    user: PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      name: PropTypes.string,
+    }).isRequired,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    industry: PropTypes.string,
+    bio: PropTypes.string,
+    hourlyRate: PropTypes.number,
+    avgRating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    reviewCount: PropTypes.number,
+    yearsOfExperience: PropTypes.number,
+    profilePicture: PropTypes.string,
+    location: PropTypes.string,
+    totalSessions: PropTypes.number,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
 export default MentorProfileModal;

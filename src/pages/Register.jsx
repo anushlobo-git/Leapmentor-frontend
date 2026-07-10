@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/Register.jsx
 import { useState } from "react";
 import AuthLeftPanel from "../components/auth/AuthLeftPanel";

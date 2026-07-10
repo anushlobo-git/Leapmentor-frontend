@@ -1,11 +1,18 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/App.jsx
 import { Toaster } from "sonner";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { AdminAuthProvider } from "./context/AdminAuthContext.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, logout } from "./store/slices/authSlice";
-import { isLoggedIn, clearAuthRole } from "./utils/cookies";
 import axiosInstance from "./utils/axiosInstance";
+import logger from "./utils/logger";
+import { hasSessionHint, clearAuthRole } from "./utils/cookies";
+
 
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home     from "@pages/shared/Home";
@@ -48,6 +55,12 @@ const AdminLayout          = lazy(() => import("./components/admin/AdminLayout")
 const AdminWalletRequests  = lazy(() => import("./pages/admin/AdminWalletRequests"));
 const AdminVerifications   = lazy(() => import("./pages/admin/AdminVerifications"));
 
+const AdminAuthLayout = () => (
+  <AdminAuthProvider>
+    <Outlet />
+  </AdminAuthProvider>
+);
+
 // ── Global loading spinner ────────────────────────────────────
 const PageLoader = () => (
   <div
@@ -75,11 +88,11 @@ const AppRoutes = () => {
   // to rehydrate Redux before rendering any protected route.
   const [rehydrating, setRehydrating] = useState(() => {
     // Only block render if we actually need to rehydrate
-    return isLoggedIn() && !accessToken;
+    return hasSessionHint() && !accessToken;
   });
 
   useEffect(() => {
-    if (!isLoggedIn() || accessToken) {
+    if (!hasSessionHint() || accessToken) {
       // Not logged in, or token already in Redux — nothing to do
       setRehydrating(false);
       return;
@@ -93,7 +106,8 @@ const AppRoutes = () => {
         // Refresh token expired — cookies are stale, clean up
         dispatch(logout());
         clearAuthRole();
-        window.location.href = "/login";
+        logger.warn("Silent refresh failed — redirecting to login");
+        globalThis.location.href = "/login";
       } finally {
         setRehydrating(false);
       }
@@ -138,15 +152,17 @@ const AppRoutes = () => {
       <Route path="/shared-dashboard/:connectRequestId" element={<SharedDashboardPage />} />
 
       {/* ── Admin ─────────────────────────────────────── */}
-      <Route path="/admin/login"         element={<AdminLogin />} />
-      <Route path="/admin/users"         element={<AdminRoute><AdminUserManagement /></AdminRoute>} />
-      <Route path="/admin/engagements"   element={<AdminRoute><AdminEngagements /></AdminRoute>} />
-      <Route path="/admin/reports"       element={<AdminRoute><AdminReports /></AdminRoute>} />
-      <Route path="/admin/payments"      element={<AdminRoute><AdminPayments /></AdminRoute>} />
-      <Route path="/admin/settings"      element={<AdminRoute><AdminSettings /></AdminRoute>} />
-      <Route path="/admin/wallet-requests" element={<AdminRoute><AdminWalletRequests /></AdminRoute>} />
-      <Route path="/admin/support"       element={<AdminRoute><AdminLayout><AdminSupportMessages /></AdminLayout></AdminRoute>} />
-      <Route path="/admin/verifications" element={<AdminRoute><AdminLayout><AdminVerifications /></AdminLayout></AdminRoute>} />
+      <Route element={<AdminAuthLayout />}>
+        <Route path="/admin/login"         element={<AdminLogin />} />
+        <Route path="/admin/users"         element={<AdminRoute><AdminUserManagement /></AdminRoute>} />
+        <Route path="/admin/engagements"   element={<AdminRoute><AdminEngagements /></AdminRoute>} />
+        <Route path="/admin/reports"       element={<AdminRoute><AdminReports /></AdminRoute>} />
+        <Route path="/admin/payments"      element={<AdminRoute><AdminPayments /></AdminRoute>} />
+        <Route path="/admin/settings"      element={<AdminRoute><AdminSettings /></AdminRoute>} />
+        <Route path="/admin/wallet-requests" element={<AdminRoute><AdminWalletRequests /></AdminRoute>} />
+        <Route path="/admin/support"       element={<AdminRoute><AdminLayout><AdminSupportMessages /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/verifications" element={<AdminRoute><AdminLayout><AdminVerifications /></AdminLayout></AdminRoute>} />
+      </Route>
 
       {/* ── 404 ───────────────────────────────────────── */}
       <Route path="*" element={<NotFound />} />

@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -5,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/authSlice";
 import axiosInstance from "@utils/axiosInstance";
 import { setAuthRole } from "@utils/cookies";
+import logger from "@utils/logger";
 
 const SSOCallback = () => {
   const navigate = useNavigate();
@@ -12,14 +17,15 @@ const SSOCallback = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const code = params.get("code");
 
-    console.log("SSOCallback mounted, code:", code?.slice(0, 10));
-    console.log("sessionStorage value:", sessionStorage.getItem("linkedin_code_used")?.slice(0, 10));
+    // Do not log sensitive OAuth codes or raw sessionStorage values. Log only presence.
 
     const state = params.get("state");
     const provider = params.get("provider");
+
+    logger.info("SSOCallback mounted", { provider, hasCode: !!code });
 
     if (!code || provider !== "linkedin") {
       setError("Invalid callback. Missing code or unsupported provider.");

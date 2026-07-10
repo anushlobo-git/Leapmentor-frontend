@@ -1,6 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useConnectRequest.js
 import { useState, useRef } from "react";
 import axiosInstance from "@utils/axiosInstance";
+/**
+ * Custom hook for connect request.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useConnectRequest = () => {
   const [sending, setSending] = useState(false);

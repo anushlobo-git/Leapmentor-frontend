@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import Card from "@atoms/Card";
+import PropTypes from "prop-types";
 
 export default function FeatureCard({ icon, title, description }) {
   return (
@@ -11,3 +16,8 @@ export default function FeatureCard({ icon, title, description }) {
     </Card>
   );
 }
+FeatureCard.propTypes = {
+  icon: PropTypes.node.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+};

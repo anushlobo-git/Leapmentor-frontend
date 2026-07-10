@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentee/profile/MenteeEditProfileShell.jsx
 import { useNavigate } from "react-router-dom";
 import useMenteeEditProfile from "../../../hooks/useMenteeEditProfile";
@@ -6,6 +10,7 @@ import ProfessionalDetailsSection from "../onboarding/ProfessionalDetailsSection
 import InterestedFieldsSection from "../onboarding/InterestedFieldsSection";
 import MentorshipPrefsSection from "../onboarding/MentorshipPrefsSection";
 import SocialLinksSection from "../onboarding/SocialLinksSection";
+import { IMAGES } from "../../../constants/images";
 
 const MenteeEditProfileShell = () => {
   const navigate = useNavigate();
@@ -28,7 +33,7 @@ const MenteeEditProfileShell = () => {
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/images/logo.webp"
+              src={IMAGES.LOGO}
               alt="LeapMentor logo"
               className="h-8 w-8"
               width={32}

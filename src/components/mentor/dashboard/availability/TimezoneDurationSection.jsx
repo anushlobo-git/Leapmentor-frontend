@@ -1,4 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // components/mentor/dashboard/availability/TimezoneDurationSection.jsx
+import PropTypes from "prop-types";
 
 const TIMEZONES = [
   "Asia/Kolkata",
@@ -84,4 +89,10 @@ const TimezoneDurationSection = ({ timezone, sessionDurations, updateTimezone, t
   );
 };
 
+TimezoneDurationSection.propTypes = {
+  timezone: PropTypes.string.isRequired,
+  sessionDurations: PropTypes.arrayOf(PropTypes.number).isRequired,
+  updateTimezone: PropTypes.func.isRequired,
+  toggleDuration: PropTypes.func.isRequired,
+};
 export default TimezoneDurationSection;

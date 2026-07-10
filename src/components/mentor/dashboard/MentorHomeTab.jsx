@@ -1,30 +1,33 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/MentorHomeTab.jsx
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import axiosInstance from "@utils/axiosInstance";
+import SessionCard from "@components/shared/SessionCard";
+import SessionSkeleton from "@components/shared/SessionSkeleton";
 import LeapBuddy from "../../LeapBuddy";
-import { useDashboardContext } from "../../../context/DashboardContext";
+import logger from "@utils/logger";
+import {
+  selectDashboardUser,
+  selectDashboardProfile,
+  refetchMentorProfile,
+} from "../../../store/slices/dashboardUserSlice";
+
+const MENTOR_ACCENT_COLORS = [
+  "#1d4ed8",
+  "#15803d",
+  "#7e22ce",
+  "#c2410c",
+  "#be185d",
+];
 
 
-const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
-const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
 
-const formatSlotDate = (slot) => {
-  if (!slot?.date) return { dateNum: "—", dateMonth: "—", fullDate: "" };
-  const d = new Date(slot.date + "T00:00:00");
-  return {
-    dateNum: d.getDate().toString(),
-    dateMonth: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
-    fullDate: d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
-  };
-};
-
-const formatTime = (t) => {
-  if (!t) return "";
-  const [h, m] = t.split(":");
-  const hour = parseInt(h);
-  return `${hour % 12 || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`;
-};
 
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -90,65 +93,6 @@ const StatCard = ({ label, value, sub, icon }) => (
   </div>
 );
 
-const SessionCard = ({ request, index, navigate }) => {
-  const slot = request.confirmedSlot || request.selectedSlots?.[0];
-  const { dateNum, dateMonth, fullDate } = formatSlotDate(slot);
-  const timeStr = slot ? `${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}` : "Time TBD";
-  const menteeName = request.mentee?.name || "Mentee";
-  const isOngoing = request.status === "ongoing";
-  const accent = getAccent(index);
-
-  return (
-    <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 shadow-sm hover:shadow-md transition-all flex items-center gap-3">
-      {/* darker accent colors (ACCENT_COLORS updated above) ensure white text passes 4.5:1 contrast */}
-      <div style={{ backgroundColor: accent }}
-        className="w-11 h-14 rounded-xl flex flex-col items-center justify-center shrink-0">
-        {/*  text-[11px] instead of text-[9px] — small text needs higher contrast ratio (4.5:1 vs 3:1) */}
-        <span className="text-[11px] font-bold text-white tracking-widest">{dateMonth}</span>
-        <span className="text-xl font-bold text-white leading-none">{dateNum}</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-sm font-semibold text-slate-800 truncate">{menteeName}</p>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0
-            ${isOngoing
-              ? "bg-blue-100 text-blue-900 border border-blue-200"
-              : "bg-emerald-100 text-emerald-800 border border-emerald-200"}`}>
-            {/* bg-emerald-100 + text-emerald-800 instead of bg-emerald-50 + text-emerald-600 */}
-            {isOngoing ? "Ongoing" : "Accepted"}
-          </span>
-        </div>
-        <p className="text-xs text-blue-900 mt-0.5 truncate">
-          {timeStr}{fullDate ? ` · ${fullDate}` : ""}
-        </p>
-      </div>
-      <div className="shrink-0">
-        {isOngoing ? (
-          <button
-            onClick={() => navigate(`/shared-dashboard/${request._id}`)}
-            className="text-xs bg-blue-900 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
-            Open Dashboard
-          </button>
-        ) : (
-          <span className="text-xs text-blue-900 border border-slate-200 px-3 py-1.5 rounded-lg font-medium whitespace-nowrap">
-            Awaiting Payment
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const SessionSkeleton = () => (
-  <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 flex items-center gap-3 animate-pulse">
-    <div className="w-11 h-14 rounded-xl bg-slate-200 shrink-0" />
-    <div className="flex-1 space-y-2">
-      <div className="h-3 bg-slate-200 rounded w-2/5" />
-      <div className="h-2.5 bg-slate-100 rounded w-3/5" />
-    </div>
-    <div className="h-8 w-24 bg-slate-200 rounded-lg" />
-  </div>
-);
 
 const EarningsSkeleton = () => (
   <div className="space-y-3 animate-pulse">
@@ -164,9 +108,11 @@ const EarningsSkeleton = () => (
   </div>
 );
 
-const MentorHomeTab = () => {
-  const {user,profile,refetchProfile,setActiveTab} = useDashboardContext();
+const MentorHomeTab = ({ setActiveTab }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector(selectDashboardUser);
+  const profile = useSelector(selectDashboardProfile);
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
 
@@ -188,8 +134,8 @@ const MentorHomeTab = () => {
   const unlockedCount = badges.filter((b) => b.unlocked).length;
 
   useEffect(() => {
-    if (refetchProfile) refetchProfile();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    dispatch(refetchMentorProfile());
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -204,7 +150,7 @@ const MentorHomeTab = () => {
         setPendingCount(pending.length);
         setActualSessionCount(completed.length + active.filter((r) => r.status === "ongoing").length);
       } catch (err) {
-        console.error("MentorHomeTab sessions error:", err.message);
+        logger.error("MentorHomeTab sessions error:", { error: err.message });
       } finally {
         setLoadingSessions(false);
       }
@@ -224,7 +170,7 @@ const MentorHomeTab = () => {
           walletBalance: res.data.walletBalance || 0,
         });
       } catch (err) {
-        console.error("MentorHomeTab earnings error:", err.message);
+        logger.error("MentorHomeTab earnings error:", { error: err.message });
         setEarnings({ totalEarnings: 0, sessionsThisMonth: 0, pendingPayout: 0, walletBalance: 0 });
       } finally {
         setLoadingEarnings(false);
@@ -235,12 +181,13 @@ const MentorHomeTab = () => {
 
   return (
     <div className="space-y-5">
-
       {/* ── Welcome row ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            {isFirstLogin ? `Welcome, ${firstName}! 👋` : `Welcome, ${firstName}! 👋`}
+            {isFirstLogin
+              ? `Welcome, ${firstName}! 👋`
+              : `Welcome, ${firstName}! 👋`}
           </h1>
           <p className="text-sm text-blue-900 mt-1">
             {loadingSessions
@@ -259,10 +206,24 @@ const MentorHomeTab = () => {
           >
             <div className="relative w-9 h-9">
               <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e3a5f" strokeWidth="3"
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="15.9"
+                  fill="none"
+                  stroke="#e2e8f0"
+                  strokeWidth="3"
+                />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="15.9"
+                  fill="none"
+                  stroke="#1e3a5f"
+                  strokeWidth="3"
                   strokeDasharray={`${completionPct} ${100 - completionPct}`}
-                  strokeLinecap="round" />
+                  strokeLinecap="round"
+                />
               </svg>
               {/* ✅ FIX: text-[10px] instead of text-[9px], color text-blue-900 on white bg passes contrast */}
               <span className="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-blue-900">
@@ -304,11 +265,12 @@ const MentorHomeTab = () => {
 
       {/* ── Main two-column layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-
         {/* LEFT — Active Sessions */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-700">Active Sessions</h2>
+            <h2 className="text-base font-bold text-slate-700">
+              Active Sessions
+            </h2>
             {sessions.length > 0 && (
               // ✅ FIX: text-blue-900 on bg-blue-100 passes contrast (was text-blue-500 on bg-blue-50)
               <span className="text-xs font-bold text-blue-900 bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-full">
@@ -320,19 +282,35 @@ const MentorHomeTab = () => {
           {loadingSessions ? (
             <div className="flex flex-col gap-3">
               <SessionSkeleton />
-              <SessionSkeleton />
+             <SessionSkeleton />
             </div>
           ) : sessions.length > 0 ? (
             <div className="flex flex-col gap-3">
               {sessions.map((request, idx) => (
-                <SessionCard key={request._id} request={request} index={idx} navigate={navigate} />
+                <SessionCard
+                  key={request._id}
+                  request={request}
+                  index={idx}
+                  navigate={navigate}
+                  personKey="mentee"
+                  size="default"
+                  accentPalette={MENTOR_ACCENT_COLORS}
+                />
               ))}
             </div>
           ) : (
             <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center flex flex-col items-center gap-3 shadow-sm">
               <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <rect x="3" y="4" width="18" height="18" rx="2" />
                   <line x1="16" y1="2" x2="16" y2="6" />
                   <line x1="8" y1="2" x2="8" y2="6" />
@@ -340,9 +318,12 @@ const MentorHomeTab = () => {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-900">No active sessions</p>
+                <p className="text-sm font-semibold text-blue-900">
+                  No active sessions
+                </p>
                 <p className="text-xs text-blue-900 mt-1 max-w-xs leading-relaxed">
-                  Sessions appear here once a mentee completes escrow payment for an accepted request.
+                  Sessions appear here once a mentee completes escrow payment
+                  for an accepted request.
                 </p>
               </div>
             </div>
@@ -351,7 +332,6 @@ const MentorHomeTab = () => {
 
         {/* RIGHT — Badges + Earnings */}
         <div className="flex flex-col gap-4">
-
           {/* Badges */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
@@ -367,17 +347,26 @@ const MentorHomeTab = () => {
                   key={badge.key}
                   title={badge.desc}
                   className={`relative flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border transition-all duration-200
-                    ${badge.unlocked
-                      ? "bg-blue-50 border-blue-200 shadow-md shadow-blue-200"
-                      : "bg-slate-100 border-slate-400 border-dashed opacity-90 grayscale"}`}
+                    ${
+                      badge.unlocked
+                        ? "bg-blue-50 border-blue-200 shadow-md shadow-blue-200"
+                        : "bg-slate-100 border-slate-400 border-dashed opacity-90 grayscale"
+                    }`}
                 >
                   {!badge.unlocked && (
-                    <span className="absolute top-1 left-1 text-[10px]" style={{ filter: "none" }}>🔒</span>
+                    <span
+                      className="absolute top-1 left-1 text-[10px]"
+                      style={{ filter: "none" }}
+                    >
+                      🔒
+                    </span>
                   )}
                   <span className="text-xl relative">{badge.icon}</span>
                   {/* ✅ FIX: text-blue-900 / text-slate-700 both pass on their backgrounds */}
-                  <span className={`text-[10px] font-bold text-center leading-tight
-                    ${badge.unlocked ? "text-blue-900" : "text-slate-700"}`}>
+                  <span
+                    className={`text-[10px] font-bold text-center leading-tight
+                    ${badge.unlocked ? "text-blue-900" : "text-slate-700"}`}
+                  >
                     {badge.label}
                   </span>
                 </div>
@@ -388,7 +377,9 @@ const MentorHomeTab = () => {
           {/* Earnings Summary */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-bold text-slate-700">Earnings Summary</p>
+              <p className="text-sm font-bold text-slate-700">
+                Earnings Summary
+              </p>
               {/* ✅ FIX: text-emerald-800 on bg-emerald-100 passes contrast (was text-emerald-600 on bg-emerald-50) */}
               <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-full">
                 Leap Points
@@ -401,61 +392,116 @@ const MentorHomeTab = () => {
               <div className="space-y-1">
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-blue-400 pl-3">
                   <div>
-                    <p className="text-xs text-blue-900 font-semibold">Total Earnings</p>
-                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">from completed sessions</p>
+                    <p className="text-xs text-blue-900 font-semibold">
+                      Total Earnings
+                    </p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">
+                      from completed sessions
+                    </p>
                   </div>
                   <p className="text-sm font-extrabold text-slate-800">
                     {fmt(earnings?.totalEarnings)}
                     {/* ✅ FIX: text-blue-800 instead of text-blue-500 — passes on white bg */}
-                    <span className="text-xs font-bold text-blue-800 ml-1">LP</span>
+                    <span className="text-xs font-bold text-blue-800 ml-1">
+                      LP
+                    </span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-amber-400 pl-3">
                   <div>
-                    <p className="text-xs text-blue-900 font-semibold">Pending Payout</p>
-                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">locked in escrow</p>
+                    <p className="text-xs text-blue-900 font-semibold">
+                      Pending Payout
+                    </p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">
+                      locked in escrow
+                    </p>
                   </div>
                   {/* ✅ FIX: text-amber-800 instead of text-amber-600, text-amber-700 instead of text-amber-400 */}
                   <p className="text-sm font-extrabold text-amber-800">
                     {fmt(earnings?.pendingPayout)}
-                    <span className="text-xs font-bold text-amber-700 ml-1">LP</span>
+                    <span className="text-xs font-bold text-amber-700 ml-1">
+                      LP
+                    </span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-indigo-400 pl-3">
                   <div>
-                    <p className="text-xs text-blue-900 font-semibold">This Month</p>
-                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">completed sessions</p>
+                    <p className="text-xs text-blue-900 font-semibold">
+                      This Month
+                    </p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">
+                      completed sessions
+                    </p>
                   </div>
                   <p className="text-sm font-extrabold text-blue-900">
                     {earnings?.sessionsThisMonth ?? 0}
-                    <span className="text-xs font-semibold text-blue-800 ml-1">sessions</span>
+                    <span className="text-xs font-semibold text-blue-800 ml-1">
+                      sessions
+                    </span>
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between py-2.5 border-l-4 border-l-emerald-400 pl-3">
                   <div>
-                    <p className="text-xs text-blue-900 font-semibold">Available Balance</p>
-                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">ready to withdraw</p>
+                    <p className="text-xs text-blue-900 font-semibold">
+                      Available Balance
+                    </p>
+                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">
+                      ready to withdraw
+                    </p>
                   </div>
                   {/* ✅ FIX: text-emerald-800 instead of text-emerald-600, text-emerald-700 instead of text-emerald-400 */}
                   <p className="text-sm font-extrabold text-emerald-800">
                     {fmt(earnings?.walletBalance)}
-                    <span className="text-xs font-bold text-emerald-700 ml-1">LP</span>
+                    <span className="text-xs font-bold text-emerald-700 ml-1">
+                      LP
+                    </span>
                   </p>
                 </div>
               </div>
             )}
           </div>
-
         </div>
       </div>
 
       <LeapBuddy role="mentor" user={user} profile={profile} />
-
     </div>
   );
 };
 
+MentorHomeTab.propTypes = {
+  setActiveTab: PropTypes.func.isRequired,
+};
+StatCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sub: PropTypes.string,
+  icon: PropTypes.node.isRequired,
+};
+
+SessionCard.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string,
+    status: PropTypes.string,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    confirmedSlot: PropTypes.shape({
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+    selectedSlots: PropTypes.arrayOf(
+      PropTypes.shape({
+        date: PropTypes.string,
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      })
+    ),
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  navigate: PropTypes.func.isRequired,
+};
 export default MentorHomeTab;

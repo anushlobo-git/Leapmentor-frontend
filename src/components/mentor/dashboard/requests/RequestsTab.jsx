@@ -1,6 +1,11 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/mentor/dashboard/requests/RequestsTab.jsx
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 import RequestCard from "./RequestCard";
 import MenteeProfileModal from "./MenteeProfileModal";
 import EmptyState from "../../../common/EmptyState";
@@ -24,11 +29,13 @@ const RequestsTab = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   const fetchRequests = useCallback(async () => {
+    logger.info("Fetching incoming mentor requests");
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/connect-requests/incoming`);
       setRequests(res.data.requests || []);
     } catch (err) {
+      logger.warn("Failed to fetch incoming mentor requests", { error: err?.message });
       setError(err?.response?.data?.message || "Failed to load requests.");
     } finally {
       setLoading(false);
@@ -37,18 +44,22 @@ const RequestsTab = () => {
   }, []);
   // ✅ ADD this useEffect (make sure useEffect is already imported):
   useEffect(() => {
-    const handleRequestChanged = () => fetchRequests();
+    const handleRequestChanged = (data) => {
+      logger.info("Request status changed socket event received", { data });
+      fetchRequests();
+    };
 
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        window.__leapSocket.on("request_status_changed", handleRequestChanged);
+        logger.info("Request socket connected, registering request_status_changed listener");
+        globalThis.__leapSocket.on("request_status_changed", handleRequestChanged);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket?.off("request_status_changed", handleRequestChanged);
+      globalThis.__leapSocket?.off("request_status_changed", handleRequestChanged);
     };
   }, [fetchRequests]);
 

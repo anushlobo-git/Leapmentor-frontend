@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 import LetterBall from "@atoms/LetterBall";
 import HeroSlider from "@molecules/HeroSlider"; 
 

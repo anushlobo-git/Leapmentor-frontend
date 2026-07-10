@@ -1,13 +1,18 @@
-export default function GoogleIcon({ 
-  className = "", 
-  width = "18", 
-  height = "18" 
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import PropTypes from "prop-types";
+export default function GoogleIcon({
+  className = "",
+  width = "18",
+  height = "18"
 }) {
   return (
-    <svg 
-      width={width} 
-      height={height} 
-      viewBox="0 0 24 24" 
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 24 24"
       className={className}
       aria-hidden="true"
     >
@@ -18,3 +23,9 @@ export default function GoogleIcon({
     </svg>
   );
 }
+
+GoogleIcon.propTypes = {
+  className: PropTypes.string,
+  width: PropTypes.string,
+  height: PropTypes.string,
+};

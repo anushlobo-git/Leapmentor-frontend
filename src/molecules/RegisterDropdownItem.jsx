@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import PropTypes from "prop-types";
+
 export default function RegisterDropdownItem({
   emoji,
   title,
@@ -24,3 +30,11 @@ export default function RegisterDropdownItem({
     </button>
   );
 }
+
+RegisterDropdownItem.propTypes = {
+  emoji: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string.isRequired,
+  iconBg: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};

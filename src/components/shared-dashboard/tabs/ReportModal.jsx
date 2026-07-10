@@ -1,6 +1,17 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/shared-dashboard/tabs/ReportModal.jsx
 import { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import useReportComplaint from "../../../hooks/useReportComplaint";
+import {
+  selectConnectId,
+  selectViewerRole,
+} from "../../../store/slices/sharedDashboardSlice";
+import PropTypes from "prop-types";
+import { validateScreenshotFile } from "../../../utils/validation/schemas";
 
 const COMPLAINT_ICONS = {
   inappropriate_behavior: "🚫",
@@ -19,7 +30,16 @@ const BASE_COMPLAINT_TYPES = [
   { value: "other", label: "Other", sub: "Something not listed above" },
 ];
 
-const ReportModal = ({ connect, onClose, onSuccess }) => {
+const ReportModal = ({ onClose, onSuccess }) => {
+  const connectId = useSelector(selectConnectId);
+  const viewerRole = useSelector(selectViewerRole);
+  const otherName = useSelector((state) => {
+    const c = state.sharedDashboard.connect;
+    if (!c) return "Partner";
+    return c.viewerRole === "mentee"
+      ? c.mentor?.name || "Mentor"
+      : c.mentee?.name || "Mentee";
+  });
   const [complaintType, setComplaintType] = useState("");
   const [description, setDescription] = useState("");
   const [screenshot, setScreenshot] = useState(null);
@@ -28,32 +48,34 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
 
   const COMPLAINT_TYPES = [
     ...BASE_COMPLAINT_TYPES.filter(ct => ct.value !== "refund"),
-    ...(connect?.viewerRole === "mentee"
+    ...(viewerRole === "mentee"
       ? [{ value: "refund", label: " Refund Issue", sub: "Request a refund for a session or payment" }]
       : []
     ),
-    
+
   ].reduce((acc, ct) => {
     if (ct.value === "other") return acc; // drop dupes first
     acc.push(ct);
     return acc;
   }, []).concat(BASE_COMPLAINT_TYPES.find(ct => ct.value === "other"));
 
-  const { submitReport, submitting, error, setError } = useReportComplaint(connect?._id);
-
-  const otherName = connect?.viewerRole === "mentee"
-    ? connect?.mentor?.name || "Mentor"
-    : connect?.mentee?.name || "Mentee";
+  const { submitReport, submitting, error, setError } = useReportComplaint(connectId);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    globalThis.addEventListener("keydown", handler);
+    return () => globalThis.removeEventListener("keydown", handler);
   }, [onClose]);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validation = validateScreenshotFile(file);
+    if (!validation.valid) {
+      setError(validation.error);
+      return;
+    }
+    setError(null);
     setScreenshot(file);
     setPreview(URL.createObjectURL(file));
   };
@@ -273,6 +295,11 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
       </div>
     </div>
   );
+};
+
+ReportModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
 };
 
 export default ReportModal;

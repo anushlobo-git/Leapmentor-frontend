@@ -1,6 +1,11 @@
-const SearchBar = ({ skill, setSkill }) => {
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import PropTypes from "prop-types";
+const SearchBar = ({ skill, setSkill, totalCount, hasSearched }) => {
 const handleChange = (e) => {
-setSkill(e.target.value); 
+setSkill(e.target.value);
 };
 const handleClear = () => {
 setSkill("");
@@ -36,5 +41,11 @@ stroke="#64748B" strokeWidth="3" strokeLinecap="round">
 )}
 </div>
 );
+};
+SearchBar.propTypes = {
+  skill: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  setSkill: PropTypes.func.isRequired,
+  totalCount: PropTypes.number.isRequired,
+  hasSearched: PropTypes.bool.isRequired,
 };
 export default SearchBar;

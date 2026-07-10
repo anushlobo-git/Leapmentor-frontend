@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/pages/RegisterMentee.jsx
 import AuthLeftPanel from "../components/auth/AuthLeftPanel";
 import RegisterForm from "../components/auth/RegisterForm";

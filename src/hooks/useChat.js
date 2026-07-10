@@ -1,10 +1,19 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useChat.js
 import { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
+import logger from "@utils/logger";
 
 
 const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
+/**
+ * Custom hook for chat.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useChat = (connectRequestId) => {
   const [messages, setMessages] = useState([]);
@@ -27,6 +36,7 @@ const useChat = (connectRequestId) => {
 
   // ── Fetch message history (REST) ──────────────────────────
   const fetchHistory = useCallback(async (roomId, pageNum = 1) => {
+    logger.info("Loading chat history", { roomId, page: pageNum });
     const res = await axiosInstance.get(`/messages/${roomId}`, {
       params: { page: pageNum, limit: PAGE_LIMIT },
     });
@@ -49,6 +59,7 @@ const useChat = (connectRequestId) => {
         setHasMore(data.hasMore);
         setPage(1);
       } catch (err) {
+        logger.warn("Failed to load chat messages", { roomId: connectRequestId, error: err?.message });
         if (!cancelled)
           setError(err?.response?.data?.message || "Failed to load messages");
       } finally {
@@ -69,10 +80,11 @@ const useChat = (connectRequestId) => {
     if (!connectRequestId) return;
 
     const joinRoom = () => {
-      window.__leapSocket?.emit("join_room", { connectRequestId });
+      globalThis.__leapSocket?.emit("join_room", { connectRequestId });
     };
 
     const handleNewMessage = (message) => {
+      logger.info("New chat message received", { roomId: connectRequestId, messageId: message._id });
       setMessages((prev) => {
         if (prev.some((m) => m._id === message._id)) return prev;
         return [...prev, message];
@@ -86,34 +98,38 @@ const useChat = (connectRequestId) => {
     const handleMessagesRead = ({ readAt }) => {
       setMessages((prev) => prev.map((m) => (m.readAt ? m : { ...m, readAt })));
     };
-    const handleError = ({ message }) => setError(message);
+    const handleError = (error) => {
+      logger.warn("Chat socket error", { roomId: connectRequestId, error });
+      setError(error?.message || error?.toString?.() || "Socket error");
+    };
 
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        socketRef.current = window.__leapSocket;
+        socketRef.current = globalThis.__leapSocket;
+        logger.info("Chat socket connected, joining room", { roomId: connectRequestId });
         joinRoom();
 
-        window.__leapSocket.on("new_message", handleNewMessage);
-        window.__leapSocket.on("typing_start", handleTypingStart);
-        window.__leapSocket.on("typing_stop", handleTypingStop);
-        window.__leapSocket.on("user_online", handleUserOnline);
-        window.__leapSocket.on("user_offline", handleUserOffline);
-        window.__leapSocket.on("messages_read", handleMessagesRead);
-        window.__leapSocket.on("error", handleError);
+        globalThis.__leapSocket.on("new_message", handleNewMessage);
+        globalThis.__leapSocket.on("typing_start", handleTypingStart);
+        globalThis.__leapSocket.on("typing_stop", handleTypingStop);
+        globalThis.__leapSocket.on("user_online", handleUserOnline);
+        globalThis.__leapSocket.on("user_offline", handleUserOffline);
+        globalThis.__leapSocket.on("messages_read", handleMessagesRead);
+        globalThis.__leapSocket.on("error", handleError);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
       clearTimeout(typingTimerRef.current);
-      window.__leapSocket?.off("new_message", handleNewMessage);
-      window.__leapSocket?.off("typing_start", handleTypingStart);
-      window.__leapSocket?.off("typing_stop", handleTypingStop);
-      window.__leapSocket?.off("user_online", handleUserOnline);
-      window.__leapSocket?.off("user_offline", handleUserOffline);
-      window.__leapSocket?.off("messages_read", handleMessagesRead);
-      window.__leapSocket?.off("error", handleError);
+      globalThis.__leapSocket?.off("new_message", handleNewMessage);
+      globalThis.__leapSocket?.off("typing_start", handleTypingStart);
+      globalThis.__leapSocket?.off("typing_stop", handleTypingStop);
+      globalThis.__leapSocket?.off("user_online", handleUserOnline);
+      globalThis.__leapSocket?.off("user_offline", handleUserOffline);
+      globalThis.__leapSocket?.off("messages_read", handleMessagesRead);
+      globalThis.__leapSocket?.off("error", handleError);
       socketRef.current = null;
     };
   }, [connectRequestId]);

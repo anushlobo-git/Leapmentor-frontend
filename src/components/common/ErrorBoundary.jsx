@@ -1,5 +1,10 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/components/common/ErrorBoundary.jsx
 import React from "react";
+import logger from "@utils/logger";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,12 +18,13 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // Note: We can integrate with a real logger/reporting service here if available
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    logger.error("ErrorBoundary caught an error:", { error: error.message || error, errorInfo });
   }
 
   handleReset = () => {
     this.setState({ hasError: false, error: null });
-    window.location.href = "/";
+    logger.info("ErrorBoundary reset — navigating to homepage");
+    globalThis.location.href = "/";
   };
 
   render() {

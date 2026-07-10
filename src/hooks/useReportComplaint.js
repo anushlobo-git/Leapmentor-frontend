@@ -1,6 +1,14 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
 // src/hooks/useReportComplaint.js
 import { useState, useCallback } from "react";
 import axiosInstance from "@utils/axiosInstance";
+/**
+ * Custom hook for report complaint.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
 
 const useReportComplaint = (connectRequestId) => {
   const [submitting, setSubmitting] = useState(false);

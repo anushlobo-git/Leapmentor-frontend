@@ -1,23 +1,30 @@
+const logger = {
+  info: (...args) => console.info("[SW]", ...args),
+  warn: (...args) => console.warn("[SW]", ...args),
+  error: (...args) => console.error("[SW]", ...args),
+};
+
 self.addEventListener("push", (event) => {
   if (!event.data) return;
+
   const data = event.data.json();
-  console.log("🔔 SW received push:", data); // ✅ check if push arrives
+  logger.info("🔔 SW received push", data); // ✅ check if push arrives
 
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
-        console.log("🔔 SW clients found:", clientList.length); // ✅ check if tab is detected
+        logger.info("🔔 SW clients found", clientList.length); // ✅ check if tab is detected
 
         const appOpen = clientList.some((client) =>
           client.url.includes(self.location.origin),
         );
-        console.log("🔔 SW app is open:", appOpen); // ✅ check if app detected as open
+        logger.info("🔔 SW app is open", appOpen); // ✅ check if app detected as open
 
         if (appOpen) {
           clientList.forEach((client) => {
             if (client.url.includes(self.location.origin)) {
-              console.log("🔔 SW posting message to client:", client.url);
+              logger.info("🔔 SW posting message to client", client.url);
               client.postMessage({ type: "SHOW_TOAST", payload: data });
             }
           });
@@ -31,6 +38,9 @@ self.addEventListener("push", (event) => {
           data: { url: data.url || "/" },
           vibrate: [200, 100, 200],
         });
+      })
+      .catch((error) => {
+        logger.error("🔔 SW push handling failed", error);
       }),
   );
 });
