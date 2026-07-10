@@ -4,7 +4,7 @@
 
 // src/components/common/ErrorBoundary.jsx
 import React from "react";
-import logger from "@utils/logger";
+import logger from "@lib/logger";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

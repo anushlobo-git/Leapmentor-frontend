@@ -1,31 +1,24 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      // 2. Now __dirname will work perfectly here
-      "@atoms": path.resolve(__dirname, "./src/atoms"),
-      "@molecules": path.resolve(__dirname, "./src/molecules"),
-      "@organisms": path.resolve(__dirname, "./src/organisms"),
-      "@templates": path.resolve(__dirname, "./src/templates"),
-      "@pages": path.resolve(__dirname, "./src/pages"),
-      "@hooks": path.resolve(__dirname, "./src/hooks"),
-      "@utils": path.resolve(__dirname, "./src/utils"),
-      "@api": path.resolve(__dirname, "./src/api"),
-      "@store": path.resolve(__dirname, "./src/store"),
-      "@context": path.resolve(__dirname, "./src/context"),
+      "@app": path.resolve(__dirname, "./src/app"),
+      "@features": path.resolve(__dirname, "./src/features"),
       "@components": path.resolve(__dirname, "./src/components"),
-      "@mappers": path.resolve(__dirname, "./src/mappers"),
+      "@lib": path.resolve(__dirname, "./src/lib"),
+      "@store": path.resolve(__dirname, "./src/store"),
       "@constants": path.resolve(__dirname, "./src/constants"),
+      "@config": path.resolve(__dirname, "./src/config"),
+      "@test": path.resolve(__dirname, "./src/test"),
     },
   },
   build: {
@@ -40,5 +33,3 @@ export default defineConfig({
     },
   },
 });
-
-

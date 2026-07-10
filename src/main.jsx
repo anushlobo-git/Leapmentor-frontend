@@ -5,14 +5,14 @@
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import store from "./store/index.js";
-import { injectStore } from "./utils/axiosInstance.js"; // FIX: import injectStore
+import store from "@store/index";
+import { injectStore } from "@lib/axiosInstance"; // FIX: import injectStore
 import "./index.css";
 import * as Sentry from "@sentry/react";
-import { ToastProvider } from "./context/ToastContext.jsx";
-import logger from "./utils/logger.js";
+import { ToastProvider } from "@app/providers/ToastContext";
+import logger from "@lib/logger";
 
-const App = lazy(() => import("./App.jsx"));
+const App = lazy(() => import("@app/App"));
 
 // FIX: give the Axios interceptor access to Redux store
 // Must be called before any API request fires — here is the right place

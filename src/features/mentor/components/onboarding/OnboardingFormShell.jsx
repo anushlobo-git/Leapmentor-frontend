@@ -1,0 +1,286 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// components/mentor/onboarding/OnboardingFormShell.jsx
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { submitMentorOnboarding, clearMentorOnboardingMessages } from "@features/mentor/store/mentorOnboardingSlice";
+import FullScreenLoader from "@components/common/FullScreenLoader";
+import PropTypes from "prop-types";
+import PersonalInfoSection from "@features/mentor/components/onboarding/PersonalInfoSection";
+import ProfessionalInfoSection from "@features/mentor/components/onboarding/ProfessionalInfoSection";
+import SkillsSection from "@features/mentor/components/onboarding/SkillsSection";
+import PreferencesSection from "@features/mentor/components/onboarding/PreferencesSection";
+import SocialLinksSection from "@features/mentor/components/onboarding/SocialLinksSection";
+import OnboardingProgressBar from "@components/ui/OnboardingProgressBar";
+import { MENTOR_ONBOARDING_FIELDS } from "@config/onboardingFields";
+import { IMAGES } from "@constants/images";
+
+const OnboardingFormShell = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
+
+
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("mentorOnboardingForm");
+      return saved ? JSON.parse(saved) : {
+        profilePicture: "",
+        profilePictureFileName: "",
+        bio: "",
+        currentRole: "",
+        industry: "",
+        company: "",
+        yearsOfExperience: "",
+        hourlyRate: "",
+        skills: [],
+        communicationPreferences: [],
+        languages: "",
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    } catch {
+      return {
+        profilePicture: "",
+        profilePictureFileName: "",
+        bio: "",
+        currentRole: "",
+        industry: "",
+        company: "",
+        yearsOfExperience: "",
+        hourlyRate: "",
+        skills: [],
+        communicationPreferences: [],
+        languages: "",
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+    }
+  });
+
+  // ── Validation errors ──
+  const [errors, setErrors] = useState({});
+
+  // local msg — used for validation errors + synced from Redux
+  const [msg, setMsg] = useState({ type: "", text: "" });
+  const [redirecting, setRedirecting] = useState(false);
+
+  // ── Refs for custom section components that can't be targeted by name= ──
+  const sectionRefs = {
+    skills: useRef(null),
+  };
+
+  // sync Redux error/successMsg → local msg
+  useEffect(() => {
+    if (error) setMsg({ type: "error", text: error });
+    if (successMsg) {
+      sessionStorage.removeItem("mentorOnboardingForm");
+      dispatch(clearMentorOnboardingMessages());
+      setRedirecting(true);
+      setTimeout(() => navigate("/verify-documents"), 1500);
+    }
+  }, [error, successMsg]);
+
+  useEffect(() => {
+    return () => { dispatch(clearMentorOnboardingMessages()); };
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
+  }, [form]);
+
+  // ── Validate required fields ──
+  const validate = () => {
+    const newErrors = {};
+    if (!form.currentRole?.trim()) newErrors.currentRole = true;
+    if (!form.yearsOfExperience) newErrors.yearsOfExperience = true;
+    if (!form.industry?.trim()) newErrors.industry = true;
+    if (!form.skills?.length) newErrors.skills = true;
+    return newErrors;
+  };
+
+  // ── Scroll to the first errored field ──
+  // Priority: name= attribute → data-field= attribute → React ref
+  const scrollToFirstError = (errorKeys) => {
+    if (!errorKeys.length) return;
+    const firstKey = errorKeys[0];
+
+    const el =
+      document.querySelector(`[name="${firstKey}"]`) ||
+      document.querySelector(`[data-field="${firstKey}"]`) ||
+      sectionRefs[firstKey]?.current;
+
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  // ── Universal onChange — clears error + enforces numeric range limits ──
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // ── hourlyRate: only block values clearly over the max as you type.
+    //    Do NOT enforce min here — enforcing min=1 causes the "reduces by 1"
+    //    glitch because the browser normalises an empty/transitional value to
+    //    the min before React can update state. Min is checked on submit instead.
+    if (name === "hourlyRate" && value !== "") {
+      const num = Number(value);
+      if (num > 100) return;
+    }
+
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMsg({ type: "", text: "" });
+    dispatch(clearMentorOnboardingMessages());
+
+    // ── Run client-side required-field validation first ──
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      scrollToFirstError(Object.keys(newErrors));
+      return;
+    }
+    setErrors({});
+
+    // ── Additional validations ──
+    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
+    if (isOnlyNumbers(form.currentRole))
+      return setMsg({ type: "error", text: "Current Role cannot be a number." });
+    if (isOnlyNumbers(form.company))
+      return setMsg({ type: "error", text: "Company name cannot be a number." });
+
+    // ── Numeric range safety net (catches pasted values that bypass onChange) ──
+    if (form.hourlyRate && (Number(form.hourlyRate) < 1 || Number(form.hourlyRate) > 100))
+      return setMsg({ type: "error", text: "Session rate must be between ₹1 and ₹100." });
+
+    const isValidUrl = (val) => {
+      if (!val) return true;
+      try { new URL(val); return true; }
+      catch { return false; }
+    };
+    if (!isValidUrl(form.linkedInUrl))
+      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
+    if (!isValidUrl(form.portfolioUrl))
+      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
+
+    const payload = {
+      ...form,
+      profilePictureFileName: form.profilePictureFileName || "",
+      yearsOfExperience: Number(form.yearsOfExperience) || 0,
+      hourlyRate: Number(form.hourlyRate) || 0,
+      languages: typeof form.languages === "string"
+        ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
+        : form.languages,
+    };
+
+    dispatch(submitMentorOnboarding(payload));
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      {redirecting && <FullScreenLoader message="Setting up your profile..." />}
+
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
+
+      {/* Top accent bar */}
+      <div className="h-1 w-full bg-blue-900" />
+
+      {/* Sticky header */}
+      <header className="sticky top-0 z-10 bg-white border-b border-[#e8edf5] shadow-sm">
+        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <img
+              src={IMAGES.LOGO_PNG}
+              alt="Leapmentor logo"
+              className="h-8 w-auto"
+            />
+            <span className="text-sm font-bold text-[#0f172a]">Mentor Onboarding</span>
+          </div>
+        </div>
+      </header>
+
+      <OnboardingProgressBar form={form} fields={MENTOR_ONBOARDING_FIELDS} />
+
+      {/* Page title */}
+      <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
+        <h1 className="text-2xl font-bold text-[#0f172a]">Mentor Onboarding</h1>
+        <p className="text-sm text-slate-600 mt-1">
+          Complete your profile setup and help mentees find you.
+        </p>
+      </div>
+
+      {/* Form */}
+      <main className="max-w-2xl mx-auto px-6 py-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+
+          <PersonalInfoSection form={form} onChange={handleChange} errors={errors} />
+          <ProfessionalInfoSection form={form} onChange={handleChange} errors={errors} />
+
+          {/* ref forwarded so scrollToFirstError can target this section */}
+          <SkillsSection
+            ref={sectionRefs.skills}
+            form={form}
+            onChange={handleChange}
+            errors={errors}
+          />
+
+          <PreferencesSection form={form} onChange={handleChange} />
+          <SocialLinksSection form={form} onChange={handleChange} />
+
+          {/* Status message */}
+          {msg.text && (
+            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
+              ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
+              : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
+              }`}>
+              <span>{msg.type === "success" ? "✓" : "⚠"}</span>
+              {msg.text}
+            </div>
+          )}
+
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-blue-900 hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md shadow-[#2563eb30]"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Saving profile…
+              </span>
+            ) : (
+              "Submit Profile →"
+            )}
+          </button>
+
+          <p className="text-center text-xs text-slate-600 pb-8">
+            You can always edit your profile from the dashboard.
+          </p>
+        </form>
+      </main>
+    </div>
+  );
+};
+PersonalInfoSection.propTypes = {
+  form: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    bio: PropTypes.string,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+export default OnboardingFormShell;
