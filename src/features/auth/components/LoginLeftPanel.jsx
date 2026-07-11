@@ -25,15 +25,12 @@ const LoginLeftPanel = () => {
 
         {/* Headline */}
         <h2 className="text-4xl font-extrabold leading-tight mb-4 tracking-tight">
-          
-             <>The right connection<br />changes everything.</>
-             
-          
+          The right connection<br />changes everything.
         </h2>
 
         {/* Subtext */}
         <p className="text-sm text-white/70 leading-relaxed max-w-xs">
-          <>Where experience meets ambition <br/> grow together, go further.</>
+          Where experience meets ambition <br /> grow together, go further.
         </p>
       </div>
     </div>

@@ -27,7 +27,28 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
-      exclude: ["node_modules/", "src/test/"],
+      include: [
+        "src/app/**/*.{js,jsx}",
+        "src/features/**/*.{js,jsx}",
+        "src/components/**/*.{js,jsx}",
+        "src/lib/**/*.{js,jsx}",
+        "src/store/**/*.{js,jsx}",
+      ],
+      exclude: [
+        "node_modules/",
+        "src/test/",
+        "src/main.jsx",
+        "src/**/*.test.{js,jsx}",
+        "src/**/*.stories.{js,jsx}",
+        "src/constants/**",
+        "src/config/**",
+      ],
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
 });

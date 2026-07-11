@@ -2,18 +2,35 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import PropTypes from 'prop-types';
+import { useEffect } from "react";
+import PropTypes from "prop-types";
+
 export default function ContactModal({ isOpen, onClose }) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    <dialog
+      open
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-      role="dialog"
       aria-modal="true"
       aria-labelledby="contact-modal-title"
     >
+      <button
+        type="button"
+        aria-label="Close contact modal"
+        onClick={onClose}
+        className="absolute inset-0 w-full h-full cursor-default"
+        style={{ border: "none", background: "transparent", padding: 0 }}
+      />
       <div
         style={{
           background: "#fff",
@@ -39,7 +56,16 @@ export default function ContactModal({ isOpen, onClose }) {
             margin: "0 auto 18px",
           }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
@@ -47,7 +73,12 @@ export default function ContactModal({ isOpen, onClose }) {
 
         <h2
           id="contact-modal-title"
-          style={{ fontSize: "18px", fontWeight: "700", color: "#0f172a", marginBottom: "6px" }}
+          style={{
+            fontSize: "18px",
+            fontWeight: "700",
+            color: "#0f172a",
+            marginBottom: "6px",
+          }}
         >
           Contact Us
         </h2>
@@ -73,10 +104,25 @@ export default function ContactModal({ isOpen, onClose }) {
             textDecoration: "none",
             transition: "all 0.2s",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#ede9fe"; e.currentTarget.style.borderColor = "#a5b4fc"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.borderColor = "#e2e8f0"; }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#ede9fe";
+            e.currentTarget.style.borderColor = "#a5b4fc";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "#f1f5f9";
+            e.currentTarget.style.borderColor = "#e2e8f0";
+          }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
@@ -96,8 +142,12 @@ export default function ContactModal({ isOpen, onClose }) {
               cursor: "pointer",
               transition: "all 0.2s",
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = "#f8fafc"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#f8fafc";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "none";
+            }}
           >
             Close
           </button>
@@ -110,9 +160,10 @@ export default function ContactModal({ isOpen, onClose }) {
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
-    </div>
+    </dialog>
   );
 }
+
 ContactModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

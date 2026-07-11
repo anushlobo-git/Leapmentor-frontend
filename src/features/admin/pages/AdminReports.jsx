@@ -12,6 +12,11 @@ import PropTypes from "prop-types";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
+// Stable identifiers + widths for the loading skeleton (avoids array index as key)
+const SKELETON_ROW_IDS = ["sk-row-1", "sk-row-2", "sk-row-3", "sk-row-4", "sk-row-5"];
+const SKELETON_COL_IDS = ["sk-col-1", "sk-col-2", "sk-col-3", "sk-col-4", "sk-col-5", "sk-col-6"];
+const SKELETON_COL_WIDTHS = [100, 100, 100, 100, 100, 60];
+
 // ── Toast ─────────────────────────────────────────────────────
 const Toast = ({ toast }) => {
   if (!toast) return null;
@@ -41,7 +46,7 @@ const StatusBadge = ({ status }) => {
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-700 uppercase tracking-wide"
       style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, fontWeight: 700, letterSpacing: "0.06em", fontFamily: FONT }}>
-      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
+      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: cfg.dot }} />
       {cfg.label}
     </span>
   );
@@ -161,13 +166,13 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
           style={{ fontFamily: FONT, maxHeight: "90vh" }}>
 
           {/* Fixed Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b flex-shrink-0"
+          <div className="flex items-center justify-between px-6 py-5 border-b shrink-0"
             style={{ borderColor: "#e8eaf0" }}>
             <div>
               <p className="text-sm font-600 text-slate-800" style={{ fontWeight: 700 }}>Handle Report</p>
               <p className="text-xs text-slate-600 mt-0.5">Update status and take action</p>
             </div>
-            <button type="button" onClick={onClose}
+            <button type="button" aria-label="Close report dialog" onClick={onClose}
               className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
               style={{ background: "#f1f5f9" }}
               onMouseEnter={(e) => e.currentTarget.style.background = "#e2e8f0"}
@@ -328,10 +333,11 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
 
             {/* Admin note */}
             <div>
-              <label className="text-xs font-600 text-slate-500 block mb-1.5" style={{ fontWeight: 600 }}>
+              <label htmlFor="admin-note" className="text-xs font-600 text-slate-500 block mb-1.5" style={{ fontWeight: 600 }}>
                 Admin Note <span className="text-slate-400 font-400">(optional)</span>
               </label>
               <textarea
+                id="admin-note"
                 value={adminNote}
                 onChange={(e) => setAdminNote(e.target.value)}
                 placeholder="Add a note about how this was resolved or any action taken..."
@@ -347,7 +353,7 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
           </div>
 
           {/* Fixed Footer */}
-          <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0" style={{ borderColor: "#e8eaf0" }}>
+          <div className="flex gap-3 px-6 py-4 border-t shrink-0"  style={{ borderColor: "#e8eaf0" }}>
             <button type="button" onClick={onClose}
               className="flex-1 py-2.5 rounded-xl text-xs font-600 transition-all"
               style={{ background: "#f1f5f9", color: "#475569", fontWeight: 600, border: "1px solid #e2e8f0" }}>
@@ -489,6 +495,53 @@ const AdminReports = () => {
     { key: "dismissed", label: "Dismissed" },
   ];
 
+  // ── FIX FOR S3358 / S7723 / S6479: independent statement, no Array(), no index keys ──
+  let tableBody;
+
+  if (loading) {
+    tableBody = SKELETON_ROW_IDS.map((rowId) => (
+      <tr key={rowId} style={{ borderBottom: "1px solid #f1f5f9" }}>
+        {SKELETON_COL_IDS.map((colId, j) => (
+          <td key={colId} className="px-5 py-4">
+            <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width: SKELETON_COL_WIDTHS[j] }} />
+          </td>
+        ))}
+      </tr>
+    ));
+  } else if (reports.length === 0) {
+    tableBody = (
+      <tr><td colSpan={6} className="text-center py-16 text-sm text-slate-400">No reports found.</td></tr>
+    );
+  } else {
+    tableBody = reports.map((report) => (
+      <tr key={report.id} className="transition-colors"
+        style={{ borderBottom: "1px solid #f1f5f9" }}
+        onMouseEnter={(e) => e.currentTarget.style.background = "#fafbfc"}
+        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+        <td className="px-5 py-4">
+          <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentee || "—"}</p>
+          <p className="text-[10px] text-slate-500 mt-0.5" style={{ fontFamily: MONO }}>{report.menteeEmail}</p>
+        </td>
+        <td className="px-5 py-4">
+          <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentor || "—"}</p>
+          <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: MONO }}>{report.mentorEmail}</p>
+        </td>
+        <td className="px-5 py-4"><CategoryBadge category={report.category} /></td>
+        <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{report.date}</span></td>
+        <td className="px-5 py-4"><StatusBadge status={report.status} /></td>
+        <td className="px-5 py-4">
+          <button type="button" onClick={() => setSelected(report)}
+            className="px-3 py-1.5 rounded-xl text-xs font-600 transition-all"
+            style={{ background: "#eff6ff", color: "#2563eb", fontWeight: 600, border: "1px solid #bfdbfe" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#2563eb"; e.currentTarget.style.color = "white"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; }}>
+            Handle
+          </button>
+        </td>
+      </tr>
+    ));
+  }
+
   return (
     <AdminLayout>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
@@ -549,47 +602,7 @@ const AdminReports = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  [...Array(5)].map((_, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      {[...Array(6)].map((_, j) => (
-                        <td key={j} className="px-5 py-4">
-                          <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width: j === 5 ? 60 : 100 }} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : reports.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-16 text-sm text-slate-400">No reports found.</td></tr>
-                ) : (
-                  reports.map((report) => (
-                    <tr key={report.id} className="transition-colors"
-                      style={{ borderBottom: "1px solid #f1f5f9" }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = "#fafbfc"}
-                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                      <td className="px-5 py-4">
-                        <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentee || "—"}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5" style={{ fontFamily: MONO }}>{report.menteeEmail}</p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentor || "—"}</p>
-                        <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: MONO }}>{report.mentorEmail}</p>
-                      </td>
-                      <td className="px-5 py-4"><CategoryBadge category={report.category} /></td>
-                      <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{report.date}</span></td>
-                      <td className="px-5 py-4"><StatusBadge status={report.status} /></td>
-                      <td className="px-5 py-4">
-                        <button type="button" onClick={() => setSelected(report)}
-                          className="px-3 py-1.5 rounded-xl text-xs font-600 transition-all"
-                          style={{ background: "#eff6ff", color: "#2563eb", fontWeight: 600, border: "1px solid #bfdbfe" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = "#2563eb"; e.currentTarget.style.color = "white"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; }}>
-                          Handle
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                {tableBody}
               </tbody>
             </table>
           </div>

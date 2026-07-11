@@ -12,6 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:adminlayout": "vitest run src/features/admin/components/AdminLayout.test.jsx",
+    "test:adminlayout:coverage": "vitest run --coverage --run src/features/admin/components/AdminLayout.test.jsx",
     "analyze": "source-map-explorer 'dist/assets/*.js'"
   },
   "engines": {
@@ -47,7 +49,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.10",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
@@ -59,6 +61,6 @@
     "react-window": "^2.2.7",
     "source-map-explorer": "^2.5.3",
     "vite": "^7.3.1",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   }
 }

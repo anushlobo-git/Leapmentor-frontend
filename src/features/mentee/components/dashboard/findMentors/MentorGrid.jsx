@@ -4,21 +4,15 @@
 
 // src/components/mentee/dashboard/findMentors/MentorGrid.jsx
 import MentorCard from "@features/mentee/components/dashboard/findMentors/MentorCard";
-import MentorCardSkeleton from "@features/mentee/components/dashboard/findMentors/MentorCardSkeleton";
+import Loader from "@components/common/Loader";
 import PropTypes from "prop-types";
 
 // ✅ Added onViewProfile prop — passed down to each MentorCard
 const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, totalCount, onLoadMore, onViewProfile }) => {
 
-  // ── Loading skeletons — initial search ───────────────────
+  // ── Loading — initial search ──────────────────────────────
   if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <MentorCardSkeleton key={i} />
-        ))}
-      </div>
-    );
+    return <Loader minHeight={240} />;
   }
 
   // ── Empty state — search done but no results ─────────────
@@ -72,13 +66,10 @@ const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, total
             onViewProfile={onViewProfile} // ✅ passed down
           />
         ))}
-
-        {/* Append skeletons while loading more */}
-        {loadingMore &&
-          Array.from({ length: 3 }).map((_, i) => (
-            <MentorCardSkeleton key={`more-${i}`} />
-          ))}
       </div>
+
+      {/* Single loader while loading more */}
+      {loadingMore && <Loader size="sm" minHeight={80} />}
 
       {/* Show More — only if hasMore AND not loading */}
       {hasMore && !loadingMore && (

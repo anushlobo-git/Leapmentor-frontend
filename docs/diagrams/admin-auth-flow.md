@@ -3,11 +3,11 @@
 ```mermaid
 sequenceDiagram
   actor Admin
-  participant Login as src/pages/admin/AdminLogin.jsx
-  participant Context as src/context/AdminAuthContext.jsx
-  participant AdminAxios as src/utils/adminAxiosInstance.js
+  participant Login as src/features/admin/pages/AdminLogin.jsx
+  participant Context as src/features/admin/context/AdminAuthContext.jsx
+  participant AdminAxios as src/lib/adminAxiosInstance.js
   participant API as Backend /admin/auth/login and /admin/auth/me
-  participant Guard as src/components/admin/AdminRoute.jsx
+  participant Guard as src/features/admin/components/AdminRoute.jsx
 
   Admin->>Login: submit email + password
   Login->>AdminAxios: POST /admin/auth/login

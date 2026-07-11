@@ -207,8 +207,9 @@ const SidebarContent = ({ navItems, activeTab, setActiveTab, onClose, unreadCoun
         className={`sidebar-nav-btn${activeTab === "help" ? " active" : ""}`}
       >
         {activeTab === "help" && <span className="sidebar-accent" />}
+
         <span className="sidebar-nav-icon"><HelpCircle size={16} /></span>
-        Help Center
+        <span>Help Center</span>
       </button>
     </div>
   </div>
@@ -229,21 +230,32 @@ const DashboardSidebar = ({ navItems, activeTab, setActiveTab, isOpen, onClose, 
         <div className="sidebar-blob-top" />
         <div className="sidebar-blob-mid" />
         <div className="sidebar-blob-bottom" />
-        <SidebarContent navItems={navItems} activeTab={activeTab} setActiveTab={setActiveTab} unreadCount={unreadCount} />
+        <SidebarContent
+          navItems={navItems}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          unreadCount={unreadCount}
+        />
       </aside>
 
       {/* Mobile backdrop */}
-      <div
+      <button
+        type="button"
+        aria-label="Close sidebar"
         className="dashboard-sidebar-backdrop"
         onClick={onClose}
         style={{
-          position: "fixed", inset: 0,
+          position: "fixed",
+          inset: 0,
           backgroundColor: "rgba(15,23,42,0.45)",
           backdropFilter: "blur(4px)",
           zIndex: 30,
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? "auto" : "none",
           transition: "opacity 0.3s ease",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
         }}
       />
 
@@ -252,7 +264,8 @@ const DashboardSidebar = ({ navItems, activeTab, setActiveTab, isOpen, onClose, 
         className="dashboard-sidebar-drawer sidebar-root"
         style={{
           position: "fixed",
-          top: 0, left: 0,
+          top: 0,
+          left: 0,
           height: "100%",
           width: "232px",
           zIndex: 40,
@@ -266,20 +279,38 @@ const DashboardSidebar = ({ navItems, activeTab, setActiveTab, isOpen, onClose, 
         <div className="sidebar-blob-mid" />
         <div className="sidebar-blob-bottom" />
 
-        <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 16px 0", flexShrink: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "12px 16px 0",
+            flexShrink: 0,
+          }}
+        >
           <button
             onClick={onClose}
             style={{
-              padding: "6px", borderRadius: "8px", border: "none",
-              background: "rgba(148,163,184,0.15)", cursor: "pointer",
-              color: "#64748b", display: "flex", alignItems: "center",
+              padding: "6px",
+              borderRadius: "8px",
+              border: "none",
+              background: "rgba(148,163,184,0.15)",
+              cursor: "pointer",
+              color: "#64748b",
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <X size={16} />
           </button>
         </div>
 
-        <SidebarContent navItems={navItems} activeTab={activeTab} setActiveTab={setActiveTab} onClose={onClose} unreadCount={unreadCount} />
+        <SidebarContent
+          navItems={navItems}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onClose={onClose}
+          unreadCount={unreadCount}
+        />
       </aside>
     </>
   );

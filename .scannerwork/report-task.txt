@@ -1,6 +1,6 @@
-projectKey=Leapmentor-frontend
+projectKey=frontend
 serverUrl=http://localhost:9000
 serverVersion=26.6.0.123539
-dashboardUrl=http://localhost:9000/dashboard?id=Leapmentor-frontend
-ceTaskId=74147744-4215-416b-bcc5-e936b76b9954
-ceTaskUrl=http://localhost:9000/api/ce/task?id=74147744-4215-416b-bcc5-e936b76b9954
+dashboardUrl=http://localhost:9000/dashboard?id=frontend
+ceTaskId=3a532ba5-bfee-4f5b-a9a9-15b33651b77c
+ceTaskUrl=http://localhost:9000/api/ce/task?id=3a532ba5-bfee-4f5b-a9a9-15b33651b77c

@@ -19,12 +19,15 @@ const ProtectedRoute = ({ children, role }) => {
   const user            = useSelector((state) => state.auth.user);
 
 
-  if (!isAuthenticated){
-    const redirectTo = role === "mentor"
-      ? "/login/mentor"
-      : role === "mentee"
-      ? "/login/mentee"
-      : "/login";
+  if (!isAuthenticated) {
+    let redirectTo = "/login";
+
+    if (role === "mentor") {
+      redirectTo = "/login/mentor";
+    } else if (role === "mentee") {
+      redirectTo = "/login/mentee";
+    }
+
     return <Navigate to={redirectTo} replace />;
   }
 

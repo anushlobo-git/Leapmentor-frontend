@@ -1,71 +1,38 @@
-# LeapMentor Frontend
+# LeapMentor — Frontend
 
-This is the React frontend for LeapMentor, the mentorship platform that connects mentees with mentors for discovery, booking, communication, and progress tracking.
+This repository contains the frontend for LeapMentor: a mentorship platform built with React and Vite. The frontend is implemented as a modern Vite React app using a feature-based `src/` layout, centralized `lib/` helpers, and lightweight UI primitives in `src/components` and `src/ui`.
 
-## Overview
+**Quick links**
 
-The frontend provides:
+- Code: [src](src)
+- Docs: [docs](docs)
 
-- User authentication and onboarding screens
-- Mentor discovery and search experience
-- Booking and availability flow
-- Real-time chat and notifications
-- Mentor and mentee dashboards
-- Admin views for platform management
+## What this repo contains
 
-## Tech Stack
+- A Vite + React 19 application bootstrapped for fast local development and production builds.
+- Feature-based source organization under `src/features/*` (auth, mentor, mentee, sessions, reports, etc.).
+- Shared UI primitives in `src/components/` and `src/ui/`.
+- HTTP helpers and shared utilities in `src/lib/`.
 
-- React 19
-- Vite 7
-- Redux Toolkit
-- React Router
-- Tailwind CSS
-- Socket.IO client
-- Recharts for analytics dashboards
+## Requirements
 
-## Project Structure
+- Node.js 18.x or newer
+- npm 9.x or newer
 
-```text
-src/
-├── api/              # Thin axios-based API helpers for escrow and notes
-├── assets/           # Static assets shipped with the app
-├── atoms/            # Small reusable UI primitives
-├── components/       # Feature components grouped by auth, admin, mentor, mentee, and shared dashboard
-├── config/           # Static config values such as onboarding fields
-├── constants/        # Shared constants, HTTP status helpers, nav items, and image paths
-├── context/          # React context providers for admin auth and toast state
-├── hooks/            # Reusable data-fetching and behavior hooks
-├── mappers/          # Response-shaping helpers that normalize API payloads
-├── molecules/        # Small composed UI blocks
-├── organisms/        # Larger landing-page sections and modal assemblies
-├── pages/            # Route-level screens
-├── store/            # Redux store and slices
-├── templates/        # Layout shells and reusable page wrappers
-├── test/             # Vitest setup and test utilities
-├── ui/               # Shared UI helpers and lightweight presentational components
-├── utils/            # Axios clients, cookies, logging, validation, and formatting helpers
-├── App.jsx           # Router, top-level providers, and route wiring
-├── index.css         # Global styles and Tailwind entry styles
-└── main.jsx          # App bootstrap and global error wiring
-```
+See the `engines` field in package.json for the exact supported versions.
 
-## Prerequisites
+## Install
 
-Before running the frontend, make sure:
-
-- Node.js 18 or newer is installed
-- The backend server is running and reachable
-
-## Installation
+Clone the repo and install dependencies:
 
 ```bash
 cd Leapmentor-frontend
 npm install
 ```
 
-## Environment Variables
+## Environment
 
-Create a `.env` file in the frontend root with values in the following format.
+Create a `.env` file in the project root and provide the API and feature keys required by your environment. Typical variables used by the app:
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api/v1
@@ -76,73 +43,74 @@ VITE_VAPID_PUBLIC_KEY=your-vapid-public-key
 VITE_LOGTAIL_SOURCE_TOKEN=your-logtail-source-token
 ```
 
-`VITE_API_BASE_URL` is used by the main authenticated axios client. `VITE_SOCKET_URL` is documented in the app setup, while `src/hooks/useSocketToast.js` currently reads `VITE_API_SOCKET_URL`; keep both consistent until the code is normalized.
+Do not commit secrets to version control.
 
-`VITE_GOOGLE_CLIENT_ID`, `VITE_VAPID_PUBLIC_KEY`, and `VITE_LOGTAIL_SOURCE_TOKEN` are feature-dependent values that must come from the API/auth, push-notification, and logging owners respectively.
+## Scripts
 
-## Run Locally
+Use the npm scripts defined in `package.json`:
+
+- `npm run dev` / `npm start` — Start Vite dev server
+- `npm run build` — Build production assets into `dist/`
+- `npm run preview` — Preview the production build locally
+- `npm run lint` — Run ESLint
+- `npm test` — Run Vitest once
+- `npm run test:watch` — Vitest in watch mode
+- `npm run test:coverage` — Run tests with coverage
+- `npm run analyze` — Analyze source maps for bundle sizes
+
+Example: start the dev server
 
 ```bash
 npm run dev
 ```
 
-The development server will typically start at `http://localhost:5173`.
+## Project structure (high level)
 
-`npm start` is also available and runs the same Vite dev server as `npm run dev`.
-
-## Build
-
-```bash
-npm run build
+```text
+src/
+├─ app/                 # App bootstrap and top-level providers
+├─ components/          # Shared presentational components
+├─ config/              # Onboarding fields and static config
+├─ constants/           # Shared constants and image paths
+├─ features/            # Feature-based folders (auth, mentor, mentee, sessions...)
+├─ lib/                 # Axios instances, mappers, cookies, logger, helpers
+├─ store/               # Redux store and feature slices
+├─ ui/                  # Small UI atoms and icons
+├─ index.css
+├─ main.jsx
+└─ App.jsx
 ```
 
-This produces the production bundle in `dist/`.
+For more detail see [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md).
+
+## Testing
+
+Tests use Vitest and testing-library. There's a test setup file at `src/test/setup.js`.
+
+Run tests:
+
+```bash
+npm test
+```
 
 ## Linting
+
+Run ESLint across the codebase:
 
 ```bash
 npm run lint
 ```
 
-## Testing
+## Notes & gotchas
 
-```bash
-npm test
-npm run test:watch
-npm run test:coverage
-```
+- Keep backend URLs and socket URLs in `.env` as Vite environment variables (`VITE_...`).
+- Do not commit real API keys or VAPID keys.
 
-Vitest is configured in [vitest.config.js](vitest.config.js) to use the `jsdom` environment, globals, the `src/test/setup.js` setup file, and V8 coverage reporting.
+## Where to look next
 
-## Path Aliases
+- App entry: [src/main.jsx](src/main.jsx#L1)
+- Top-level app: [src/app/App.jsx](src/app/App.jsx#L1)
+- API helpers: [src/lib/axiosInstance.js](src/lib/axiosInstance.js#L1)
+- Onboarding config: [src/config/onboardingFields.js](src/config/onboardingFields.js#L1)
 
-The Vite and Vitest configs both expose these aliases:
-
-- `@atoms` → `src/atoms`
-- `@molecules` → `src/molecules`
-- `@organisms` → `src/organisms`
-- `@templates` → `src/templates`
-- `@pages` → `src/pages`
-- `@hooks` → `src/hooks`
-- `@utils` → `src/utils`
-- `@api` → `src/api`
-- `@store` → `src/store`
-- `@context` → `src/context`
-- `@components` → `src/components`
-- `@mappers` → `src/mappers`
-- `@constants` → `src/constants`
-
-## Notes
-
-- Do not commit real API keys or secrets in the frontend environment file.
-- The frontend expects the backend to be available on the configured API and socket URLs.
-
-## Scripts
-
-- `npm run dev` or `npm start` - start the Vite dev server
-- `npm run build` - create the production bundle in `dist/`
-- `npm run preview` - preview the built app locally
-- `npm run lint` - run ESLint across the project
-- `npm test` - run the Vitest suite once
-- `npm run test:watch` - run Vitest in watch mode
-- `npm run test:coverage` - run Vitest with coverage output
+If you want, I can also update or expand any of the docs in the `docs/` folder to match the new layout.

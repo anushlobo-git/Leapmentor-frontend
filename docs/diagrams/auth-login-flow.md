@@ -3,9 +3,9 @@
 ```mermaid
 sequenceDiagram
   actor User
-  participant LoginForm as src/components/auth/LoginForm.jsx
-  participant Thunk as src/store/slices/authSlice.js
-  participant Axios as src/utils/axiosInstance.js
+  participant LoginForm as src/features/auth/components/LoginForm.jsx
+  participant Thunk as src/features/auth/store/authSlice.js
+  participant Axios as src/lib/axiosInstance.js
   participant API as Backend /auth/login
   participant Store as Redux auth slice
 
@@ -22,6 +22,6 @@ sequenceDiagram
 
 ## Notes
 
-- The login thunk lives in `src/store/slices/authSlice.js`.
-- The authenticated axios client lives in `src/utils/axiosInstance.js`.
+- The login thunk lives in `src/features/auth/store/authSlice.js`.
+- The authenticated axios client lives in `src/lib/axiosInstance.js`.
 - The backend sets the refresh cookie; the frontend stores the access token in Redux.

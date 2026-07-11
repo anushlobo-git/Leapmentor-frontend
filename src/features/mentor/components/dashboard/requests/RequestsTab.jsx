@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getIncomingRequests } from "@features/mentor/api/mentor.api";
 import logger from "@lib/logger";
+import Loader from "@components/common/Loader";
 import RequestCard from "@features/mentor/components/dashboard/requests/RequestCard";
 import MenteeProfileModal from "@features/mentor/components/dashboard/requests/MenteeProfileModal";
 import EmptyState from "@components/common/EmptyState";
@@ -35,7 +36,9 @@ const RequestsTab = () => {
       const res = await getIncomingRequests();
       setRequests(res.data.requests || []);
     } catch (err) {
-      logger.warn("Failed to fetch incoming mentor requests", { error: err?.message });
+      logger.warn("Failed to fetch incoming mentor requests", {
+        error: err?.message,
+      });
       setError(err?.response?.data?.message || "Failed to load requests.");
     } finally {
       setLoading(false);
@@ -52,14 +55,22 @@ const RequestsTab = () => {
     const waitForSocket = setInterval(() => {
       if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        logger.info("Request socket connected, registering request_status_changed listener");
-        globalThis.__leapSocket.on("request_status_changed", handleRequestChanged);
+        logger.info(
+          "Request socket connected, registering request_status_changed listener",
+        );
+        globalThis.__leapSocket.on(
+          "request_status_changed",
+          handleRequestChanged,
+        );
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      globalThis.__leapSocket?.off("request_status_changed", handleRequestChanged);
+      globalThis.__leapSocket?.off(
+        "request_status_changed",
+        handleRequestChanged,
+      );
     };
   }, [fetchRequests]);
 
@@ -93,16 +104,7 @@ const RequestsTab = () => {
   };
 
   if (loading && initialLoad) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">
-            Loading requests...
-          </p>
-        </div>
-      </div>
-    );
+    return <Loader minHeight={300} message="Loading requests..." />;
   }
 
   return (

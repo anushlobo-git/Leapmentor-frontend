@@ -7,9 +7,12 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { getIncomingRequests, getMentorEarnings } from "@features/mentor/api/mentor.api";
+import {
+  getIncomingRequests,
+  getMentorEarnings,
+} from "@features/mentor/api/mentor.api";
 import SessionCard from "@features/sessions/components/SessionCard";
-import SessionSkeleton from "@features/sessions/components/SessionSkeleton";
+import Loader from "@components/common/Loader";
 import LeapBuddy from "@features/support/components/LeapBuddy";
 import logger from "@lib/logger";
 import {
@@ -26,17 +29,41 @@ const MENTOR_ACCENT_COLORS = [
   "#be185d",
 ];
 
-
-
-
 const fmt = (n) =>
-  Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  Number(n || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 const BADGES = [
-  { key: "newcomer", label: "Newcomer", icon: "👋", desc: "Joined LeapMentor", condition: () => true },
-  { key: "ten_sessions", label: "10 Sessions", icon: "🎯", desc: "Completed 10 sessions", condition: (p) => (p?.totalSessions || 0) >= 10 },
-  { key: "top_rated", label: "Top Rated", icon: "⭐", desc: "Achieved 4.5+ rating", condition: (p) => (p?.avgRating || 0) >= 4.5 },
-  { key: "expert_guide", label: "Expert Guide", icon: "🏆", desc: "50+ sessions completed", condition: (p) => (p?.totalSessions || 0) >= 50 },
+  {
+    key: "newcomer",
+    label: "Newcomer",
+    icon: "👋",
+    desc: "Joined LeapMentor",
+    condition: () => true,
+  },
+  {
+    key: "ten_sessions",
+    label: "10 Sessions",
+    icon: "🎯",
+    desc: "Completed 10 sessions",
+    condition: (p) => (p?.totalSessions || 0) >= 10,
+  },
+  {
+    key: "top_rated",
+    label: "Top Rated",
+    icon: "⭐",
+    desc: "Achieved 4.5+ rating",
+    condition: (p) => (p?.avgRating || 0) >= 4.5,
+  },
+  {
+    key: "expert_guide",
+    label: "Expert Guide",
+    icon: "🏆",
+    desc: "50+ sessions completed",
+    condition: (p) => (p?.totalSessions || 0) >= 50,
+  },
 ];
 
 const getProfileCompletion = (profile) => {
@@ -55,7 +82,16 @@ const getProfileCompletion = (profile) => {
 };
 
 const IconSessions = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#1e3a5f"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -64,17 +100,45 @@ const IconSessions = () => (
 );
 
 const IconStar = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="#f59e0b"
+    stroke="#f59e0b"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
 
-const IconMoney = () => (<span style={{fontSize: 13,fontWeight: 800,fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",color: "currentColor",letterSpacing: "-0.02em"}}>LP
-</span>
+const IconMoney = () => (
+  <span
+    style={{
+      fontSize: 13,
+      fontWeight: 800,
+      fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+      color: "currentColor",
+      letterSpacing: "-0.02em",
+    }}
+  >
+    LP
+  </span>
 );
 
 const IconInbox = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#7c3aed"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
     <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
   </svg>
@@ -86,25 +150,12 @@ const StatCard = ({ label, value, sub, icon }) => (
       {icon}
     </div>
     <div className="min-w-0">
-      <p className="text-xl font-extrabold text-slate-800 leading-none truncate">{value}</p>
+      <p className="text-xl font-extrabold text-slate-800 leading-none truncate">
+        {value}
+      </p>
       {sub && <p className="text-[14px] text-blue-900 mt-0.5">{sub}</p>}
       <p className="text-xs font-bold text-blue-900 mt-1">{label}</p>
     </div>
-  </div>
-);
-
-
-const EarningsSkeleton = () => (
-  <div className="space-y-3 animate-pulse">
-    {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="flex items-center justify-between py-2 border-b border-slate-50">
-        <div className="space-y-1">
-          <div className="h-3 w-24 bg-slate-200 rounded" />
-          <div className="h-2 w-32 bg-slate-100 rounded" />
-        </div>
-        <div className="h-4 w-16 bg-slate-200 rounded" />
-      </div>
-    ))}
   </div>
 );
 
@@ -130,7 +181,10 @@ const MentorHomeTab = ({ setActiveTab }) => {
     ...profile,
     totalSessions: actualSessionCount ?? profile?.totalSessions ?? 0,
   };
-  const badges = BADGES.map((b) => ({ ...b, unlocked: b.condition(badgeProfile) }));
+  const badges = BADGES.map((b) => ({
+    ...b,
+    unlocked: b.condition(badgeProfile),
+  }));
   const unlockedCount = badges.filter((b) => b.unlocked).length;
 
   useEffect(() => {
@@ -143,12 +197,17 @@ const MentorHomeTab = ({ setActiveTab }) => {
         setLoadingSessions(true);
         const res = await getIncomingRequests();
         const all = res.data.requests || [];
-        const active = all.filter((r) => r.status === "ongoing" || r.status === "accepted");
+        const active = all.filter(
+          (r) => r.status === "ongoing" || r.status === "accepted",
+        );
         const pending = all.filter((r) => r.status === "pending");
         const completed = all.filter((r) => r.status === "completed");
         setSessions(active);
         setPendingCount(pending.length);
-        setActualSessionCount(completed.length + active.filter((r) => r.status === "ongoing").length);
+        setActualSessionCount(
+          completed.length +
+            active.filter((r) => r.status === "ongoing").length,
+        );
       } catch (err) {
         logger.error("MentorHomeTab sessions error:", { error: err.message });
       } finally {
@@ -171,7 +230,12 @@ const MentorHomeTab = ({ setActiveTab }) => {
         });
       } catch (err) {
         logger.error("MentorHomeTab earnings error:", { error: err.message });
-        setEarnings({ totalEarnings: 0, sessionsThisMonth: 0, pendingPayout: 0, walletBalance: 0 });
+        setEarnings({
+          totalEarnings: 0,
+          sessionsThisMonth: 0,
+          pendingPayout: 0,
+          walletBalance: 0,
+        });
       } finally {
         setLoadingEarnings(false);
       }
@@ -280,10 +344,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
           </div>
 
           {loadingSessions ? (
-            <div className="flex flex-col gap-3">
-              <SessionSkeleton />
-             <SessionSkeleton />
-            </div>
+            <Loader minHeight={140} />
           ) : sessions.length > 0 ? (
             <div className="flex flex-col gap-3">
               {sessions.map((request, idx) => (
@@ -387,7 +448,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
             </div>
 
             {loadingEarnings ? (
-              <EarningsSkeleton />
+              <Loader minHeight={140} />
             ) : (
               <div className="space-y-1">
                 <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-blue-400 pl-3">
@@ -498,7 +559,7 @@ SessionCard.propTypes = {
         date: PropTypes.string,
         startTime: PropTypes.string,
         endTime: PropTypes.string,
-      })
+      }),
     ),
   }).isRequired,
   index: PropTypes.number.isRequired,

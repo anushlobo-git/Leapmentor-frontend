@@ -82,11 +82,13 @@ const useGoogleAuth = ({
               const roles = user?.roles || [];
 
               // ✅ Set authRole cookie so ProtectedRoute works
-              const primaryRole = roles.includes("mentor")
-                ? "mentor"
-                : roles.includes("mentee")
-                  ? "mentee"
-                  : null;
+              let primaryRole = null;
+
+              if (roles.includes("mentor")) {
+                primaryRole = "mentor";
+              } else if (roles.includes("mentee")) {
+                primaryRole = "mentee";
+              }
 
               if (primaryRole) {
                 setAuthRole(primaryRole);
@@ -126,9 +128,9 @@ const useGoogleAuth = ({
       });
     };
 
-      if (globalThis.google) {
-      if ("requestIdleCallback" in window) {
-        requestIdleCallback(initGoogle, { timeout: 2000 });
+    if (globalThis.google) {
+      if ("requestIdleCallback" in globalThis) {
+        globalThis.requestIdleCallback(initGoogle, { timeout: 2000 });
       } else {
         setTimeout(initGoogle, 200);
       }

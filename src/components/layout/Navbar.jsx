@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@components/ui/Logo";
 import Button from "@components/ui/Button";
-import RegisterDropdownItem from "@features/auth/components/RegisterDropdownItem";
 import HamburgerIcon from "@components/ui/HamburgerIcon";
 
 export default function Navbar() {
@@ -52,7 +51,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-white border-t border-gray-100">
 
-          
+
           <Button
             variant="outline"
             fullWidth

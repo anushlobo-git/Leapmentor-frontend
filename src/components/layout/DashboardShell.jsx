@@ -115,9 +115,15 @@ const DashboardShell = ({
     );
   }
 
+  const activeTabConfig = tabs.find(({ key }) => key === activeTab);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
+      <Topbar
+        user={user}
+        onMenuToggle={() => setSidebarOpen(true)}
+        onLogoClick={() => handleSetTab("home")}
+      />
       <div className="flex flex-1">
         <Sidebar
           activeTab={activeTab}
@@ -128,10 +134,13 @@ const DashboardShell = ({
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
           <Suspense fallback={<TabSkeleton />}>
-            {tabs.map(({ key, Component, getProps }) =>
-              activeTab === key ? (
-                <Component key={key} {...(getProps ? getProps(handleSetTab) : {})} />
-              ) : null
+            {activeTabConfig && (
+              <activeTabConfig.Component
+                key={activeTabConfig.key}
+                {...(activeTabConfig.getProps
+                  ? activeTabConfig.getProps(handleSetTab)
+                  : {})}
+              />
             )}
           </Suspense>
         </main>

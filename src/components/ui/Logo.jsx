@@ -9,7 +9,8 @@ export default function Logo({ onClick,variant="dark" }) {
   // "dark" variant gets dark text (gray-900), "light" variant gets white text
   const textColor = variant === "light" ? "text-white" : "text-gray-900";
   return (
-    <div
+    <button
+      type="button"
       className="flex items-center gap-2 cursor-pointer"
       onClick={onClick}
     >
@@ -23,7 +24,7 @@ export default function Logo({ onClick,variant="dark" }) {
       <span className={`text-xl font-bold tracking-tight ${textColor}`}>
         LeapMentor
       </span>
-    </div>
+    </button>
   );
 }
 Logo.propTypes = {

@@ -1,6 +1,6 @@
 # Use Cases
 
-The flows below are derived from the route definitions in `src/App.jsx` and the route guards in `ProtectedRoute.jsx` and `AdminRoute.jsx`.
+The flows below are derived from the route definitions in `src/app/App.jsx` and the route guards in `ProtectedRoute.jsx` and `AdminRoute.jsx`.
 
 ```mermaid
 flowchart LR
