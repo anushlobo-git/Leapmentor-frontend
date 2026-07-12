@@ -20,12 +20,19 @@ export const unwrapApiResponse = (body) => {
   }
 
   const payload = body.data;
-  const flattened =
-    payload !== null && typeof payload === "object" && !Array.isArray(payload)
-      ? payload
-      : payload !== undefined
-        ? { data: payload }
-        : {};
+  let flattened = {};
+
+  if (payload === undefined) {
+    flattened = {};
+  } else if (
+    payload !== null &&
+    typeof payload === "object" &&
+    !Array.isArray(payload)
+  ) {
+    flattened = payload;
+  } else {
+    flattened = { data: payload };
+  }
 
   return {
     ...flattened,

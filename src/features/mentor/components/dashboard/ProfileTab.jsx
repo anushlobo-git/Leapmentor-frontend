@@ -7,4 +7,6 @@
 import ProfileTab from "@features/profile/components/ProfileTab";
 import { mentorProfileConfig } from "@features/profile/components/profileConfig";
 
-export default () => <ProfileTab config={mentorProfileConfig} />;
+const MentorProfileTab = () => <ProfileTab config={mentorProfileConfig} />;
+
+export default MentorProfileTab;

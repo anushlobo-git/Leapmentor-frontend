@@ -2,11 +2,14 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/mentor/dashboard/requests/RequestsTab.jsx
+// src/features/mentor/components/dashboard/requests/RequestsTab.jsx
 import { useState, useEffect, useCallback } from "react";
 import { getIncomingRequests } from "@features/mentor/api/mentor.api";
 import logger from "@lib/logger";
 import Loader from "@components/common/Loader";
+import ErrorBanner from "@components/common/ErrorBanner";
+import FilterTabs from "@components/common/FilterTabs";
+import useSocketEvent from "@lib/hooks/useSocketEvent";
 import RequestCard from "@features/mentor/components/dashboard/requests/RequestCard";
 import MenteeProfileModal from "@features/mentor/components/dashboard/requests/MenteeProfileModal";
 import EmptyState from "@components/common/EmptyState";
@@ -20,6 +23,23 @@ const TABS = [
   { key: "ongoing", label: "Ongoing" },
   { key: "completed", label: "Completed" },
 ];
+
+// ── Extracted: tab count-badge styling (was a nested ternary) ──
+const getTabBadgeClass = (tabKey, activeTab) => {
+  if (activeTab === tabKey) return "bg-blue-900 text-white";
+  if (tabKey === "referred") return "bg-violet-100 text-violet-600";
+  return "bg-slate-100 text-slate-500";
+};
+
+// ── Extracted: empty-state copy per tab (was a triple-nested ternary) ──
+const EMPTY_STATE_MESSAGES = {
+  pending: "You'll see new requests here when mentees reach out.",
+  referred: "Requests you've referred to other mentors will appear here.",
+  all: "When mentees send you connect requests, they'll appear here.",
+};
+
+const getEmptyStateMessage = (activeTab) =>
+  EMPTY_STATE_MESSAGES[activeTab] || `No requests have been ${activeTab} yet.`;
 
 const RequestsTab = () => {
   const [requests, setRequests] = useState([]);
@@ -45,34 +65,21 @@ const RequestsTab = () => {
       setInitialLoad(false);
     }
   }, []);
-  // ✅ ADD this useEffect (make sure useEffect is already imported):
-  useEffect(() => {
-    const handleRequestChanged = (data) => {
-      logger.info("Request status changed socket event received", { data });
-      fetchRequests();
-    };
 
-    const waitForSocket = setInterval(() => {
-      if (globalThis.__leapSocket?.connected) {
-        clearInterval(waitForSocket);
-        logger.info(
-          "Request socket connected, registering request_status_changed listener",
-        );
-        globalThis.__leapSocket.on(
-          "request_status_changed",
-          handleRequestChanged,
-        );
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(waitForSocket);
-      globalThis.__leapSocket?.off(
-        "request_status_changed",
-        handleRequestChanged,
-      );
-    };
-  }, [fetchRequests]);
+  useSocketEvent(
+    () => ({
+      events: {
+        request_status_changed: (data) => {
+          logger.info("Request status changed socket event received", {
+            data,
+          });
+          fetchRequests();
+        },
+      },
+    }),
+    [fetchRequests],
+    "Request socket",
+  );
 
   useEffect(() => {
     fetchRequests();
@@ -107,6 +114,10 @@ const RequestsTab = () => {
     return <Loader minHeight={300} message="Loading requests..." />;
   }
 
+  const emptyStateTitle =
+    activeTab === "all" ? "No requests yet" : `No ${activeTab} requests`;
+  const emptyStateMessage = getEmptyStateMessage(activeTab);
+
   return (
     <>
       <div className="w-full space-y-5">
@@ -127,64 +138,21 @@ const RequestsTab = () => {
           )}
         </div>
 
-        {/* ── Error ── */}
-        {error && (
-          <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-            <span>⚠</span> {error}
-          </div>
-        )}
+        <ErrorBanner message={error} />
 
         {/* ── Tabs ── */}
-        <div className="w-full border-b border-slate-100">
-          <div className="flex overflow-x-auto scrollbar-none">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? "text-blue-900 border-blue-900 bg-blue-50/50"
-                    : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
-                }`}
-              >
-                {tab.label}
-                {counts[tab.key] > 0 && (
-                  <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      activeTab === tab.key
-                        ? "bg-blue-900 text-white"
-                        : tab.key === "referred"
-                          ? "bg-violet-100 text-violet-600"
-                          : "bg-slate-100 text-slate-500"
-                    }`}
-                  >
-                    {counts[tab.key]}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+        <FilterTabs
+          tabs={TABS}
+          activeTab={activeTab}
+          counts={counts}
+          onChange={setActiveTab}
+          getBadgeClass={getTabBadgeClass}
+          scrollable
+        />
 
         {/* ── Cards ── */}
         {filtered.length === 0 ? (
-          <EmptyState
-            title={
-              activeTab === "all"
-                ? "No requests yet"
-                : `No ${activeTab} requests`
-            }
-            message={
-              activeTab === "pending"
-                ? "You'll see new requests here when mentees reach out."
-                : activeTab === "referred"
-                  ? "Requests you've referred to other mentors will appear here."
-                  : activeTab === "all"
-                    ? "When mentees send you connect requests, they'll appear here."
-                    : `No requests have been ${activeTab} yet.`
-            }
-          />
+          <EmptyState title={emptyStateTitle} message={emptyStateMessage} />
         ) : (
           // ✅ 1 col mobile → 2 col md+ with min card width enforced
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

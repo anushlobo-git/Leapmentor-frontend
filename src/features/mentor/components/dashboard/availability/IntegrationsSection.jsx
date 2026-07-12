@@ -16,7 +16,7 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
     try {
       const { data } = await getGoogleCalendarAuthUrl();
       logger.info("Opening Google Calendar auth popup", { url: data.url });
-      const popup = globalThis.open(data.url, "gcal_auth", "width=500,height=600");
+      globalThis.open(data.url, "gcal_auth", "width=500,height=600");
       const handler = (event) => {
         if (event.data?.type === "GOOGLE_CALENDAR_CONNECTED") {
           globalThis.removeEventListener("message", handler);

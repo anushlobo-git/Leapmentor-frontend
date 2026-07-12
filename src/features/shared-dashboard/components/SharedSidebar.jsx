@@ -139,9 +139,17 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole })
       </aside>
 
       {/* Mobile backdrop */}
-      <div
+      <button
+        type="button"
         className="shared-sidebar-backdrop"
         onClick={onClose}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onClose();
+          }
+        }}
+        aria-label="Close sidebar"
         style={{
           position: "fixed", inset: 0,
           backgroundColor: "rgba(15,23,42,0.5)",
@@ -150,6 +158,9 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole })
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? "auto" : "none",
           transition: "opacity 0.3s ease",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
         }}
       />
 

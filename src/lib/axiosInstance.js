@@ -9,11 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "@lib/logger";
 import { toast } from "sonner";
 import { unwrapApiResponse } from "@lib/apiResponse";
-import {
-  HTTP_STATUS,
-  isServerError,
-  isRateLimited,
-} from "@lib/httpStatus";
+import { HTTP_STATUS, isServerError, isRateLimited } from "@lib/httpStatus";
 
 let _store = null;
 /**
@@ -55,7 +51,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     logger.error("Request setup failed", { error: error.message });
-    return Promise.reject(error);
+    throw error;
   },
 );
 
@@ -119,7 +115,7 @@ axiosInstance.interceptors.response.use(
       if (isTimeout) {
         toast.error("This is taking longer than expected. Please try again.");
       }
-      return Promise.reject(error);
+      throw error;
     }
 
     // 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
@@ -138,7 +134,9 @@ axiosInstance.interceptors.response.use(
             originalRequest.headers["Authorization"] = `Bearer ${token}`;
             return axiosInstance(originalRequest);
           })
-          .catch((err) => Promise.reject(err));
+          .catch((err) => {
+            throw err;
+          });
       }
 
       originalRequest._retry = true;
@@ -174,7 +172,7 @@ axiosInstance.interceptors.response.use(
           correlationId,
         });
         globalThis.location.href = "/login";
-        return Promise.reject(refreshError);
+        throw refreshError;
       } finally {
         isRefreshing = false;
       }
@@ -188,7 +186,7 @@ axiosInstance.interceptors.response.use(
       clearAuthRole();
       logger.warn("Blocked user terminated", { url, correlationId });
       globalThis.location.href = "/login?reason=blocked";
-      return Promise.reject(error);
+      throw error;
     }
 
     // 3.5 — Rate limited
@@ -197,7 +195,7 @@ axiosInstance.interceptors.response.use(
       toast.error(
         "You're making requests too quickly. Please wait a moment and try again.",
       );
-      return Promise.reject(error);
+      throw error;
     }
 
     // 4. 5xx — server crash
@@ -212,7 +210,7 @@ axiosInstance.interceptors.response.use(
         extra: { url, status, correlationId, message },
       });
       toast.error("Something went wrong. Please try again.");
-      return Promise.reject(error);
+      throw error;
     }
 
     // 5. 400, 404, 422 etc.
@@ -222,7 +220,7 @@ axiosInstance.interceptors.response.use(
       correlationId,
       message,
     });
-    return Promise.reject(error);
+    throw error;
   },
 );
 

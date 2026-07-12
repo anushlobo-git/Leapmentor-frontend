@@ -65,9 +65,24 @@ const testimonials = [
 ];
 
 const stats = [
-  { value: "5,000+", label: "Mentees Helped",    gradientFrom: "#ec4899", gradientTo: "#f43f5e" },
-  { value: "98%",    label: "Satisfaction Rate", gradientFrom: "#8b5cf6", gradientTo: "#7c3aed" },
-  { value: "4.9★",  label: "Average Rating",    gradientFrom: "#10b981", gradientTo: "#0891b2" },
+  {
+    value: "5,000+",
+    label: "Mentees Helped",
+    gradientFrom: "#ec4899",
+    gradientTo: "#f43f5e",
+  },
+  {
+    value: "98%",
+    label: "Satisfaction Rate",
+    gradientFrom: "#8b5cf6",
+    gradientTo: "#7c3aed",
+  },
+  {
+    value: "4.9★",
+    label: "Average Rating",
+    gradientFrom: "#10b981",
+    gradientTo: "#0891b2",
+  },
 ];
 
 export default function Testimonials() {
@@ -87,7 +102,9 @@ export default function Testimonials() {
 
     setTimeout(() => {
       // Only this triggers a re-render
-      setActive((prev) => (prev + dir + testimonials.length) % testimonials.length);
+      setActive(
+        (prev) => (prev + dir + testimonials.length) % testimonials.length,
+      );
 
       // Animate in — direct DOM
       if (cardRef.current) {
@@ -110,10 +127,12 @@ export default function Testimonials() {
   return (
     <section
       className="py-24 px-6 overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #fdf4ff 0%, #eff6ff 60%, #f0fdf4 100%)" }}
+      style={{
+        background:
+          "linear-gradient(135deg, #fdf4ff 0%, #eff6ff 60%, #f0fdf4 100%)",
+      }}
     >
       <div className="max-w-6xl mx-auto">
-
         {/* Section Header */}
         <div className="text-center mb-16">
           <p className="text-violet-600 text-sm font-semibold uppercase tracking-widest mb-3">
@@ -123,7 +142,8 @@ export default function Testimonials() {
             Real stories, real growth
           </h2>
           <p className="text-gray-500 mt-4 text-lg max-w-xl mx-auto">
-            Thousands of professionals have transformed their careers with LeapMentor.
+            Thousands of professionals have transformed their careers with
+            LeapMentor.
           </p>
         </div>
 
@@ -142,18 +162,17 @@ export default function Testimonials() {
 
         {/* Carousel */}
         <div className="relative flex items-center justify-center gap-6">
-
           <SideArrow onClick={() => go(-1)} direction="left" />
 
           <div className="flex gap-5 items-center w-full max-w-4xl overflow-hidden">
-
             {/* Prev card — dimmed, no ref needed */}
-            <div
-              className="hidden md:block w-1/3 shrink-0 cursor-pointer"
+            <button
+              type="button"
+              className="hidden md:block w-1/3 shrink-0 cursor-pointer text-left bg-transparent border-none p-0"
               onClick={() => go(-1)}
             >
               <TestimonialCard testimonial={testimonials[prev]} dimmed />
-            </div>
+            </button>
 
             {/* Active card — ref attached for direct DOM animation */}
             <div
@@ -169,24 +188,23 @@ export default function Testimonials() {
             </div>
 
             {/* Next card — dimmed, no ref needed */}
-            <div
-              className="hidden md:block w-1/3 shrink-0 cursor-pointer"
+            <button
+              type="button"
+              className="hidden md:block w-1/3 shrink-0 cursor-pointer text-left bg-transparent border-none p-0"
               onClick={() => go(1)}
             >
               <TestimonialCard testimonial={testimonials[next]} dimmed />
-            </div>
-
+            </button>
           </div>
 
           <SideArrow onClick={() => go(1)} direction="right" />
-
         </div>
 
         {/* Dots — inline */}
         <div className="flex justify-center gap-2 mt-10">
-          {testimonials.map((_, i) => (
+          {testimonials.map((t, i) => (
             <button
-              key={i}
+              key={t.name}
               onClick={() => {
                 if (!animating.current && i !== active) {
                   go(i > active ? 1 : -1);
@@ -196,14 +214,14 @@ export default function Testimonials() {
               style={{
                 width: i === active ? "24px" : "8px",
                 height: "8px",
-                background: i === active
-                  ? "linear-gradient(135deg, #8b5cf6, #ec4899)"
-                  : "#d1d5db",
+                background:
+                  i === active
+                    ? "linear-gradient(135deg, #8b5cf6, #ec4899)"
+                    : "#d1d5db",
               }}
             />
           ))}
         </div>
-
       </div>
     </section>
   );

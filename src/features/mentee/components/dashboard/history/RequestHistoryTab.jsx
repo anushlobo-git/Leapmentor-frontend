@@ -2,11 +2,13 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/mentee/dashboard/history/RequestHistoryTab.jsx
+// src/features/mentee/components/dashboard/history/RequestHistoryTab.jsx
 import logger from "@lib/logger";
 import Loader from "@components/common/Loader";
+import ErrorBanner from "@components/common/ErrorBanner";
+import FilterTabs from "@components/common/FilterTabs";
+import useSocketEvent from "@lib/hooks/useSocketEvent";
 import useRequestHistory from "@features/mentee/hooks/useRequestHistory";
-import { useEffect } from "react";
 import { TABS } from "@features/mentee/components/dashboard/history/constants";
 import HistoryTable from "@features/mentee/components/dashboard/history/HistoryTable";
 import DetailDrawer from "@features/mentee/components/dashboard/history/DetailDrawer";
@@ -26,33 +28,18 @@ const RequestHistoryTab = () => {
     fetchRequests,
   } = useRequestHistory();
 
-  useEffect(() => {
-    const handleRequestChanged = (data) => {
-      logger.info("Request history socket event received", { data });
-      fetchRequests();
-    };
-
-    const waitForSocket = setInterval(() => {
-      if (globalThis.__leapSocket?.connected) {
-        clearInterval(waitForSocket);
-        logger.info(
-          "Request history socket connected, registering request_status_changed listener",
-        );
-        globalThis.__leapSocket.on(
-          "request_status_changed",
-          handleRequestChanged,
-        );
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(waitForSocket);
-      globalThis.__leapSocket?.off(
-        "request_status_changed",
-        handleRequestChanged,
-      );
-    };
-  }, [fetchRequests]);
+  useSocketEvent(
+    () => ({
+      events: {
+        request_status_changed: (data) => {
+          logger.info("Request history socket event received", { data });
+          fetchRequests();
+        },
+      },
+    }),
+    [fetchRequests],
+    "Request history socket",
+  );
 
   if (loading) {
     return <Loader minHeight={300} message="Loading your history..." />;
@@ -68,46 +55,18 @@ const RequestHistoryTab = () => {
         </p>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-          <span>⚠</span> {error}
-        </div>
-      )}
+      <ErrorBanner message={error} />
 
       {/* Filter tabs — full width */}
-      <div className="w-full border-b border-slate-100">
-        <div className="flex w-full">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => {
-                setActiveTab(tab.key);
-                setSelected(null);
-              }}
-              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${
-                activeTab === tab.key
-                  ? "text-blue-900 border-blue-900 bg-blue-50/50"
-                  : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
-              }`}
-            >
-              {tab.label}
-              {counts[tab.key] > 0 && (
-                <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                    activeTab === tab.key
-                      ? "bg-blue-900 text-white"
-                      : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {counts[tab.key]}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+      <FilterTabs
+        tabs={TABS}
+        activeTab={activeTab}
+        counts={counts}
+        onChange={(tabKey) => {
+          setActiveTab(tabKey);
+          setSelected(null);
+        }}
+      />
 
       {/* Table */}
       <HistoryTable

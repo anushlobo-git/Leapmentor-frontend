@@ -8,16 +8,16 @@ import LetterBall from "@components/ui/LetterBall";
 import PropTypes from "prop-types";
 
 export default function TestimonialCard({ testimonial, active, dimmed }) {
+  let cardClassName = "";
+
+  if (active) {
+    cardClassName = "border-violet-100 shadow-xl scale-100";
+  } else if (dimmed) {
+    cardClassName = "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95";
+  }
+
   return (
-    <Card
-      className={`p-6 transition-all duration-300 ${
-        active
-          ? "border-violet-100 shadow-xl scale-100"
-          : dimmed
-          ? "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95"
-          : ""
-      }`}
-    >
+    <Card className={`p-6 transition-all duration-300 ${cardClassName}`}>
       {/* Quote icon */}
       <div className="mb-4">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="#ede9fe">
@@ -40,7 +40,9 @@ export default function TestimonialCard({ testimonial, active, dimmed }) {
             size="lg"
           />
           <div>
-            <p className="text-sm font-bold text-gray-900">{testimonial.name}</p>
+            <p className="text-sm font-bold text-gray-900">
+              {testimonial.name}
+            </p>
             <p className="text-xs text-gray-500">
               {testimonial.role} · {testimonial.company}
             </p>

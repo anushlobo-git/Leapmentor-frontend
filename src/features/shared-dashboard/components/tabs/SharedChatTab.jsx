@@ -6,10 +6,7 @@
 import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useSelector } from "react-redux";
 import useChat from "@features/shared-dashboard/hooks/useChat";
-import {
-  selectConnectId,
-  selectViewerRole,
-} from "@features/shared-dashboard/store/sharedDashboardSlice";
+import { selectConnectId } from "@features/shared-dashboard/store/sharedDashboardSlice";
 import PropTypes from "prop-types";
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -23,7 +20,7 @@ const GRADIENTS = [
   "linear-gradient(135deg, #f59e0b, #b45309)",
 ];
 const getGradient = (name = "") =>
-  GRADIENTS[name.charCodeAt(0) % GRADIENTS.length];
+  GRADIENTS[name.codePointAt(0) % GRADIENTS.length];
 
 const formatTime = (dateStr) => {
   if (!dateStr) return "";
@@ -308,7 +305,6 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
 // ── Main ──────────────────────────────────────────────────────
 const SharedChatTab = () => {
   const connectId = useSelector(selectConnectId);
-  const viewerRole = useSelector(selectViewerRole);
   const otherName = useSelector((state) => {
     const c = state.sharedDashboard.connect;
     if (!c) return "Partner";

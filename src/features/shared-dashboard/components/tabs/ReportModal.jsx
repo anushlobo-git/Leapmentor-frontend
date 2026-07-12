@@ -98,7 +98,6 @@ const ReportModal = ({ onClose, onSuccess }) => {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: "rgba(15,23,42,0.45)", backdropFilter: "blur(2px)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
         className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
@@ -149,10 +148,10 @@ const ReportModal = ({ onClose, onSuccess }) => {
 
           {/* Complaint type — list style */}
           <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-2">
+            <label htmlFor="complaint-type" className="text-xs font-semibold text-slate-700 block mb-2">
               Complaint Type <span className="text-red-400">*</span>
             </label>
-            <div className="flex flex-col rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
+            <div id="complaint-type" className="flex flex-col rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
               {COMPLAINT_TYPES.map((ct) => {
                 const selected = complaintType === ct.value;
                 return (
@@ -161,7 +160,7 @@ const ReportModal = ({ onClose, onSuccess }) => {
                     className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors
                       ${selected ? "bg-red-50" : "bg-white hover:bg-slate-50"}`}>
                     <div className="flex items-center gap-3">
-                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0
+                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0
                         ${selected ? "bg-red-100" : "bg-slate-100"}`}>
                         {COMPLAINT_ICONS[ct.value]}
                       </span>
@@ -191,10 +190,11 @@ const ReportModal = ({ onClose, onSuccess }) => {
 
           {/* Description */}
           <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+            <label htmlFor="report-description" className="text-xs font-semibold text-slate-700 block mb-1.5">
               Describe the issue <span className="text-red-400">*</span>
             </label>
             <textarea
+              id="report-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Please describe what happened in detail..."
@@ -211,7 +211,7 @@ const ReportModal = ({ onClose, onSuccess }) => {
 
           {/* Screenshot */}
           <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+            <label htmlFor="report-screenshot" className="text-xs font-semibold text-slate-700 block mb-1.5">
               Screenshot <span className="text-slate-600 font-normal">(optional)</span>
             </label>
             {preview ? (
@@ -242,7 +242,7 @@ const ReportModal = ({ onClose, onSuccess }) => {
                 <span className="text-[10px]">JPG, PNG, WEBP · Max 10MB</span>
               </button>
             )}
-            <input ref={fileRef} type="file"
+            <input id="report-screenshot" ref={fileRef} type="file"
               accept="image/jpeg,image/jpg,image/png,image/webp"
               onChange={handleFileChange} className="hidden" />
           </div>
@@ -274,10 +274,10 @@ const ReportModal = ({ onClose, onSuccess }) => {
                 disabled:opacity-40 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2">
               {submitting ? (
-                <>
+                <span className="flex items-center justify-center gap-2">
                   <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  Submitting...
-                </>
+                  <span>Submitting...</span>
+                </span>
               ) : (
                 <>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none"

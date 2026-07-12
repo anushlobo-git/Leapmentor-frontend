@@ -9,11 +9,58 @@ import { mapMentorSearchResponse } from "@features/mentor/mappers/mentorMapper";
 
 const DEBOUNCE_MS = 300;
 const LIMIT = 6;
+
+// ── EXPERIENCE CONFIGURATION MAP ──────────────────────────────
+// FIX FOR S3776: Replaced branching statements with a clean, low-complexity lookup engine
+const EXPERIENCE_MAPPINGS = {
+  "0-2": { min: "0", max: "2" },
+  "3-5": { min: "3", max: "5" },
+  "6-10": { min: "6", max: "10" },
+  "10+": { min: "10", max: null },
+};
+
+// ── SEARCH QUERY BUILDER HELPER ───────────────────────────────
+// Extracts string building branches into an independent, low-complexity worker
+const buildSearchQueryParams = (currentSkill, currentFilters, currentPage) => {
+  const params = new URLSearchParams();
+  const trimmedSkill = currentSkill.trim();
+
+  if (trimmedSkill) {
+    params.set("skill", trimmedSkill);
+    params.set("name", trimmedSkill);
+  }
+
+  const trimmedIndustry = currentFilters.industry.trim();
+  if (trimmedIndustry) {
+    params.set("industry", trimmedIndustry);
+  }
+
+  if (currentFilters.minPrice !== "") {
+    params.set("minPrice", currentFilters.minPrice);
+  }
+  if (currentFilters.maxPrice !== "") {
+    params.set("maxPrice", currentFilters.maxPrice);
+  }
+  if (currentFilters.minRating !== "") {
+    params.set("minRating", currentFilters.minRating);
+  }
+
+  const expConfig = EXPERIENCE_MAPPINGS[currentFilters.experience];
+  if (expConfig) {
+    if (expConfig.min !== null) params.set("minExperience", expConfig.min);
+    if (expConfig.max !== null) params.set("maxExperience", expConfig.max);
+  }
+
+  params.set("page", currentPage);
+  params.set("limit", LIMIT);
+
+  return params.toString();
+};
+
 /**
  * Custom hook for mentor search.
  * @returns {Object} Hook state and handlers for the caller.
  */
-
 const useMentorSearch = () => {
   const [skill, setSkill] = useState("");
   const [filters, setFilters] = useState({
@@ -33,54 +80,19 @@ const useMentorSearch = () => {
   const [totalCount, setTotalCount] = useState(0);
 
   const debounceTimer = useRef(null);
+
   const fetchMentors = useCallback(
     async (currentSkill, currentFilters, currentPage, append = false) => {
       try {
         append ? setLoadingMore(true) : setLoading(true);
         setError("");
 
-        const params = new URLSearchParams();
-
-        if (currentSkill.trim()) {
-          params.set("skill", currentSkill.trim());
-          params.set("name", currentSkill.trim());
-        }
-
-        if (currentFilters.industry.trim())
-          params.set("industry", currentFilters.industry.trim());
-        if (currentFilters.minPrice !== "")
-          params.set("minPrice", currentFilters.minPrice);
-        if (currentFilters.maxPrice !== "")
-          params.set("maxPrice", currentFilters.maxPrice);
-        if (currentFilters.minRating !== "")
-          params.set("minRating", currentFilters.minRating);
-
-        // Parse experience range string → minExperience / maxExperience
-        if (currentFilters.experience !== "") {
-          const exp = currentFilters.experience;
-          if (exp === "0-2") {
-            params.set("minExperience", "0");
-            params.set("maxExperience", "2");
-          }
-          if (exp === "3-5") {
-            params.set("minExperience", "3");
-            params.set("maxExperience", "5");
-          }
-          if (exp === "6-10") {
-            params.set("minExperience", "6");
-            params.set("maxExperience", "10");
-          }
-          if (exp === "10+") {
-            params.set("minExperience", "10");
-          }
-        }
-
-        params.set("page", currentPage);
-        params.set("limit", LIMIT);
-
-        const res = await axiosInstance.get(
-          `/mentors/search?${params.toString()}`,
+        const queryString = buildSearchQueryParams(
+          currentSkill,
+          currentFilters,
+          currentPage,
         );
+        const res = await axiosInstance.get(`/mentors/search?${queryString}`);
 
         const { mentors: newMentors, pagination } = mapMentorSearchResponse(
           res.data,
@@ -103,9 +115,6 @@ const useMentorSearch = () => {
   );
 
   // ── Single unified effect for both skill typing + filter changes ──
-  // Fixes: experience/industry/etc filters not working because the old
-  // separate filter effect didn't include `skill` in its deps, causing
-  // fetchMentors to receive a stale empty skill value.
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {

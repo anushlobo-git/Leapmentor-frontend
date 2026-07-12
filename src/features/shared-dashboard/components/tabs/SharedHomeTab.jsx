@@ -2,17 +2,29 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/shared-dashboard/tabs/SharedHomeTab.jsx
+// src/features/shared-dashboard/components/tabs/SharedHomeTab.jsx
 import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import ReportModal from "@features/shared-dashboard/components/tabs/ReportModal";
 import ReportSuccessModal from "@features/shared-dashboard/components/tabs/ReportSuccessModal";
-import { selectConnect, setActiveTab } from "@features/shared-dashboard/store/sharedDashboardSlice";
+import {
+  selectConnect,
+  setActiveTab,
+} from "@features/shared-dashboard/store/sharedDashboardSlice";
 import PropTypes from "prop-types";
+import {
+  formatFullSlot,
+  formatDateString as formatDate,
+} from "@lib/formatters/dateTime";
 
 const getInitials = (name = "") =>
-  name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
 const GRADIENTS = [
   "linear-gradient(135deg, #3b82f6, #1d4ed8)",
@@ -23,25 +35,9 @@ const GRADIENTS = [
 ];
 
 const getGradient = (name = "") =>
-  GRADIENTS[name.charCodeAt(0) % GRADIENTS.length];
+  GRADIENTS[name.codePointAt(0) % GRADIENTS.length];
 
-const formatSlot = (slot) => {
-  if (!slot) return null;
-  const date = new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric", year: "numeric",
-  });
-  const fmt = (t) => {
-    const [h, m] = t.split(":");
-    const hour = Number.parseInt(h);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    return `${hour % 12 || 12}:${m} ${ampm}`;
-  };
-  return `${date} · ${fmt(slot.startTime)} – ${fmt(slot.endTime)}`;
-};
-
-const formatDate = (d) => d
-  ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-  : null;
+const formatSlot = formatFullSlot;
 
 // ── Person Card ───────────────────────────────────────────────
 const PersonCard = ({ name, profile, roleLabel }) => {
@@ -58,14 +54,18 @@ const PersonCard = ({ name, profile, roleLabel }) => {
       </p>
       <div className="flex items-center gap-3">
         {picture && !imgError ? (
-          <img src={picture} alt={name}
+          <img
+            src={picture}
+            alt={name}
             onError={() => setImgError(true)}
-            className="w-12 h-12 rounded-[14px] object-cover border-2 border-slate-100 shrink-0" />
+            className="w-12 h-12 rounded-[14px] object-cover border-2 border-slate-100 shrink-0"
+          />
         ) : (
           <div
             className="w-12 h-12 rounded-[14px] shrink-0 flex items-center justify-center text-white font-bold text-base"
             style={{ background: getGradient(name) }}
-            role="img" aria-label={name}
+            role="img"
+            aria-label={name}
           >
             {getInitials(name)}
           </div>
@@ -74,16 +74,20 @@ const PersonCard = ({ name, profile, roleLabel }) => {
           <p className="text-sm font-bold text-slate-900 truncate">{name}</p>
           {(role || company) && (
             <p className="text-[11px] text-blue-900 mt-0.5 truncate">
-              {role}{role && company ? " @ " : ""}{company}
+              {role}
+              {role && company ? " @ " : ""}
+              {company}
             </p>
           )}
         </div>
       </div>
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {skills.map((s, i) => (
-            <span key={i}
-              className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600">
+          {skills.map((s) => (
+            <span
+              key={`${name}-${s}`}
+              className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600"
+            >
               {s}
             </span>
           ))}
@@ -98,9 +102,13 @@ const InfoRow = ({ icon, label, value, accent }) => (
   <div className="flex items-start gap-2.5">
     <span className="text-slate-400 mt-0.5 shrink-0">{icon}</span>
     <div className="flex-1">
-      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">{label}</p>
-      <p className={`text-[13px] font-semibold mt-0.5 ${accent ? "" : "text-slate-900"}`}
-        style={accent ? { color: accent } : undefined}>
+      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">
+        {label}
+      </p>
+      <p
+        className={`text-[13px] font-semibold mt-0.5 ${accent ? "" : "text-slate-900"}`}
+        style={accent ? { color: accent } : undefined}
+      >
         {value}
       </p>
     </div>
@@ -127,17 +135,24 @@ const SharedHomeTab = ({ slots = [] }) => {
   const [showReport, setShowReport] = useState(false);
   const [reportDone, setReportDone] = useState(false);
 
-  const onTabChange = useCallback((tab) => {
-    dispatch(setActiveTab(tab));
-    setSearchParams({ tab }, { replace: true });
-  }, [dispatch, setSearchParams]);
+  const onTabChange = useCallback(
+    (tab) => {
+      dispatch(setActiveTab(tab));
+      setSearchParams({ tab }, { replace: true });
+    },
+    [dispatch, setSearchParams],
+  );
 
   if (!connect) return null;
 
   const {
-    mentor, mentee,
-    mentorProfile, menteeProfile,
-    confirmedSlot, totalAmount, paidAt,
+    mentor,
+    mentee,
+    mentorProfile,
+    menteeProfile,
+    confirmedSlot,
+    totalAmount,
+    paidAt,
     status,
   } = connect;
 
@@ -146,7 +161,6 @@ const SharedHomeTab = ({ slots = [] }) => {
   return (
     <>
       <div className="flex flex-col gap-6">
-
         {/* ── Header with Report button at top right ──────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -163,8 +177,16 @@ const SharedHomeTab = ({ slots = [] }) => {
             Participants
           </p>
           <div className="flex gap-3 flex-wrap">
-            <PersonCard name={mentor?.name || "Mentor"} profile={mentorProfile} roleLabel="Mentor" />
-            <PersonCard name={mentee?.name || "Mentee"} profile={menteeProfile} roleLabel="Mentee" />
+            <PersonCard
+              name={mentor?.name || "Mentor"}
+              profile={mentorProfile}
+              roleLabel="Mentor"
+            />
+            <PersonCard
+              name={mentee?.name || "Mentee"}
+              profile={menteeProfile}
+              roleLabel="Mentee"
+            />
           </div>
         </div>
 
@@ -175,42 +197,65 @@ const SharedHomeTab = ({ slots = [] }) => {
           </p>
           {slots.length > 0
             ? slots.map((slot, i) => (
-              <InfoRow
-                key={i}
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                }
-                label={`Session ${i + 1}${slot.status === "completed" ? " ✓" : ""}`}
-                value={formatSlot(slot)}
-              />
-            ))
+                <InfoRow
+                  key={`${slot?.date || "slot"}-${slot?.startTime || ""}-${slot?.endTime || ""}-${i}`}
+                  icon={
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  }
+                  label={`Session ${i + 1}${slot.status === "completed" ? " ✓" : ""}`}
+                  value={formatSlot(slot)}
+                />
+              ))
             : confirmedSlot && (
-              <InfoRow
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                }
-                label="Confirmed Session"
-                value={formatSlot(confirmedSlot)}
-              />
-            )
-          }
+                <InfoRow
+                  icon={
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  }
+                  label="Confirmed Session"
+                  value={formatSlot(confirmedSlot)}
+                />
+              )}
           {totalAmount != null && (
             <InfoRow
               icon={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
@@ -223,8 +268,16 @@ const SharedHomeTab = ({ slots = [] }) => {
           {paidAt && (
             <InfoRow
               icon={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
@@ -243,8 +296,16 @@ const SharedHomeTab = ({ slots = [] }) => {
           <div className="flex gap-2.5 flex-wrap">
             <QuickAction
               icon={
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
               }
@@ -254,8 +315,16 @@ const SharedHomeTab = ({ slots = [] }) => {
             />
             <QuickAction
               icon={
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <circle cx="12" cy="12" r="6" />
                   <circle cx="12" cy="12" r="2" />
@@ -268,8 +337,16 @@ const SharedHomeTab = ({ slots = [] }) => {
             {!isCompleted && (
               <QuickAction
                 icon={
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                     <line x1="16" y1="13" x2="8" y2="13" />
@@ -303,14 +380,15 @@ const SharedHomeTab = ({ slots = [] }) => {
       {showReport && !reportDone && (
         <ReportModal
           onClose={() => setShowReport(false)}
-          onSuccess={() => { setShowReport(false); setReportDone(true); }}
+          onSuccess={() => {
+            setShowReport(false);
+            setReportDone(true);
+          }}
         />
       )}
 
       {/* Success Modal */}
-      {reportDone && (
-        <ReportSuccessModal onBack={() => setReportDone(false)} />
-      )}
+      {reportDone && <ReportSuccessModal onBack={() => setReportDone(false)} />}
     </>
   );
 };

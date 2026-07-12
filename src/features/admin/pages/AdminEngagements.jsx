@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/pages/admin/AdminEngagements.jsx
+// src/features/admin/pages/AdminEngagements.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import AdminLayout from "@features/admin/components/AdminLayout";
 import StatCard from "@features/admin/components/common/StatCard";

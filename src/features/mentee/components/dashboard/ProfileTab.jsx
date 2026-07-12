@@ -7,4 +7,8 @@
 import ProfileTab from "@features/profile/components/ProfileTab";
 import { menteeProfileConfig } from "@features/profile/components/profileConfig";
 
-export default () => <ProfileTab config={menteeProfileConfig} />;
+function MenteeProfileTab() {
+  return <ProfileTab config={menteeProfileConfig} />;
+}
+
+export default MenteeProfileTab;

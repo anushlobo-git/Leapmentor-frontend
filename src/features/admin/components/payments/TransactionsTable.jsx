@@ -16,7 +16,7 @@ import {
   TYPE_FILTERS,
   TABLE_COLUMNS,
 } from "@features/admin/constants/payments.constants";
-
+import { formatDecimal } from "@lib/formatters/number";
 // ── SonarQube fix #1: "Extract this nested ternary operation into an
 // independent statement." The original code nested a ternary inside a
 // ternary directly in JSX (loading ? … : transactions.length === 0 ? … : …).
@@ -87,10 +87,7 @@ const renderTableBody = ({ loading, transactions }) => {
           className="text-xs font-500 text-slate-800"
           style={{ fontFamily: MONO, fontWeight: 500 }}
         >
-          {tx.amount?.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {tx.amount == null ? "" : formatDecimal(tx.amount)}
         </span>
       </td>
       <td className="px-5 py-4">

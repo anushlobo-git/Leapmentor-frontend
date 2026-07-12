@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/auth/RegisterForm.jsx
+// src/features/auth/components/RegisterForm.jsx
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,39 +23,16 @@ import {
 } from "@features/auth/components/AuthUI";
 import TermsAndConditionsModal from "@components/ui/TermsAndConditionsModal";
 import PropTypes from "prop-types";
-import { registerSchema, passwordSchema } from "@lib/validation/schemas";
+import { registerSchema } from "@lib/validation/schemas";
+import {
+  getPasswordValidation,
+  getPasswordStrength,
+} from "@lib/validation/passwordValidation";
+import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 import logger from "@lib/logger";
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-
-const passwordRules = [
-  { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
-  {
-    id: "uppercase",
-    label: "At least 1 uppercase letter",
-    test: (p) => /[A-Z]/.test(p),
-  },
-  { id: "number", label: "At least 1 number", test: (p) => /\d/.test(p) },
-  {
-    id: "special",
-    label: "At least 1 special character",
-    test: (p) => /[^A-Za-z0-9]/.test(p),
-  },
-];
-
-const getPasswordValidation = (password) => {
-  const result = passwordSchema.safeParse(password);
-  const passed = passwordRules.filter((r) => r.test(password)).length;
-  return { rules: passwordRules, passed, total: passwordRules.length, result };
-};
-
-const getStrength = (passed) => {
-  if (passed <= 1) return { label: "Weak", color: "#ef4444", width: "25%" };
-  if (passed === 2) return { label: "Fair", color: "#f59e0b", width: "50%" };
-  if (passed === 3) return { label: "Good", color: "#3b82f6", width: "75%" };
-  return { label: "Strong", color: "#22c55e", width: "100%" };
-};
 
 const RegisterForm = ({ role }) => {
   const navigate = useNavigate();
@@ -276,36 +253,7 @@ const RegisterForm = ({ role }) => {
               onClick={() => setShowPassword((p) => !p)}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-2"
             >
-              {showPassword ? (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
-              ) : (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              )}
+              {getPasswordToggleIcon(showPassword)}
             </button>
           </div>
 
@@ -314,7 +262,7 @@ const RegisterForm = ({ role }) => {
             passwordValue.length > 0 &&
             (() => {
               const { rules, passed } = getPasswordValidation(passwordValue);
-              const strength = getStrength(passed);
+              const strength = getPasswordStrength(passed);
               return (
                 <div className="mt-2 flex flex-col gap-2">
                   <div className="flex items-center gap-2">
@@ -415,36 +363,7 @@ const RegisterForm = ({ role }) => {
               onClick={() => setShowConfirmPassword((p) => !p)}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-2"
             >
-              {showConfirmPassword ? (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
-              ) : (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              )}
+              {getPasswordToggleIcon(showConfirmPassword)}
             </button>
           </div>
           {errors.confirmPassword && (
@@ -482,8 +401,8 @@ const RegisterForm = ({ role }) => {
               className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal"
             >
               Terms
-            </button>{" "}
-            and{" "}
+            </button>
+            {" and "}
             <button
               type="button"
               onClick={() => setShowTermsModal(true)}
@@ -491,7 +410,7 @@ const RegisterForm = ({ role }) => {
             >
               Privacy Policy
             </button>
-            .
+            {"."}
           </label>
         </div>
 

@@ -13,9 +13,11 @@ const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 const urlBase64ToUint8Array = (base64String) => {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  const base64 = (base64String + padding)
+    .replaceAll("-", "+")
+    .replaceAll("_", "/");
+  const rawData = globalThis.atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.codePointAt(0)));
 };
 /**
  * Custom hook for push notification.
@@ -28,7 +30,8 @@ const usePushNotification = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    if (!("serviceWorker" in navigator) || !("PushManager" in globalThis))
+      return;
 
     const setup = async () => {
       try {
@@ -57,11 +60,15 @@ const usePushNotification = () => {
 
     const handleMessage = (event) => {
       logger.info("Message received from service worker", {
-        data: event.data
+        data: event.data,
       });
       if (event.data?.type === "SHOW_TOAST") {
         const { title, message, type } = event.data.payload;
-        logger.info("Showing toast from service worker message", { title, message, type });
+        logger.info("Showing toast from service worker message", {
+          title,
+          message,
+          type,
+        });
         showToast({ type: type || "info", title, message });
       }
     };

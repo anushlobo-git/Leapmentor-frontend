@@ -11,25 +11,40 @@ const images = [
   "/images/mentor2.webp",
 ];
 
+const SLIDE_INTERVAL_MS = 3000;
+const FADE_OUT_MS = 400;
+
+function getNextIndex(prev) {
+  return (prev + 1) % images.length;
+}
+
+function getSlideOpacity(current, i, fade) {
+  if (current !== i) return 0;
+  return fade ? 1 : 0;
+}
+
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
   const [fade, setFade] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    function showNextSlide() {
+      setCurrent(getNextIndex);
+      setFade(true);
+    }
+
+    function startFadeOut() {
       setFade(false);
-      setTimeout(() => {
-        setCurrent((prev) => (prev + 1) % images.length);
-        setFade(true);
-      }, 400);
-    }, 3000);
+      setTimeout(showNextSlide, FADE_OUT_MS);
+    }
+
+    const interval = setInterval(startFadeOut, SLIDE_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="relative flex justify-center">
       <div className="w-full max-w-md h-80 md:h-96 rounded-3xl overflow-hidden shadow-2xl relative bg-blue-50">
-
         {images.map((src, i) => (
           <img
             key={src}
@@ -46,8 +61,9 @@ export default function HeroSlider() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              opacity: current === i ? (fade ? 1 : 0) : 0,
-              transition: current === i && fade ? "opacity 0.4s ease-in-out" : "none",
+              opacity: getSlideOpacity(current, i, fade),
+              transition:
+                current === i && fade ? "opacity 0.4s ease-in-out" : "none",
             }}
           />
         ))}
@@ -57,7 +73,6 @@ export default function HeroSlider() {
 
         {/* Floating success card */}
         <SuccessCard />
-
       </div>
     </div>
   );

@@ -2,14 +2,14 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-//not used u can delete after verifying everything 
+//not used u can delete after verifying everything
 // src/pages/MentorMatchmaking.jsx
 import { useState } from "react";
 
 const mentorsData = [
   { name: "Alice Johnson", rating: 4.9, skills: ["ReactJS", "Seed Funding", "UI/UX Design"], badge: "Top Mentor", hourlyRate: 50, industry: "Tech" },
   { name: "Bob Smith", rating: 4.7, skills: ["Corporate Tax", "Finance Strategy"], badge: "Expert Mentor", hourlyRate: 70, industry: "Finance" },
-  { name: "Clara Lee", rating: 5.0, skills: ["AI Architecture", "ReactJS Architecture"], badge: "Star Mentor", hourlyRate: 100, industry: "Tech" },
+  { name: "Clara Lee", rating: 5, skills: ["AI Architecture", "ReactJS Architecture"], badge: "Star Mentor", hourlyRate: 100, industry: "Tech" },
   { name: "David Kim", rating: 4.6, skills: ["Marketing Strategy", "Branding"], badge: "Marketing Guru", hourlyRate: 60, industry: "Marketing" },
   { name: "Eva Green", rating: 4.8, skills: ["Corporate Law", "Contract Drafting"], badge: "Legal Expert", hourlyRate: 90, industry: "Legal" },
   { name: "Frank Liu", rating: 4.5, skills: ["Blockchain", "FinTech Innovation"], badge: "Blockchain Mentor", hourlyRate: 120, industry: "Tech" },
@@ -40,8 +40,8 @@ const MentorMatchmaking = () => {
         )
       : false;
 
-    const minRating = filters.minRating === "" ? 0 : parseFloat(filters.minRating);
-    const maxRate = filters.maxRate === "" ? Infinity : parseFloat(filters.maxRate);
+    const minRating = filters.minRating === "" ? 0 : Number.parseFloat(filters.minRating);
+    const maxRate = filters.maxRate === "" ? Infinity : Number.parseFloat(filters.maxRate);
 
     return (!filters.industry || m.industry === filters.industry) && m.rating >= minRating && m.hourlyRate <= maxRate && !keywordMatch;
   });
@@ -104,9 +104,9 @@ const MentorMatchmaking = () => {
 
       {/* Mentor Cards */}
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredMentors.length ? filteredMentors.map((mentor, idx) => (
+        {filteredMentors.length ? filteredMentors.map((mentor) => (
           <div
-            key={idx}
+            key={mentor.name}
             className="bg-white rounded-xl shadow p-5 flex flex-col gap-2 border-t-4 border-blue-400 hover:scale-105 transition-transform"
           >
             <div className="flex justify-between items-center">

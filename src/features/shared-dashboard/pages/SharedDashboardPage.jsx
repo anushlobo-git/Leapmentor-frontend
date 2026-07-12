@@ -5,7 +5,7 @@
 // src/pages/SharedDashboardPage.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getConnectDetail } from "@features/shared-dashboard/api/shared-dashboard.api";
 import SharedDashboardLayout from "@features/shared-dashboard/components/SharedDashboardLayout";
 import {
@@ -14,10 +14,15 @@ import {
   resetSharedDashboard,
 } from "@features/shared-dashboard/store/sharedDashboardSlice";
 import { HTTP_STATUS } from "@lib/httpStatus";
-import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/store/authSlice";
 
-const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
+const VALID_TABS = new Set([
+  "overview",
+  "chat",
+  "goals",
+  "notes",
+  "addSession",
+]);
 
 const SharedDashboardPage = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -32,7 +37,7 @@ const SharedDashboardPage = () => {
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
     dispatch(
-      setActiveTab(VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "overview"),
+      setActiveTab(VALID_TABS.has(tabFromUrl) ? tabFromUrl : "overview"),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sync URL tab once on mount
   }, [dispatch]);
@@ -45,7 +50,10 @@ const SharedDashboardPage = () => {
 
   const fetchConnect = useCallback(async () => {
     try {
-      if (!isAuthenticated) { navigate("/login"); return; }
+      if (!isAuthenticated) {
+        navigate("/login");
+        return;
+      }
       const res = await getConnectDetail(connectRequestId);
       dispatch(setConnect(res.data.connect));
     } catch (err) {
@@ -58,7 +66,9 @@ const SharedDashboardPage = () => {
     }
   }, [connectRequestId, navigate, dispatch, isAuthenticated]);
 
-  useEffect(() => { fetchConnect(); }, [fetchConnect]);
+  useEffect(() => {
+    fetchConnect();
+  }, [fetchConnect]);
 
   if (loading) {
     return (

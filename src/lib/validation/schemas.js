@@ -9,13 +9,16 @@ export const emailSchema = z
   .string()
   .trim()
   .toLowerCase()
-  .email("Enter a valid email address");
+  .regex(
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+    "Enter a valid email address",
+  );
 
 export const passwordSchema = z
   .string()
   .min(8, "At least 8 characters")
   .regex(/[A-Z]/, "At least 1 uppercase letter")
-  .regex(/[0-9]/, "At least 1 number")
+  .regex(/\d/, "At least 1 number")
   .regex(/[^A-Za-z0-9]/, "At least 1 special character");
 
 export const nameSchema = z

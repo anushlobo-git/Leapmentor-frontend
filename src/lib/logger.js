@@ -3,12 +3,18 @@
  */
 
 // src/utils/logger.js
-import { Logtail } from "@logtail/browser"; // ✅ Uses the browser SDK, NOT node
+import { Logtail } from "@logtail/browser"; // Uses the browser SDK, NOT node
 
 const sourceToken = import.meta.env.VITE_LOGTAIL_SOURCE_TOKEN;
 
 // Initialize Logtail only if the token exists (prevents local dev crashes if token is missing)
 const logtail = sourceToken ? new Logtail(sourceToken) : null;
+
+// Info-level console output (e.g. every API request/response) is dev-only —
+// it's not something we want visible to real users in production. Logtail
+// still receives info logs unconditionally, since that's the actual
+// production observability channel.
+const isDev = import.meta.env.DEV;
 
 const SENSITIVE_KEYS = [
   "accessToken",
@@ -46,9 +52,7 @@ function redactValue(key, value) {
 
   if (typeof value === "string") {
     if (
-      SENSITIVE_KEYS.some(
-        (k) => key && key.toLowerCase().includes(k.toLowerCase()),
-      )
+      SENSITIVE_KEYS.some((k) => key?.toLowerCase().includes(k.toLowerCase()))
     ) {
       return "[REDACTED]";
     }
@@ -73,7 +77,7 @@ function redactObject(obj) {
   for (const [k, v] of Object.entries(obj)) {
     try {
       out[k] = redactValue(k, v);
-    } catch (e) {
+    } catch {
       out[k] = "[REDACTED]";
     }
   }
@@ -87,6 +91,72 @@ function sanitizeMessage(message) {
     /[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+/g,
     "[REDACTED_JWT]",
   );
+}
+
+function formatConsoleArg(value) {
+  if (value == null) return "";
+  if (typeof value === "string") return sanitizeMessage(value);
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
+  if (typeof value === "bigint") return value.toString();
+  if (typeof value === "symbol") return value.toString();
+  if (value instanceof Error)
+    return sanitizeMessage(value.stack || value.message || value.name);
+  try {
+    return JSON.stringify(redactObject(value));
+  } catch {
+    return Object.prototype.toString.call(value);
+  }
+}
+
+function patchConsoleMethod(methodName) {
+  const original = console[methodName];
+  if (!original || original.__leapmentorPatched) return;
+
+  const patched = (...args) => {
+    const safeArgs = args.map(formatConsoleArg);
+    try {
+      return original.apply(console, safeArgs);
+    } catch (error) {
+      try {
+        return original.call(
+          console,
+          "[console] Unable to log",
+          error?.message || String(error),
+        );
+      } catch {
+        // no-op
+      }
+    }
+  };
+
+  patched.__leapmentorPatched = true;
+  console[methodName] = patched;
+}
+
+["log", "info", "warn", "error"].forEach(patchConsoleMethod);
+
+function formatLogValue(value) {
+  if (value == null) return "";
+  if (typeof value === "string") return sanitizeMessage(value);
+  if (value instanceof Error) return sanitizeMessage(value.message);
+  try {
+    return JSON.stringify(redactObject(value));
+  } catch {
+    return "[UNSERIALIZABLE]";
+  }
+}
+
+function buildConsoleMessage(level, message, context) {
+  const parts = [];
+  const messageText = formatLogValue(message);
+  if (messageText) parts.push(`[${level}] ${messageText}`);
+  else parts.push(`[${level}]`);
+
+  const contextText = formatLogValue(context);
+  if (contextText) parts.push(contextText);
+
+  return parts.join(" ");
 }
 
 /**
@@ -112,11 +182,16 @@ const logger = {
     const safeMessage = sanitizeMessage(message);
     const safeContext = redactObject(context);
     if (logtail) logtail.info(safeMessage, safeContext);
-    // keep console logging for local debugging, but sanitized
-    try {
-      console.info(`[INFO] ${safeMessage}`, safeContext);
-    } catch (e) {
-      // no-op: logging must never throw and break the caller's flow
+    // Dev-only: keep console logging for local debugging, but never in prod
+    if (isDev) {
+      try {
+        // This is the app's single sanctioned console wrapper; info-level
+        // logs must show as info, not warnings, in the browser console.
+        // eslint-disable-next-line no-console
+        console.info(buildConsoleMessage("INFO", safeMessage, safeContext));
+      } catch {
+        // no-op: logging must never throw and break the caller's flow
+      }
     }
   },
   warn: (message, context = {}) => {
@@ -124,8 +199,8 @@ const logger = {
     const safeContext = redactObject(context);
     if (logtail) logtail.warn(safeMessage, safeContext);
     try {
-      console.warn(`[WARN] ${safeMessage}`, safeContext);
-    } catch (e) {
+      console.warn(buildConsoleMessage("WARN", safeMessage, safeContext));
+    } catch {
       // no-op: logging must never throw and break the caller's flow
     }
   },
@@ -133,8 +208,8 @@ const logger = {
     const { safeMessage, safeContext } = normalizeErrorInput(message, context);
     if (logtail) logtail.error(safeMessage, safeContext);
     try {
-      console.error(`[ERROR] ${safeMessage}`, safeContext);
-    } catch (e) {
+      console.error(buildConsoleMessage("ERROR", safeMessage, safeContext));
+    } catch {
       // no-op: logging must never throw and break the caller's flow
     }
   },

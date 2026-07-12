@@ -5,7 +5,6 @@
 // components/mentor/verification/VerificationFormShell.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-//import { useSelector } from "react-redux";
 import { uploadVerificationDocuments } from "@features/mentor/api/mentor.api";
 import FullScreenLoader from "@components/common/FullScreenLoader";
 import PhoneNumberField     from "@features/mentor/components/PhoneNumberField";
@@ -18,7 +17,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const VerificationFormShell = () => {
   const navigate = useNavigate();
-  
+
 
   // ── Form state ──
   const [phoneNumber,          setPhoneNumber]          = useState("");
@@ -186,7 +185,7 @@ const VerificationFormShell = () => {
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                 Uploading documents ({progress}%)…
               </span>
             ) : (

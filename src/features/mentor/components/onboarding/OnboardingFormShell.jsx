@@ -260,7 +260,7 @@ const OnboardingFormShell = () => {
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                 Saving profile…
               </span>
             ) : (

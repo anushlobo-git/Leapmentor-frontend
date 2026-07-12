@@ -136,8 +136,8 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Proposed Session Times</p>
             <div className="space-y-2">
-              {slots.map((slot, i) => (
-                <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+              {slots.map((slot) => (
+                <div key={`${slot.date}-${slot.startTime}-${slot.endTime}`} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />

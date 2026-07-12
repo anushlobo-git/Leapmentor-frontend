@@ -8,11 +8,14 @@ import { uploadProfilePicture } from "@features/mentee/api/mentee.api";
 import PropTypes from "prop-types";
 import { validateImageFile } from "@lib/validation/schemas";
 
+const MAX_SKILLS_SHOWN = 3;
+
 const PersonalInfoSection = ({ form, handleChange }) => {
-  const fileInputRef          = useRef(null);
+  const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
-  const [progress, setProgress]   = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [imgError, setImgError] = useState(false);
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -38,20 +41,20 @@ const PersonalInfoSection = ({ form, handleChange }) => {
 
       handleChange({
         target: {
-          name:  "profilePicture",
+          name: "profilePicture",
           value: res.data.url,
         },
       });
       handleChange({
         target: {
           name: "profilePictureFileName",
-          value: res.data.fileName
-        }
+          value: res.data.fileName,
+        },
       });
-
     } catch (err) {
       setUploadErr(
-        err?.response?.data?.message || "Failed to upload image. Please try again."
+        err?.response?.data?.message ||
+          "Failed to upload image. Please try again.",
       );
     } finally {
       setUploading(false);
@@ -60,23 +63,63 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     }
   };
 
-  const [imgError, setImgError] = useState(false);
+  const getAvatarContent = () => {
+    if (uploading) {
+      return (
+        <div className="w-6 h-6 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
+      );
+    }
+    if (form.profilePicture && !imgError) {
+      return (
+        <img
+          src={form.profilePicture}
+          alt="Profile"
+          onError={() => setImgError(true)}
+          className="w-full h-full object-cover"
+        />
+      );
+    }
+    return (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#93c5fd"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    );
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-slate-800">Profile Picture & Bio</h2>
+        <h2 className="text-sm font-bold text-slate-800">
+          Profile Picture & Bio
+        </h2>
       </div>
 
       <div className="px-6 py-5 flex items-start gap-6">
-
         {/* Photo upload */}
         <div className="flex flex-col items-center gap-2 shrink-0">
           <button
@@ -87,40 +130,27 @@ const PersonalInfoSection = ({ form, handleChange }) => {
               flex items-center justify-center hover:border-blue-400 hover:bg-blue-100
               transition-all duration-200 overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {uploading ? (
-              <div className="w-6 h-6 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
-            ) : form.profilePicture && !imgError ? (
-              <img
-                src={form.profilePicture}
-                alt="Profile"
-                onError={() => setImgError(true)}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            )}
+            {getAvatarContent()}
           </button>
 
           {uploading && (
             <div className="w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-              <div 
-                className="bg-blue-950 h-full rounded-full transition-all duration-150" 
-                style={{ width: `${progress}%` }} 
+              <div
+                className="bg-blue-950 h-full rounded-full transition-all duration-150"
+                style={{ width: `${progress}%` }}
               />
             </div>
           )}
 
-          <span
-            className={`text-xs font-semibold text-blue-900
-              ${uploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:underline"}`}
+          <button
+            type="button"
+            disabled={uploading}
             onClick={() => !uploading && fileInputRef.current?.click()}
+            className={`text-xs font-semibold text-blue-900 bg-transparent border-0 p-0 cursor-pointer
+              ${uploading ? "opacity-50 cursor-not-allowed" : "hover:underline"}`}
           >
             {uploading ? `Uploading (${progress}%)` : "Upload Photo"}
-          </span>
+          </button>
 
           <p className="text-[10px] text-slate-400">PNG, JPG · Max 5MB</p>
 
@@ -141,8 +171,14 @@ const PersonalInfoSection = ({ form, handleChange }) => {
 
         {/* Bio */}
         <div className="flex-1">
-          <label className="block text-xs font-semibold text-[#475569] mb-2">Bio</label>
+          <label
+            htmlFor="bio-textarea"
+            className="block text-xs font-semibold text-[#475569] mb-2"
+          >
+            Bio
+          </label>
           <textarea
+            id="bio-textarea"
             name="bio"
             value={form.bio}
             onChange={handleChange}
@@ -158,6 +194,7 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     </div>
   );
 };
+
 PersonalInfoSection.propTypes = {
   form: PropTypes.shape({
     profilePicture: PropTypes.string,
@@ -165,4 +202,5 @@ PersonalInfoSection.propTypes = {
   }).isRequired,
   handleChange: PropTypes.func.isRequired,
 };
+
 export default PersonalInfoSection;

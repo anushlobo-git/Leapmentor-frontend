@@ -6,10 +6,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import { getEscrowStatus } from "@features/connects/api/escrow.api";
 import { getMentorAvailabilityForConnect } from "@features/sessions/api/sessions.api";
 import useSessions from "@features/sessions/hooks/useSessions";
-import { payAdditionalEscrow } from "@features/connects/api/escrow.api";
+import {
+  payAdditionalEscrow,
+  getEscrowStatus,
+} from "@features/connects/api/escrow.api";
 import EscrowSuccessModal from "@features/mentee/components/dashboard/history/EscrowSuccessModal";
 import logger from "@lib/logger";
 import {
@@ -134,7 +136,7 @@ const SuccessScreen = ({ slot, onDone }) => {
   });
   return (
     <div className="flex flex-col items-center text-center gap-5 py-12 px-6">
-      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-xl shadow-green-100">
+      <div className="w-20 h-20 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center shadow-xl shadow-green-100">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
         </svg>
@@ -189,6 +191,21 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }) => 
   const totalAmount = sessionRate + platformFee;
   const insufficient = walletBalance !== null && walletBalance < totalAmount;
   const mentorName = connect?.mentor?.name || "Mentor";
+  const balanceLabel = (() => {
+    if (fetching) {
+      return <span className="text-xs text-blue-400 animate-pulse">Loading...</span>;
+    }
+
+    if (walletBalance === null) {
+      return <span className="text-xs text-blue-400">—</span>;
+    }
+
+    return (
+      <span className={`text-xs font-bold ${insufficient ? "text-red-500" : "text-blue-900"}`}>
+        {walletBalance} tokens
+      </span>
+    );
+  })();
 
   useEffect(() => {
     const fetchWallet = async () => {
@@ -230,7 +247,7 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }) => 
       <div className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm" />
       <div className="fixed inset-0 z-70 flex items-center justify-center px-4">
         <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl flex flex-col" style={{ maxHeight: "92vh" }}>
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 flex-shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
             <div className="flex items-center gap-2 text-slate-800">
               <LockIcon size={14} /><h2 className="text-sm font-bold">Pay for Additional Session</h2>
             </div>
@@ -268,9 +285,7 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }) => 
             </div>
             <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
               <span className="text-xs font-semibold text-blue-900">Your balance</span>
-              {fetching ? <span className="text-xs text-blue-400 animate-pulse">Loading...</span>
-                : walletBalance !== null ? <span className={`text-xs font-bold ${insufficient ? "text-red-500" : "text-blue-900"}`}>{walletBalance} tokens</span>
-                : <span className="text-xs text-blue-400">—</span>}
+              {balanceLabel}
             </div>
             {insufficient && (
               <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
@@ -284,7 +299,7 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }) => 
             </div>
             {error && <p className="text-xs text-red-500 font-medium text-center">{error}</p>}
           </div>
-          <div className="px-4 py-3 border-t border-slate-100 space-y-2 flex-shrink-0">
+          <div className="px-4 py-3 border-t border-slate-100 space-y-2 shrink-0">
             <button type="button" onClick={handlePay} disabled={loading || fetching || insufficient || !sessionRate}
               className="w-full py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
               {loading ? <><svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>Processing...</>
@@ -545,9 +560,9 @@ const SharedAdditionalSessionTab = () => {
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 
-                        {activeGroup.slots.map((slot, i) => (
+                        {activeGroup.slots.map((slot) => (
                           <SlotPill
-                            key={i}
+                            key={`${activeGroup.date}-${slot.startTime}-${slot.endTime}`}
                             slot={slot}
                             group={activeGroup}
                             isBooked={isSlotBooked(activeGroup.date, slot.startTime)}

@@ -83,8 +83,11 @@ const MenteeEditProfileShell = () => {
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                Saving changes...
+                <span
+                  aria-hidden="true"
+                  className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"
+                />
+                <span>Saving changes...</span>
               </span>
             ) : (
               "Save Changes →"

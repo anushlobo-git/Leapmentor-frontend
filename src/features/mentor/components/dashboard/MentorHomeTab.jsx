@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/mentor/dashboard/MentorHomeTab.jsx
+// src/features/mentor/components/dashboard/MentorHomeTab.jsx
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,8 @@ import {
   selectDashboardProfile,
   refetchMentorProfile,
 } from "@features/profile/store/dashboardUserSlice";
+import { MENTOR_BADGES } from "@features/mentor/constants/mentorBadges";
+import { formatDecimal } from "@lib/formatters/number";
 
 const MENTOR_ACCENT_COLORS = [
   "#1d4ed8",
@@ -29,42 +31,9 @@ const MENTOR_ACCENT_COLORS = [
   "#be185d",
 ];
 
-const fmt = (n) =>
-  Number(n || 0).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+const fmt = formatDecimal;
 
-const BADGES = [
-  {
-    key: "newcomer",
-    label: "Newcomer",
-    icon: "👋",
-    desc: "Joined LeapMentor",
-    condition: () => true,
-  },
-  {
-    key: "ten_sessions",
-    label: "10 Sessions",
-    icon: "🎯",
-    desc: "Completed 10 sessions",
-    condition: (p) => (p?.totalSessions || 0) >= 10,
-  },
-  {
-    key: "top_rated",
-    label: "Top Rated",
-    icon: "⭐",
-    desc: "Achieved 4.5+ rating",
-    condition: (p) => (p?.avgRating || 0) >= 4.5,
-  },
-  {
-    key: "expert_guide",
-    label: "Expert Guide",
-    icon: "🏆",
-    desc: "50+ sessions completed",
-    condition: (p) => (p?.totalSessions || 0) >= 50,
-  },
-];
+const BADGES = MENTOR_BADGES;
 
 const getProfileCompletion = (profile) => {
   if (!profile) return 0;
@@ -165,7 +134,6 @@ const MentorHomeTab = ({ setActiveTab }) => {
   const user = useSelector(selectDashboardUser);
   const profile = useSelector(selectDashboardProfile);
   const firstName = user?.name?.split(" ")[0] || "there";
-  const isFirstLogin = user?.isFirstLogin ?? false;
 
   const [sessions, setSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
@@ -243,28 +211,84 @@ const MentorHomeTab = ({ setActiveTab }) => {
     fetchEarnings();
   }, []);
 
+  // ── FIX FOR S3358 & S3776: Extracted Welcome Row Subtext layout logic ──
+  let sessionStatusText = "No active sessions yet.";
+  if (loadingSessions) {
+    sessionStatusText = "Loading your dashboard...";
+  } else if (sessions.length > 0) {
+    sessionStatusText = `You have ${sessions.length} active session${sessions.length > 1 ? "s" : ""}.`;
+  }
+
+  const welcomeMessage = `Welcome, ${firstName}! 👋`;
+
+  // ── FIX FOR S3358 & S3776: Extracted Session Grid Container template blocks ──
+  let activeSessionsContent;
+  if (loadingSessions) {
+    activeSessionsContent = <Loader minHeight={140} />;
+  } else if (sessions.length > 0) {
+    activeSessionsContent = (
+      <div className="flex flex-col gap-3">
+        {sessions.map((request, idx) => (
+          <SessionCard
+            key={request._id}
+            request={request}
+            index={idx}
+            navigate={navigate}
+            personKey="mentee"
+            size="default"
+            accentPalette={MENTOR_ACCENT_COLORS}
+          />
+        ))}
+      </div>
+    );
+  } else {
+    activeSessionsContent = (
+      <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center flex flex-col items-center gap-3 shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-blue-900">
+            No active sessions
+          </p>
+          <p className="text-xs text-blue-900 mt-1 max-w-xs leading-relaxed">
+            Sessions appear here once a mentee completes escrow payment for an
+            accepted request.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       {/* ── Welcome row ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            {isFirstLogin
-              ? `Welcome, ${firstName}! 👋`
-              : `Welcome, ${firstName}! 👋`}
+            {welcomeMessage}
           </h1>
-          <p className="text-sm text-blue-900 mt-1">
-            {loadingSessions
-              ? "Loading your dashboard..."
-              : sessions.length > 0
-                ? `You have ${sessions.length} active session${sessions.length > 1 ? "s" : ""}.`
-                : "No active sessions yet."}
-          </p>
+          <p className="text-sm text-blue-900 mt-1">{sessionStatusText}</p>
         </div>
 
         {/* Profile completion pill */}
         {completionPct < 100 && (
-          <div
+          <button
+            type="button"
             className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => setActiveTab("profile")}
           >
@@ -289,13 +313,12 @@ const MentorHomeTab = ({ setActiveTab }) => {
                   strokeLinecap="round"
                 />
               </svg>
-              {/* ✅ FIX: text-[10px] instead of text-[9px], color text-blue-900 on white bg passes contrast */}
               <span className="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-blue-900">
                 {completionPct}%
               </span>
             </div>
             <span className="text-xs font-bold text-blue-900">Profile</span>
-          </div>
+          </button>
         )}
       </div>
 
@@ -336,59 +359,12 @@ const MentorHomeTab = ({ setActiveTab }) => {
               Active Sessions
             </h2>
             {sessions.length > 0 && (
-              // ✅ FIX: text-blue-900 on bg-blue-100 passes contrast (was text-blue-500 on bg-blue-50)
               <span className="text-xs font-bold text-blue-900 bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-full">
                 {sessions.length} active
               </span>
             )}
           </div>
-
-          {loadingSessions ? (
-            <Loader minHeight={140} />
-          ) : sessions.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {sessions.map((request, idx) => (
-                <SessionCard
-                  key={request._id}
-                  request={request}
-                  index={idx}
-                  navigate={navigate}
-                  personKey="mentee"
-                  size="default"
-                  accentPalette={MENTOR_ACCENT_COLORS}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center flex flex-col items-center gap-3 shadow-sm">
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#94a3b8"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-blue-900">
-                  No active sessions
-                </p>
-                <p className="text-xs text-blue-900 mt-1 max-w-xs leading-relaxed">
-                  Sessions appear here once a mentee completes escrow payment
-                  for an accepted request.
-                </p>
-              </div>
-            </div>
-          )}
+          {activeSessionsContent}
         </div>
 
         {/* RIGHT — Badges + Earnings */}
@@ -397,7 +373,6 @@ const MentorHomeTab = ({ setActiveTab }) => {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-bold text-slate-700">Your Badges</p>
-              {/* ✅ FIX: text-blue-900 on bg-slate-100 passes contrast (was text-blue-800 on bg-slate-50) */}
               <span className="text-[11px] font-semibold text-blue-900 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
                 {unlockedCount}/{badges.length} unlocked
               </span>
@@ -408,25 +383,16 @@ const MentorHomeTab = ({ setActiveTab }) => {
                   key={badge.key}
                   title={badge.desc}
                   className={`relative flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border transition-all duration-200
-                    ${
-                      badge.unlocked
-                        ? "bg-blue-50 border-blue-200 shadow-md shadow-blue-200"
-                        : "bg-slate-100 border-slate-400 border-dashed opacity-90 grayscale"
-                    }`}
+                    ${badge.unlocked ? "bg-blue-50 border-blue-200 shadow-md shadow-blue-200" : "bg-slate-100 border-slate-400 border-dashed opacity-90 grayscale"}`}
                 >
                   {!badge.unlocked && (
-                    <span
-                      className="absolute top-1 left-1 text-[10px]"
-                      style={{ filter: "none" }}
-                    >
+                    <span className="absolute top-1 left-1 text-[10px]">
                       🔒
                     </span>
                   )}
                   <span className="text-xl relative">{badge.icon}</span>
-                  {/* ✅ FIX: text-blue-900 / text-slate-700 both pass on their backgrounds */}
                   <span
-                    className={`text-[10px] font-bold text-center leading-tight
-                    ${badge.unlocked ? "text-blue-900" : "text-slate-700"}`}
+                    className={`text-[10px] font-bold text-center leading-tight ${badge.unlocked ? "text-blue-900" : "text-slate-700"}`}
                   >
                     {badge.label}
                   </span>
@@ -441,7 +407,6 @@ const MentorHomeTab = ({ setActiveTab }) => {
               <p className="text-sm font-bold text-slate-700">
                 Earnings Summary
               </p>
-              {/* ✅ FIX: text-emerald-800 on bg-emerald-100 passes contrast (was text-emerald-600 on bg-emerald-50) */}
               <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-full">
                 Leap Points
               </span>
@@ -462,7 +427,6 @@ const MentorHomeTab = ({ setActiveTab }) => {
                   </div>
                   <p className="text-sm font-extrabold text-slate-800">
                     {fmt(earnings?.totalEarnings)}
-                    {/* ✅ FIX: text-blue-800 instead of text-blue-500 — passes on white bg */}
                     <span className="text-xs font-bold text-blue-800 ml-1">
                       LP
                     </span>
@@ -478,7 +442,6 @@ const MentorHomeTab = ({ setActiveTab }) => {
                       locked in escrow
                     </p>
                   </div>
-                  {/* ✅ FIX: text-amber-800 instead of text-amber-600, text-amber-700 instead of text-amber-400 */}
                   <p className="text-sm font-extrabold text-amber-800">
                     {fmt(earnings?.pendingPayout)}
                     <span className="text-xs font-bold text-amber-700 ml-1">
@@ -513,7 +476,6 @@ const MentorHomeTab = ({ setActiveTab }) => {
                       ready to withdraw
                     </p>
                   </div>
-                  {/* ✅ FIX: text-emerald-800 instead of text-emerald-600, text-emerald-700 instead of text-emerald-400 */}
                   <p className="text-sm font-extrabold text-emerald-800">
                     {fmt(earnings?.walletBalance)}
                     <span className="text-xs font-bold text-emerald-700 ml-1">
@@ -535,6 +497,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
 MentorHomeTab.propTypes = {
   setActiveTab: PropTypes.func.isRequired,
 };
+
 StatCard.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -542,27 +505,4 @@ StatCard.propTypes = {
   icon: PropTypes.node.isRequired,
 };
 
-SessionCard.propTypes = {
-  request: PropTypes.shape({
-    _id: PropTypes.string,
-    status: PropTypes.string,
-    mentee: PropTypes.shape({
-      name: PropTypes.string,
-    }),
-    confirmedSlot: PropTypes.shape({
-      date: PropTypes.string,
-      startTime: PropTypes.string,
-      endTime: PropTypes.string,
-    }),
-    selectedSlots: PropTypes.arrayOf(
-      PropTypes.shape({
-        date: PropTypes.string,
-        startTime: PropTypes.string,
-        endTime: PropTypes.string,
-      }),
-    ),
-  }).isRequired,
-  index: PropTypes.number.isRequired,
-  navigate: PropTypes.func.isRequired,
-};
 export default MentorHomeTab;

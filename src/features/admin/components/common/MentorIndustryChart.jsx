@@ -86,6 +86,19 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.arrayOf(
+    PropTypes.shape({
+      payload: PropTypes.shape({
+        industry: PropTypes.string,
+        count: PropTypes.number,
+        pct: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      }),
+    }),
+  ),
+};
+
 // ── Custom X-Axis Tick (rotated to prevent overlap) ───────────
 const CustomXTick = ({ x, y, payload }) => {
   return (
@@ -105,6 +118,14 @@ const CustomXTick = ({ x, y, payload }) => {
       </text>
     </g>
   );
+};
+
+CustomXTick.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  payload: PropTypes.shape({
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
 };
 
 // ── FIX FOR SONARQUBE: Standalone Custom Bar Component definition ──
@@ -261,17 +282,13 @@ const MentorIndustryChart = ({ data = [] }) => {
   );
 };
 
-CustomTooltip.propTypes = {
-  active: PropTypes.bool.isRequired,
-  payload: PropTypes.arrayOf(
+MentorIndustryChart.propTypes = {
+  data: PropTypes.arrayOf(
     PropTypes.shape({
-      payload: PropTypes.shape({
-        industry: PropTypes.string,
-        count: PropTypes.number,
-        pct: PropTypes.string,
-      }),
+      industry: PropTypes.string.isRequired,
+      count: PropTypes.number.isRequired,
     }),
-  ).isRequired,
+  ),
 };
 
 export default MentorIndustryChart;

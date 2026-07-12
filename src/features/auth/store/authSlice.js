@@ -7,12 +7,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@lib/axiosInstance";
 import { mapAuthUser } from "@lib/mappers/userMapper";
 
-export const redirectByRole = (roles = [], targetRole, navigate) => {
+export const redirectByRole = (roles, targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
   if (targetRole === "mentee" && roles.includes("mentee")) return navigate("/dashboard/mentee");
-  if (roles.includes("mentor"))  return navigate("/dashboard/mentor");
+  if (roles.includes("mentor")) return navigate("/dashboard/mentor");
 
-  if (roles.includes("mentee"))  return navigate("/dashboard/mentee");
+  if (roles.includes("mentee")) return navigate("/dashboard/mentee");
   navigate("/");
 };
 

@@ -61,9 +61,9 @@ export default function Missions() {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <FeatureCard
-              key={index}
+              key={feature.title}
               icon={feature.icon}
               title={feature.title}
               description={feature.description}

@@ -26,7 +26,10 @@ const MentorEditProfileShell = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div
+      className="min-h-screen bg-[#f0f4ff]"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
       <div className="h-1 w-full bg-[#2563eb]" />
@@ -40,9 +43,10 @@ const MentorEditProfileShell = () => {
               className="h-8 w-8"
               width={32}
               height={32}
-
             />
-            <span className="text-sm font-bold text-[#0f172a]">Edit Profile</span>
+            <span className="text-sm font-bold text-[#0f172a]">
+              Edit Profile
+            </span>
           </div>
           <button
             type="button"
@@ -55,7 +59,9 @@ const MentorEditProfileShell = () => {
       </header>
 
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
-        <h1 className="text-2xl font-bold text-[#0f172a]">Update Your Profile</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">
+          Update Your Profile
+        </h1>
         <p className="text-sm text-slate-600 mt-1">
           Make changes to your profile and save when done.
         </p>
@@ -63,7 +69,6 @@ const MentorEditProfileShell = () => {
 
       <main className="max-w-2xl mx-auto px-6 py-6">
         <form onSubmit={handleSubmit} className="space-y-5">
-
           <PersonalInfoSection form={form} onChange={handleChange} />
           <ProfessionalInfoSection form={form} onChange={handleChange} />
           <SkillsSection form={form} onChange={handleChange} />
@@ -71,10 +76,13 @@ const MentorEditProfileShell = () => {
           <SocialLinksSection form={form} onChange={handleChange} />
 
           {msg.text && (
-            <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-                ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
-                : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-              }`}>
+            <div
+              className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
+                msg.type === "success"
+                  ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
+                  : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
+              }`}
+            >
               <span>{msg.type === "success" ? "✓" : "⚠"}</span>
               {msg.text}
             </div>
@@ -88,7 +96,7 @@ const MentorEditProfileShell = () => {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                Saving changes…
+                <span>Saving changes...</span>
               </span>
             ) : (
               "Save Changes →"

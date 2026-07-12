@@ -31,11 +31,15 @@ export const formatDateSeparator = (dateStr) => {
 
   if (date.toDateString() === today.toDateString()) return "Today";
   if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
-export const isSameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
-
+export const isSameDay = (a, b) =>
+  new Date(a).toDateString() === new Date(b).toDateString();
 
 export const getFileType = (fileName) => {
   if (!fileName) return "other";
@@ -83,4 +87,56 @@ export const FILE_ICON_LABELS = {
   excel: "XLS",
   txt: "TXT",
   other: "FILE",
+};
+
+export const FILE_TYPE_CONFIG = {
+  pdf: {
+    bg: "bg-red-100",
+    border: "border-red-200",
+    text: "text-red-600",
+    icon: "📕",
+    label: FILE_ICON_LABELS.pdf,
+  },
+  image: {
+    bg: "bg-green-100",
+    border: "border-green-200",
+    text: "text-green-600",
+    icon: "🖼️",
+    label: FILE_ICON_LABELS.image,
+  },
+  doc: {
+    bg: "bg-blue-100",
+    border: "border-blue-200",
+    text: "text-blue-600",
+    icon: "📝",
+    label: FILE_ICON_LABELS.doc,
+  },
+  ppt: {
+    bg: "bg-orange-100",
+    border: "border-orange-200",
+    text: "text-orange-600",
+    icon: "📊",
+    label: FILE_ICON_LABELS.ppt,
+  },
+  excel: {
+    bg: "bg-emerald-100",
+    border: "border-emerald-200",
+    text: "text-emerald-600",
+    icon: "📈",
+    label: FILE_ICON_LABELS.excel,
+  },
+  txt: {
+    bg: "bg-slate-100",
+    border: "border-slate-200",
+    text: "text-slate-600",
+    icon: "📃",
+    label: FILE_ICON_LABELS.txt,
+  },
+  other: {
+    bg: "bg-violet-100",
+    border: "border-violet-200",
+    text: "text-violet-600",
+    icon: "📁",
+    label: FILE_ICON_LABELS.other,
+  },
 };

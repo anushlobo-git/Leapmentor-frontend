@@ -18,6 +18,10 @@ const StatusPill = ({ isOngoing }) => (
   </span>
 );
 
+StatusPill.propTypes = {
+  isOngoing: PropTypes.bool.isRequired,
+};
+
 const SessionCard = ({
   request,
   index,

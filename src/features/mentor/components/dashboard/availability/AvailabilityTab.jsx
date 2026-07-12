@@ -55,16 +55,19 @@ const BusyConflictModal = ({ conflicts, onConfirm, onCancel }) => (
 
       {/* Conflict list */}
       <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 mb-5 space-y-2 max-h-48 overflow-y-auto">
-        {conflicts.map((c, i) => (
-          <div key={i} className="flex items-start gap-2">
+        {conflicts.map((c) => (
+          <div
+            key={`${c.dateLabel}-${c.slotTime}-${c.busyTime}`}
+            className="flex items-start gap-2"
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
             <div>
               <span className="text-xs font-bold text-orange-800">
                 {c.dateLabel}
               </span>
               <span className="text-xs text-orange-700 ml-1">
-                {c.slotTime} conflicts with{" "}
-                <span className="font-semibold">{c.busyTime}</span>
+                {c.slotTime} conflicts with
+                <span className="font-semibold"> {c.busyTime}</span>
               </span>
             </div>
           </div>
@@ -249,7 +252,7 @@ const AvailabilityTab = () => {
           >
             {saving ? (
               <>
-                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                 Saving...
               </>
             ) : (

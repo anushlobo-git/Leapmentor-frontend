@@ -56,10 +56,16 @@ const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
         </button>
 
         {/* Logo */}
-        <div
+        <button
+          type="button"
           className="flex items-center gap-2 cursor-pointer"
           onClick={onLogoClick}
-
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            textAlign: "left",
+          }}
         >
           <img
             src={IMAGES.LOGO}
@@ -69,7 +75,7 @@ const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) => {
             height={32}
           />
           <span className="text-xl font-bold text-gray-900 tracking-tight">LeapMentor</span>
-        </div>
+        </button>
 
         {/* Session badge */}
         <div style={{
