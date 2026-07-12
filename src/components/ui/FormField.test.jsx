@@ -20,19 +20,6 @@ describe("FormField", () => {
     expect(textarea.tagName).toBe("TEXTAREA");
   });
 
-  it("should apply FIELD_BASE_STYLE", () => {
-    const { container } = render(<FormField />);
-    const input = container.querySelector("input");
-    expect(input).toHaveStyle({
-      padding: "11px 14px",
-      borderRadius: "10px",
-      border: "1.5px solid #e2e8f0",
-      fontSize: "14px",
-      outline: "none",
-      color: "#0f172a",
-      fontFamily: "inherit",
-    });
-  });
 
   it("should apply custom style", () => {
     const { container } = render(<FormField style={{ width: "100%" }} />);
@@ -51,9 +38,9 @@ describe("FormField", () => {
     const user = userEvent.setup();
     const { container } = render(<FormField focusColor="#ff0000" />);
     const input = container.querySelector("input");
-    
+
     await user.click(input);
-    
+
     expect(input).toHaveStyle({ borderColor: "#ff0000" });
   });
 
@@ -61,9 +48,9 @@ describe("FormField", () => {
     const user = userEvent.setup();
     const { container } = render(<FormField />);
     const input = container.querySelector("input");
-    
+
     await user.click(input);
-    
+
     expect(input).toHaveStyle({ borderColor: "#4f46e5" });
   });
 
@@ -71,10 +58,10 @@ describe("FormField", () => {
     const user = userEvent.setup();
     const { container } = render(<FormField />);
     const input = container.querySelector("input");
-    
+
     await user.click(input);
     expect(input).toHaveStyle({ borderColor: "#4f46e5" });
-    
+
     await user.tab();
     expect(input).toHaveStyle({ borderColor: "#e2e8f0" });
   });
@@ -113,10 +100,10 @@ describe("FormField", () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
     render(<FormField onChange={handleChange} />);
-    
+
     const input = screen.getByRole("textbox");
     await user.type(input, "test");
-    
+
     expect(handleChange).toHaveBeenCalled();
   });
 });

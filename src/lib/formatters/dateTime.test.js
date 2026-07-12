@@ -7,6 +7,7 @@ import {
   formatDateTime,
   formatDateSeparator,
   isSameDay,
+  formatSlotDate,
 } from "./dateTime";
 
 describe("dateTime formatters", () => {
@@ -83,5 +84,23 @@ describe("dateTime formatters", () => {
   it("detects whether two values fall on the same day", () => {
     expect(isSameDay("2024-01-15T09:00:00", "2024-01-15T18:30:00")).toBe(true);
     expect(isSameDay("2024-01-15T09:00:00", "2024-01-16T18:30:00")).toBe(false);
+  });
+
+  it("formats slot dates correctly", () => {
+    const dateStr = "2024-01-15";
+    const result = formatSlotDate(dateStr);
+    expect(result).toBe("Jan 15");
+  });
+
+  it("returns empty string for invalid slot date", () => {
+    expect(formatSlotDate("")).toBe("");
+    expect(formatSlotDate(null)).toBe("");
+    expect(formatSlotDate("invalid-date")).toBe("");
+  });
+
+  it("formats slot date with custom options", () => {
+    const dateStr = "2024-01-15";
+    const result = formatSlotDate(dateStr, { year: "numeric" });
+    expect(result).toContain("2024");
   });
 });

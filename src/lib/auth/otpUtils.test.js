@@ -46,7 +46,7 @@ describe("otpUtils", () => {
     it("should focus next input when value is entered and not at last index", () => {
       const mockFocus = vi.fn();
       document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
-      
+
       handleOtpChange("5", 0, otpArray, mockSetOtpArray);
       expect(document.getElementById).toHaveBeenCalledWith("otp-1");
       expect(mockFocus).toHaveBeenCalled();
@@ -55,16 +55,25 @@ describe("otpUtils", () => {
     it("should not focus next input when at last index", () => {
       const mockFocus = vi.fn();
       document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
-      
+
       handleOtpChange("5", 5, otpArray, mockSetOtpArray);
       expect(document.getElementById).not.toHaveBeenCalled();
     });
 
     it("should handle missing element gracefully", () => {
       document.getElementById = vi.fn().mockReturnValue(null);
-      
+
       handleOtpChange("5", 0, otpArray, mockSetOtpArray);
       expect(mockSetOtpArray).toHaveBeenCalledWith(["5", "", "", "", "", ""]);
+    });
+
+    it("should use custom idPrefix for focusing next input", () => {
+      const mockFocus = vi.fn();
+      document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
+
+      handleOtpChange("5", 0, otpArray, mockSetOtpArray, "custom");
+      expect(document.getElementById).toHaveBeenCalledWith("custom-1");
+      expect(mockFocus).toHaveBeenCalled();
     });
   });
 
@@ -72,7 +81,7 @@ describe("otpUtils", () => {
     it("should focus previous input on backspace when current is empty", () => {
       const mockFocus = vi.fn();
       document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
-      
+
       handleOtpKeyDown({ key: "Backspace" }, 1, otpArray);
       expect(document.getElementById).toHaveBeenCalledWith("otp-0");
       expect(mockFocus).toHaveBeenCalled();
@@ -82,7 +91,7 @@ describe("otpUtils", () => {
       const mockFocus = vi.fn();
       document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
       otpArray[1] = "5";
-      
+
       handleOtpKeyDown({ key: "Backspace" }, 1, otpArray);
       expect(document.getElementById).not.toHaveBeenCalled();
     });
@@ -90,7 +99,7 @@ describe("otpUtils", () => {
     it("should not focus previous input on other keys", () => {
       const mockFocus = vi.fn();
       document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
-      
+
       handleOtpKeyDown({ key: "Delete" }, 1, otpArray);
       expect(document.getElementById).not.toHaveBeenCalled();
     });
@@ -98,16 +107,25 @@ describe("otpUtils", () => {
     it("should not focus previous input when at first index", () => {
       const mockFocus = vi.fn();
       document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
-      
+
       handleOtpKeyDown({ key: "Backspace" }, 0, otpArray);
       expect(document.getElementById).not.toHaveBeenCalled();
     });
 
     it("should handle missing element gracefully", () => {
       document.getElementById = vi.fn().mockReturnValue(null);
-      
+
       handleOtpKeyDown({ key: "Backspace" }, 1, otpArray);
       // Should not throw error
+    });
+
+    it("should use custom idPrefix for focusing previous input", () => {
+      const mockFocus = vi.fn();
+      document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
+
+      handleOtpKeyDown({ key: "Backspace" }, 1, otpArray, "custom");
+      expect(document.getElementById).toHaveBeenCalledWith("custom-0");
+      expect(mockFocus).toHaveBeenCalled();
     });
   });
 
@@ -119,7 +137,7 @@ describe("otpUtils", () => {
         },
         preventDefault: vi.fn(),
       };
-      
+
       handleOtpPaste(mockEvent, otpArray, mockSetOtpArray);
       expect(mockSetOtpArray).toHaveBeenCalledWith(["1", "2", "3", "4", "5", "6"]);
       expect(mockEvent.preventDefault).toHaveBeenCalled();
@@ -132,7 +150,7 @@ describe("otpUtils", () => {
         },
         preventDefault: vi.fn(),
       };
-      
+
       handleOtpPaste(mockEvent, otpArray, mockSetOtpArray);
       expect(mockSetOtpArray).toHaveBeenCalledWith(["1", "2", "3", "4", "5", "6"]);
     });
@@ -144,7 +162,7 @@ describe("otpUtils", () => {
         },
         preventDefault: vi.fn(),
       };
-      
+
       handleOtpPaste(mockEvent, otpArray, mockSetOtpArray);
       expect(mockSetOtpArray).not.toHaveBeenCalled();
       expect(mockEvent.preventDefault).toHaveBeenCalled();
@@ -157,7 +175,7 @@ describe("otpUtils", () => {
         },
         preventDefault: vi.fn(),
       };
-      
+
       handleOtpPaste(mockEvent, otpArray, mockSetOtpArray);
       expect(mockSetOtpArray).toHaveBeenCalledWith(["1", "2", "3", "4", "5", "6"]);
     });
@@ -171,9 +189,24 @@ describe("otpUtils", () => {
         },
         preventDefault: vi.fn(),
       };
-      
+
       handleOtpPaste(mockEvent, otpArray, mockSetOtpArray);
       expect(document.getElementById).toHaveBeenCalledWith("otp-5");
+      expect(mockFocus).toHaveBeenCalled();
+    });
+
+    it("should use custom idPrefix for focusing last input after paste", () => {
+      const mockFocus = vi.fn();
+      document.getElementById = vi.fn().mockReturnValue({ focus: mockFocus });
+      const mockEvent = {
+        clipboardData: {
+          getData: vi.fn().mockReturnValue("123456"),
+        },
+        preventDefault: vi.fn(),
+      };
+
+      handleOtpPaste(mockEvent, otpArray, mockSetOtpArray, "custom");
+      expect(document.getElementById).toHaveBeenCalledWith("custom-5");
       expect(mockFocus).toHaveBeenCalled();
     });
   });

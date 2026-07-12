@@ -57,7 +57,7 @@ describe("redirectUtils", () => {
     });
 
     it("should return root path when role is empty string", () => {
-      expect(getDashboardPath("").toBe("/"));
+      expect(getDashboardPath("")).toBe("/");
     });
 
     it("should return root path when role is undefined", () => {
@@ -79,7 +79,7 @@ describe("redirectUtils", () => {
     });
 
     it("should return root path when role is empty string", () => {
-      expect(getOnboardingPath("").toBe("/"));
+      expect(getOnboardingPath("")).toBe("/");
     });
 
     it("should return root path when role is undefined", () => {
@@ -99,60 +99,42 @@ describe("redirectUtils", () => {
 
   describe("getBaseUrl", () => {
     it("should return environment variable when set", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = "https://api.example.com/api/v1";
+      vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
       expect(getBaseUrl()).toBe("https://api.example.com/api/v1");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
     });
 
-    it("should return fallback when environment variable is not set", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = undefined;
+    it("should return fallback URL when environment variable is not set", () => {
+      vi.stubEnv("VITE_API_BASE_URL", undefined);
       expect(getBaseUrl()).toBe("http://localhost:5000/api/v1");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
     });
+
   });
 
   describe("buildOAuthUrl", () => {
     it("should build correct OAuth URL for google", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = "https://api.example.com/api/v1";
+      vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
       const result = buildOAuthUrl("google");
       expect(result).toBe("https://api.example.com/api/v1/auth/google?");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
     });
 
     it("should build OAuth URL with params", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = "https://api.example.com/api/v1";
+      vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
       const result = buildOAuthUrl("google", { redirect: "/dashboard" });
       expect(result).toBe("https://api.example.com/api/v1/auth/google?redirect=%2Fdashboard");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
     });
 
     it("should build OAuth URL with multiple params", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = "https://api.example.com/api/v1";
+      vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
       const result = buildOAuthUrl("linkedin", { redirect: "/dashboard", state: "abc123" });
       expect(result).toContain("redirect=%2Fdashboard");
       expect(result).toContain("state=abc123");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
     });
 
-    it("should use fallback base URL when env not set", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = undefined;
-      const result = buildOAuthUrl("google");
-      expect(result).toBe("http://localhost:5000/api/v1/auth/google?");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
-    });
 
     it("should handle empty params object", () => {
-      const originalEnv = import.meta.env.VITE_API_BASE_URL;
-      import.meta.env.VITE_API_BASE_URL = "https://api.example.com/api/v1";
+      vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
       const result = buildOAuthUrl("google", {});
       expect(result).toBe("https://api.example.com/api/v1/auth/google?");
-      import.meta.env.VITE_API_BASE_URL = originalEnv;
     });
   });
 });

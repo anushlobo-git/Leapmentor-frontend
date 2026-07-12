@@ -64,8 +64,8 @@ describe("SideArrow", () => {
     expect(svg).toHaveAttribute("viewBox", "0 0 24 24");
     expect(svg).toHaveAttribute("fill", "none");
     expect(svg).toHaveAttribute("stroke", "#7c3aed");
-    expect(svg).toHaveAttribute("strokeWidth", "2.5");
-    expect(svg).toHaveAttribute("strokeLinecap", "round");
+    expect(svg).toHaveAttribute("stroke-width", "2.5");
+    expect(svg).toHaveAttribute("stroke-linecap", "round");
   });
 
   it("should render polyline element", () => {
@@ -79,10 +79,10 @@ describe("SideArrow", () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
     render(<SideArrow onClick={handleClick} />);
-    
+
     const button = screen.getByRole("button");
     await user.click(button);
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 });

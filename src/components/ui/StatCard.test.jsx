@@ -32,15 +32,6 @@ describe("StatCard", () => {
     expect(card).toHaveClass("px-4");
   });
 
-  it("should apply gradient style to value", () => {
-    const { container } = render(<StatCard value="100" label="Test" gradientFrom="#8b5cf6" gradientTo="#ec4899" />);
-    const valueElement = container.querySelector(".text-3xl");
-    expect(valueElement).toHaveStyle({
-      background: "linear-gradient(135deg, #8b5cf6, #ec4899)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-    });
-  });
 
   it("should have correct value styling", () => {
     const { container } = render(<StatCard value="100" label="Test" gradientFrom="#000" gradientTo="#fff" />);

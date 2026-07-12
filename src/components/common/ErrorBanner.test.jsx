@@ -28,26 +28,26 @@ describe("ErrorBanner", () => {
   });
 
   it("should render with md size by default", () => {
-    render(<ErrorBanner message="Error" />);
-    const banner = screen.getByText("Error").parentElement;
+    const { container } = render(<ErrorBanner message="Error" />);
+    const banner = container.firstChild;
     expect(banner).toHaveClass("text-sm");
   });
 
   it("should render with sm size", () => {
-    render(<ErrorBanner message="Error" size="sm" />);
-    const banner = screen.getByText("Error").parentElement;
+    const { container } = render(<ErrorBanner message="Error" size="sm" />);
+    const banner = container.firstChild;
     expect(banner).toHaveClass("text-xs");
   });
 
   it("should render with custom className", () => {
-    render(<ErrorBanner message="Error" className="custom-class" />);
-    const banner = screen.getByText("Error").parentElement;
+    const { container } = render(<ErrorBanner message="Error" className="custom-class" />);
+    const banner = container.firstChild;
     expect(banner).toHaveClass("custom-class");
   });
 
   it("should have base classes", () => {
-    render(<ErrorBanner message="Error" />);
-    const banner = screen.getByText("Error").parentElement;
+    const { container } = render(<ErrorBanner message="Error" />);
+    const banner = container.firstChild;
     expect(banner).toHaveClass("flex");
     expect(banner).toHaveClass("items-center");
     expect(banner).toHaveClass("gap-2");

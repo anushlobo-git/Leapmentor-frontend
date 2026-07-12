@@ -143,7 +143,7 @@ describe("ErrorBoundary", () => {
     );
 
     const svg = container.querySelector("svg");
-    expect(svgtoBeInTheDocument());
+    expect(svg).toBeInTheDocument();
   });
 
   it("should have error icon container with pulse animation", () => {

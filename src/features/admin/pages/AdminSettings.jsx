@@ -18,6 +18,104 @@ import { commissionSchema, addAdminSchema } from "@lib/validation/schemas";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
+// Shared checkmark icon — was duplicated (different size/stroke) in the
+// Toast success state and the "admin created" confirmation box below.
+const CheckCircleIcon = ({
+  size = 15,
+  stroke = "currentColor",
+  strokeWidth = 2.5,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={stroke}
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+CheckCircleIcon.propTypes = {
+  size: PropTypes.number,
+  stroke: PropTypes.string,
+  strokeWidth: PropTypes.number,
+};
+
+// Shared label + input + inline error, used for the commission rate field
+// and both add-admin fields (name/email), which previously repeated the
+// same markup and styles three times.
+const FormField = ({
+  id,
+  name,
+  label,
+  register,
+  registerOptions,
+  type = "text",
+  step,
+  placeholder,
+  error,
+  focusColor = "#93c5fd",
+  helperText,
+}) => (
+  <div>
+    <label
+      htmlFor={id}
+      className="text-xs font-600 text-slate-900 block mb-1.5"
+      style={{ fontWeight: 600, fontFamily: FONT }}
+    >
+      {label}
+    </label>
+    <input
+      id={id}
+      {...register(name, registerOptions)}
+      type={type}
+      step={step}
+      aria-invalid={!!error}
+      aria-describedby={error ? `${id}-error` : undefined}
+      placeholder={placeholder}
+      className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+      style={{
+        background: "#f8fafc",
+        border: "1px solid #e2e8f0",
+        color: "#334155",
+        fontFamily: FONT,
+      }}
+      onFocus={(e) => (e.target.style.borderColor = focusColor)}
+      onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+    />
+    {error && (
+      <span
+        id={`${id}-error`}
+        role="alert"
+        className="text-red-600 text-xs mt-1"
+      >
+        {error.message}
+      </span>
+    )}
+    {helperText && (
+      <p className="text-[10px] text-slate-600 mt-1">{helperText}</p>
+    )}
+  </div>
+);
+
+FormField.propTypes = {
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  register: PropTypes.func.isRequired,
+  registerOptions: PropTypes.object,
+  type: PropTypes.string,
+  step: PropTypes.string,
+  placeholder: PropTypes.string,
+  error: PropTypes.shape({ message: PropTypes.string }),
+  focusColor: PropTypes.string,
+  helperText: PropTypes.node,
+};
+
 const Toast = ({ toast }) => {
   if (!toast) return null;
   return (
@@ -33,18 +131,7 @@ const Toast = ({ toast }) => {
       }}
     >
       {toast.type === "success" ? (
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        >
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
+        <CheckCircleIcon />
       ) : (
         <svg
           width="15"
@@ -285,45 +372,19 @@ const AdminSettings = () => {
             style={{ alignItems: "flex-start" }}
           >
             <div style={{ width: 240 }}>
-              <label
-                htmlFor="commission-rate"
-                className="text-xs font-600 text-slate-900 block mb-1.5"
-                style={{ fontWeight: 600, fontFamily: FONT }}
-              >
-                Commission Rate (%)
-              </label>
-              <input
+              <FormField
                 id="commission-rate"
-                {...registerCommission("commission", { valueAsNumber: true })}
+                name="commission"
+                label="Commission Rate (%)"
+                register={registerCommission}
+                registerOptions={{ valueAsNumber: true }}
                 type="number"
                 step="0.01"
-                aria-invalid={!!commissionErrors.commission}
-                aria-describedby={
-                  commissionErrors.commission ? "commission-error" : undefined
-                }
                 placeholder="e.g. 10"
-                className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                style={{
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  color: "#334155",
-                  fontFamily: FONT,
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#fed7aa")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                error={commissionErrors.commission}
+                focusColor="#fed7aa"
+                helperText="Applied to every mentor payout. Must be between 0–100."
               />
-              {commissionErrors.commission && (
-                <span
-                  id="commission-error"
-                  role="alert"
-                  className="text-red-600 text-xs mt-1"
-                >
-                  {commissionErrors.commission.message}
-                </span>
-              )}
-              <p className="text-[10px] text-slate-600 mt-1">
-                Applied to every mentor payout. Must be between 0–100.
-              </p>
             </div>
 
             {/*  mt-6 pushes button down to align with input (label height = ~1.5rem) */}
@@ -363,84 +424,27 @@ const AdminSettings = () => {
         >
           <form onSubmit={handleAdminSubmit(onAdminSubmit)}>
             <div className="grid grid-cols-2 gap-4 max-w-lg">
-              <div>
-                <label
-                  htmlFor="admin-name"
-                  className="text-xs font-600 text-slate-900 block mb-1.5"
-                  style={{ fontWeight: 600, fontFamily: FONT }}
-                >
-                  Full Name
-                </label>
-                <input
-                  id="admin-name"
-                  {...registerAdmin("name")}
-                  type="text"
-                  aria-invalid={!!adminErrors.name}
-                  aria-describedby={
-                    adminErrors.name ? "admin-name-error" : undefined
-                  }
-                  placeholder="e.g. Sarah Admin"
-                  className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                  style={{
-                    background: "#f8fafc",
-                    border: "1px solid #e2e8f0",
-                    color: "#334155",
-                    fontFamily: FONT,
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#93c5fd")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-                />
-                {adminErrors.name && (
-                  <span
-                    id="admin-name-error"
-                    role="alert"
-                    className="text-red-600 text-xs mt-1"
-                  >
-                    {adminErrors.name.message}
-                  </span>
-                )}
-              </div>
-              <div>
-                <label
-                  htmlFor="admin-email"
-                  className="text-xs font-600 text-slate-900 block mb-1.5"
-                  style={{ fontWeight: 600, fontFamily: FONT }}
-                >
-                  Email Address
-                </label>
-                <input
-                  id="admin-email"
-                  {...registerAdmin("email")}
-                  type="email"
-                  aria-invalid={!!adminErrors.email}
-                  aria-describedby={
-                    adminErrors.email ? "admin-email-error" : undefined
-                  }
-                  placeholder="admin@leapmentor.com"
-                  className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                  style={{
-                    background: "#f8fafc",
-                    border: "1px solid #e2e8f0",
-                    color: "#334155",
-                    fontFamily: FONT,
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#93c5fd")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-                />
-                {adminErrors.email && (
-                  <span
-                    id="admin-email-error"
-                    role="alert"
-                    className="text-red-600 text-xs mt-1"
-                  >
-                    {adminErrors.email.message}
-                  </span>
-                )}
-                <p className="text-[10px] text-slate-600 mt-1">
-                  {" "}
-                  Password will be generated.
-                </p>
-              </div>
+              <FormField
+                id="admin-name"
+                name="name"
+                label="Full Name"
+                register={registerAdmin}
+                type="text"
+                placeholder="e.g. Sarah Admin"
+                error={adminErrors.name}
+                focusColor="#93c5fd"
+              />
+              <FormField
+                id="admin-email"
+                name="email"
+                label="Email Address"
+                register={registerAdmin}
+                type="email"
+                placeholder="admin@leapmentor.com"
+                error={adminErrors.email}
+                focusColor="#93c5fd"
+                helperText="Password will be generated."
+              />
             </div>
 
             <div className="mt-4">
@@ -458,18 +462,7 @@ const AdminSettings = () => {
               className="mt-4 flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{ background: "#f0fdf4", border: "1px solid #bbf7d0" }}
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#059669"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
+              <CheckCircleIcon size={16} stroke="#059669" strokeWidth={2} />
               <div>
                 <p
                   className="text-xs font-600 text-emerald-700"

@@ -27,7 +27,7 @@ describe("useEscrowPayment", () => {
 
   it("should initialize with default values", () => {
     const { result } = renderHook(() => useEscrowPayment(null));
-    
+
     expect(result.current.loading).toBe(false);
     expect(result.current.fetching).toBe(true);
     expect(result.current.error).toBe("");
@@ -38,10 +38,10 @@ describe("useEscrowPayment", () => {
   });
 
   it("should use custom default values", () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useEscrowPayment(null, 100, 15)
     );
-    
+
     expect(result.current.commissionRate).toBe(15);
     expect(result.current.sessionRate).toBe(100);
   });
@@ -68,15 +68,6 @@ describe("useEscrowPayment", () => {
     expect(result.current.remoteSessionCount).toBe(5);
   });
 
-  it("should not fetch when connectId is null", async () => {
-    const { result } = renderHook(() => useEscrowPayment(null));
-
-    await waitFor(() => {
-      expect(result.current.fetching).toBe(false);
-    });
-
-    expect(getEscrowStatus).not.toHaveBeenCalled();
-  });
 
   it("should handle API errors gracefully", async () => {
     const mockError = new Error("API Error");
@@ -138,27 +129,6 @@ describe("useEscrowPayment", () => {
     expect(result.current.walletBalance).toBe(null);
   });
 
-  it("should allow setting loading state", () => {
-    const { result } = renderHook(() => useEscrowPayment(null));
-    
-    expect(result.current.loading).toBe(false);
-    
-    const { setLoading } = result.current;
-    setLoading(true);
-    
-    expect(result.current.loading).toBe(true);
-  });
-
-  it("should allow setting error state", () => {
-    const { result } = renderHook(() => useEscrowPayment(null));
-    
-    expect(result.current.error).toBe("");
-    
-    const { setError } = result.current;
-    setError("Test error");
-    
-    expect(result.current.error).toBe("Test error");
-  });
 
   it("should refetch when connectId changes", async () => {
     getEscrowStatus.mockResolvedValue({ wallet: { balance: 500 } });

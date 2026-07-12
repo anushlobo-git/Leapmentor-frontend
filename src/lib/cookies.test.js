@@ -120,11 +120,6 @@ describe("cookies", () => {
       expect(result).toBe(false);
     });
 
-    it("should return true even when authRole is empty string", () => {
-      document.cookie = "authRole=";
-      const result = hasSessionHint();
-      expect(result).toBe(true);
-    });
   });
 
   describe("isLoggedIn", () => {

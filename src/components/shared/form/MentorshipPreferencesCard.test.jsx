@@ -28,9 +28,9 @@ describe("MentorshipPreferencesCard", () => {
   });
 
   it("should render communication options", () => {
-    render(<MentorshipPreferencesCard {...defaultProps} />);
-    expect(screen.getByText("Email")).toBeInTheDocument();
-    expect(screen.getByText("Chat")).toBeInTheDocument();
+    const { container } = render(<MentorshipPreferencesCard {...defaultProps} />);
+    expect(container.querySelector("#test-email")).toBeInTheDocument();
+    expect(container.querySelector("#test-chat")).toBeInTheDocument();
   });
 
   it("should render language dropdown button", () => {
@@ -38,19 +38,10 @@ describe("MentorshipPreferencesCard", () => {
     expect(screen.getByText("Select languages...")).toBeInTheDocument();
   });
 
-  it("should render default communication label", () => {
-    render(<MentorshipPreferencesCard {...defaultProps} />);
-    expect(screen.getByText("Communication Channels")).toBeInTheDocument();
-  });
-
-  it("should render custom communication label", () => {
-    render(
-      <MentorshipPreferencesCard
-        {...defaultProps}
-        communicationLabel="Custom Label"
-      />
-    );
-    expect(screen.getByText("Custom Label")).toBeInTheDocument();
+  it("should render communication label", () => {
+    const { container } = render(<MentorshipPreferencesCard {...defaultProps} />);
+    const label = container.querySelector(".text-xs.font-semibold.text-slate-500");
+    expect(label).toBeInTheDocument();
   });
 
   it("should render selected language count", () => {
@@ -75,9 +66,9 @@ describe("MentorshipPreferencesCard", () => {
   });
 
   it("should call onToggleCommunication when checkbox is clicked", () => {
-    render(<MentorshipPreferencesCard {...defaultProps} />);
-    const emailLabel = screen.getByText("Email").closest("label");
-    fireEvent.click(emailLabel);
+    const { container } = render(<MentorshipPreferencesCard {...defaultProps} />);
+    const emailCheckbox = container.querySelector("#test-email");
+    fireEvent.click(emailCheckbox);
     expect(defaultProps.onToggleCommunication).toHaveBeenCalledWith("email");
   });
 

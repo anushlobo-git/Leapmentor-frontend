@@ -47,9 +47,9 @@ describe("ChevronIcon", () => {
     const { container } = render(<ChevronIcon />);
     const path = container.querySelector("path");
     expect(path).toBeInTheDocument();
-    expect(path).toHaveAttribute("strokeLinecap", "round");
-    expect(path).toHaveAttribute("strokeLinejoin", "round");
-    expect(path).toHaveAttribute("strokeWidth", "2");
+    expect(path).toHaveAttribute("stroke-linecap", "round");
+    expect(path).toHaveAttribute("stroke-linejoin", "round");
+    expect(path).toHaveAttribute("stroke-width", "2");
   });
 
   it("should have correct path d attribute", () => {

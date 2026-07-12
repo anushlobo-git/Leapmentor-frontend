@@ -62,7 +62,7 @@ describe("SuccessCard", () => {
     const path = container.querySelector("path");
     expect(path).toHaveAttribute("d", "M20 6L9 17l-5-5");
     expect(path).toHaveAttribute("stroke", "#16A34A");
-    expect(path).toHaveAttribute("strokeWidth", "2.5");
+    expect(path).toHaveAttribute("stroke-width", "2.5");
   });
 
   it("should have Success Rate label styling", () => {

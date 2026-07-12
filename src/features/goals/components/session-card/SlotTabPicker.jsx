@@ -8,22 +8,38 @@ import PropTypes from "prop-types";
 import { getDayTabClasses } from "@features/goals/utils/sessionCardUtils";
 import SlotPill from "./SlotPill";
 
-const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) => {
+const SlotTabPicker = ({
+  availability,
+  selectedSlot,
+  onSelect,
+  bookedSlots,
+}) => {
   const [activeDayIndex, setActiveDayIndex] = useState(0);
 
   const activeGroup = availability[activeDayIndex] || null;
 
   const isBooked = (group, slot) =>
     bookedSlots.some(
-      (b) => b.date === group.date && b.startTime === slot.startTime && b.endTime === slot.endTime
+      (b) =>
+        b.date === group.date &&
+        b.startTime === slot.startTime &&
+        b.endTime === slot.endTime,
     );
 
-  const freeSlots = activeGroup
-    ? activeGroup.slots.filter((s) => !isBooked(activeGroup, s))
-    : [];
+  // Was inlined 3x (`group.slots.filter((s) => !isBooked(group, s))`) across
+  // totalAvailable, the day tabs, and the active group's free slots.
+  const getFreeSlots = (group) =>
+    group.slots.filter((s) => !isBooked(group, s));
+
+  // Was inlined 3x (`new Date(x.date + "T00:00:00")`) for day tab labels and
+  // the active-group header.
+  const parseLocalDate = (dateStr) => new Date(dateStr + "T00:00:00");
+
+  const freeSlots = activeGroup ? getFreeSlots(activeGroup) : [];
 
   const totalAvailable = availability.reduce(
-    (acc, g) => acc + g.slots.filter((s) => !isBooked(g, s)).length, 0
+    (acc, g) => acc + getFreeSlots(g).length,
+    0,
   );
 
   return (
@@ -31,7 +47,16 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="4" width="18" height="18" rx="2" />
             <line x1="16" y1="2" x2="16" y2="6" />
             <line x1="8" y1="2" x2="8" y2="6" />
@@ -40,7 +65,9 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
           <p className="text-sm font-bold text-slate-700">Available Slots</p>
         </div>
         {totalAvailable > 0 && (
-          <span className="text-xs text-slate-400">{totalAvailable} available</span>
+          <span className="text-xs text-slate-400">
+            {totalAvailable} available
+          </span>
         )}
       </div>
 
@@ -49,10 +76,15 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
         <div className="flex gap-2">
           {availability.map((group, idx) => {
             const isActiveTab = activeDayIndex === idx;
-            const date = new Date(group.date + "T00:00:00");
-            const dayLabel = date.toLocaleDateString("en-US", { weekday: "short" });
-            const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-            const freeCnt = group.slots.filter((s) => !isBooked(group, s)).length;
+            const date = parseLocalDate(group.date);
+            const dayLabel = date.toLocaleDateString("en-US", {
+              weekday: "short",
+            });
+            const dateLabel = date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+            const freeCnt = getFreeSlots(group).length;
             return (
               <button
                 key={group.date}
@@ -65,10 +97,14 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
                 `}
                 disabled={freeCnt === 0}
               >
-                <span className={`text-[11px] font-bold leading-tight ${isActiveTab ? "text-white" : "text-slate-600"}`}>
+                <span
+                  className={`text-[11px] font-bold leading-tight ${isActiveTab ? "text-white" : "text-slate-600"}`}
+                >
                   {dayLabel}
                 </span>
-                <span className={`text-[9px] font-medium mt-0.5 ${isActiveTab ? "text-blue-100" : "text-slate-400"}`}>
+                <span
+                  className={`text-[9px] font-medium mt-0.5 ${isActiveTab ? "text-blue-100" : "text-slate-400"}`}
+                >
                   {dateLabel}
                 </span>
               </button>
@@ -81,9 +117,15 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
           <div>
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-xs font-bold text-slate-600">
-                {new Date(activeGroup.date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                {parseLocalDate(activeGroup.date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "short",
+                  day: "numeric",
+                })}
               </span>
-              <span className="text-[10px] text-slate-400 font-medium">{freeSlots.length} open</span>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {freeSlots.length} open
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {freeSlots.map((slot) => (
@@ -91,7 +133,10 @@ const SlotTabPicker = ({ availability, selectedSlot, onSelect, bookedSlots }) =>
                   key={`${slot.startTime}-${slot.endTime}`}
                   slot={slot}
                   group={activeGroup}
-                  selected={selectedSlot?.date === activeGroup.date && selectedSlot?.startTime === slot.startTime}
+                  selected={
+                    selectedSlot?.date === activeGroup.date &&
+                    selectedSlot?.startTime === slot.startTime
+                  }
                   onSelect={onSelect}
                   booked={isBooked(activeGroup, slot)}
                 />
@@ -109,9 +154,12 @@ SlotTabPicker.propTypes = {
     PropTypes.shape({
       date: PropTypes.string,
       slots: PropTypes.arrayOf(
-        PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string })
+        PropTypes.shape({
+          startTime: PropTypes.string,
+          endTime: PropTypes.string,
+        }),
       ),
-    })
+    }),
   ).isRequired,
   selectedSlot: PropTypes.shape({
     date: PropTypes.string,
@@ -123,7 +171,7 @@ SlotTabPicker.propTypes = {
       date: PropTypes.string,
       startTime: PropTypes.string,
       endTime: PropTypes.string,
-    })
+    }),
   ).isRequired,
 };
 

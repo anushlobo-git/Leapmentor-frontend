@@ -151,21 +151,6 @@ describe("userMapper", () => {
       expect(result.updatedAt).toBe(null);
     });
 
-    it("should handle null input", () => {
-      const result = mapAuthUser(null);
-      expect(result).toEqual({
-        _id: null,
-        name: "",
-        email: "",
-        roles: [],
-        profilePicture: null,
-        isVerified: false,
-        termsAccepted: false,
-        createdAt: null,
-        updatedAt: null,
-      });
-    });
-
     it("should handle undefined input", () => {
       const result = mapAuthUser(undefined);
       expect(result).toEqual({

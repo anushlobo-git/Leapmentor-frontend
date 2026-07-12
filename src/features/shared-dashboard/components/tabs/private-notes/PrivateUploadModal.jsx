@@ -9,13 +9,41 @@ import { validateDocumentFile } from "@lib/validation/schemas";
 import { formatFileSize } from "@features/notes/utils/notesHelpers";
 
 // ── Extracted: was a nested ternary (dropzone visual state) ──
-// ── Extracted: was a nested ternary (dropzone visual state) ──
 const getDropzoneClass = (isDragOver, hasFile) => {
   const base =
     "border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200";
   if (isDragOver) return `${base} border-amber-400 bg-amber-50 cursor-pointer`;
   if (hasFile) return `${base} border-emerald-400 bg-emerald-50 cursor-default`;
   return `${base} border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-300 hover:bg-amber-50/40`;
+};
+
+// Upload-arrow icon, reused by the empty dropzone state and the submit
+// button (previously duplicated with only size/color/strokeWidth differing).
+const UploadIcon = ({
+  size = 14,
+  stroke = "currentColor",
+  strokeWidth = 2.5,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={stroke}
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
+
+UploadIcon.propTypes = {
+  size: PropTypes.number,
+  stroke: PropTypes.string,
+  strokeWidth: PropTypes.number,
 };
 
 // ── Upload Modal (Private) ────────────────────────────────────
@@ -151,20 +179,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }) => {
               ) : (
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center">
-                    <svg
-                      width="26"
-                      height="26"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#d97706"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="17 8 12 3 7 8" />
-                      <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
+                    <UploadIcon size={26} stroke="#d97706" strokeWidth={1.5} />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-700">
@@ -255,20 +270,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }) => {
                 </>
               ) : (
                 <>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  </svg>
+                  <UploadIcon />
                   Upload Private File
                 </>
               )}

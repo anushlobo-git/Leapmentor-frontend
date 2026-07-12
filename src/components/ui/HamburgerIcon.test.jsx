@@ -51,8 +51,8 @@ describe("HamburgerIcon", () => {
   it("should have correct path attributes", () => {
     const { container } = render(<HamburgerIcon isOpen={false} />);
     const path = container.querySelector("path");
-    expect(path).toHaveAttribute("strokeLinecap", "round");
-    expect(path).toHaveAttribute("strokeLinejoin", "round");
-    expect(path).toHaveAttribute("strokeWidth", "2");
+    expect(path).toHaveAttribute("stroke-linecap", "round");
+    expect(path).toHaveAttribute("stroke-linejoin", "round");
+    expect(path).toHaveAttribute("stroke-width", "2");
   });
 });
