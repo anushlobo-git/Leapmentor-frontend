@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -180,8 +180,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,8 +194,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,8 +210,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -227,7 +227,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,18 +257,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -288,8 +288,8 @@ import PropTypes from "prop-types";
 import StatCard from "@features/admin/components/common/StatCard";
 import { MONO } from "@features/admin/constants/payments.constants";
 &nbsp;
-const LpIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; (</span></span>
-<span class="cstat-no" title="statement not covered" >  &lt;span</span>
+const LpIcon = () =&gt; (
+  &lt;span
     style={{
       fontSize: 13,
       fontWeight: 800,
@@ -302,8 +302,8 @@ const LpIcon = <span class="cstat-no" title="statement not covered" ><span class
   &lt;/span&gt;
 );
 &nbsp;
-const ClockIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; (</span></span>
-<span class="cstat-no" title="statement not covered" >  &lt;svg</span>
+const ClockIcon = () =&gt; (
+  &lt;svg
     width="20"
     height="20"
     viewBox="0 0 24 24"
@@ -318,8 +318,8 @@ const ClockIcon = <span class="cstat-no" title="statement not covered" ><span cl
   &lt;/svg&gt;
 );
 &nbsp;
-const AlertIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; (</span></span>
-<span class="cstat-no" title="statement not covered" >  &lt;svg</span>
+const AlertIcon = () =&gt; (
+  &lt;svg
     width="20"
     height="20"
     viewBox="0 0 24 24"
@@ -335,7 +335,7 @@ const AlertIcon = <span class="cstat-no" title="statement not covered" ><span cl
   &lt;/svg&gt;
 );
 &nbsp;
-const buildStatCards = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>tats) =&gt; <span class="cstat-no" title="statement not covered" >[</span></span>
+const buildStatCards = (stats) =&gt; [
   {
     label: "Total Revenue",
     value: stats?.totalRevenue,
@@ -365,18 +365,18 @@ const buildStatCards = <span class="cstat-no" title="statement not covered" ><sp
   },
 ];
 &nbsp;
-const PaymentsStatCards = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> stats }) =&gt; {</span>
-  const cards = <span class="cstat-no" title="statement not covered" >buildStatCards(stats);</span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
+const PaymentsStatCards = ({ stats }) =&gt; {
+  const cards = buildStatCards(stats);
+  return (
     &lt;div className="grid grid-cols-4 gap-4"&gt;
-      {cards.map(<span class="fstat-no" title="function not covered" >(c</span>ard) =&gt; (
-<span class="cstat-no" title="statement not covered" >        &lt;StatCard key={card.label} {...card} /&gt;</span>
+      {cards.map((card) =&gt; (
+        &lt;StatCard key={card.label} {...card} /&gt;
       ))}
     &lt;/div&gt;
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >PaymentsStatCards.propTypes = {</span>
+PaymentsStatCards.propTypes = {
   stats: PropTypes.shape({
     totalRevenue: PropTypes.number,
     platformCommission: PropTypes.number,
@@ -394,7 +394,7 @@ export default PaymentsStatCards;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:37.242Z
+                at 2026-07-12T14:49:04.493Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

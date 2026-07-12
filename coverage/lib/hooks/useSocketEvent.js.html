@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -135,7 +135,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -158,33 +158,33 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -199,7 +199,7 @@
 import { useEffect } from "react";
 import logger from "@lib/logger";
 &nbsp;
-const SOCKET_POLL_INTERVAL_MS = <span class="cstat-no" title="statement not covered" >200;</span>
+const SOCKET_POLL_INTERVAL_MS = 200;
 &nbsp;
 /**
  * Centralizes the "wait for `globalThis.__leapSocket` to connect, then
@@ -222,33 +222,33 @@ const SOCKET_POLL_INTERVAL_MS = <span class="cstat-no" title="statement not cove
  * @param {string} [logLabel] - label used in log messages, to keep
  *   per-feature log context when debugging.
  */
-const useSocketEvent = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>etup, deps, logLabel = <span class="branch-0 cbranch-no" title="branch not covered" >"Socket")</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-    const result = <span class="cstat-no" title="statement not covered" >setup();</span>
-<span class="cstat-no" title="statement not covered" >    if (!result?.events) <span class="cstat-no" title="statement not covered" >return undefined;</span></span>
+const useSocketEvent = (setup, deps, logLabel = "Socket") =&gt; {
+  useEffect(() =&gt; {
+    const result = setup();
+    if (!result?.events) return undefined;
 &nbsp;
-    const { events, onConnect, onCleanup } = <span class="cstat-no" title="statement not covered" >result;</span>
-    const eventNames = <span class="cstat-no" title="statement not covered" >Object.keys(events);</span>
+    const { events, onConnect, onCleanup } = result;
+    const eventNames = Object.keys(events);
 &nbsp;
-    const waitForSocket = <span class="cstat-no" title="statement not covered" >setInterval(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (globalThis.__leapSocket?.connected) {</span>
-<span class="cstat-no" title="statement not covered" >        clearInterval(waitForSocket);</span>
-<span class="cstat-no" title="statement not covered" >        logger.info(`${logLabel} connected, registering listeners`, {</span>
+    const waitForSocket = setInterval(() =&gt; {
+      if (globalThis.__leapSocket?.connected) {
+        clearInterval(waitForSocket);
+        logger.info(`${logLabel} connected, registering listeners`, {
           events: eventNames,
         });
-<span class="cstat-no" title="statement not covered" >        onConnect?.(globalThis.__leapSocket);</span>
-<span class="cstat-no" title="statement not covered" >        eventNames.forEach(<span class="fstat-no" title="function not covered" >(e</span>ventName) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >          globalThis.__leapSocket.on(eventName, events[eventName]);</span>
+        onConnect?.(globalThis.__leapSocket);
+        eventNames.forEach((eventName) =&gt; {
+          globalThis.__leapSocket.on(eventName, events[eventName]);
         });
       }
     }, SOCKET_POLL_INTERVAL_MS);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      clearInterval(waitForSocket);</span>
-<span class="cstat-no" title="statement not covered" >      eventNames.forEach(<span class="fstat-no" title="function not covered" >(e</span>ventName) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        globalThis.__leapSocket?.off(eventName, events[eventName]);</span>
+    return () =&gt; {
+      clearInterval(waitForSocket);
+      eventNames.forEach((eventName) =&gt; {
+        globalThis.__leapSocket?.off(eventName, events[eventName]);
       });
-<span class="cstat-no" title="statement not covered" >      onCleanup?.();</span>
+      onCleanup?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
@@ -262,7 +262,7 @@ export default useSocketEvent;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

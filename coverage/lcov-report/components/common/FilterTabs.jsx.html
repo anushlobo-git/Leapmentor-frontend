@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -153,8 +153,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -168,7 +168,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,25 +176,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">39x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -214,7 +206,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,8 +236,8 @@
 // src/components/common/FilterTabs.jsx
 import PropTypes from "prop-types";
 &nbsp;
-const defaultBadgeClass = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>abKey, activeTab) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  activeTab === tabKey ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500";</span>
+const defaultBadgeClass = (tabKey, activeTab) =&gt;
+  activeTab === tabKey ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500";
 &nbsp;
 /**
  * Horizontal, underline-style filter tab bar with optional count badges.
@@ -251,25 +251,25 @@ const defaultBadgeClass = <span class="cstat-no" title="statement not covered" >
  * @param {boolean} [scrollable] - if true, tabs shrink to content and scroll horizontally
  *   on small screens instead of stretching to fill the row
  */
-const FilterTabs = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span></span>
+const FilterTabs = ({
   tabs,
   activeTab,
   onChange,
-  counts = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
-  getBadgeClass = <span class="branch-0 cbranch-no" title="branch not covered" >defaultBadgeClass,</span>
-  scrollable = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
+  counts = {},
+  getBadgeClass = defaultBadgeClass,
+  scrollable = false,
 }) =&gt; (
-<span class="cstat-no" title="statement not covered" >  &lt;div className="w-full border-b border-slate-100"&gt;</span>
+  &lt;div className="w-full border-b border-slate-100"&gt;
     &lt;div
       className={
         scrollable ? "flex overflow-x-auto scrollbar-none" : "flex w-full"
       }
     &gt;
-      {tabs.map(<span class="fstat-no" title="function not covered" >(t</span>ab) =&gt; (
-<span class="cstat-no" title="statement not covered" >        &lt;button</span>
+      {tabs.map((tab) =&gt; (
+        &lt;button
           key={tab.key}
           type="button"
-          onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >o</span>nChange(tab.key)}</span>
+          onClick={() =&gt; onChange(tab.key)}
           className={`${
             scrollable
               ? "flex-shrink-0 sm:flex-1 gap-1.5 text-xs sm:text-sm whitespace-nowrap"
@@ -297,7 +297,7 @@ const FilterTabs = <span class="cstat-no" title="statement not covered" ><span c
   &lt;/div&gt;
 );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >FilterTabs.propTypes = {</span>
+FilterTabs.propTypes = {
   tabs: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
@@ -319,7 +319,7 @@ export default FilterTabs;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:37.242Z
+                at 2026-07-12T14:49:04.493Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

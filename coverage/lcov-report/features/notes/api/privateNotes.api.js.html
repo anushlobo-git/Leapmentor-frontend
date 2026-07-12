@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -126,9 +126,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,9 +136,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -148,9 +148,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -158,9 +158,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
@@ -175,9 +175,9 @@ import axiosInstance from "@lib/axiosInstance";
  * @param {string} content - Note body.
  * @returns {Promise&lt;any&gt;} Backend response payload.
  */
-export const createPrivateNote = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(connectRequestId, title, content) =&gt; {</span>
-  const res = <span class="cstat-no" title="statement not covered" >await axiosInstance.post("/private-notes", { connectRequestId, title, content });</span>
-<span class="cstat-no" title="statement not covered" >  return res.data;</span>
+export const createPrivateNote = async (connectRequestId, title, content) =&gt; {
+  const res = await axiosInstance.post("/private-notes", { connectRequestId, title, content });
+  return res.data;
 };
 &nbsp;
 /**
@@ -185,9 +185,9 @@ export const createPrivateNote = <span class="cstat-no" title="statement not cov
  * @param {string} connectRequestId - Connect request identifier.
  * @returns {Promise&lt;any&gt;} Backend response payload.
  */
-export const getPrivateNotes = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(connectRequestId) =&gt; {</span>
-  const res = <span class="cstat-no" title="statement not covered" >await axiosInstance.get(`/private-notes/${connectRequestId}`);</span>
-<span class="cstat-no" title="statement not covered" >  return res.data;</span>
+export const getPrivateNotes = async (connectRequestId) =&gt; {
+  const res = await axiosInstance.get(`/private-notes/${connectRequestId}`);
+  return res.data;
 };
 &nbsp;
 /**
@@ -197,9 +197,9 @@ export const getPrivateNotes = <span class="cstat-no" title="statement not cover
  * @param {string} content - Updated note body.
  * @returns {Promise&lt;any&gt;} Backend response payload.
  */
-export const updatePrivateNote = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(noteId, title, content) =&gt; {</span>
-  const res = <span class="cstat-no" title="statement not covered" >await axiosInstance.patch(`/private-notes/${noteId}`, { title, content });</span>
-<span class="cstat-no" title="statement not covered" >  return res.data;</span>
+export const updatePrivateNote = async (noteId, title, content) =&gt; {
+  const res = await axiosInstance.patch(`/private-notes/${noteId}`, { title, content });
+  return res.data;
 };
 &nbsp;
 /**
@@ -207,9 +207,9 @@ export const updatePrivateNote = <span class="cstat-no" title="statement not cov
  * @param {string} noteId - Note identifier.
  * @returns {Promise&lt;any&gt;} Backend response payload.
  */
-export const deletePrivateNote = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(noteId) =&gt; {</span>
-  const res = <span class="cstat-no" title="statement not covered" >await axiosInstance.delete(`/private-notes/${noteId}`);</span>
-<span class="cstat-no" title="statement not covered" >  return res.data;</span>
+export const deletePrivateNote = async (noteId) =&gt; {
+  const res = await axiosInstance.delete(`/private-notes/${noteId}`);
+  return res.data;
 };</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -217,7 +217,7 @@ export const deletePrivateNote = <span class="cstat-no" title="statement not cov
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:37.242Z
+                at 2026-07-12T14:49:04.493Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

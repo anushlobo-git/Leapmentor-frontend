@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -105,9 +105,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -119,15 +119,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
@@ -138,9 +138,9 @@
  * @param {{ date?: string } | null | undefined} slot - Session slot object.
  * @returns {string} Human-readable date or an empty string when unavailable.
  */
-export const formatSlotDate = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>lot) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!slot?.date) <span class="cstat-no" title="statement not covered" >return "";</span></span>
-<span class="cstat-no" title="statement not covered" >  return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {</span>
+export const formatSlotDate = (slot) =&gt; {
+  if (!slot?.date) return "";
+  return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -152,15 +152,15 @@ export const formatSlotDate = <span class="cstat-no" title="statement not covere
  * @param {{ startTime?: string, endTime?: string } | null | undefined} slot - Session slot object.
  * @returns {string} Human-readable time range or an empty string when unavailable.
  */
-export const formatSlotTime = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>lot) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!slot?.startTime || !slot?.endTime) <span class="cstat-no" title="statement not covered" >return "";</span></span>
-  const fmt = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>) =&gt; {</span>
-    const [h, m] = <span class="cstat-no" title="statement not covered" >t.split(":");</span>
-    const hour = <span class="cstat-no" title="statement not covered" >Number.parseInt(h);</span>
-    const ampm = <span class="cstat-no" title="statement not covered" >hour &gt;= 12 ? "PM" : "AM";</span>
-<span class="cstat-no" title="statement not covered" >    return `${hour % 12 || 12}:${m} ${ampm}`;</span>
+export const formatSlotTime = (slot) =&gt; {
+  if (!slot?.startTime || !slot?.endTime) return "";
+  const fmt = (t) =&gt; {
+    const [h, m] = t.split(":");
+    const hour = Number.parseInt(h);
+    const ampm = hour &gt;= 12 ? "PM" : "AM";
+    return `${hour % 12 || 12}:${m} ${ampm}`;
   };
-<span class="cstat-no" title="statement not covered" >  return `${fmt(slot.startTime)} – ${fmt(slot.endTime)}`;</span>
+  return `${fmt(slot.startTime)} – ${fmt(slot.endTime)}`;
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -169,7 +169,7 @@ export const formatSlotTime = <span class="cstat-no" title="statement not covere
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

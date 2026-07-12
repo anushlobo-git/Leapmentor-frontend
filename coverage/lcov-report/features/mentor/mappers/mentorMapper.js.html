@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/79</span>
+                <span class='fraction'>79/79</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -153,7 +153,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">48x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,7 +211,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -223,7 +223,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,7 +236,7 @@
  * Normalize a single raw mentor record from the API into the internal shape
  * used across the app.
  */
-export const mapMentorProfile = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>aw = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapMentorProfile = (raw = {}) =&gt; ({
   _id: raw._id ?? raw.id ?? null,
 &nbsp;
   user: {
@@ -294,7 +294,7 @@ export const mapMentorProfile = <span class="cstat-no" title="statement not cove
  * and guarantees hasMore/totalCount always exist so callers never need to
  * null-check `pagination` before reading off it.
  */
-export const mapPagination = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>aw = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapPagination = (raw = {}) =&gt; ({
   page: raw.page ?? raw.currentPage ?? 1,
   limit: raw.limit ?? 6,
   totalCount: typeof raw.totalCount === "number" ? raw.totalCount : 0,
@@ -306,7 +306,7 @@ export const mapPagination = <span class="cstat-no" title="statement not covered
  * axiosInstance, i.e. `res.data`) into `{ mentors, pagination }`.
  * Defensive against either field being missing entirely.
  */
-export const mapMentorSearchResponse = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(d</span>ata = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapMentorSearchResponse = (data = {}) =&gt; ({
   mentors: Array.isArray(data.mentors)
     ? data.mentors.map(mapMentorProfile)
     : [],
@@ -319,7 +319,7 @@ export const mapMentorSearchResponse = <span class="cstat-no" title="statement n
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:37.242Z
+                at 2026-07-12T14:49:04.493Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

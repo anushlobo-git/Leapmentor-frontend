@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -110,37 +110,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
@@ -149,37 +149,37 @@
 import axiosInstance from "@lib/axiosInstance";
 &nbsp;
 // --- onboarding / verification uploads ---
-export const uploadVerificationDocuments = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(f</span>ormData, onUploadProgress) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.post(`/upload/verification-documents`, formData, { onUploadProgress });</span>
+export const uploadVerificationDocuments = (formData, onUploadProgress) =&gt;
+  axiosInstance.post(`/upload/verification-documents`, formData, { onUploadProgress });
 &nbsp;
-export const uploadMentorProfilePicture = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(f</span>ormData, onUploadProgress) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.post(`/upload/profile-picture`, formData, { onUploadProgress });</span>
+export const uploadMentorProfilePicture = (formData, onUploadProgress) =&gt;
+  axiosInstance.post(`/upload/profile-picture`, formData, { onUploadProgress });
 &nbsp;
 // --- requests ---
-export const getIncomingRequests = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >axiosInstance.get(`/connect-requests/incoming`);</span></span>
+export const getIncomingRequests = () =&gt; axiosInstance.get(`/connect-requests/incoming`);
 &nbsp;
-export const respondToRequest = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>equestId, body) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.patch(`/connect-requests/${requestId}`, body);</span>
+export const respondToRequest = (requestId, body) =&gt;
+  axiosInstance.patch(`/connect-requests/${requestId}`, body);
 &nbsp;
-export const getSimilarMentors = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>equestId) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.get(`/connect-requests/${requestId}/similar-mentors`);</span>
+export const getSimilarMentors = (requestId) =&gt;
+  axiosInstance.get(`/connect-requests/${requestId}/similar-mentors`);
 &nbsp;
-export const referRequest = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>equestId, referToMentorId) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.patch(`/connect-requests/${requestId}/refer`, { referToMentorId });</span>
+export const referRequest = (requestId, referToMentorId) =&gt;
+  axiosInstance.patch(`/connect-requests/${requestId}/refer`, { referToMentorId });
 &nbsp;
 // --- earnings ---
-export const getMentorEarnings = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >axiosInstance.get(`/mentor/earnings`);</span></span>
+export const getMentorEarnings = () =&gt; axiosInstance.get(`/mentor/earnings`);
 &nbsp;
 // --- google calendar integration ---
-export const getGoogleCalendarAuthUrl = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >axiosInstance.get("/google-calendar/auth-url");</span></span>
+export const getGoogleCalendarAuthUrl = () =&gt; axiosInstance.get("/google-calendar/auth-url");
 &nbsp;
-export const disconnectGoogleCalendar = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >axiosInstance.post("/google-calendar/disconnect");</span></span>
+export const disconnectGoogleCalendar = () =&gt; axiosInstance.post("/google-calendar/disconnect");
 &nbsp;
-export const getGoogleCalendarBusySlots = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>arams) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.get("/google-calendar/busy", { params });</span>
+export const getGoogleCalendarBusySlots = (params) =&gt;
+  axiosInstance.get("/google-calendar/busy", { params });
 &nbsp;
-export const getGoogleCalendarEvents = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>arams) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  axiosInstance.get("/google-calendar/events", { params });</span>
+export const getGoogleCalendarEvents = (params) =&gt;
+  axiosInstance.get("/google-calendar/events", { params });
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -187,7 +187,7 @@ export const getGoogleCalendarEvents = <span class="cstat-no" title="statement n
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:37.242Z
+                at 2026-07-12T14:49:04.493Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

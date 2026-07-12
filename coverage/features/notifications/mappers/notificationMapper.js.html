@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>15/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">77.14% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/35</span>
+                <span class='fraction'>27/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -114,17 +114,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -133,7 +133,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,17 +156,17 @@
  * @param {string} dateStr - ISO date string
  * @returns {string} Formatted time ago string (e.g., "5 minutes ago", "Yesterday")
  */
-const timeAgo = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(d</span>ateStr) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!dateStr) <span class="cstat-no" title="statement not covered" >return "";</span></span>
-  const diff = <span class="cstat-no" title="statement not covered" >Date.now() - new Date(dateStr).getTime();</span>
-  const mins = <span class="cstat-no" title="statement not covered" >Math.floor(diff / 60000);</span>
-<span class="cstat-no" title="statement not covered" >  if (mins &lt; 1) <span class="cstat-no" title="statement not covered" >return "just now";</span></span>
-<span class="cstat-no" title="statement not covered" >  if (mins &lt; 60) <span class="cstat-no" title="statement not covered" >return `${mins} minute${mins &gt; 1 ? "s" : ""} ago`;</span></span>
-  const hrs = <span class="cstat-no" title="statement not covered" >Math.floor(mins / 60);</span>
-<span class="cstat-no" title="statement not covered" >  if (hrs &lt; 24) <span class="cstat-no" title="statement not covered" >return `${hrs} hour${hrs &gt; 1 ? "s" : ""} ago`;</span></span>
-  const days = <span class="cstat-no" title="statement not covered" >Math.floor(hrs / 24);</span>
-<span class="cstat-no" title="statement not covered" >  if (days === 1) <span class="cstat-no" title="statement not covered" >return "Yesterday";</span></span>
-<span class="cstat-no" title="statement not covered" >  return `${days} days ago`;</span>
+const timeAgo = (dateStr) =&gt; {
+  if (!dateStr) return "";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (mins &lt; 1) <span class="cstat-no" title="statement not covered" >return "just now";</span>
+  if (mins &lt; 60) return `${mins} minute${mins &gt; 1 ? "s" : <span class="branch-1 cbranch-no" title="branch not covered" >""}</span> ago`;
+  const hrs = Math.floor(mins / 60);
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (hrs &lt; 24) <span class="cstat-no" title="statement not covered" >return `${hrs} hour${hrs &gt; 1 ? "s" : ""} ago`;</span>
+  const days = Math.floor(hrs / 24);
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (days === 1) <span class="cstat-no" title="statement not covered" >return "Yesterday";</span>
+  return `${days} days ago`;
 };
 &nbsp;
 /**
@@ -175,9 +175,9 @@ const timeAgo = <span class="cstat-no" title="statement not covered" ><span clas
  * @param {Object} notif - Raw notification object from API
  * @returns {Object} Normalized notification object with guaranteed field structure
  */
-export const normalizeApiNotif = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(n</span>otif) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
-  id: notif._id ?? null,
-  _id: notif._id ?? null,
+export const normalizeApiNotif = (notif) =&gt; ({
+  id: notif._id ?? <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
+  _id: notif._id ?? <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
   type: notif.type ?? "",
   read: notif.read ?? false,
   time: timeAgo(notif.createdAt),
@@ -196,7 +196,7 @@ export const normalizeApiNotif = <span class="cstat-no" title="statement not cov
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

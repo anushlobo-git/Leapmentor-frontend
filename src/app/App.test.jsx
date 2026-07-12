@@ -130,47 +130,49 @@ vi.mock("@features/admin/context/AdminAuthContext", () => ({
 // ── 3. Test Suites ────────────────────────────────────────────────────────
 describe("App", () => {
   const mockDispatch = vi.fn();
-  const originalLocation = globalThis.location;
+  const originalLocation = globalThis.window.location;
   let interceptedHref = "";
+  let currentPath = "/";
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useDispatch).mockReturnValue(mockDispatch);
     interceptedHref = "";
+    currentPath = "/";
 
-    // Using a Proxy preserves all native URL mechanics while capturing assignments
-    const locationProxy = new Proxy(originalLocation, {
-      set(target, property, value) {
-        if (property === "href") {
-          interceptedHref = value;
-          return true;
-        }
-        target[property] = value;
-        return true;
+    delete globalThis.window.location;
+    globalThis.window.location = {
+      get href() {
+        return `http://localhost${currentPath}`;
       },
-      get(target, property) {
-        if (property === "href") {
-          return interceptedHref || target.href;
-        }
-        const value = target[property];
-        if (typeof value === "function") {
-          return value.bind(target);
-        }
-        return value;
+      set href(value) {
+        interceptedHref = value;
+        currentPath = value.startsWith("/") ? value : new URL(value).pathname;
       },
-    });
-
-    Object.defineProperty(globalThis, "location", {
-      value: locationProxy,
-      configurable: true,
-    });
+      get origin() {
+        return "http://localhost";
+      },
+      get pathname() {
+        return currentPath;
+      },
+      get search() {
+        return "";
+      },
+      get hash() {
+        return "";
+      },
+      assign: vi.fn((val) => {
+        interceptedHref = val;
+      }),
+      replace: vi.fn((val) => {
+        interceptedHref = val;
+      }),
+      reload: vi.fn(),
+    };
   });
 
   afterAll(() => {
-    Object.defineProperty(globalThis, "location", {
-      value: originalLocation,
-      configurable: true,
-    });
+    globalThis.window.location = originalLocation;
   });
 
   // ── Session Rehydration Logic Branches ──────────────────────────────────
@@ -178,7 +180,7 @@ describe("App", () => {
     vi.mocked(hasSessionHint).mockReturnValue(false);
     vi.mocked(useSelector).mockReturnValue(null);
 
-    window.history.pushState({}, "Home", "/");
+    currentPath = "/";
     render(<App />);
 
     expect(await screen.findByText("Home Component")).toBeInTheDocument();
@@ -189,7 +191,7 @@ describe("App", () => {
     vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue("valid-redux-token");
 
-    window.history.pushState({}, "Login", "/login");
+    currentPath = "/login";
     render(<App />);
 
     expect(
@@ -209,7 +211,7 @@ describe("App", () => {
       },
     });
 
-    window.history.pushState({}, "Home", "/");
+    currentPath = "/";
     render(<App />);
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
@@ -232,13 +234,15 @@ describe("App", () => {
       new Error("Refresh token expired"),
     );
 
-    window.history.pushState({}, "Mentor Dashboard", "/dashboard/mentor");
+    currentPath = "/dashboard/mentor";
     render(<App />);
 
-    await vi.waitFor(() => {
-      expect(interceptedHref).toBe("/login");
-    });
+    // Wait for the rehydration state to complete and release the fallback UI
+    expect(
+      await screen.findByText("MentorDashboard Component"),
+    ).toBeInTheDocument();
 
+    expect(interceptedHref).toBe("/login");
     expect(mockDispatch).toHaveBeenCalledWith(logout());
     expect(clearAuthRole).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledWith(
@@ -256,73 +260,121 @@ describe("App", () => {
     { path: "/verify-email", targetText: "VerifyEmail Component" },
     { path: "/forgot-password", targetText: "ForgotPassword Component" },
     { path: "/sso-callback", targetText: "SSOCallback Component" },
-    { path: "/onboarding/mentor", targetText: "MentorOnboarding Component" },
-    { path: "/verify-documents", targetText: "MentorVerification Component" },
-    { path: "/onboarding/mentee", targetText: "MenteeOnboarding Component" },
+    {
+      path: "/onboarding/mentor",
+      targetText: "MentorOnboarding Component",
+      wrappers: ["ProtectedRoute Wrapper"],
+    },
+    {
+      path: "/verify-documents",
+      targetText: "MentorVerification Component",
+      wrappers: ["ProtectedRoute Wrapper"],
+    },
+    {
+      path: "/onboarding/mentee",
+      targetText: "MenteeOnboarding Component",
+      wrappers: ["ProtectedRoute Wrapper"],
+    },
     {
       path: "/dashboard/mentee/edit-profile",
       targetText: "MenteeEditProfileShell Component",
+      wrappers: ["ProtectedRoute Wrapper"],
     },
     {
       path: "/dashboard/mentor/edit-profile",
       targetText: "MentorEditProfileShell Component",
+      wrappers: ["ProtectedRoute Wrapper"],
     },
-    { path: "/dashboard/mentor", targetText: "MentorDashboard Component" },
-    { path: "/dashboard/mentee", targetText: "MenteeDashboard Component" },
+    {
+      path: "/dashboard/mentor",
+      targetText: "MentorDashboard Component",
+      wrappers: ["ProtectedRoute Wrapper"],
+    },
+    {
+      path: "/dashboard/mentee",
+      targetText: "MenteeDashboard Component",
+      wrappers: ["ProtectedRoute Wrapper"],
+    },
     {
       path: "/shared-dashboard/req-999",
       targetText: "SharedDashboardPage Component",
     },
-    { path: "/admin/login", targetText: "AdminLogin Component" },
+    {
+      path: "/admin/login",
+      targetText: "AdminLogin Component",
+      wrappers: ["AdminAuthProvider Component"],
+    },
     {
       path: "/admin/users",
-      targetText: "AdminRoute Wrapper AdminUserManagement Component",
+      targetText: "AdminUserManagement Component",
+      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
     },
     {
       path: "/admin/engagements",
-      targetText: "AdminRoute Wrapper AdminEngagements Component",
+      targetText: "AdminEngagements Component",
+      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
     },
     {
       path: "/admin/reports",
-      targetText: "AdminRoute Wrapper AdminReports Component",
+      targetText: "AdminReports Component",
+      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
     },
     {
       path: "/admin/payments",
-      targetText: "AdminRoute Wrapper AdminPayments Component",
+      targetText: "AdminPayments Component",
+      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
     },
     {
       path: "/admin/settings",
-      targetText: "AdminRoute Wrapper AdminSettings Component",
+      targetText: "AdminSettings Component",
+      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
     },
     {
       path: "/admin/wallet-requests",
-      targetText: "AdminRoute Wrapper AdminWalletRequests Component",
+      targetText: "AdminWalletRequests Component",
+      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
     },
     {
       path: "/admin/support",
-      targetText:
-        "AdminRoute Wrapper AdminLayout Component AdminSupportMessages Component",
+      targetText: "AdminSupportMessages Component",
+      wrappers: [
+        "AdminAuthProvider Component",
+        "AdminRoute Wrapper",
+        "AdminLayout Component",
+      ],
     },
     {
       path: "/admin/verifications",
-      targetText:
-        "AdminRoute Wrapper AdminLayout Component AdminVerifications Component",
+      targetText: "AdminVerifications Component",
+      wrappers: [
+        "AdminAuthProvider Component",
+        "AdminRoute Wrapper",
+        "AdminLayout Component",
+      ],
     },
     { path: "/unknown-route-fallback-test", targetText: "NotFound Component" },
   ];
 
   it.each(navigationMatrix)(
     "should properly resolve route match mapping for path '$path'",
-    async ({ path, targetText }) => {
+    async ({ path, targetText, wrappers }) => {
       vi.mocked(hasSessionHint).mockReturnValue(false);
       vi.mocked(useSelector).mockReturnValue("active-token");
 
-      window.history.pushState({}, "Navigation Testing", path);
+      currentPath = path;
       render(<App />);
 
       expect(
         await screen.findByText(new RegExp(targetText, "i")),
       ).toBeInTheDocument();
+
+      if (wrappers) {
+        wrappers.forEach((wrapper) => {
+          expect(
+            screen.getByText(new RegExp(wrapper, "i")),
+          ).toBeInTheDocument();
+        });
+      }
     },
   );
 });

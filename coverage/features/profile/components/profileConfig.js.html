@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -170,7 +170,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -188,22 +188,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,7 +213,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -230,7 +230,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -267,7 +267,7 @@
 // and mentee profile tab. The shared &lt;ProfileTab config={...} /&gt; component
 // never branches on role directly — it only reads these fields.
 &nbsp;
-export const mentorProfileConfig = <span class="cstat-no" title="statement not covered" >{</span>
+export const mentorProfileConfig = {
   role: "mentor",
   dashboardTitle: "Mentor Dashboard",
   editPath: "/dashboard/mentor/edit-profile",
@@ -285,17 +285,17 @@ export const mentorProfileConfig = <span class="cstat-no" title="statement not c
     {
       key: "yearsOfExperience",
       label: "Experience",
-      format: <span class="fstat-no" title="function not covered" >(v</span>) =&gt; (<span class="cstat-no" title="statement not covered" >v ? `${v}+ Years` : null)</span>,
+      format: (v) =&gt; (v ? `${v}+ Years` : null),
     },
     {
       key: "hourlyRate",
       label: "Session Rate",
-      format: <span class="fstat-no" title="function not covered" >(v</span>) =&gt; (<span class="cstat-no" title="statement not covered" >v &gt; 0 ? `LP ${v}/hr` : null)</span>,
+      format: (v) =&gt; (v &gt; 0 ? `LP ${v}/hr` : null),
     },
     {
       key: "avgRating",
       label: "Rating",
-      format: <span class="fstat-no" title="function not covered" >(v</span>) =&gt; (<span class="cstat-no" title="statement not covered" >v &gt; 0 ? `⭐ ${v.toFixed(1)} / 5` : null)</span>,
+      format: (v) =&gt; (v &gt; 0 ? `⭐ ${v.toFixed(1)} / 5` : null),
     },
   ],
 &nbsp;
@@ -315,7 +315,7 @@ export const mentorProfileConfig = <span class="cstat-no" title="statement not c
   commLabelMap: null,
 };
 &nbsp;
-export const menteeProfileConfig = <span class="cstat-no" title="statement not covered" >{</span>
+export const menteeProfileConfig = {
   role: "mentee",
   dashboardTitle: "Mentee Dashboard",
   editPath: "/dashboard/mentee/edit-profile",
@@ -327,7 +327,7 @@ export const menteeProfileConfig = <span class="cstat-no" title="statement not c
     {
       key: "yearsOfExperience",
       label: "Experience",
-      format: <span class="fstat-no" title="function not covered" >(v</span>) =&gt; (<span class="cstat-no" title="statement not covered" >v ? `${v} Years` : null)</span>,
+      format: (v) =&gt; (v ? `${v} Years` : null),
     },
     { key: "company", label: "Company" },
     { key: "industry", label: "Industry" },
@@ -361,7 +361,7 @@ export const menteeProfileConfig = <span class="cstat-no" title="statement not c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

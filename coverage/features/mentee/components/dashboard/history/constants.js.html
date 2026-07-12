@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -119,7 +119,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -129,7 +129,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -138,7 +138,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,29 +147,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">16x</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 &nbsp;
 // src/components/mentee/dashboard/history/constants.js
 &nbsp;
-export const TABS = <span class="cstat-no" title="statement not covered" >[</span>
+export const TABS = [
   { key: "all",       label: "All"       },
   { key: "pending",   label: "Pending"   },
   { key: "accepted",  label: "Accepted"  },
@@ -179,7 +179,7 @@ export const TABS = <span class="cstat-no" title="statement not covered" >[</spa
   { key: "referred",  label: "Referred"  },
 ];
 &nbsp;
-export const STATUS_STYLES = <span class="cstat-no" title="statement not covered" >{</span>
+export const STATUS_STYLES = {
   pending:   "bg-amber-50 text-amber-600 border border-amber-200",
   accepted:  "bg-emerald-50 text-emerald-600 border border-emerald-200",
   rejected:  "bg-red-50 text-red-500 border border-red-200",
@@ -188,7 +188,7 @@ export const STATUS_STYLES = <span class="cstat-no" title="statement not covered
   completed: "bg-slate-100 text-slate-600 border border-slate-200",
 };
 &nbsp;
-export const STATUS_LABELS = <span class="cstat-no" title="statement not covered" >{</span>
+export const STATUS_LABELS = {
   pending:   "⏳ Waiting for mentor response",
   accepted:  "✅ Mentor accepted — payment required",
   rejected:  "❌ Mentor declined your request",
@@ -197,30 +197,30 @@ export const STATUS_LABELS = <span class="cstat-no" title="statement not covered
   completed: "🎓 Session completed — tokens released to mentor",
 };
 &nbsp;
-export const formatDate = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(d</span>ateStr) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!dateStr) <span class="cstat-no" title="statement not covered" >return "—";</span></span>
-<span class="cstat-no" title="statement not covered" >  return new Date(dateStr).toLocaleDateString("en-US", {</span>
+export const formatDate = (dateStr) =&gt; {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
   });
 };
 &nbsp;
-export const formatTime = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>ime) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!time) <span class="cstat-no" title="statement not covered" >return "";</span></span>
-  const [h, m] = <span class="cstat-no" title="statement not covered" >time.split(":").map(Number);</span>
-  const ampm = <span class="cstat-no" title="statement not covered" >h &gt;= 12 ? "PM" : "AM";</span>
-  const hour = <span class="cstat-no" title="statement not covered" >h % 12 || 12;</span>
-<span class="cstat-no" title="statement not covered" >  return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;</span>
+export const formatTime = (time) =&gt; {
+  if (!time) return "";
+  const [h, m] = time.split(":").map(Number);
+  const ampm = h &gt;= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 &nbsp;
-export const getInitials = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(n</span>ame) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  name?.split(" ").map(<span class="fstat-no" title="function not covered" >(n</span>) =&gt; <span class="cstat-no" title="statement not covered" >n[0])</span>.join("").toUpperCase().slice(0, 2) || "?";</span></pre></td></tr></table></pre>
+export const getInitials = (name) =&gt;
+  name?.split(" ").map((n) =&gt; n[0]).join("").toUpperCase().slice(0, 2) || "?";</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

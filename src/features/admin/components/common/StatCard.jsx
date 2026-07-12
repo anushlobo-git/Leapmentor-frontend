@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/admin/common/StatCard.jsx
+// src/components/admin/components/common/StatCard.jsx
 import PropTypes from "prop-types";
 
 const StatCard = ({ label, value, sub, icon, accent = "#2563eb", trend }) => (

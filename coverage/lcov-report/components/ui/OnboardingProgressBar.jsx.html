@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -136,27 +136,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,7 +181,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -202,24 +202,24 @@
 // src/components/ui/OnboardingProgressBar.jsx
 import PropTypes from "prop-types";
 &nbsp;
-const getBarColor = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>ercent) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (percent &lt; 40) <span class="cstat-no" title="statement not covered" >return "#3b82f6";</span></span>
-<span class="cstat-no" title="statement not covered" >  if (percent &lt; 75) <span class="cstat-no" title="statement not covered" >return "#8b5cf6";</span></span>
-<span class="cstat-no" title="statement not covered" >  return "#10b981";</span>
+const getBarColor = (percent) =&gt; {
+  if (percent &lt; 40) return "#3b82f6";
+  if (percent &lt; 75) return "#8b5cf6";
+  return "#10b981";
 };
 &nbsp;
-const OnboardingProgressBar = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> form, fields }) =&gt; {</span>
-  const filled = <span class="cstat-no" title="statement not covered" >fields.filter(<span class="fstat-no" title="function not covered" >({</span> key, type }) =&gt; {</span>
-    const val = <span class="cstat-no" title="statement not covered" >form[key];</span>
-<span class="cstat-no" title="statement not covered" >    if (type === "array") <span class="cstat-no" title="statement not covered" >return Array.isArray(val) &amp;&amp; val.length &gt; 0;</span></span>
-<span class="cstat-no" title="statement not covered" >    return val !== "" &amp;&amp; val !== null &amp;&amp; val !== undefined;</span>
+const OnboardingProgressBar = ({ form, fields }) =&gt; {
+  const filled = fields.filter(({ key, type }) =&gt; {
+    const val = form[key];
+    if (type === "array") return Array.isArray(val) &amp;&amp; val.length &gt; 0;
+    return val !== "" &amp;&amp; val !== null &amp;&amp; val !== undefined;
   });
 &nbsp;
-  const percent = <span class="cstat-no" title="statement not covered" >Math.round((filled.length / fields.length) * 100);</span>
+  const percent = Math.round((filled.length / fields.length) * 100);
 &nbsp;
-  const bar = <span class="cstat-no" title="statement not covered" >getBarColor(percent);</span>
+  const bar = getBarColor(percent);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="sticky top-14 z-10 bg-white border-b border-slate-100"&gt;
       &lt;div className="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-4"&gt;
         {/* Label */}
@@ -250,7 +250,7 @@ const OnboardingProgressBar = <span class="cstat-no" title="statement not covere
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >OnboardingProgressBar.propTypes = {</span>
+OnboardingProgressBar.propTypes = {
   form: PropTypes.object.isRequired,
   fields: PropTypes.arrayOf(
     PropTypes.shape({
@@ -268,7 +268,7 @@ export default OnboardingProgressBar;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:37.242Z
+                at 2026-07-12T14:49:04.493Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

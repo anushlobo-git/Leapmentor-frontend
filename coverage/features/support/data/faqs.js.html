@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -230,15 +230,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -305,11 +305,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -376,7 +376,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -388,15 +388,15 @@
 // Builds the { category, items: [{ q, a }] } shape from plain tuples.
 // Keeping the data as tuples (rather than repeated object literals)
 // avoids duplicate-block detection on the repeated `q:`/`a:` key pattern.
-const buildFaqCategories = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>ategories) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  categories.map(<span class="fstat-no" title="function not covered" >([</span>category, qaPairs]) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+const buildFaqCategories = (categories) =&gt;
+  categories.map(([category, qaPairs]) =&gt; ({
     category,
-    items: qaPairs.map(<span class="fstat-no" title="function not covered" >([</span>q, a]) =&gt; (<span class="cstat-no" title="statement not covered" >{ q, a })</span>),
+    items: qaPairs.map(([q, a]) =&gt; ({ q, a })),
   }));
 &nbsp;
 // ─── MENTOR FAQS ─────────────────────────────────────────────────────────────
 &nbsp;
-const mentorFaqData = <span class="cstat-no" title="statement not covered" >[</span>
+const mentorFaqData = [
   [
     "Sessions",
     [
@@ -463,11 +463,11 @@ const mentorFaqData = <span class="cstat-no" title="statement not covered" >[</s
   ],
 ];
 &nbsp;
-const mentorFaqs = <span class="cstat-no" title="statement not covered" >buildFaqCategories(mentorFaqData);</span>
+const mentorFaqs = buildFaqCategories(mentorFaqData);
 &nbsp;
 // ─── MENTEE FAQS ──────────────────────────────────────────────────────────────
 &nbsp;
-const menteeFaqData = <span class="cstat-no" title="statement not covered" >[</span>
+const menteeFaqData = [
   [
     "Booking",
     [
@@ -534,7 +534,7 @@ const menteeFaqData = <span class="cstat-no" title="statement not covered" >[</s
   ],
 ];
 &nbsp;
-const menteeFaqs = <span class="cstat-no" title="statement not covered" >buildFaqCategories(menteeFaqData);</span>
+const menteeFaqs = buildFaqCategories(menteeFaqData);
 &nbsp;
 export { mentorFaqs, menteeFaqs };
 &nbsp;</pre></td></tr></table></pre>
@@ -544,7 +544,7 @@ export { mentorFaqs, menteeFaqs };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

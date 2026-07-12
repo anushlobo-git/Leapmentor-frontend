@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>23/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -156,7 +156,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -167,7 +167,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -181,7 +181,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -192,7 +192,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -222,7 +222,7 @@
  * @param {Object} raw - Raw mentee profile object from API
  * @returns {Object} Normalized mentee profile object with guaranteed field structure
  */
-export const mapMenteeSettings = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>aw = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapMenteeSettings = (raw = {}) =&gt; ({
   emailNotifications: Boolean(raw.emailNotifications),
   marketingPreferences: Boolean(raw.marketingPreferences),
 });
@@ -233,7 +233,7 @@ export const mapMenteeSettings = <span class="cstat-no" title="statement not cov
  * @param {Object} raw - Raw mentor profile object from API
  * @returns {Object} Normalized mentor profile object with guaranteed field structure
  */
-export const mapMentorSettings = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>aw = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapMentorSettings = (raw = {}) =&gt; ({
   hourlyRate: typeof raw.hourlyRate === "number" ? raw.hourlyRate : Number(raw.hourlyRate) || 0,
   emailNotifications: Boolean(raw.emailNotifications),
   isProfilePublished: raw.isProfilePublished ?? raw.publicProfile ?? true,
@@ -247,7 +247,7 @@ export const mapMentorSettings = <span class="cstat-no" title="statement not cov
  * @param {Object} raw - Raw wallet object from API
  * @returns {Object} Normalized wallet object with guaranteed field structure
  */
-export const mapWallet = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>aw = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapWallet = (raw = {}) =&gt; ({
   balance: typeof raw.balance === "number" ? raw.balance : 0,
   escrow: typeof raw.escrow === "number" ? raw.escrow : 0,
 });
@@ -258,7 +258,7 @@ export const mapWallet = <span class="cstat-no" title="statement not covered" ><
  * @param {Object} raw - Raw user object from API
  * @returns {Object} Normalized user object with guaranteed field structure
  */
-export const mapUserPasswordInfo = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>aw = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const mapUserPasswordInfo = (raw = {}) =&gt; ({
   passwordChangedAt: raw.passwordChangedAt ?? null,
 });
 &nbsp;</pre></td></tr></table></pre>
@@ -268,7 +268,7 @@ export const mapUserPasswordInfo = <span class="cstat-no" title="statement not c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:06:36.956Z
+                at 2026-07-12T14:49:04.183Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
