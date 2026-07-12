@@ -20,6 +20,12 @@ import {
   getStrength,
   getStepDotClass,
 } from "@features/auth/utils/forgotPassword.utils";
+import {
+  handleOtpChange as sharedHandleOtpChange,
+  handleOtpKeyDown as sharedHandleOtpKeyDown,
+  handleOtpPaste as sharedHandleOtpPaste,
+} from "@lib/auth/otpUtils";
+import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -65,34 +71,11 @@ const ForgotPassword = () => {
     }
   };
 
-  // ── OTP box helpers ───────────────────────────────────────
-  const handleOtpChange = (val, idx) => {
-    if (!/^\d?$/.test(val)) return;
-    const next = [...otp];
-    next[idx] = val;
-    setOtp(next);
-    if (val && idx < 5) {
-      document.getElementById(`otp-${idx + 1}`)?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (e, idx) => {
-    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
-      document.getElementById(`otp-${idx - 1}`)?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e) => {
-    const pasted = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
-    if (pasted.length === 6) {
-      setOtp(pasted.split(""));
-      document.getElementById("otp-5")?.focus();
-    }
-    e.preventDefault();
-  };
+  // ── OTP box helpers ─ delegated to shared lib/auth/otpUtils ─
+  const handleOtpChange = (val, idx) =>
+    sharedHandleOtpChange(val, idx, otp, setOtp);
+  const handleOtpKeyDown = (e, idx) => sharedHandleOtpKeyDown(e, idx, otp);
+  const handleOtpPaste = (e) => sharedHandleOtpPaste(e, otp, setOtp);
 
   // ── Step 2 — Verify OTP ───────────────────────────────────
   const handleVerifyOTP = async (e) => {
@@ -332,36 +315,7 @@ const ForgotPassword = () => {
                     onClick={() => setShowPw((p) => !p)}
                     className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600"
                   >
-                    {showPw ? (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
+                    {getPasswordToggleIcon(showPw)}
                   </button>
                 </div>
                 {/* ← relative closes here */}
@@ -462,36 +416,7 @@ const ForgotPassword = () => {
                     onClick={() => setShowConfirmPw((p) => !p)}
                     className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600"
                   >
-                    {showConfirmPw ? (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
+                    {getPasswordToggleIcon(showConfirmPw)}
                   </button>
                 </div>
               </div>

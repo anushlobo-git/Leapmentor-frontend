@@ -4,6 +4,24 @@
 
 const DEFAULT_LOCALE = "en-US";
 
+/**
+ * Formats a plain "YYYY-MM-DD" slot/session date (as opposed to a full
+ * ISO datetime) safely in local time. Appending "T00:00:00" avoids the
+ * off-by-one-day bug you get from `new Date("YYYY-MM-DD")`, which parses
+ * as UTC midnight and can roll back a day in negative-UTC-offset zones.
+ * Defaults to "Mon, Jan 1" style; pass { year: "numeric" } etc. to extend.
+ */
+export const formatSlotDate = (dateStr, options = {}) => {
+  if (!dateStr) return "";
+  const date = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(DEFAULT_LOCALE, {
+    month: "short",
+    day: "numeric",
+    ...options,
+  });
+};
+
 export const formatDateString = (value, options = {}) => {
   if (!value) return "";
 

@@ -14,6 +14,13 @@ import {
 } from "@features/auth/store/authSlice";
 import FullScreenLoader from "@components/common/FullScreenLoader";
 import { IMAGES } from "@constants/images";
+import {
+  handleOtpChange as sharedHandleOtpChange,
+  handleOtpKeyDown as sharedHandleOtpKeyDown,
+  handleOtpPaste as sharedHandleOtpPaste,
+} from "@lib/auth/otpUtils";
+
+const OTP_ID_PREFIX = "votp";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
@@ -96,32 +103,13 @@ const VerifyEmail = () => {
     }
   }, []);
 
-  // ── OTP box helpers ───────────────────────────────────────
-  const handleOtpChange = (val, idx) => {
-    if (!/^\d?$/.test(val)) return;
-    const next = [...otp];
-    next[idx] = val;
-    setOtp(next);
-    if (val && idx < 5) document.getElementById(`votp-${idx + 1}`)?.focus();
-  };
-
-  const handleOtpKeyDown = (e, idx) => {
-    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
-      document.getElementById(`votp-${idx - 1}`)?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e) => {
-    const pasted = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
-    if (pasted.length === 6) {
-      setOtp(pasted.split(""));
-      document.getElementById("votp-5")?.focus();
-    }
-    e.preventDefault();
-  };
+  // ── OTP box helpers ─ delegated to shared lib/auth/otpUtils ─
+  const handleOtpChange = (val, idx) =>
+    sharedHandleOtpChange(val, idx, otp, setOtp, OTP_ID_PREFIX);
+  const handleOtpKeyDown = (e, idx) =>
+    sharedHandleOtpKeyDown(e, idx, otp, OTP_ID_PREFIX);
+  const handleOtpPaste = (e) =>
+    sharedHandleOtpPaste(e, otp, setOtp, OTP_ID_PREFIX);
 
   // ── Verify OTP ────────────────────────────────────────────
   const verifyOtp = async (e) => {

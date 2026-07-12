@@ -10,8 +10,50 @@
 import {
   formatDateString as formatDate,
   formatTimeString as formatTime,
+  formatSlotDate,
 } from "@lib/formatters/dateTime";
 import PropTypes from "prop-types";
+
+// ── Proposed / confirmed slot list (shared by Pending, Accepted, Rejected) ──
+const SlotList = ({ slots, isConfirmed, title }) => (
+  <div>
+    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
+      {title}
+    </p>
+    <div className="space-y-1.5">
+      {slots.map((slot) => (
+        <SlotRow
+          key={`${slot.date}-${slot.startTime}`}
+          slot={slot}
+          isConfirmed={isConfirmed}
+        />
+      ))}
+    </div>
+  </div>
+);
+
+SlotList.propTypes = {
+  slots: PropTypes.array.isRequired,
+  isConfirmed: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
+};
+
+// ── "Your Message" card (shared by Pending, Accepted, Rejected) ──
+const UserMessageCard = ({ message }) => {
+  if (!message) return null;
+  return (
+    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
+        Your Message
+      </p>
+      <p className="text-xs text-slate-600 italic">"{message}"</p>
+    </div>
+  );
+};
+
+UserMessageCard.propTypes = {
+  message: PropTypes.string,
+};
 
 // ── Slot row ────────────────────────────────────────────────
 export const SlotRow = ({ slot, isConfirmed }) => (
@@ -25,11 +67,7 @@ export const SlotRow = ({ slot, isConfirmed }) => (
     <span
       className={`text-xs font-semibold ${isConfirmed ? "text-emerald-700" : "text-slate-600"}`}
     >
-      {slot.day},{" "}
-      {new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      })}
+      {slot.day}, {formatSlotDate(slot.date)}
     </span>
     <span
       className={`text-xs font-bold ${isConfirmed ? "text-emerald-600" : "text-blue-500"}`}
@@ -49,29 +87,13 @@ export const PendingContent = ({ request, onDelete }) => {
         Sent on {formatDate(requestedAt)}
       </p>
 
-      <div>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-          Proposed Times
-        </p>
-        <div className="space-y-1.5">
-          {selectedSlots.map((slot) => (
-            <SlotRow
-              key={`${slot.date}-${slot.startTime}`}
-              slot={slot}
-              isConfirmed={false}
-            />
-          ))}
-        </div>
-      </div>
+      <SlotList
+        slots={selectedSlots}
+        isConfirmed={false}
+        title="Proposed Times"
+      />
 
-      {message && (
-        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-            Your Message
-          </p>
-          <p className="text-xs text-slate-600 italic">"{message}"</p>
-        </div>
-      )}
+      <UserMessageCard message={message} />
 
       <button
         type="button"
@@ -91,29 +113,13 @@ export const AcceptedContent = ({ request, onClose, onPayClick }) => {
   return (
     <div className="space-y-4">
       {/* ✅ All selected slots are confirmed — show all as green */}
-      <div>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-          Confirmed Sessions ({selectedSlots.length})
-        </p>
-        <div className="space-y-1.5">
-          {selectedSlots.map((slot) => (
-            <SlotRow
-              key={`${slot.date}-${slot.startTime}`}
-              slot={slot}
-              isConfirmed={true}
-            />
-          ))}
-        </div>
-      </div>
+      <SlotList
+        slots={selectedSlots}
+        isConfirmed={true}
+        title={`Confirmed Sessions (${selectedSlots.length})`}
+      />
 
-      {message && (
-        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-            Your Message
-          </p>
-          <p className="text-xs text-slate-600 italic">"{message}"</p>
-        </div>
-      )}
+      <UserMessageCard message={message} />
 
       <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
         <svg
@@ -192,14 +198,7 @@ export const CompletedContent = ({ request, onClose }) => {
         <div className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
           <p className="text-xs font-semibold text-slate-700">
             {confirmedSlot.day},{" "}
-            {new Date(confirmedSlot.date + "T00:00:00").toLocaleDateString(
-              "en-US",
-              {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              },
-            )}
+            {formatSlotDate(confirmedSlot.date, { year: "numeric" })}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
             {formatTime(confirmedSlot.startTime)} –{" "}
@@ -236,28 +235,12 @@ export const RejectedContent = ({ request, onClose }) => {
           Declined on {formatDate(respondedAt)}
         </p>
       )}
-      <div>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
-          Proposed Times
-        </p>
-        <div className="space-y-1.5">
-          {selectedSlots.map((slot) => (
-            <SlotRow
-              key={`${slot.date}-${slot.startTime}`}
-              slot={slot}
-              isConfirmed={false}
-            />
-          ))}
-        </div>
-      </div>
-      {message && (
-        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-            Your Message
-          </p>
-          <p className="text-xs text-slate-600 italic">"{message}"</p>
-        </div>
-      )}
+      <SlotList
+        slots={selectedSlots}
+        isConfirmed={false}
+        title="Proposed Times"
+      />
+      <UserMessageCard message={message} />
       <button
         type="button"
         onClick={onClose}

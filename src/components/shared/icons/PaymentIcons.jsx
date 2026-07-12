@@ -36,5 +36,37 @@ export const LockIcon = ({ size = 13 }) => (
   </svg>
 );
 
+export const CloseIcon = ({ size = 11 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#64748B"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+export const SpinnerIcon = ({ size = 13 }) => (
+  <svg
+    className="animate-spin"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+  >
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+);
+
 TokenIcon.propTypes = { size: PropTypes.number };
 LockIcon.propTypes = { size: PropTypes.number };
+CloseIcon.propTypes = { size: PropTypes.number };
+SpinnerIcon.propTypes = { size: PropTypes.number };
+

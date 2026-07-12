@@ -10,95 +10,24 @@ import {
   sendAiChatMessage,
   sendSupportMessage,
 } from "@features/support/api/support.api";
+import { mentorFaqs, menteeFaqs } from "@features/support/data/faqs";
+import FormField from "@components/ui/FormField";
 import PropTypes from "prop-types";
 
 const INDIGO = "#4f46e5";
 const INDIGO_LIGHT = "#eef2ff";
 const INDIGO_BORDER = "#c7d2fe";
 
-// ─── FAQ Knowledge Base ───────────────────────────────────────────────────────
-
-const mentorFaqs = [
-  {
-    q: "How do I accept a session request?",
-    a: "Go to Requests in your sidebar. You'll see pending requests with mentee details and preferred time slots. Click Accept to confirm — the mentee will be notified and prompted to complete payment.",
-  },
-  {
-    q: "What happens after a session is accepted?",
-    a: "The session moves to Active Sessions with an Awaiting Payment status. Once the mentee pays, the status updates to Ongoing and you'll see an Open Dashboard button to start the session.",
-  },
-  {
-    q: "Can I reschedule or cancel a session?",
-    a: "Yes. Open the session card and choose Reschedule or Cancel. Cancellations made less than 2 hours before the session may affect your rating.",
-  },
-  {
-    q: "When do I receive my earnings?",
-    a: "Earnings are released immediately after a session completes and the mentee has paid. Track all pending and received payments in the Track Earnings section.",
-  },
-  {
-    q: "What payout methods are supported?",
-    a: "Only token payments are supported right now.",
-  },
-  {
-    q: "How do I set my availability?",
-    a: "Navigate to Availability in the sidebar. Set recurring weekly slots or block specific dates. Changes take effect immediately for new bookings.",
-  },
-  {
-    q: "How do I update my mentor profile?",
-    a: "Go to Profile from the sidebar. Update your bio, skills, hourly rate, and photo. A complete profile gets 3x more session requests.",
-  },
-  {
-    q: "The session dashboard is not loading.",
-    a: "Try refreshing or clearing your browser cache. Use Chrome, Firefox, or Edge. If it persists, contact support with your session ID.",
-  },
-  {
-    q: "I am not receiving notifications.",
-    a: "Check Settings then Notifications and ensure your browser allows notifications from leapmentor.com.",
-  },
-];
-
-const menteeFaqs = [
-  {
-    q: "How do I book a session with a mentor?",
-    a: "Browse mentors from the Explore page, open a mentor's profile, and select an available time slot. You'll be prompted to confirm and complete payment to finalize the booking.",
-  },
-  {
-    q: "Can I get a refund if I cancel?",
-    a: "Cancellations made 24+ hours before the session are fully refunded. Cancellations within 24 hours receive a 50% refund. No-shows are non-refundable.",
-  },
-  {
-    q: "How do I join a session?",
-    a: "When your session is active, an Open Dashboard button will appear on the session card. Click it to enter the video call and shared workspace with your mentor.",
-  },
-  {
-    q: "What happens if a mentor cancels?",
-    a: "You'll receive a full refund immediately and a notification. You can rebook with the same mentor or choose a different one.",
-  },
-  {
-    q: "What payment methods are accepted?",
-    a: "We currently accept only token payments.",
-  },
-  {
-    q: "I paid but my session still shows Awaiting Confirmation.",
-    a: "This usually resolves within a few minutes as the mentor confirms. If it has been over 1 hour, contact support with your booking ID and payment confirmation.",
-  },
-  {
-    q: "Can I book multiple sessions at once?",
-    a: "Yes! You can book multiple sessions with the same or different mentors. All upcoming sessions are visible in your dashboard under Active Sessions.",
-  },
-  {
-    q: "The session is not loading.",
-    a: "Refresh the page and check your internet connection. Make sure your browser has permission to access your camera and microphone. Try Chrome or Firefox.",
-  },
-];
-
 // ─── Build System Prompt WITH user context ────────────────────────────────────
 // This is what your manager means by "system context messages"
 // We pass user info so the AI gives personalized answers
 
 function buildSystemPrompt(role, userContext) {
-  const faqs = role === "mentor" ? mentorFaqs : menteeFaqs;
-  const faqText = faqs.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n");
+  const faqGroups = role === "mentor" ? mentorFaqs : menteeFaqs;
+  const faqText = faqGroups
+    .flatMap((group) => group.items)
+    .map((f) => `Q: ${f.q}\nA: ${f.a}`)
+    .join("\n\n");
 
   // Build a context block from whatever user info is available
   const contextLines = [];
@@ -626,7 +555,7 @@ export default function LeapBuddy({
                               gap: 6,
                             }}
                           >
-                            <input
+                            <FormField
                               type="email"
                               placeholder="Your email"
                               value={ticketForms[msg.msgIdx]?.email || ""}
@@ -639,16 +568,14 @@ export default function LeapBuddy({
                                   },
                                 }))
                               }
+                              focusColor={INDIGO}
                               style={{
                                 padding: "7px 10px",
                                 borderRadius: 7,
-                                border: "1px solid #e2e8f0",
                                 fontSize: 11,
-                                outline: "none",
-                                fontFamily: "inherit",
                               }}
                             />
-                            <input
+                            <FormField
                               placeholder="Subject"
                               value={ticketForms[msg.msgIdx]?.subject || ""}
                               onChange={(e) =>
@@ -660,16 +587,15 @@ export default function LeapBuddy({
                                   },
                                 }))
                               }
+                              focusColor={INDIGO}
                               style={{
                                 padding: "7px 10px",
                                 borderRadius: 7,
-                                border: "1px solid #e2e8f0",
                                 fontSize: 11,
-                                outline: "none",
-                                fontFamily: "inherit",
                               }}
                             />
-                            <textarea
+                            <FormField
+                              as="textarea"
                               rows={2}
                               placeholder="Describe your issue..."
                               value={ticketForms[msg.msgIdx]?.message || ""}
@@ -682,14 +608,12 @@ export default function LeapBuddy({
                                   },
                                 }))
                               }
+                              focusColor={INDIGO}
                               style={{
                                 padding: "7px 10px",
                                 borderRadius: 7,
-                                border: "1px solid #e2e8f0",
                                 fontSize: 11,
-                                outline: "none",
                                 resize: "none",
-                                fontFamily: "inherit",
                               }}
                             />
                             {tStatus === "error" && (
@@ -765,7 +689,8 @@ export default function LeapBuddy({
               flexShrink: 0,
             }}
           >
-            <textarea
+            <FormField
+              as="textarea"
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
@@ -782,25 +707,15 @@ export default function LeapBuddy({
               placeholder="Ask LeapBuddy anything..."
               rows={1}
               disabled={loading}
+              focusColor={INDIGO}
               style={{
                 flex: 1,
                 padding: "8px 12px",
-                borderRadius: 10,
-                border: "1.5px solid #e2e8f0",
                 fontSize: 13,
-                outline: "none",
                 resize: "none",
-                fontFamily: "inherit",
-                color: "#0f172a",
                 lineHeight: 1.5,
                 maxHeight: 80,
                 transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = INDIGO;
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#e2e8f0";
               }}
             />
             <button

@@ -7,8 +7,16 @@
 
 /**
  * Handle OTP input change - only allows digits
+ * @param {string} idPrefix - DOM id prefix for the OTP boxes (default "otp").
+ *   Pass a distinct prefix (e.g. "votp") when a page needs unique DOM ids.
  */
-export const handleOtpChange = (value, index, otpArray, setOtpArray) => {
+export const handleOtpChange = (
+  value,
+  index,
+  otpArray,
+  setOtpArray,
+  idPrefix = "otp",
+) => {
   if (!/^\d?$/.test(value)) return;
   const newOtp = [...otpArray];
   newOtp[index] = value;
@@ -16,23 +24,28 @@ export const handleOtpChange = (value, index, otpArray, setOtpArray) => {
 
   // Auto-focus next box
   if (value && index < 5) {
-    document.getElementById(`otp-${index + 1}`)?.focus();
+    document.getElementById(`${idPrefix}-${index + 1}`)?.focus();
   }
 };
 
 /**
  * Handle backspace in OTP input
  */
-export const handleOtpKeyDown = (event, index, otpArray) => {
+export const handleOtpKeyDown = (event, index, otpArray, idPrefix = "otp") => {
   if (event.key === "Backspace" && !otpArray[index] && index > 0) {
-    document.getElementById(`otp-${index - 1}`)?.focus();
+    document.getElementById(`${idPrefix}-${index - 1}`)?.focus();
   }
 };
 
 /**
  * Handle paste event in OTP input
  */
-export const handleOtpPaste = (event, otpArray, setOtpArray) => {
+export const handleOtpPaste = (
+  event,
+  otpArray,
+  setOtpArray,
+  idPrefix = "otp",
+) => {
   const pastedData = event.clipboardData
     .getData("text")
     .replace(/\D/g, "")
@@ -40,7 +53,7 @@ export const handleOtpPaste = (event, otpArray, setOtpArray) => {
 
   if (pastedData.length === 6) {
     setOtpArray(pastedData.split(""));
-    document.getElementById("otp-5")?.focus();
+    document.getElementById(`${idPrefix}-5`)?.focus();
   }
 
   event.preventDefault();

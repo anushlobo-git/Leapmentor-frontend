@@ -7,41 +7,24 @@ import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import useNotes from "@features/notes/hooks/useNotes";
 import PrivateNotesTab from "@features/shared-dashboard/components/tabs/PrivateNotesTab";
-import logger from "@lib/logger";
 import {
   selectConnectId,
   selectConnectStatus,
 } from "@features/shared-dashboard/store/sharedDashboardSlice";
 import PropTypes from "prop-types";
 import { validateDocumentFile } from "@lib/validation/schemas";
-import {
-  formatDateString as formatDate,
-  formatDateSeparator,
-  isSameDay,
-} from "@lib/formatters/dateTime";
+import { formatDateString as formatDate } from "@lib/formatters/dateTime";
 import {
   formatFileSize,
   FILE_TYPE_CONFIG,
 } from "@features/notes/utils/notesHelpers";
-
-// ── Loading Skeletons ─────────────────────────────────────────
-const LoadingSkeletons = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-    {[1, 2, 3, 4].map((i) => (
-      <div
-        key={i}
-        className="bg-white border border-slate-200 rounded-2xl p-5 flex gap-4 animate-pulse w-full"
-      >
-        <div className="w-12 h-12 rounded-xl bg-slate-100 shrink-0" />
-        <div className="flex-1 flex flex-col gap-2 pt-1">
-          <div className="h-3 bg-slate-100 rounded w-3/5" />
-          <div className="h-2.5 bg-slate-100 rounded w-2/5" />
-          <div className="h-7 bg-slate-100 rounded-lg w-24 mt-2" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
+import {
+  groupNotesByDay,
+  downloadNoteFile,
+  NoteDateSeparator,
+  FileTypeBadge,
+  NotesLoadingSkeletons,
+} from "@features/shared-dashboard/components/tabs/notesTabShared";
 
 // ── Upload Modal ──────────────────────────────────────────────
 const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
@@ -324,46 +307,12 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
     setDeleting(false);
   };
 
-  const handleDownload = async () => {
-    logger.info("Downloading shared note file", {
-      fileId: note._id,
-      fileUrl: note.fileUrl,
-    });
-    try {
-      const response = await fetch(note.fileUrl);
-      const blob = await response.blob();
-      const url = globalThis.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = note.fileName || "download";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      globalThis.URL.revokeObjectURL(url);
-    } catch (err) {
-      logger.warn("Shared note download failed, falling back to browser open", {
-        fileId: note._id,
-        fileUrl: note.fileUrl,
-        error: err?.message,
-      });
-      globalThis.open(note.fileUrl, "_blank");
-    }
-  };
+  const handleDownload = async () => downloadNoteFile(note, "shared note");
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 flex gap-4 hover:border-blue-200 hover:shadow-md transition-all duration-200 w-full h-full">
       {/* File type icon */}
-      <div
-        className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center shrink-0 border p-2.5 ${cfg.bg} ${cfg.border}`}
-        style={{ width: "52px", height: "52px" }}
-      >
-        <span className="text-xl leading-none">{cfg.icon}</span>
-        <span
-          className={`text-[8px] font-black tracking-wider mt-0.5 ${cfg.text}`}
-        >
-          {cfg.label}
-        </span>
-      </div>
+      <FileTypeBadge cfg={cfg} />
 
       {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col">
@@ -461,22 +410,13 @@ const SharedFilesSection = ({ myId }) => {
   const handleUpload = async (file, title) => uploadNote(file, title, false);
   const handleDelete = async (noteId) => deleteNote(noteId, false);
 
-  const groupedItems = [];
-  notes.forEach((note, index) => {
-    const prev = notes[index - 1];
-    if (!prev || !isSameDay(prev.createdAt, note.createdAt)) {
-      groupedItems.push({
-        type: "separator",
-        dateStr: note.createdAt,
-        key: `sep-${note._id}`,
-      });
-    }
-    groupedItems.push({ type: "note", note, key: note._id });
-  });
+  const groupedItems = groupNotesByDay(notes);
 
   let content;
   if (loading) {
-    content = <LoadingSkeletons />;
+    content = (
+      <NotesLoadingSkeletons gridClassName="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full" />
+    );
   } else if (notes.length === 0) {
     content = (
       <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -536,16 +476,7 @@ const SharedFilesSection = ({ myId }) => {
       >
         {groupedItems.map((item) =>
           item.type === "separator" ? (
-            <div
-              key={item.key}
-              className="col-span-2 flex items-center gap-3 my-2"
-            >
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-[11px] font-bold text-slate-500 px-3 py-1 rounded-full bg-white border border-slate-200 whitespace-nowrap shadow-sm">
-                {formatDateSeparator(item.dateStr)}
-              </span>
-              <div className="flex-1 h-px bg-slate-200" />
-            </div>
+            <NoteDateSeparator key={item.key} dateStr={item.dateStr} />
           ) : (
             <NoteCard
               key={item.key}

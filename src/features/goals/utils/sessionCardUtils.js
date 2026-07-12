@@ -4,7 +4,7 @@
 
 // src/features/goals/utils/sessionCardUtils.js
 // Pure, framework-free helpers shared across the SessionCard component family.
-import { formatTimeString } from "@lib/formatters/dateTime";
+export { formatTimeString as formatTime } from "@lib/formatters/dateTime";
 
 export const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
@@ -15,8 +15,6 @@ export const formatSlotDate = (slot) => {
     year: "numeric",
   });
 };
-
-export const formatTime = formatTimeString;
 
 export const isActive = (slot) => !slot?.status || slot?.status !== "cancelled";
 
