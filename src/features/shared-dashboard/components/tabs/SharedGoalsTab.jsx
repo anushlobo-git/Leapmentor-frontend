@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
-
+//src/features/shared-dashboard/components/tabs/SharedGoalsTab.jsx
 import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getConnectDetail } from "@features/shared-dashboard/api/shared-dashboard.api";
