@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
-
+//src/features/sessions/components/SessionCard.jsx
 import PropTypes from "prop-types";
 import { formatSlotDate, formatSlotTime } from "@features/sessions/utils/sessionFormat";
 

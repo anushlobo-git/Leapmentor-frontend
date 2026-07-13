@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -210,20 +210,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -307,7 +307,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -339,20 +339,20 @@ import {
 } from "@features/shared-dashboard/components/tabs/notesTabShared";
 &nbsp;
 // ── Private File Card ─────────────────────────────────────────
-const PrivateFileCard = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> note, onDelete }) =&gt; {</span>
-  const [deleting, setDeleting<span class="cstat-no" title="statement not covered" >] = useState(false);</span>
-  const cfg = <span class="cstat-no" title="statement not covered" >FILE_TYPE_CONFIG[note.fileType] || FILE_TYPE_CONFIG.other;</span>
+const PrivateFileCard = ({ note, onDelete }) =&gt; {
+  const [deleting, setDeleting] = useState(false);
+  const cfg = FILE_TYPE_CONFIG[note.fileType] || FILE_TYPE_CONFIG.other;
 &nbsp;
-  const handleDelete = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    if (!globalThis.confirm("Delete this file?")) <span class="cstat-no" title="statement not covered" >return;</span></span>
-<span class="cstat-no" title="statement not covered" >    setDeleting(true);</span>
-<span class="cstat-no" title="statement not covered" >    await onDelete(note._id);</span>
-<span class="cstat-no" title="statement not covered" >    setDeleting(false);</span>
+  const handleDelete = async () =&gt; {
+    if (!globalThis.confirm("Delete this file?")) return;
+    setDeleting(true);
+    await onDelete(note._id);
+    setDeleting(false);
   };
 &nbsp;
-  const handleDownload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; d</span>ownloadNoteFile(note, "private note");</span>
+  const handleDownload = async () =&gt; downloadNoteFile(note, "private note");
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="w-full bg-white border border-slate-200 rounded-2xl p-5 flex gap-4 hover:border-amber-200 hover:shadow-md transition-all duration-200"&gt;
       &lt;FileTypeBadge cfg={cfg} /&gt;
       &lt;div className="flex-1 min-w-0"&gt;
@@ -436,7 +436,7 @@ const PrivateFileCard = <span class="cstat-no" title="statement not covered" ><s
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >PrivateFileCard.propTypes = {</span>
+PrivateFileCard.propTypes = {
   note: PropTypes.shape({
     _id: PropTypes.string.isRequired,
     fileType: PropTypes.string,
@@ -457,7 +457,7 @@ export default PrivateFileCard;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T11:55:51.324Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

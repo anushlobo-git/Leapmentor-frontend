@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/shared-dashboard/tabs/goals/MilestoneList.jsx
+// src/features/goals/components/MilestoneList.jsx
 import { useState } from "react";
 import PropTypes from "prop-types";
 

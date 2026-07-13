@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
-
+//src/features/marketing/components/FeatureCard.jsx
 import Card from "@components/ui/Card";
 import PropTypes from "prop-types";
 

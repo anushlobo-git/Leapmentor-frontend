@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -120,37 +120,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -165,37 +165,37 @@ import axiosInstance from "@lib/axiosInstance";
  * @returns {Object} Hook state and handlers for the caller.
  */
 &nbsp;
-const useReportComplaint = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>onnectRequestId) =&gt; {</span>
-  const [submitting, setSubmitting] =<span class="cstat-no" title="statement not covered" > useState(false);</span>
-  const [error,      setError]      =<span class="cstat-no" title="statement not covered" > useState(null);</span>
+const useReportComplaint = (connectRequestId) =&gt; {
+  const [submitting, setSubmitting] = useState(false);
+  const [error,      setError]      = useState(null);
 &nbsp;
-  const submitReport =<span class="cstat-no" title="statement not covered" > useCallback(<span class="fstat-no" title="function not covered" >async </span>({ complaintType, description, screenshot }) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (!connectRequestId) <span class="cstat-no" title="statement not covered" >return { success: false };</span></span>
+  const submitReport = useCallback(async ({ complaintType, description, screenshot }) =&gt; {
+    if (!connectRequestId) return { success: false };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      setSubmitting(true);</span>
-<span class="cstat-no" title="statement not covered" >      setError(null);</span>
+    try {
+      setSubmitting(true);
+      setError(null);
 &nbsp;
       // ── Build multipart form data (screenshot is optional) ──
-      const formData = <span class="cstat-no" title="statement not covered" >new FormData();</span>
-<span class="cstat-no" title="statement not covered" >      formData.append("connectRequestId", connectRequestId);</span>
-<span class="cstat-no" title="statement not covered" >      formData.append("complaintType",    complaintType);</span>
-<span class="cstat-no" title="statement not covered" >      formData.append("description",      description);</span>
-<span class="cstat-no" title="statement not covered" >      if (screenshot) <span class="cstat-no" title="statement not covered" >formData.append("screenshot", screenshot);</span></span>
+      const formData = new FormData();
+      formData.append("connectRequestId", connectRequestId);
+      formData.append("complaintType",    complaintType);
+      formData.append("description",      description);
+      if (screenshot) formData.append("screenshot", screenshot);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      await axiosInstance.post("/reports", formData);</span>
+      await axiosInstance.post("/reports", formData);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return { success: true };</span>
+      return { success: true };
     } catch (err) {
-      const msg = <span class="cstat-no" title="statement not covered" >err?.response?.data?.message || "Failed to submit report. Please try again.";</span>
-<span class="cstat-no" title="statement not covered" >      setError(msg);</span>
-<span class="cstat-no" title="statement not covered" >      return { success: false, message: msg };</span>
+      const msg = err?.response?.data?.message || "Failed to submit report. Please try again.";
+      setError(msg);
+      return { success: false, message: msg };
     } finally {
-<span class="cstat-no" title="statement not covered" >      setSubmitting(false);</span>
+      setSubmitting(false);
     }
   }, [connectRequestId]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return { submitReport, submitting, error, setError };</span>
+  return { submitReport, submitting, error, setError };
 };
 &nbsp;
 export default useReportComplaint;</pre></td></tr></table></pre>
@@ -205,7 +205,7 @@ export default useReportComplaint;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T11:55:51.640Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

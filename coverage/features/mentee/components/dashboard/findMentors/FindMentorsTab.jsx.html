@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -201,7 +201,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,26 +216,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,7 +245,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -305,7 +305,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -326,7 +326,7 @@ import MentorGrid from "@features/mentee/components/dashboard/findMentors/Mentor
 import MentorProfileModal from "@features/mentee/components/dashboard/findMentors/MentorProfileModal";
 import { getPlatformCommissionRate } from "@features/connects/api/escrow.api";
 &nbsp;
-const FindMentorsTab = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
+const FindMentorsTab = () =&gt; {
   const {
     skill,
     filters,
@@ -341,26 +341,26 @@ const FindMentorsTab = <span class="cstat-no" title="statement not covered" ><sp
     updateFilter,
     resetFilters,
     loadMore,
-<span class="cstat-no" title="statement not covered" >  } = useMentorSearch();</span>
+  } = useMentorSearch();
 &nbsp;
-  const [selectedMentor, setSelectedMentor<span class="cstat-no" title="statement not covered" >] = useState(null);</span>
-  const [commissionRate, setCommissionRate<span class="cstat-no" title="statement not covered" >] = useState(null);</span>
-  const [feeLoading, setFeeLoading<span class="cstat-no" title="statement not covered" >] = useState(true);</span>
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [commissionRate, setCommissionRate] = useState(null);
+  const [feeLoading, setFeeLoading] = useState(true);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    getPlatformCommissionRate()</span>
-      .then(<span class="fstat-no" title="function not covered" >(d</span>ata) =&gt; <span class="cstat-no" title="statement not covered" >setCommissionRate(data.commissionRate))</span>
-      .catch(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etCommissionRate(null))</span>
-      .finally(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etFeeLoading(false))</span>;
+  useEffect(() =&gt; {
+    getPlatformCommissionRate()
+      .then((data) =&gt; setCommissionRate(data.commissionRate))
+      .catch(() =&gt; setCommissionRate(null))
+      .finally(() =&gt; setFeeLoading(false));
   }, []);
 &nbsp;
-  let feeDisplay = <span class="cstat-no" title="statement not covered" >null;</span>
-<span class="cstat-no" title="statement not covered" >  if (feeLoading) {</span>
-<span class="cstat-no" title="statement not covered" >    feeDisplay = (</span>
+  let feeDisplay = null;
+  if (feeLoading) {
+    feeDisplay = (
       &lt;div className="h-7 w-16 bg-slate-200 rounded-lg animate-pulse" /&gt;
     );
-<span class="cstat-no" title="statement not covered" >  } else if (commissionRate != null) {</span>
-<span class="cstat-no" title="statement not covered" >    feeDisplay = (</span>
+  } else if (commissionRate != null) {
+    feeDisplay = (
       &lt;div className="flex items-baseline gap-1"&gt;
         &lt;span className="text-2xl font-extrabold text-slate-800 leading-none"&gt;
           {commissionRate}
@@ -370,7 +370,7 @@ const FindMentorsTab = <span class="cstat-no" title="statement not covered" ><sp
     );
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="space-y-5"&gt;
       {/* ── Header + Fee Card row ── */}
       &lt;div className="flex items-start justify-between gap-4 flex-wrap"&gt;
@@ -430,7 +430,7 @@ const FindMentorsTab = <span class="cstat-no" title="statement not covered" ><sp
       {selectedMentor &amp;&amp; (
         &lt;MentorProfileModal
           mentor={selectedMentor}
-          onClose={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etSelectedMentor(null)}</span>
+          onClose={() =&gt; setSelectedMentor(null)}
         /&gt;
       )}
     &lt;/div&gt;
@@ -445,7 +445,7 @@ export default FindMentorsTab;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T11:55:51.324Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

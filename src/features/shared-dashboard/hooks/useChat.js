@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/hooks/useChat.js
+// src/features/shared-dashboard/hooks/useChat.js
 import { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "@lib/axiosInstance";
 import logger from "@lib/logger";

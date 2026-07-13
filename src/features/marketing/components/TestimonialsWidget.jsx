@@ -345,3 +345,6 @@ TestimonialCard.propTypes = {
   active: PropTypes.bool,
   dimmed: PropTypes.bool,
 };
+
+// Named exports for testing internal helpers and card rendering branches
+export { getCardStateClassName, TestimonialCard };

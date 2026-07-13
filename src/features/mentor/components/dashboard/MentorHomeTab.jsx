@@ -443,7 +443,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
                     </p>
                   </div>
                   <p className="text-sm font-extrabold text-amber-800">
-                    {fmt(earnings?.pendingPayout)}
+                    {fmt(earnings.pendingPayout)}
                     <span className="text-xs font-bold text-amber-700 ml-1">
                       LP
                     </span>
@@ -460,7 +460,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
                     </p>
                   </div>
                   <p className="text-sm font-extrabold text-blue-900">
-                    {earnings?.sessionsThisMonth ?? 0}
+                    {earnings.sessionsThisMonth ?? 0}
                     <span className="text-xs font-semibold text-blue-800 ml-1">
                       sessions
                     </span>
@@ -477,7 +477,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
                     </p>
                   </div>
                   <p className="text-sm font-extrabold text-emerald-800">
-                    {fmt(earnings?.walletBalance)}
+                    {fmt(earnings.walletBalance)}
                     <span className="text-xs font-bold text-emerald-700 ml-1">
                       LP
                     </span>

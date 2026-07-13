@@ -19,6 +19,16 @@ vi.mock("@lib/formatters/dateTime", () => ({
   formatTimeString: vi.fn((time) => time),
 }));
 
+const buildLocalDateTime = (offsetHours) => {
+  const date = new Date();
+  date.setHours(date.getHours() + offsetHours);
+
+  return {
+    date: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
+    time: `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
+  };
+};
+
 describe("sessionCardUtils", () => {
   describe("formatSlotDate", () => {
     it("should return empty string when slot is null", () => {
@@ -98,7 +108,9 @@ describe("sessionCardUtils", () => {
     });
 
     it("should return true for https teams.microsoft.com", () => {
-      expect(isValidMeetingLink("https://teams.microsoft.com/l/meetup")).toBe(true);
+      expect(isValidMeetingLink("https://teams.microsoft.com/l/meetup")).toBe(
+        true,
+      );
     });
 
     it("should return true for https whereby.com", () => {
@@ -129,22 +141,30 @@ describe("sessionCardUtils", () => {
   describe("getSlotPillClasses", () => {
     it("should return selected classes when selected is true", () => {
       const result = getSlotPillClasses(true, false);
-      expect(result).toBe("bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]");
+      expect(result).toBe(
+        "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]",
+      );
     });
 
     it("should return booked classes when booked is true", () => {
       const result = getSlotPillClasses(false, true);
-      expect(result).toBe("bg-slate-50 border-slate-100 cursor-not-allowed opacity-40");
+      expect(result).toBe(
+        "bg-slate-50 border-slate-100 cursor-not-allowed opacity-40",
+      );
     });
 
     it("should return default classes when neither selected nor booked", () => {
       const result = getSlotPillClasses(false, false);
-      expect(result).toBe("bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md cursor-pointer");
+      expect(result).toBe(
+        "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md cursor-pointer",
+      );
     });
 
     it("should prioritize selected over booked", () => {
       const result = getSlotPillClasses(true, true);
-      expect(result).toBe("bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]");
+      expect(result).toBe(
+        "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]",
+      );
     });
   });
 
@@ -156,12 +176,16 @@ describe("sessionCardUtils", () => {
 
     it("should return disabled classes when freeCnt is 0", () => {
       const result = getDayTabClasses(false, 0);
-      expect(result).toBe("bg-slate-50 border-slate-100 opacity-50 cursor-not-allowed");
+      expect(result).toBe(
+        "bg-slate-50 border-slate-100 opacity-50 cursor-not-allowed",
+      );
     });
 
     it("should return default classes when not active and has free slots", () => {
       const result = getDayTabClasses(false, 5);
-      expect(result).toBe("bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50");
+      expect(result).toBe(
+        "bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50",
+      );
     });
 
     it("should prioritize active over zero free count", () => {
@@ -257,42 +281,30 @@ describe("sessionCardUtils", () => {
     });
 
     it("should return true for session more than 12 hours away", () => {
-      const futureDate = new Date();
-      futureDate.setHours(futureDate.getHours() + 13);
-      const dateStr = futureDate.toISOString().split("T")[0];
-      const timeStr = futureDate.toTimeString().split(" ")[0].substring(0, 5);
+      const { date, time } = buildLocalDateTime(13);
 
-      const result = isMoreThan12HrsAway({ date: dateStr, startTime: timeStr });
+      const result = isMoreThan12HrsAway({ date, startTime: time });
       expect(result).toBe(true);
     });
 
     it("should return false for session less than 12 hours away", () => {
-      const futureDate = new Date();
-      futureDate.setHours(futureDate.getHours() + 11);
-      const dateStr = futureDate.toISOString().split("T")[0];
-      const timeStr = futureDate.toTimeString().split(" ")[0].substring(0, 5);
+      const { date, time } = buildLocalDateTime(11);
 
-      const result = isMoreThan12HrsAway({ date: dateStr, startTime: timeStr });
+      const result = isMoreThan12HrsAway({ date, startTime: time });
       expect(result).toBe(false);
     });
 
     it("should return false for session exactly 12 hours away", () => {
-      const futureDate = new Date();
-      futureDate.setHours(futureDate.getHours() + 12);
-      const dateStr = futureDate.toISOString().split("T")[0];
-      const timeStr = futureDate.toTimeString().split(" ")[0].substring(0, 5);
+      const { date, time } = buildLocalDateTime(12);
 
-      const result = isMoreThan12HrsAway({ date: dateStr, startTime: timeStr });
+      const result = isMoreThan12HrsAway({ date, startTime: time });
       expect(result).toBe(false);
     });
 
     it("should return false for past session", () => {
-      const pastDate = new Date();
-      pastDate.setHours(pastDate.getHours() - 1);
-      const dateStr = pastDate.toISOString().split("T")[0];
-      const timeStr = pastDate.toTimeString().split(" ")[0].substring(0, 5);
+      const { date, time } = buildLocalDateTime(-1);
 
-      const result = isMoreThan12HrsAway({ date: dateStr, startTime: timeStr });
+      const result = isMoreThan12HrsAway({ date, startTime: time });
       expect(result).toBe(false);
     });
   });

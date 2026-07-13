@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -359,7 +359,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -445,11 +445,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -518,14 +518,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">30x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">40x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -592,7 +592,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -619,7 +619,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -632,7 +632,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -646,7 +646,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 &nbsp;
-const steps = <span class="cstat-no" title="statement not covered" >[</span>
+const steps = [
   {
     icon: (
       &lt;svg
@@ -732,11 +732,11 @@ const steps = <span class="cstat-no" title="statement not covered" >[</span>
   },
 ];
 &nbsp;
-const VerificationInstructionsModal = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> onClose }) =&gt; {</span>
-  const [step, setStep<span class="cstat-no" title="statement not covered" >] = useState(0);</span>
-  const isLast = <span class="cstat-no" title="statement not covered" >step === steps.length - 1;</span>
+const VerificationInstructionsModal = ({ onClose }) =&gt; {
+  const [step, setStep] = useState(0);
+  const isLast = step === steps.length - 1;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="fixed inset-0 z-50 flex items-center justify-center px-4"&gt;
       {/* Backdrop */}
       &lt;button
@@ -804,15 +804,15 @@ const VerificationInstructionsModal = <span class="cstat-no" title="statement no
 &nbsp;
           {/* Step dots */}
           &lt;div className="flex items-center gap-1.5 mt-4"&gt;
-            {steps.map(<span class="fstat-no" title="function not covered" >(s</span>tepItem, i) =&gt; {
-              let dotBgColor = <span class="cstat-no" title="statement not covered" >"bg-slate-200";</span>
-<span class="cstat-no" title="statement not covered" >              if (i === step) {</span>
-<span class="cstat-no" title="statement not covered" >                dotBgColor = "bg-blue-900";</span>
-<span class="cstat-no" title="statement not covered" >              } else if (i &lt; step) {</span>
-<span class="cstat-no" title="statement not covered" >                dotBgColor = "bg-blue-300";</span>
+            {steps.map((stepItem, i) =&gt; {
+              let dotBgColor = "bg-slate-200";
+              if (i === step) {
+                dotBgColor = "bg-blue-900";
+              } else if (i &lt; step) {
+                dotBgColor = "bg-blue-300";
               }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >              return (</span>
+              return (
                 &lt;div
                   key={`dot-${stepItem.label}`}
                   className={`h-1 flex-1 rounded-full transition-all duration-300 ${dotBgColor}`}
@@ -879,7 +879,7 @@ const VerificationInstructionsModal = <span class="cstat-no" title="statement no
         &lt;div className="px-7 pb-6 flex items-center justify-between gap-3"&gt;
           &lt;button
             type="button"
-            onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(<span class="fstat-no" title="function not covered" >(s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s - 1)</span>}</span>
+            onClick={() =&gt; setStep((s) =&gt; s - 1)}
             disabled={step === 0}
             className="text-xs text-slate-400 hover:text-slate-600 disabled:opacity-0 disabled:pointer-events-none transition-colors font-medium bg-transparent border-0 cursor-pointer p-0"
           &gt;
@@ -906,7 +906,7 @@ const VerificationInstructionsModal = <span class="cstat-no" title="statement no
             ) : (
               &lt;button
                 type="button"
-                onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(<span class="fstat-no" title="function not covered" >(s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s + 1)</span>}</span>
+                onClick={() =&gt; setStep((s) =&gt; s + 1)}
                 className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-900 hover:bg-blue-800 transition-all shadow-md shadow-blue-900/20"
               &gt;
                 Next →
@@ -919,7 +919,7 @@ const VerificationInstructionsModal = <span class="cstat-no" title="statement no
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >VerificationInstructionsModal.propTypes = {</span>
+VerificationInstructionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 &nbsp;
@@ -931,7 +931,7 @@ export default VerificationInstructionsModal;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T11:55:51.324Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

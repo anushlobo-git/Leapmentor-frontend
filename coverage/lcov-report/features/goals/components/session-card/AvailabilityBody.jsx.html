@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -144,30 +144,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -181,7 +178,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -191,7 +191,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -215,27 +215,27 @@ import SlotTabPicker from "./SlotTabPicker";
 &nbsp;
 // Extracted so the loading/error/empty/list branching isn't a nested
 // ternary inside RescheduleModal.
-const AvailabilityBody = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> availLoading, availError, availability, duration, selectedSlot, onSelect, bookedSlots }) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (availLoading) {</span>
-<span class="cstat-no" title="statement not covered" >    return (</span>
+const AvailabilityBody = ({ availLoading, availError, availability, duration, selectedSlot, onSelect, bookedSlots }) =&gt; {
+  if (availLoading) {
+    return (
       &lt;div className="flex flex-col gap-2"&gt;
-        {[1, 2, 3].map(<span class="fstat-no" title="function not covered" >(i</span>) =&gt; (
-<span class="cstat-no" title="statement not covered" >          &lt;div key={i} className="h-16 rounded-2xl bg-slate-100 animate-pulse" /&gt;</span>
+        {[1, 2, 3].map((i) =&gt; (
+          &lt;div key={i} className="h-16 rounded-2xl bg-slate-100 animate-pulse" /&gt;
         ))}
       &lt;/div&gt;
     );
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (availError) {</span>
-<span class="cstat-no" title="statement not covered" >    return (</span>
+  if (availError) {
+    return (
       &lt;div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600"&gt;
         {availError}
       &lt;/div&gt;
     );
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (availability.length === 0) {</span>
-<span class="cstat-no" title="statement not covered" >    return (</span>
+  if (availability.length === 0) {
+    return (
       &lt;div className="flex flex-col items-center gap-3 py-10 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center"&gt;
         &lt;svg width="24" height="24" viewBox="0 0 24 24" fill="none"
           stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"&gt;
@@ -252,7 +252,7 @@ const AvailabilityBody = <span class="cstat-no" title="statement not covered" ><
     );
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;SlotTabPicker
       availability={availability}
       selectedSlot={selectedSlot}
@@ -262,7 +262,7 @@ const AvailabilityBody = <span class="cstat-no" title="statement not covered" ><
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >AvailabilityBody.propTypes = {</span>
+AvailabilityBody.propTypes = {
   availLoading: PropTypes.bool.isRequired,
   availError: PropTypes.string,
   availability: PropTypes.array.isRequired,
@@ -283,7 +283,7 @@ export default AvailabilityBody;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T11:55:51.640Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

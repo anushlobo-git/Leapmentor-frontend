@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -164,11 +164,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -201,7 +201,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,7 +219,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,7 +236,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -255,11 +255,11 @@ import PropTypes from "prop-types";
 import { formatSlotDate, formatTime } from "@features/goals/utils/sessionCardUtils";
 import { slotShape } from "@features/goals/utils/sessionCardPropTypes";
 &nbsp;
-const CancelModal = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> slot, slotIndex, onConfirm, onClose, saving }) =&gt; {</span>
-  const [reason, setReason<span class="cstat-no" title="statement not covered" >] = useState("");</span>
-  const reasonFieldId = <span class="cstat-no" title="statement not covered" >`cancel-reason-${slotIndex}`;</span>
+const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) =&gt; {
+  const [reason, setReason] = useState("");
+  const reasonFieldId = `cancel-reason-${slotIndex}`;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)" }}&gt;
       &lt;div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-5"&gt;
@@ -292,7 +292,7 @@ const CancelModal = <span class="cstat-no" title="statement not covered" ><span 
             id={reasonFieldId}
             rows={2}
             value={reason}
-            onChange={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >setReason(e.target.value)}</span>
+            onChange={(e) =&gt; setReason(e.target.value)}
             placeholder="e.g. Schedule conflict, emergency..."
             className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700
               bg-white outline-none focus:border-red-300 transition-colors placeholder:text-slate-400
@@ -310,7 +310,7 @@ const CancelModal = <span class="cstat-no" title="statement not covered" ><span 
             Keep Session
           &lt;/button&gt;
           &lt;button
-            onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >o</span>nConfirm(slotIndex, reason)}</span>
+            onClick={() =&gt; onConfirm(slotIndex, reason)}
             disabled={saving}
             className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold
               hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
@@ -327,7 +327,7 @@ const CancelModal = <span class="cstat-no" title="statement not covered" ><span 
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >CancelModal.propTypes = {</span>
+CancelModal.propTypes = {
   slot: slotShape.isRequired,
   slotIndex: PropTypes.number.isRequired,
   onConfirm: PropTypes.func.isRequired,
@@ -343,7 +343,7 @@ export default CancelModal;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T11:55:51.640Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

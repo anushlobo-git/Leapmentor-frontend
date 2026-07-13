@@ -56,12 +56,10 @@ describe("TxStatusBadge", () => {
   });
 
   it("should handle undefined status gracefully and fall back safely without crashing", () => {
-    render(<TxStatusBadge status={undefined} />);
+    const { container } = render(<TxStatusBadge status={undefined} />);
 
-    // When status is undefined, label evaluates to undefined, so container is present but empty of status text
-    const dotElement = screen
-      .getByRole("img", { hidden: true } || Object)
-      .parentNode.querySelector("span");
+    // Query via standard fallback layout shape since no text label exists
+    const dotElement = container.querySelector(".rounded-full");
     expect(dotElement).toBeInTheDocument();
     expect(dotElement).toHaveStyle({ background: "#94a3b8" });
   });

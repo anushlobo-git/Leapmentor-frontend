@@ -44,8 +44,8 @@ const BADGES = [
  */
 
 const useMentorSettings = (initialProfile) => {
-  const [profile, setProfile]   = useState(initialProfile || null);
-  const [fetching, setFetching] = useState(!initialProfile); // skip fetch if profile passed in
+  const [profile, setProfile]   = useState(initialProfile ?? null);
+  const [fetching, setFetching] = useState(initialProfile == null); // skip fetch if profile passed in
   const [saving, setSaving]     = useState(false);
   const [msg, setMsg]           = useState({ type: "", text: "" });
 

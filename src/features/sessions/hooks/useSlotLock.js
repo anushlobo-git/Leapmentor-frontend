@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/hooks/useSlotLock.js
+// src/features/sessions/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
 import axiosInstance from "@lib/axiosInstance";
 import logger from "@lib/logger";

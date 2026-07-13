@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
-
+//src/features/sessions/components/SessionSkeleton.jsx
 import PropTypes from "prop-types";
 
 const SessionSkeleton = ({ size }) => {
