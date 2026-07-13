@@ -17,6 +17,7 @@ const EXPERIENCE_MAPPINGS = {
   "3-5": { min: "3", max: "5" },
   "6-10": { min: "6", max: "10" },
   "10+": { min: "10", max: null },
+  "under-1":{ min: null , max: "1" },
 };
 
 // ── SEARCH QUERY BUILDER HELPER ───────────────────────────────

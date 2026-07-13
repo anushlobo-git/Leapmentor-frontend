@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -177,16 +177,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -201,8 +201,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,7 +218,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -229,7 +229,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -259,7 +259,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -281,16 +281,16 @@ import Loader from "@components/common/Loader";
 import PropTypes from "prop-types";
 &nbsp;
 // ✅ Added onViewProfile prop — passed down to each MentorCard
-const MentorGrid = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> mentors, loading, loadingMore, hasMore, hasSearched, totalCount, onLoadMore, onViewProfile }) =&gt; {</span>
+const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, totalCount, onLoadMore, onViewProfile }) =&gt; {
 &nbsp;
   // ── Loading — initial search ──────────────────────────────
-<span class="cstat-no" title="statement not covered" >  if (loading) {</span>
-<span class="cstat-no" title="statement not covered" >    return &lt;Loader minHeight={240} /&gt;;</span>
+  if (loading) {
+    return &lt;Loader minHeight={240} /&gt;;
   }
 &nbsp;
   // ── Empty state — search done but no results ─────────────
-<span class="cstat-no" title="statement not covered" >  if (hasSearched &amp;&amp; mentors.length === 0) {</span>
-<span class="cstat-no" title="statement not covered" >    return (</span>
+  if (hasSearched &amp;&amp; mentors.length === 0) {
+    return (
       &lt;div className="flex flex-col items-center justify-center py-20 text-center"&gt;
         &lt;div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4"&gt;
           &lt;svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"&gt;
@@ -305,8 +305,8 @@ const MentorGrid = <span class="cstat-no" title="statement not covered" ><span c
   }
 &nbsp;
   // ── Pre-search state — nothing typed yet ─────────────────
-<span class="cstat-no" title="statement not covered" >  if (!hasSearched) {</span>
-<span class="cstat-no" title="statement not covered" >    return (</span>
+  if (!hasSearched) {
+    return (
       &lt;div className="flex flex-col items-center justify-center py-20 text-center"&gt;
         &lt;div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4"&gt;
           &lt;svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"&gt;
@@ -322,7 +322,7 @@ const MentorGrid = <span class="cstat-no" title="statement not covered" ><span c
     );
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="space-y-6"&gt;
       {/* Results count */}
       &lt;p className="text-xs text-slate-700 font-medium"&gt;
@@ -332,8 +332,8 @@ const MentorGrid = <span class="cstat-no" title="statement not covered" ><span c
 &nbsp;
       {/* ── Cards grid ── */}
       &lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"&gt;
-        {mentors.map(<span class="fstat-no" title="function not covered" >(m</span>entor) =&gt; (
-<span class="cstat-no" title="statement not covered" >          &lt;MentorCard</span>
+        {mentors.map((mentor) =&gt; (
+          &lt;MentorCard
             key={mentor._id}
             mentor={mentor}
             onViewProfile={onViewProfile} // ✅ passed down
@@ -363,7 +363,7 @@ const MentorGrid = <span class="cstat-no" title="statement not covered" ><span c
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >MentorGrid.propTypes = {</span>
+MentorGrid.propTypes = {
   mentors: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   loadingMore: PropTypes.bool.isRequired,
@@ -382,7 +382,7 @@ export default MentorGrid;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

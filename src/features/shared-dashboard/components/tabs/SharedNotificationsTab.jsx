@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/shared-dashboard/tabs/SharedNotificationsTab.jsx
+// src/features/shared-dashboard/components/tabs/SharedNotificationsTab.jsx
 // Used by both mentee and mentor dashboards — the notification model,
 // styling, and behavior are identical for both roles.
 import { useState, useEffect } from "react";

@@ -23,7 +23,6 @@ const StatCard = ({
   value,
   sub,
   subColor = "text-emerald-500",
-  icon,
 }) => (
   <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex flex-col gap-1 min-w-0">
     <p className="text-xs text-slate-700 font-semibold">{label}</p>
@@ -39,7 +38,6 @@ const StatCard = ({
         </span>
       )}
     </div>
-    {icon && <div className="mt-1 text-slate-300">{icon}</div>}
   </div>
 );
 
@@ -431,7 +429,6 @@ StatCard.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   sub: PropTypes.node,
   subColor: PropTypes.string,
-  icon: PropTypes.node,
 };
 
 CustomTooltip.propTypes = {

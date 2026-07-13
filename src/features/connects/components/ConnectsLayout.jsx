@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/ui/connects/ConnectsLayout.jsx
+// src/features/connects/components/ConnectsLayout.jsx
 import PropTypes from "prop-types";
 import Loader from "@components/common/Loader";
 

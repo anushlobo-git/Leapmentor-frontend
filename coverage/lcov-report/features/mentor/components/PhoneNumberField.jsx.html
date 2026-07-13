@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/29</span>
+                <span class='fraction'>29/29</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -275,29 +275,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -343,7 +343,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -458,7 +458,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -476,29 +476,29 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
 &nbsp;
-const PhoneNumberField = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> value, onChange, error }) =&gt; {</span>
-  const [touched, setTouched<span class="cstat-no" title="statement not covered" >] = useState(false);</span>
+const PhoneNumberField = ({ value, onChange, error }) =&gt; {
+  const [touched, setTouched] = useState(false);
 &nbsp;
-  const isValid = <span class="cstat-no" title="statement not covered" >value &amp;&amp; isValidPhoneNumber(value);</span>
-  const showError = <span class="cstat-no" title="statement not covered" >touched &amp;&amp; value &amp;&amp; !isValid;</span>
-  const showSuccess = <span class="cstat-no" title="statement not covered" >touched &amp;&amp; isValid;</span>
+  const isValid = value &amp;&amp; isValidPhoneNumber(value);
+  const showError = touched &amp;&amp; value &amp;&amp; !isValid;
+  const showSuccess = touched &amp;&amp; isValid;
 &nbsp;
-  const handleChange = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(v</span>al) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    onChange({ target: { name: "phoneNumber", value: val || "" } });</span>
+  const handleChange = (val) =&gt; {
+    onChange({ target: { name: "phoneNumber", value: val || "" } });
   };
 &nbsp;
   // S3358 Fixed: Extracted nested ternary operation into a clean independent function block
-  const getInputBorderClasses = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    if (showError || error) {</span>
-<span class="cstat-no" title="statement not covered" >      return "border-red-300 ring-2 ring-red-100";</span>
+  const getInputBorderClasses = () =&gt; {
+    if (showError || error) {
+      return "border-red-300 ring-2 ring-red-100";
     }
-<span class="cstat-no" title="statement not covered" >    if (showSuccess) {</span>
-<span class="cstat-no" title="statement not covered" >      return "border-green-400 ring-2 ring-green-100";</span>
+    if (showSuccess) {
+      return "border-green-400 ring-2 ring-green-100";
     }
-<span class="cstat-no" title="statement not covered" >    return "border-slate-300 hover:border-slate-400 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100";</span>
+    return "border-slate-300 hover:border-slate-400 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100";
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="bg-white rounded-2xl border border-blue-100 shadow-sm"&gt;
       {/* Header */}
       &lt;div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50"&gt;
@@ -544,7 +544,7 @@ const PhoneNumberField = <span class="cstat-no" title="statement not covered" ><
             defaultCountry="IN"
             value={value}
             onChange={handleChange}
-            onBlur={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etTouched(true)}</span>
+            onBlur={() =&gt; setTouched(true)}
             className="w-full phone-input-wrapper"
           /&gt;
 &nbsp;
@@ -659,7 +659,7 @@ const PhoneNumberField = <span class="cstat-no" title="statement not covered" ><
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >PhoneNumberField.propTypes = {</span>
+PhoneNumberField.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   error: PropTypes.string,
@@ -673,7 +673,7 @@ export default PhoneNumberField;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

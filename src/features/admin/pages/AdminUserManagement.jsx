@@ -49,7 +49,7 @@ const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
       style={{ background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)" }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5">
         <div className="flex items-start gap-4">
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
             style={{ background: current.bg, border: `1px solid ${current.border}` }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={current.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {current.icon}
@@ -97,12 +97,12 @@ const RoleBadge = ({ roles }) => {
 
 // ── Avatar ────────────────────────────────────────────────────
 const Avatar = ({ name, picture }) => {
-  if (picture) return <img src={picture} alt={name} className="w-9 h-9 rounded-xl object-cover flex-shrink-0"/>;
+  if (picture) return <img src={picture} alt={name} className="w-9 h-9 rounded-xl object-cover shrink-0"/>;
   const initials = name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
   const colors   = ["#2563eb", "#7c3aed", "#0891b2", "#059669", "#d97706"];
   const color    = colors[initials.codePointAt(0) % colors.length];
   return (
-    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-700 text-white"
+    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-700 text-white"
       style={{ background: color, fontWeight: 700 }}>
       {initials}
     </div>

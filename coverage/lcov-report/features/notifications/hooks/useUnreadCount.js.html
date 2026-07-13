@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -130,36 +130,36 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -180,36 +180,36 @@ import { selectIsAuthenticated } from "@features/auth/store/authSlice";
  */
 &nbsp;
 &nbsp;
-const useUnreadCount = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-  const isAuthenticated =<span class="cstat-no" title="statement not covered" > useSelector(selectIsAuthenticated);</span>
-  const [unreadCount, setUnreadCount] =<span class="cstat-no" title="statement not covered" > useState(0);</span>
+const useUnreadCount = () =&gt; {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [unreadCount, setUnreadCount] = useState(0);
 &nbsp;
-  const fetchUnreadCount =<span class="cstat-no" title="statement not covered" > useCallback(<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      if (!isAuthenticated) <span class="cstat-no" title="statement not covered" >return;</span></span>
-      const res = <span class="cstat-no" title="statement not covered" >await axiosInstance.get("/notifications");</span>
-      const normalized = <span class="cstat-no" title="statement not covered" >Array.isArray(res.data.notifications)</span>
+  const fetchUnreadCount = useCallback(async () =&gt; {
+    try {
+      if (!isAuthenticated) return;
+      const res = await axiosInstance.get("/notifications");
+      const normalized = Array.isArray(res.data.notifications)
         ? res.data.notifications.map(normalizeApiNotif)
         : [];
-      const count = <span class="cstat-no" title="statement not covered" >normalized.filter(<span class="fstat-no" title="function not covered" >(n</span>) =&gt; <span class="cstat-no" title="statement not covered" >!n.read)</span>.length;</span>
-<span class="cstat-no" title="statement not covered" >      setUnreadCount(count);</span>
+      const count = normalized.filter((n) =&gt; !n.read).length;
+      setUnreadCount(count);
     } catch {
       // silently fail
     }
   }, [isAuthenticated]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" > useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >   fetchUnreadCount();</span>
+ useEffect(() =&gt; {
+   fetchUnreadCount();
  }, [fetchUnreadCount]);
 &nbsp;
   // increment badge when socket/push notification arrives
-  const incrementBadge =<span class="cstat-no" title="statement not covered" > useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    setUnreadCount(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; <span class="cstat-no" title="statement not covered" >prev + 1)</span>;</span>
+  const incrementBadge = useCallback(() =&gt; {
+    setUnreadCount((prev) =&gt; prev + 1);
   }, []);
 &nbsp;
-  const clearBadge =<span class="cstat-no" title="statement not covered" > useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setUnreadCount(0),</span> []);</span>
+  const clearBadge = useCallback(() =&gt; setUnreadCount(0), []);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return { unreadCount, clearBadge, refetch: fetchUnreadCount, incrementBadge };</span>
+  return { unreadCount, clearBadge, refetch: fetchUnreadCount, incrementBadge };
 };
 &nbsp;
 export default useUnreadCount;
@@ -220,7 +220,7 @@ export default useUnreadCount;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/30</span>
+                <span class='fraction'>30/30</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -241,8 +241,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -285,8 +285,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -296,7 +296,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -307,9 +307,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -371,19 +371,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -405,13 +405,13 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 &nbsp;
-// src/components/ui/connects/ConnectsLayout.jsx
+// src/features/connects/components/ConnectsLayout.jsx
 import PropTypes from "prop-types";
 import Loader from "@components/common/Loader";
 &nbsp;
 // ── Empty state ───────────────────────────────────────────────
-const EmptyState = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> message, subMessage, actionLabel, onAction }) =&gt; (</span>
-<span class="cstat-no" title="statement not covered" >  &lt;div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center space-y-4"&gt;</span>
+const EmptyState = ({ message, subMessage, actionLabel, onAction }) =&gt; (
+  &lt;div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center space-y-4"&gt;
     &lt;div
       className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200
       flex items-center justify-center text-slate-300"
@@ -454,8 +454,8 @@ const EmptyState = <span class="cstat-no" title="statement not covered" ><span c
 );
 &nbsp;
 // ── Section divider ───────────────────────────────────────────
-const SectionDivider = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> label, count }) =&gt; (</span>
-<span class="cstat-no" title="statement not covered" >  &lt;div className="flex items-center gap-3 col-span-1 md:col-span-2 lg:col-span-3"&gt;</span>
+const SectionDivider = ({ label, count }) =&gt; (
+  &lt;div className="flex items-center gap-3 col-span-1 md:col-span-2 lg:col-span-3"&gt;
     &lt;div className="flex-1 h-px bg-slate-100" /&gt;
     &lt;span className="text-[10px] font-bold text-slate-700 uppercase tracking-widest whitespace-nowrap"&gt;
       {label} {count &gt; 0 &amp;&amp; `(${count})`}
@@ -465,7 +465,7 @@ const SectionDivider = <span class="cstat-no" title="statement not covered" ><sp
 );
 &nbsp;
 // ── Main Layout ───────────────────────────────────────────────
-const ConnectsLayout = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span></span>
+const ConnectsLayout = ({
   title,
   subtitle,
   count, // active count
@@ -476,9 +476,9 @@ const ConnectsLayout = <span class="cstat-no" title="statement not covered" ><sp
   completedChildren, // ✅ completed ConnectCards
   completedCount, // ✅ completed count
 }) =&gt; {
-  const hasCompleted = <span class="cstat-no" title="statement not covered" >completedCount &gt; 0;</span>
+  const hasCompleted = completedCount &gt; 0;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="space-y-6"&gt;
       {/* ── Header ── */}
       &lt;div className="flex items-start justify-between"&gt;
@@ -540,19 +540,19 @@ const ConnectsLayout = <span class="cstat-no" title="statement not covered" ><sp
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >EmptyState.propTypes = {</span>
+EmptyState.propTypes = {
   message: PropTypes.string.isRequired,
   subMessage: PropTypes.string,
   actionLabel: PropTypes.string,
   onAction: PropTypes.func,
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >SectionDivider.propTypes = {</span>
+SectionDivider.propTypes = {
   label: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >ConnectsLayout.propTypes = {</span>
+ConnectsLayout.propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
   count: PropTypes.number.isRequired,
@@ -577,7 +577,7 @@ export default ConnectsLayout;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T09:15:07.475Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -10,13 +10,30 @@ import DashboardSidebar from "@components/layout/DashboardSidebar";
 import { MENTEE_NAV_ITEMS } from "@features/mentee/constants/menteeNavItems";
 import DashboardTopbar from "@components/layout/DashboardTopbar";
 
-const HomeTab = lazy(() => import("@features/mentee/components/dashboard/HomeTab"));
-const ProfileTab = lazy(() => import("@features/mentee/components/dashboard/ProfileTab"));
-const FindMentorsTab = lazy(() => import("@features/mentee/components/dashboard/findMentors/FindMentorsTab"));
-const RequestHistoryTab = lazy(() => import("@features/mentee/components/dashboard/history/RequestHistoryTab"));
-const NotificationsTab = lazy(() => import("@features/shared-dashboard/components/tabs/SharedNotificationsTab"));
-const HelpCenter = lazy(() => import("@features/support/components/HelpCenter"));
-const ConnectsTab = lazy(() => import("@features/connects/components/ConnectsTab"));
+const HomeTab = lazy(
+  () => import("@features/mentee/components/dashboard/HomeTab"),
+);
+const ProfileTab = lazy(
+  () => import("@features/mentee/components/dashboard/ProfileTab"),
+);
+const FindMentorsTab = lazy(
+  () =>
+    import("@features/mentee/components/dashboard/findMentors/FindMentorsTab"),
+);
+const RequestHistoryTab = lazy(
+  () =>
+    import("@features/mentee/components/dashboard/history/RequestHistoryTab"),
+);
+const NotificationsTab = lazy(
+  () =>
+    import("@features/shared-dashboard/components/tabs/SharedNotificationsTab"),
+);
+const HelpCenter = lazy(
+  () => import("@features/support/components/HelpCenter"),
+);
+const ConnectsTab = lazy(
+  () => import("@features/connects/components/ConnectsTab"),
+);
 const Topbar = (props) => <DashboardTopbar {...props} logoutRedirectPath="/" />;
 
 // DashboardShell doesn't know about navItems (it's shared with mentor), so this
@@ -30,8 +47,16 @@ const TABS = [
   { key: "profile", Component: ProfileTab },
   { key: "findMentors", Component: FindMentorsTab },
   { key: "history", Component: RequestHistoryTab },
-  { key: "notifications", Component: NotificationsTab, getProps: (setTab) => ({ setActiveTab: setTab,role: "mentee" }) },
-  { key: "connects", Component: ConnectsTab, getProps: () => ({ role: "mentee" }) },
+  {
+    key: "notifications",
+    Component: NotificationsTab,
+    getProps: (setTab) => ({ setActiveTab: setTab, role: "mentee" }),
+  },
+  {
+    key: "connects",
+    Component: ConnectsTab,
+    getProps: () => ({ role: "mentee" }),
+  },
   { key: "help", Component: HelpCenter },
 ];
 
@@ -53,3 +78,6 @@ const DashboardLayout = () => (
 );
 
 export default DashboardLayout;
+
+// Named exports for testing internal config and helper wrappers
+export { MenteeSidebar, TABS, LOADING_CONFIG, Topbar };

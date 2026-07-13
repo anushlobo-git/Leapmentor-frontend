@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -130,41 +130,41 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -183,41 +183,41 @@ import { selectIsAuthenticated, selectIsVerified } from "@features/auth/store/au
 // runs, Redux is already populated — or the user has been redirected to /login.
 // So this component only needs to check the authRole cookie for access control.
 import PropTypes from "prop-types";
-const ProtectedRoute = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> children, role }) =&gt; {</span>
+const ProtectedRoute = ({ children, role }) =&gt; {
     // authRole cookie exists?      // "mentor" | "mentee" | "admin" | null
-  const <span class="cstat-no" title="statement not covered" >isAuthenticated = useSelector(selectIsAuthenticated); // accessToken + user both present in Redux</span>
-  const <span class="cstat-no" title="statement not covered" >isVerified      = useSelector(selectIsVerified);      // user.isVerified === true</span>
-  const <span class="cstat-no" title="statement not covered" >user            = useSelector(<span class="fstat-no" title="function not covered" >(s</span>tate) =&gt; <span class="cstat-no" title="statement not covered" >state.auth.user)</span>;</span>
+  const isAuthenticated = useSelector(selectIsAuthenticated); // accessToken + user both present in Redux
+  const isVerified      = useSelector(selectIsVerified);      // user.isVerified === true
+  const user            = useSelector((state) =&gt; state.auth.user);
 &nbsp;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!isAuthenticated) {</span>
-    let redirectTo = <span class="cstat-no" title="statement not covered" >"/login";</span>
+  if (!isAuthenticated) {
+    let redirectTo = "/login";
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (role === "mentor") {</span>
-<span class="cstat-no" title="statement not covered" >      redirectTo = "/login/mentor";</span>
-<span class="cstat-no" title="statement not covered" >    } else if (role === "mentee") {</span>
-<span class="cstat-no" title="statement not covered" >      redirectTo = "/login/mentee";</span>
+    if (role === "mentor") {
+      redirectTo = "/login/mentor";
+    } else if (role === "mentee") {
+      redirectTo = "/login/mentee";
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return &lt;Navigate to={redirectTo} replace /&gt;;</span>
+    return &lt;Navigate to={redirectTo} replace /&gt;;
   }
 &nbsp;
   // Prevent wrong role accessing wrong dashboard
-<span class="cstat-no" title="statement not covered" >  if (role &amp;&amp; !user.roles?.includes(role)) {</span>
-<span class="cstat-no" title="statement not covered" >    return &lt;Navigate to={`/dashboard/${storedRole}`} replace /&gt;;</span>
+  if (role &amp;&amp; !user.roles?.includes(role)) {
+    return &lt;Navigate to={`/dashboard/${storedRole}`} replace /&gt;;
   }
 &nbsp;
   // The authRole cookie only proves *some* session is logged in with this role —
   // it says nothing about whether THIS account's email has been verified.
   // Block onboarding/dashboard access for unverified accounts even if a
   // (possibly stale, possibly backend-set) authRole cookie is present.
-<span class="cstat-no" title="statement not covered" >  if (!isVerified) {</span>
-<span class="cstat-no" title="statement not covered" >    return &lt;Navigate to="/verify-email" state={{ email: user.email, role: storedRole || role }} replace /&gt;;</span>
+  if (!isVerified) {
+    return &lt;Navigate to="/verify-email" state={{ email: user.email, role: storedRole || role }} replace /&gt;;
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return children;</span>
+  return children;
 };
-<span class="cstat-no" title="statement not covered" >ProtectedRoute.propTypes = {</span>
+ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
   role: PropTypes.string.isRequired,
 };
@@ -229,7 +229,7 @@ export default ProtectedRoute;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -49,6 +49,7 @@ const useTrackEarnings = () => {
   const [error, setError] = useState("");
 
   const debounceTimer = useRef(null);
+  const isFirstSearchRun = useRef(true);
 
   // ── Fetch stats ───────────────────────────────────────────
   const fetchStats = useCallback(async () => {
@@ -57,7 +58,12 @@ const useTrackEarnings = () => {
       const res = await axiosInstance.get("/mentor/earnings");
       setStats(mapEarningsSummary(res.data));
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load earnings.");
+      setError(
+        err?.response?.data?.message ??
+        err?.message ??
+        (typeof err === "string" ? err : null) ??
+        "Failed to load earnings."
+      );
     } finally {
       setLoadingStats(false);
     }
@@ -112,6 +118,11 @@ const useTrackEarnings = () => {
 
   // ── Debounced search ──────────────────────────────────────
   useEffect(() => {
+    if (isFirstSearchRun.current) {
+      isFirstSearchRun.current = false;
+      return;
+    }
+
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
       setPage(1);
@@ -122,22 +133,28 @@ const useTrackEarnings = () => {
 
   // ── Load more ─────────────────────────────────────────────
   const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchPayouts(nextPage, search, true);
+    setPage((prevPage) => {
+      const nextPage = prevPage + 1;
+      fetchPayouts(nextPage, search, true);
+      return nextPage;
+    });
   };
 
   // ── Prev / Next ───────────────────────────────────────────
   const goNext = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchPayouts(nextPage, search);
+    setPage((prevPage) => {
+      const nextPage = prevPage + 1;
+      fetchPayouts(nextPage, search);
+      return nextPage;
+    });
   };
 
   const goPrev = () => {
-    const prevPage = Math.max(1, page - 1);
-    setPage(prevPage);
-    fetchPayouts(prevPage, search);
+    setPage((prevPage) => {
+      const nextPage = Math.max(1, prevPage - 1);
+      fetchPayouts(nextPage, search);
+      return nextPage;
+    });
   };
 
   // ── Withdraw ──────────────────────────────────────────────
@@ -170,12 +187,15 @@ const useTrackEarnings = () => {
     loadingChart,
     payouts,
     loadingPayouts,
-    search,       setSearch,
+    search,
+    setSearch,
     page,
+    setPage,
     hasMore,
     totalCount,
     error,
-    showWithdraw, setShowWithdraw,
+    showWithdraw,
+    setShowWithdraw,
     withdrawing,
     withdrawMsg,
     handleChartPeriod,

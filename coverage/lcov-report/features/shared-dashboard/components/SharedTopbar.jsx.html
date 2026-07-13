@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -223,14 +223,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -318,7 +318,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -328,8 +328,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -359,7 +359,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -374,14 +374,14 @@ import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { IMAGES } from "@constants/images";
 &nbsp;
-const SharedTopbar = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> viewerRole, onMenuToggle,onLogoClick }) =&gt; {</span>
-  const <span class="cstat-no" title="statement not covered" >navigate = useNavigate();</span>
+const SharedTopbar = ({ viewerRole, onMenuToggle,onLogoClick }) =&gt; {
+  const navigate = useNavigate();
 &nbsp;
-  const backPath = <span class="cstat-no" title="statement not covered" >viewerRole === "mentor"</span>
+  const backPath = viewerRole === "mentor"
     ? "/dashboard/mentor"
     : "/dashboard/mentee";
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;header style={{
       height: "56px",
       backgroundColor: "white",
@@ -469,7 +469,7 @@ const SharedTopbar = <span class="cstat-no" title="statement not covered" ><span
 &nbsp;
       {/* Right — back button */}
       &lt;button
-        onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >n</span>avigate(backPath)}</span>
+        onClick={() =&gt; navigate(backPath)}
         style={{
           display: "flex", alignItems: "center", gap: "6px",
           padding: "7px 12px", borderRadius: "10px",
@@ -479,8 +479,8 @@ const SharedTopbar = <span class="cstat-no" title="statement not covered" ><span
           transition: "all 0.15s",
           flexShrink: 0,
         }}
-        onMouseEnter={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >e.currentTarget.style.backgroundColor = "#1e40af"}</span>
-        onMouseLeave={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >e.currentTarget.style.backgroundColor = "#1e3a8a"}</span>
+        onMouseEnter={(e) =&gt; e.currentTarget.style.backgroundColor = "#1e40af"}
+        onMouseLeave={(e) =&gt; e.currentTarget.style.backgroundColor = "#1e3a8a"}
       &gt;
         &lt;svg width="13" height="13" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"&gt;
@@ -510,7 +510,7 @@ const SharedTopbar = <span class="cstat-no" title="statement not covered" ><span
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >SharedTopbar.propTypes = {</span>
+SharedTopbar.propTypes = {
   viewerRole: PropTypes.oneOf(["mentor", "mentee"]),
   onMenuToggle: PropTypes.func.isRequired,
   onLogoClick: PropTypes.func.isRequired,
@@ -523,7 +523,7 @@ export default SharedTopbar;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

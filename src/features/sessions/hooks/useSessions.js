@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
-
+//src/features/sessions/hooks/useSessions.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "@lib/axiosInstance";
 import { mapSlot, mapSessionSlotsResponse } from "@features/sessions/mappers/sessionsMapper";
@@ -18,7 +18,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const [completedSlots, setCompletedSlots] = useState(0);
   const [totalSlots, setTotalSlots] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [allComplete, setAllComplete] = useState(false); 
+  const [allComplete, setAllComplete] = useState(false);
 
   const onAllCompleteRef = useRef(onAllComplete);
   useEffect(() => {

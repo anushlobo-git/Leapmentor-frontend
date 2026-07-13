@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -128,35 +128,35 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -180,35 +180,35 @@ import { mapConnectRequest } from "@features/connects/mappers/connectsMapper";
  * @returns {Object} Hook state and handlers for the caller.
  */
 &nbsp;
-const useOngoingConnects = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-  const [ongoing,   setOngoing]   =<span class="cstat-no" title="statement not covered" > useState([]);</span>
-  const [completed, setCompleted] =<span class="cstat-no" title="statement not covered" > useState([]);</span>
-  const [loading,   setLoading]   =<span class="cstat-no" title="statement not covered" > useState(true);</span>
-  const [error,     setError]     =<span class="cstat-no" title="statement not covered" > useState(null);</span>
+const useOngoingConnects = () =&gt; {
+  const [ongoing,   setOngoing]   = useState([]);
+  const [completed, setCompleted] = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState(null);
 &nbsp;
-  const fetchConnects =<span class="cstat-no" title="statement not covered" > useCallback(<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      setLoading(true);</span>
-<span class="cstat-no" title="statement not covered" >      setError(null);</span>
-      const res = <span class="cstat-no" title="statement not covered" >await axiosInstance.get("/connect-requests/ongoing");</span>
-      const all = <span class="cstat-no" title="statement not covered" >Array.isArray(res.data.connects) ? res.data.connects.map(mapConnectRequest) : [];</span>
+  const fetchConnects = useCallback(async () =&gt; {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axiosInstance.get("/connect-requests/ongoing");
+      const all = Array.isArray(res.data.connects) ? res.data.connects.map(mapConnectRequest) : [];
 &nbsp;
       // ✅ Split into ongoing and completed
-<span class="cstat-no" title="statement not covered" >      setOngoing(all.filter(<span class="fstat-no" title="function not covered" >(c</span>) =&gt; <span class="cstat-no" title="statement not covered" >c.status === "ongoing")</span>);</span>
-<span class="cstat-no" title="statement not covered" >      setCompleted(all.filter(<span class="fstat-no" title="function not covered" >(c</span>) =&gt; <span class="cstat-no" title="statement not covered" >c.status === "completed")</span>);</span>
+      setOngoing(all.filter((c) =&gt; c.status === "ongoing"));
+      setCompleted(all.filter((c) =&gt; c.status === "completed"));
     } catch (err) {
-<span class="cstat-no" title="statement not covered" >      setError(err?.response?.data?.message || "Failed to load connects.");</span>
+      setError(err?.response?.data?.message || "Failed to load connects.");
     } finally {
-<span class="cstat-no" title="statement not covered" >      setLoading(false);</span>
+      setLoading(false);
     }
   }, []);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    fetchConnects();</span>
+  useEffect(() =&gt; {
+    fetchConnects();
   }, [fetchConnects]);
 &nbsp;
   // ✅ Keep connects for backward compat (ongoing only)
-<span class="cstat-no" title="statement not covered" >  return {</span>
+  return {
     connects: ongoing,   // backward compat
     ongoing,
     completed,
@@ -226,7 +226,7 @@ export default useOngoingConnects;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

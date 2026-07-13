@@ -83,7 +83,10 @@ describe("TransactionsTable", () => {
     expect(screen.getByText("Transaction History")).toBeInTheDocument();
     expect(screen.getByText("1 total transactions")).toBeInTheDocument();
     expect(screen.getByText("TXID-9988")).toBeInTheDocument();
-    expect(screen.getByText("Alex Morgan")).toBeInTheDocument();
+
+    // Verifies both layout occurrences of the username render successfully
+    expect(screen.getAllByText("Alex Morgan").length).toBe(2);
+
     expect(screen.getByText("alex@leapmentor.app")).toBeInTheDocument();
     expect(screen.getByText("250.00 USD")).toBeInTheDocument();
     expect(formatDecimal).toHaveBeenCalledWith(250);

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/34</span>
+                <span class='fraction'>34/34</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -163,28 +163,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,7 +233,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -254,26 +254,26 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { slotShape } from "@features/goals/utils/sessionCardPropTypes";
 &nbsp;
-const CompletionSection = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> slot, viewerRole, otherName, slotIndex, onMarkComplete, onSessionComplete }) =&gt; {</span>
-  const [localSaving, setLocalSaving<span class="cstat-no" title="statement not covered" >] = useState(false);</span>
+const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, onSessionComplete }) =&gt; {
+  const [localSaving, setLocalSaving] = useState(false);
 &nbsp;
-  const isMentee = <span class="cstat-no" title="statement not covered" >viewerRole === "mentee";</span>
-  const iMenteeMarked = <span class="cstat-no" title="statement not covered" >slot?.menteeMarked || false;</span>
-  const iMentorMarked = <span class="cstat-no" title="statement not covered" >slot?.mentorMarked || false;</span>
-  const myMark = <span class="cstat-no" title="statement not covered" >isMentee ? iMenteeMarked : iMentorMarked;</span>
-  const otherMark = <span class="cstat-no" title="statement not covered" >isMentee ? iMentorMarked : iMenteeMarked;</span>
-  const bothDone = <span class="cstat-no" title="statement not covered" >iMenteeMarked &amp;&amp; iMentorMarked;</span>
+  const isMentee = viewerRole === "mentee";
+  const iMenteeMarked = slot?.menteeMarked || false;
+  const iMentorMarked = slot?.mentorMarked || false;
+  const myMark = isMentee ? iMenteeMarked : iMentorMarked;
+  const otherMark = isMentee ? iMentorMarked : iMenteeMarked;
+  const bothDone = iMenteeMarked &amp;&amp; iMentorMarked;
 &nbsp;
-  const handleClick = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    setLocalSaving(true);</span>
-    const result = <span class="cstat-no" title="statement not covered" >await onMarkComplete(slotIndex);</span>
-<span class="cstat-no" title="statement not covered" >    setLocalSaving(false);</span>
-<span class="cstat-no" title="statement not covered" >    if (result?.success &amp;&amp; onSessionComplete) {</span>
-<span class="cstat-no" title="statement not covered" >      onSessionComplete();</span>
+  const handleClick = async () =&gt; {
+    setLocalSaving(true);
+    const result = await onMarkComplete(slotIndex);
+    setLocalSaving(false);
+    if (result?.success &amp;&amp; onSessionComplete) {
+      onSessionComplete();
     }
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="border-t border-slate-100 pt-3"&gt;
       &lt;p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5"&gt;
         Completion
@@ -326,7 +326,7 @@ const CompletionSection = <span class="cstat-no" title="statement not covered" >
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >CompletionSection.propTypes = {</span>
+CompletionSection.propTypes = {
   slot: slotShape.isRequired,
   viewerRole: PropTypes.string.isRequired,
   otherName: PropTypes.string.isRequired,
@@ -343,7 +343,7 @@ export default CompletionSection;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T09:15:07.475Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

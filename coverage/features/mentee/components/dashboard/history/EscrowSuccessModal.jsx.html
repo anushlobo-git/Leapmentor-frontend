@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -214,8 +214,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -230,8 +230,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -250,8 +250,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,11 +340,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -358,8 +358,8 @@
 // src/components/mentee/dashboard/history/EscrowSuccessModal.jsx
 import PropTypes from "prop-types";
 &nbsp;
-const LockIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> size = <span class="branch-0 cbranch-no" title="branch not covered" >14 }</span>) =&gt; (</span>
-<span class="cstat-no" title="statement not covered" >  &lt;svg</span>
+const LockIcon = ({ size = 14 }) =&gt; (
+  &lt;svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
@@ -374,8 +374,8 @@ const LockIcon = <span class="cstat-no" title="statement not covered" ><span cla
   &lt;/svg&gt;
 );
 &nbsp;
-const CheckIcon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; (</span></span>
-<span class="cstat-no" title="statement not covered" >  &lt;svg</span>
+const CheckIcon = () =&gt; (
+  &lt;svg
     width="40"
     height="40"
     viewBox="0 0 24 24"
@@ -394,8 +394,8 @@ const CheckIcon = <span class="cstat-no" title="statement not covered" ><span cl
 // totalAmount  — tokens locked
 // mentorName   — mentor's name
 // onDone       — called when user clicks Done or X (patches parent + closes)
-const EscrowSuccessModal = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> totalAmount, mentorName, onDone }) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
+const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }) =&gt; {
+  return (
     &lt;&gt;
       {/* Backdrop */}
       &lt;button
@@ -484,11 +484,11 @@ const EscrowSuccessModal = <span class="cstat-no" title="statement not covered" 
   );
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >LockIcon.propTypes = {</span>
+LockIcon.propTypes = {
   size: PropTypes.number,
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >EscrowSuccessModal.propTypes = {</span>
+EscrowSuccessModal.propTypes = {
   totalAmount: PropTypes.number.isRequired,
   mentorName: PropTypes.string.isRequired,
   onDone: PropTypes.func.isRequired,
@@ -502,7 +502,7 @@ export default EscrowSuccessModal;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T09:15:07.475Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

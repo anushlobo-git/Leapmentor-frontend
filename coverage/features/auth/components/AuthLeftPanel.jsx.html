@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -158,22 +158,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,7 +187,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,7 +208,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,15 +235,15 @@
  *  - stats        : array of { num, label } objects for the stat pills
  */
 import PropTypes from "prop-types";
-const AuthLeftPanel = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> imageSrc, imageAlt, badge, heading, subtext, stats = <span class="branch-0 cbranch-no" title="branch not covered" >[] }</span>) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
+const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = [] }) =&gt; {
+  return (
     &lt;div className="relative hidden lg:flex lg:w-[48%] flex-col justify-end overflow-hidden bg-slate-900"&gt;
       {/* Background image */}
       &lt;img
         src={imageSrc}
         alt={imageAlt}
         className="absolute inset-0 w-full h-full object-cover object-top"
-        onError={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; { <span class="cstat-no" title="statement not covered" >e.target.style.display = "none"; }</span>}
+        onError={(e) =&gt; { e.target.style.display = "none"; }}
       /&gt;
       {/* Gradient overlay */}
       &lt;div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-slate-900/10" /&gt;
@@ -270,8 +270,8 @@ const AuthLeftPanel = <span class="cstat-no" title="statement not covered" ><spa
         {/* Stat pills */}
         {stats.length &gt; 0 &amp;&amp; (
           &lt;div className="flex gap-3"&gt;
-            {stats.map(<span class="fstat-no" title="function not covered" >({</span> num, label }) =&gt; (
-<span class="cstat-no" title="statement not covered" >              &lt;div</span>
+            {stats.map(({ num, label }) =&gt; (
+              &lt;div
                 key={label}
                 className="flex flex-col gap-0.5 px-4 py-3 rounded-xl bg-white/10 border border-white/15 backdrop-blur-sm"
               &gt;
@@ -285,7 +285,7 @@ const AuthLeftPanel = <span class="cstat-no" title="statement not covered" ><spa
     &lt;/div&gt;
   );
 };
-<span class="cstat-no" title="statement not covered" >AuthLeftPanel.propTypes = {</span>
+AuthLeftPanel.propTypes = {
   imageSrc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   imageAlt: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   badge: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -301,7 +301,7 @@ export default AuthLeftPanel;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.183Z
+                at 2026-07-13T09:15:07.475Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -11,7 +11,6 @@ const formatDate = (dateStr) => {
   const d = dateStr.includes("T")
     ? new Date(dateStr)
     : new Date(dateStr + "T00:00:00");
-  if (Number.isNaN(d)) return "—";
   return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

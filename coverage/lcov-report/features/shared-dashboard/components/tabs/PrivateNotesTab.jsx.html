@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -196,14 +196,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -232,7 +230,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -254,7 +254,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -308,12 +308,12 @@ import PrivateFilesSection from "@features/shared-dashboard/components/tabs/priv
 import NotepadSection from "@features/shared-dashboard/components/tabs/private-notes/NotepadSection";
 &nbsp;
 // ── Main Private Tab ──────────────────────────────────────────
-const PrivateNotesTab = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-  const <span class="cstat-no" title="statement not covered" >connectId = useSelector(selectConnectId);</span>
-  const <span class="cstat-no" title="statement not covered" >isCompleted = useSelector(selectConnectStatus) === "completed";</span>
-  const [privateSubTab, setPrivateSubTab<span class="cstat-no" title="statement not covered" >] = useState("files");</span>
+const PrivateNotesTab = () =&gt; {
+  const connectId = useSelector(selectConnectId);
+  const isCompleted = useSelector(selectConnectStatus) === "completed";
+  const [privateSubTab, setPrivateSubTab] = useState("files");
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="w-full"&gt;
       {/* Private banner */}
       &lt;div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-6"&gt;
@@ -344,7 +344,7 @@ const PrivateNotesTab = <span class="cstat-no" title="statement not covered" ><s
       {/* Sub-tab switcher */}
       &lt;div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 mb-6 w-fit"&gt;
         &lt;button
-          onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etPrivateSubTab("files")}</span>
+          onClick={() =&gt; setPrivateSubTab("files")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             privateSubTab === "files"
               ? "bg-white text-slate-800 shadow-sm border border-slate-200"
@@ -366,7 +366,7 @@ const PrivateNotesTab = <span class="cstat-no" title="statement not covered" ><s
           Files
         &lt;/button&gt;
         &lt;button
-          onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etPrivateSubTab("notepad")}</span>
+          onClick={() =&gt; setPrivateSubTab("notepad")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             privateSubTab === "notepad"
               ? "bg-white text-slate-800 shadow-sm border border-slate-200"
@@ -406,7 +406,7 @@ export default PrivateNotesTab;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-12T14:49:04.493Z
+                at 2026-07-13T09:15:07.955Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

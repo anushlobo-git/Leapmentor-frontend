@@ -40,7 +40,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
 
   // ✅ Submit referral
   const handleRefer = async () => {
-    if (!selected) return;
+  
     try {
       setReferring(true);
       setError("");

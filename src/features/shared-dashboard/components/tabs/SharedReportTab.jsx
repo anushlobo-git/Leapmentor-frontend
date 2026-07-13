@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/shared-dashboard/tabs/SharedReportTab.jsx
+// src/features/shared-dashboard/components/tabs/SharedReportTab.jsx
 import { useState } from "react";
 import useReport from "@features/reports/hooks/useReport";
 import ReportModal from "@features/shared-dashboard/components/tabs/ReportModal";
