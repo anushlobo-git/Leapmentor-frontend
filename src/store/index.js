@@ -4,11 +4,11 @@
 
 // src/store/index.js
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer             from "./slices/authSlice";
-import menteeOnboardingReducer from "./slices/menteeOnboardingSlice";
-import mentorOnboardingReducer from "./slices/mentorOnboardingSlice";
-import sharedDashboardReducer  from "./slices/sharedDashboardSlice";
-import dashboardUserReducer    from "./slices/dashboardUserSlice";
+import authReducer             from "@features/auth/store/authSlice";
+import menteeOnboardingReducer from "@features/mentee/store/menteeOnboardingSlice";
+import mentorOnboardingReducer from "@features/mentor/store/mentorOnboardingSlice";
+import sharedDashboardReducer  from "@features/shared-dashboard/store/sharedDashboardSlice";
+import dashboardUserReducer    from "@features/profile/store/dashboardUserSlice";
 
 const store = configureStore({
   reducer: {

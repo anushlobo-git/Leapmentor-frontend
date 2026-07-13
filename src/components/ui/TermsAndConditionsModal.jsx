@@ -1,0 +1,224 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { useEffect, useState } from "react";
+import Button from "@components/ui/Button";
+import PropTypes from "prop-types";
+
+/**
+ * TermsAndConditionsModal
+ *
+ * Props:
+ * - isOpen        {boolean}   — controls visibility
+ * - onClose       {function}  — called when modal is dismissed without accepting
+ * - onAccept      {function}  — called when user checks the box and clicks "Accept & Continue"
+ * - role          {string}    — "mentor" | "mentee" (optional, affects heading copy)
+ * - readOnly      {boolean}   — if true, hides the checkbox and action buttons (view-only mode)
+ */
+export default function TermsAndConditionsModal({
+  isOpen,
+  onClose,
+  onAccept,
+  role = "mentor",
+  readOnly = false,
+}) {
+  const [agreed, setAgreed] = useState(false);
+
+  // Reset checkbox whenever modal opens
+  useEffect(() => {
+    if (isOpen) setAgreed(false);
+  }, [isOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    globalThis.addEventListener("keydown", handler);
+    return () => globalThis.removeEventListener("keydown", handler);
+  }, [isOpen, onClose]);
+
+  // Prevent background scroll while open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleAccept = () => {
+    if (!agreed) return;
+    onAccept();
+  };
+
+  return (
+    <dialog
+      open
+      className="fixed inset-0 z-50 m-0 p-0 bg-transparent border-0"
+      aria-modal="true"
+      aria-labelledby="terms-modal-title"
+    >
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div className="relative w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-modal-in overflow-hidden">
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 shrink-0">
+          <div>
+            <h2
+              id="terms-modal-title"
+              className="text-lg font-bold text-slate-900 tracking-tight"
+            >
+              Terms & Conditions
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {readOnly
+                ? "LeapMentor Terms & Conditions"
+                : `Please read the full agreement before registering as a ${role}.`}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors text-lg leading-none cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* ── Scrollable body ── */}
+        <div className="overflow-y-auto px-6 py-5 flex-1 text-sm text-slate-600 leading-relaxed space-y-5">
+          <section>
+            <h3 className="font-semibold text-slate-800 mb-1">
+              1. Acceptance of Terms
+            </h3>
+            <p>
+              By registering on LeapMentor, you agree to be bound by these Terms
+              and Conditions and all applicable laws and regulations. If you do
+              not agree with any of these terms, you are prohibited from using
+              or accessing this platform.
+            </p>
+          </section>
+          <section>
+            <h3 className="font-semibold text-slate-800 mb-1">
+              2. User Responsibilities
+            </h3>
+            <p>
+              You are responsible for maintaining the confidentiality of your
+              account and password and for restricting access to your computer.
+              You agree to accept responsibility for all activities that occur
+              under your account. You must not impersonate any person or entity
+              or misrepresent your affiliation with any person or entity.
+            </p>
+          </section>
+          <section>
+            <h3 className="font-semibold text-slate-800 mb-1">
+              3. {role === "mentor" ? "Mentor" : "Mentee"} Conduct
+            </h3>
+            <p>
+              {role === "mentor"
+                ? "As a mentor, you agree to provide accurate information about your expertise and experience, maintain professional conduct in all sessions, and respect the privacy and confidentiality of your mentees. You must not charge mentees outside the platform or engage in any discriminatory behavior."
+                : "As a mentee, you agree to engage respectfully with mentors, attend scheduled sessions punctually, and use the guidance provided for lawful and constructive purposes only. You must not harass or pressure mentors in any way."}
+            </p>
+          </section>
+          <section>
+            <h3 className="font-semibold text-slate-800 mb-1">
+              4. Privacy Policy
+            </h3>
+            <p>
+              We collect and process personal data in accordance with our
+              Privacy Policy. By registering, you consent to the collection,
+              use, and sharing of your information as described therein. We do
+              not sell your personal data to third parties.
+            </p>
+          </section>
+
+          {/* ── FIXED: Added explicit string expressions for Section 10 (Ln 154) ── */}
+          <section>
+            <h3 className="font-semibold text-slate-800 mb-1">10. Contact</h3>
+            <p>
+              {
+                "If you have any questions about these Terms, please contact us at "
+              }
+              <a
+                href="https://mail.google.com/mail/?view=cm&to=leapmentor2026@gmail.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-900 underline"
+              >
+                {"leapmentor2026@gmail.com"}
+              </a>
+              {"."}
+            </p>
+          </section>
+        </div>
+
+        {/* ── Footer: hidden in readOnly mode ── */}
+        {!readOnly && (
+          <div className="px-6 py-5 border-t border-slate-100 bg-slate-50 rounded-b-2xl shrink-0 space-y-4">
+            <label className="flex items-start gap-2.5 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer"
+              />
+              {/* ── FIXED: Added explicit string expressions for the agreement labels (Ln 179) ── */}
+              <span className="text-sm text-slate-600 leading-relaxed group-hover:text-slate-800 transition-colors">
+                {"I have read and agree to the "}
+                <span className="font-medium text-slate-800">
+                  {"Terms & Conditions"}
+                </span>
+                {" and "}
+                <span className="font-medium text-slate-800">
+                  {"Privacy Policy"}
+                </span>
+                {"."}
+              </span>
+            </label>
+
+            <div className="flex gap-3">
+              <div className="flex-1 flex">
+                <Button variant="outline" onClick={onClose} fullWidth>
+                  Cancel
+                </Button>
+              </div>
+              <div className="flex-1 flex">
+                <Button
+                  variant="primary"
+                  onClick={handleAccept}
+                  disabled={!agreed}
+                  fullWidth
+                >
+                  Accept & Continue
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+                @keyframes modal-in {
+                    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+                    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+                }
+                .animate-modal-in { animation: modal-in 0.22s ease both; }
+            `}</style>
+    </dialog>
+  );
+}
+
+TermsAndConditionsModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onAccept: PropTypes.func.isRequired,
+  role: PropTypes.oneOf(["mentor", "mentee"]),
+  readOnly: PropTypes.bool,
+};

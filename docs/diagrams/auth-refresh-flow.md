@@ -3,7 +3,7 @@
 ```mermaid
 sequenceDiagram
   participant Caller as Any axiosInstance request
-  participant Axios as src/utils/axiosInstance.js
+  participant Axios as src/lib/axiosInstance.js
   participant API as Backend /auth/refresh
   participant Store as Redux auth slice
   participant Queue as Failed request queue
@@ -30,5 +30,5 @@ sequenceDiagram
 
 ## Notes
 
-- The queueing logic is in `src/utils/axiosInstance.js`.
+- The queueing logic is in `src/lib/axiosInstance.js`.
 - The refresh path is used only for the main authenticated client, not for admin requests.

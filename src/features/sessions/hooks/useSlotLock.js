@@ -1,0 +1,62 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/hooks/useSlotLock.js
+import { useCallback, useRef } from "react";
+import axiosInstance from "@lib/axiosInstance";
+import logger from "@lib/logger";
+/**
+ * Custom hook for slot lock.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
+
+const useSlotLock = (mentorId) => {
+  const lockedKeys = useRef(new Set()); // tracks keys this session locked
+
+
+  // ─────────────────────────────────────────────
+  // Lock a slot — called when mentee selects
+  // Returns { ok: true } or { ok: false, code, msg }
+  // ─────────────────────────────────────────────
+  const lockSlot = useCallback(async (date, startTime, endTime) => {
+    try {
+      const res = await axiosInstance.post("/slot-locks/lock", { mentorId, date, startTime, endTime });
+      lockedKeys.current.add(`${date}-${startTime}`);
+      return { ok: true, expiresAt: res.data.expiresAt };
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      const msg  = err?.response?.data?.message || "Could not lock slot";
+      return { ok: false, code, msg };
+    }
+  }, [mentorId]);
+
+  // ─────────────────────────────────────────────
+  // Unlock a slot — called when mentee deselects
+  // ─────────────────────────────────────────────
+  const unlockSlot = useCallback(async (date, startTime, endTime) => {
+    try {
+      await axiosInstance.post("/slot-locks/unlock", { mentorId, date, startTime, endTime });
+      lockedKeys.current.delete(`${date}-${startTime}`);
+    } catch (err) {
+      // Silently fail — lock will expire via TTL anyway
+      logger.warn("unlock failed silently:", { error: err.message });
+    }
+  }, [mentorId]);
+
+  // ─────────────────────────────────────────────
+  // Unlock all — called when mentee closes modal
+  // ─────────────────────────────────────────────
+  const unlockAll = useCallback(async () => {
+    try {
+      await axiosInstance.post("/slot-locks/unlock-all", { mentorId });
+      lockedKeys.current.clear();
+    } catch (err) {
+      logger.warn("unlock-all failed silently:", { error: err.message });
+    }
+  }, [mentorId]);
+
+  return { lockSlot, unlockSlot, unlockAll };
+};
+
+export default useSlotLock;

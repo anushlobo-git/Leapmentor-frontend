@@ -4,7 +4,8 @@
 
 // src/components/common/ErrorBoundary.jsx
 import React from "react";
-import logger from "@utils/logger";
+import PropTypes from "prop-types";
+import logger from "@lib/logger";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -18,7 +19,10 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     // Note: We can integrate with a real logger/reporting service here if available
-    logger.error("ErrorBoundary caught an error:", { error: error.message || error, errorInfo });
+    logger.error("ErrorBoundary caught an error:", {
+      error: error.message || error,
+      errorInfo,
+    });
   }
 
   handleReset = () => {
@@ -77,5 +81,9 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export default ErrorBoundary;

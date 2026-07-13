@@ -5,7 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist/**", "node_modules/**", "public/sw.js"] },
+  { ignores: ["dist/**", "node_modules/**", "coverage/**", "public/sw.js"] },
   js.configs.recommended,
   {
     plugins: {
@@ -15,6 +15,18 @@ export default [
     },
     languageOptions: {
       globals: { ...globals.browser, ...globals.es2021 },
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
     rules: {
       "no-unused-vars": "warn",

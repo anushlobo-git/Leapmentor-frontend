@@ -1,262 +1,158 @@
+
 # Project Structure
 
-This document reflects the repository as it exists today. The descriptions below are derived from the actual files and folders under `src/`.
+This document reflects the repository as of the feature-based restructure. The old structure mixed Atomic Design (`atoms/molecules/organisms/templates`) with feature folders (`components/mentee`, `components/mentor`, etc.), which meant a "component" could live in five different places. Everything below is organized by **business domain first** (`features/`), with a small, deliberately generic `components/` reserved for pieces that carry no business logic.
 
 ## `src/`
 
-Top-level application source files and feature folders.
-
-- `App.jsx` - top-level router, auth rehydration, and route composition.
+- `main.jsx` - application bootstrap, store injection, global error hooks.
 - `index.css` - global styles and Tailwind entry styles.
-- `main.jsx` - application bootstrap, store injection, and global error hooks.
-- `api/` - thin axios-based helper modules for non-slice API calls.
-- `assets/` - static imported assets; currently only `react.svg`.
-- `atoms/` - small reusable UI primitives such as buttons, icons, and the logo component.
-- `components/` - feature components grouped by admin, auth, mentee, mentor, shared dashboard, and shared UI.
-- `config/` - static app configuration such as onboarding field definitions.
-- `constants/` - shared constants, HTTP status helpers, navigation items, and image paths.
-- `context/` - React context providers, currently admin auth and toast state.
-- `hooks/` - reusable stateful logic for API fetching, forms, auth, notifications, and dashboards.
-- `mappers/` - response normalization helpers that turn API payloads into stable client shapes.
-- `molecules/` - composed UI pieces used by larger landing/auth screens.
-- `organisms/` - larger landing-page sections and modal assemblies.
-- `pages/` - route-level screens and page shells.
-- `store/` - Redux store configuration and feature slices.
-- `templates/` - layout wrappers and page-level shells.
-- `test/` - Vitest setup and test utilities.
-- `ui/` - shared presentational helpers and small reusable UI components.
-- `utils/` - axios clients, cookies, logging, session formatting, and validation helpers.
+- `app/` - app shell: router, providers, top-level pages that don't belong to a feature.
+- `features/` - one folder per business domain. This is where most code lives now.
+- `components/` - generic, reusable, business-logic-free UI and layout chrome.
+- `lib/` - infrastructure: axios clients, logger, cookies, validation schemas, generic mappers.
+- `store/` - root Redux store composition only (`index.js`). Feature slices live inside their feature.
+- `config/` - static app configuration shared across features (onboarding field definitions).
+- `constants/` - global constants not tied to one feature (image paths).
+- `test/` - Vitest setup.
 
-## `src/api/`
+## `src/app/`
 
-API helper modules used outside Redux slices.
+- `App.jsx` - top-level router, auth rehydration, route composition.
+- `providers/ToastContext.jsx` - toast provider wrapper.
+- `pages/NotFound.jsx` - catch-all 404 page.
 
-- `escrow.api.js` - escrow payment, release, refund, status, and commission-rate helpers.
-- `notes.ap.js` - note upload, note listing, private-note listing, and note deletion helpers.
-- `privateNotes.api.js` - private note CRUD helpers.
+## `src/features/`
 
-## `src/assets/`
+Each feature folder groups everything about one business domain: components, hooks, api calls, redux slice, mappers, and route-level pages. Not every feature has every subfolder — only what that domain actually needs.
 
-- `react.svg` - currently the only checked-in static asset in this folder.
+### `features/auth/`
+Login, registration, password reset, SSO, and route guarding.
+- `components/` - `LoginForm.jsx`, `RegisterForm.jsx`, `AuthSSOButtons.jsx`, `AuthUI.jsx`, `AuthIcons.jsx`, `AuthLeftPanel.jsx`, `LoginLeftPanel.jsx`, `ProtectedRoute.jsx`, `RegisterDropdownItem.jsx`.
+- `hooks/useGoogleAuth.js`
+- `api/auth.api.js` - `login`, `exchangeLinkedInToken`, `logoutRequest`.
+- `store/authSlice.js` - `registerUser`, `loginUser`, `sendOtp`, `verifyEmail`, `verifyMagicLink`, `forgotPassword`, `verifyResetOtp`, `resetPassword` thunks.
+- `pages/` - `LoginMentee.jsx`, `LoginMentor.jsx`, `Register.jsx`, `RegisterMentee.jsx`, `RegisterMentor.jsx`, `ForgotPassword.jsx`, `VerifyEmail.jsx`, `SSOCallback.jsx`.
 
-## `src/atoms/`
+### `features/mentee/`
+Mentee dashboard, onboarding, profile, and mentor discovery.
+- `components/dashboard/` - `HomeTab.jsx`, `ProfileTab.jsx`, `ComingSoon.jsx`, `DashboardLayout.jsx`, plus `findMentors/` (mentor search, filters, profile modal, connect flow) and `history/` (request history, escrow payment/success modals, invoice download).
+- `components/onboarding/` - `MenteeOnboardingShell.jsx`, `PersonalInfoSection.jsx`, `ProfessionalDetailsSection.jsx`, `InterestedFieldsSection.jsx`, `MentorshipPrefsSection.jsx`, `SocialLinksSection.jsx`.
+- `components/profile/MenteeEditProfileShell.jsx`
+- `hooks/` - `useMenteeDashboard.jsx`, `useMenteeOnboarding.js`, `useMenteeEditProfile.js`, `useMenteeSettings.js`, `useMentorSearch.js`, `useRequestHistory.js`.
+- `api/mentee.api.js` - profile picture upload, mentor search, connect requests, escrow wallet, leap requests, mentor availability lookup. (Previously these were called with raw `axiosInstance` directly inside `HomeTab.jsx`, `MentorProfileModal.jsx`, `DetailDrawer.jsx`, and `onboarding/PersonalInfoSection.jsx` — now colocated here.)
+- `mappers/menteeMapper.js`
+- `store/menteeOnboardingSlice.js` - `submitMenteeOnboarding` thunk (`POST /mentee-profile`).
+- `constants/menteeNavItems.jsx`
+- `pages/MenteeDashboard.jsx`, `pages/MenteeOnboarding.jsx`
 
-Base reusable primitives.
+### `features/mentor/`
+Mentor dashboard, onboarding, verification, availability, and earnings.
+- `components/` - `PhoneNumberField.jsx`, `ResumeUpload.jsx`, `WorkExperienceUpload.jsx`, `VerificationFormShell.jsx`, `VerificationInstructionsModal.jsx`, plus `dashboard/` (home tab, profile tab, `availability/`, `earnings/`, `requests/`) and `onboarding/`, `profile/`.
+- `hooks/` - `useAvailability.js`, `useMentorDashboard.js`, `useMentorEditProfile.js`, `useMentorSettings.js`, `useRespondToRequest.js`, `useTrackEarnings.js`.
+- `api/mentor.api.js` - verification document upload, profile picture upload, incoming requests, respond/refer to a request, mentor earnings, Google Calendar auth/disconnect/busy/events. (Previously called directly from `VerificationFormShell.jsx`, `onboarding/PersonalInfoSection.jsx`, `requests/ReferModal.jsx`, `requests/MenteeProfileModal.jsx`, `requests/RequestsTab.jsx`, `MentorHomeTab.jsx`, `availability/IntegrationsSection.jsx`, `availability/CalendarAvailabilitySection.jsx`.)
+- `mappers/mentorMapper.js`, `mappers/earningsMapper.js`
+- `store/mentorOnboardingSlice.js` - `submitMentorOnboarding` thunk (`POST /mentor-profile`).
+- `constants/mentorNavItems.jsx`
+- `pages/MentorDashboard.jsx`, `pages/MentorOnboarding.jsx`, `pages/MentorVerification.jsx`, `pages/MentorMatchmaking.jsx` (currently unrouted in `App.jsx` — likely dead code, worth confirming and removing).
 
-- `Button.jsx`
-- `Card.jsx`
-- `ChevronIcon.jsx`
-- `Dot.jsx`
-- `GoogleIcon.jsx`
-- `HamburgerIcon.jsx`
-- `LetterBall.jsx`
-- `LinkedInIcon.jsx`
-- `Logo.jsx`
-- `SideArrow.jsx`
-- `StarIcon.jsx`
+### `features/admin/`
+Admin shell, auth, and every admin management screen.
+- `components/` - `AdminLayout.jsx`, `AdminRoute.jsx`, `AdminSupportMessages.jsx`, `common/` (chart/badge helpers).
+- `context/AdminAuthContext.jsx` - admin session state (React context, not Redux — see Auth State Architecture in ONBOARDING.md).
+- `api/admin.api.js` - every admin HTTP call, one named export per endpoint: login/logout, pending-count badge, support messages, mentor verifications, reports (stats/list/update/refund/delete-session), payments (stats/chart/transactions), engagements, leap requests (list/approve/reject), users (stats/growth/industries/list/delete/block/unblock), settings (commission get/update, add-admin). All 10 admin pages previously called `adminAxiosInstance` inline; they now all import from this one file.
+- `pages/` - `AdminLogin.jsx`, `AdminEngagements.jsx`, `AdminPayments.jsx`, `AdminReports.jsx`, `AdminSettings.jsx`, `AdminUserManagement.jsx`, `AdminVerifications.jsx`, `AdminWalletRequests.jsx`.
 
-These belong here when they are tiny, reusable, and not tied to a single feature flow.
+### `features/connects/`
+An active mentor–mentee engagement (the pairing formed once a mentor accepts and escrow is paid).
+- `components/` - `ConnectsTab.jsx`, `ConnectCard.jsx`, `ConnectsLayout.jsx`.
+- `hooks/useConnectRequest.js`, `hooks/useOngoingConnects.js`
+- `api/escrow.api.js` - `payEscrow`, `releaseEscrow`, `refundEscrow`, `getEscrowStatus`, `payAdditionalEscrow`, `getPlatformCommissionRate`.
+- `mappers/connectsMapper.js`
+
+### `features/sessions/`
+Individual mentoring session slots within a connect.
+- `components/SessionCard.jsx`, `components/SessionSkeleton.jsx`
+- `hooks/useSessions.js`, `hooks/useSlotLock.js`
+- `api/sessions.api.js` - `getMentorAvailabilityForConnect` (previously called inline from `goals/SessionCard.jsx` and `SharedAdditionalSessionTab.jsx`).
+- `mappers/sessionsMapper.js`
+- `utils/sessionFormat.js`
+
+### `features/goals/`
+Mentorship goal-tracking inside the shared dashboard.
+- `components/` - `GoalForm.jsx`, `MilestoneList.jsx`, `SessionCard.jsx`, `TimelineTracker.jsx`.
+- `hooks/useGoals.js`
+- `mappers/goalsMapper.js`
+
+### `features/notes/`
+Shared and private notes attached to a connect.
+- `hooks/useNotes.js`, `hooks/usePrivateNotes.js`
+- `api/notes.api.js` (renamed from the old `notes.ap.js` typo), `api/privateNotes.api.js`
+- `utils/notesHelpers.js`
+
+### `features/notifications/`
+- `hooks/useSocketToast.js`, `hooks/useUnreadCount.js`, `hooks/usePushNotification.js`
+- `api/notifications.api.js` - `getNotifications`, `markAllNotificationsRead`, `clearAllNotifications`, `markNotificationRead`, `deleteNotification` (previously inline in `SharedNotificationsTab.jsx`).
+- `mappers/notificationMapper.js`
+
+### `features/reports/`
+- `hooks/useReport.js`, `hooks/useReportComplaint.js`
+- `mappers/reportMapper.js`
+
+### `features/profile/`
+Cross-role "edit profile" tab chrome shared by mentee and mentor dashboards.
+- `components/ProfileTab.jsx`, `components/profileConfig.js`
+- `mappers/settingsMapper.js` (shared by `useMenteeSettings` and `useMentorSettings`)
+- `store/dashboardUserSlice.js` - `refetchMentorProfile` thunk (`GET /mentor-profile/me`).
+
+### `features/shared-dashboard/`
+The per-connect shared workspace both mentee and mentor land in once paired.
+- `components/` - `SharedDashboardLayout.jsx`, `SharedSidebar.jsx`, `SharedTopbar.jsx`, `tabs/` (home, chat, goals, notes, notifications, reports, additional-session, plus their modals).
+- `hooks/useChat.js`
+- `api/shared-dashboard.api.js` - `getConnectDetail` (previously called inline from both `SharedGoalsTab.jsx` and `SharedDashboardPage.jsx`).
+- `store/sharedDashboardSlice.js`
+- `pages/SharedDashboardPage.jsx`
+
+### `features/support/`
+Help Center FAQ widget and the LeapBuddy AI chat assistant.
+- `components/HelpCenter.jsx`, `components/LeapBuddy.jsx`, `components/AiWidgetIcons.jsx`
+- `api/support.api.js` - `sendSupportMessage`, `sendAiChatMessage` (previously inline in both `HelpCenter.jsx` and `LeapBuddy.jsx`).
+
+### `features/marketing/`
+Public landing page sections.
+- `components/Hero.jsx`, `Missions.jsx`, `Testimonials.jsx`, `TestimonialsWidget.jsx`, `TestimonialCard.jsx`, `FeatureCard.jsx`, `HeroSlider.jsx`
+- `pages/Home.jsx`
 
 ## `src/components/`
+Generic, reusable, **no business logic**. If it needs an api call, a redux slice, or knows what a "mentee" is, it belongs in `features/`, not here.
 
-Feature and layout components, grouped by domain.
+- `ui/` - `Button.jsx`, `Card.jsx`, `Dot.jsx`, `Logo.jsx`, icons, `ContactModal.jsx`, `DotIndicator.jsx`, `StarRating.jsx`, `StatCard.jsx`, `SuccessCard.jsx`, `TermsAndConditionsModal.jsx`, `OnboardingProgressBar.jsx` — this folder is the merged replacement for the old `atoms/`, `molecules/`, `ui/`, and `components/ui/`.
+- `layout/` - `Navbar.jsx`, `Footer.jsx`, `PublicLayout.jsx`, `DashboardShell.jsx`, `DashboardSidebar.jsx`, `DashboardTopbar.jsx`, `Sidebar.jsx` — dashboard/site chrome shared by mentee and mentor, not specific to either.
+- `common/` - `FullScreenLoader.jsx`, `EmptyState.jsx`, `ErrorBoundary.jsx`.
 
-- `FullScreenLoader.jsx` - shared full-screen loading state.
-- `LeapBuddy.jsx` - assistant/chat entry point.
-- `admin/` - admin dashboard layout, auth guard, and support messages.
-- `auth/` - login/register screens, social auth UI, and route guards.
-- `common/` - shared page-level utilities such as the Help Center.
-- `mentee/` - mentee dashboard, onboarding, profile, and find-mentors flows.
-- `mentor/` - mentor dashboard, onboarding, profile, availability, earnings, requests, and verification flows.
-- `shared/` - shared dashboard access components.
-- `shared-dashboard/` - the shared connect dashboard and its tab set.
-- `ui/` - shared low-level UI wrappers and connect card layouts.
-
-### `src/components/admin/`
-
-- `AdminLayout.jsx` - admin shell/sidebar layout.
-- `AdminRoute.jsx` - admin auth guard.
-- `AdminSupportMessages.jsx` - support inbox UI.
-- `common/` - admin dashboard chart/badge helpers.
-
-`src/components/admin/common/` currently contains `MentorIndustryChart.jsx`, `StatCard.jsx`, `StatusBadge.jsx`, and `UserGrowthChart.jsx`.
-
-### `src/components/auth/`
-
-- `AuthIcons.jsx`
-- `AuthLeftPanel.jsx`
-- `AuthSSOButtons.jsx`
-- `AuthUI.jsx`
-- `LoginForm.jsx`
-- `LoginLeftPanel.jsx`
-- `ProtectedRoute.jsx`
-- `RegisterForm.jsx`
-
-These files belong here when they participate in the login, registration, and route-access flows.
-
-### `src/components/mentee/`
-
-- `dashboard/` - mentee dashboard views.
-- `onboarding/` - mentee onboarding forms and sections.
-- `profile/` - mentee profile editing shells.
-
-`src/components/mentee/dashboard/` currently contains `ComingSoon.jsx`, `DashboardLayout.jsx`, `HomeTab.jsx`, `InterestedFieldsCard.jsx`, `MentorshipPrefsCard.jsx`, `ProfessionalDetailsCard.jsx`, `ProfileHeroCard.jsx`, `ProfileTab.jsx`, `SocialPresenceCard.jsx`, `Topbar.jsx`, plus `findMentors/` and `history/`.
-
-`src/components/mentee/dashboard/findMentors/` currently contains `ConnectSucessModal.jsx`, `FilterPanel.jsx`, `FindMentorsTab.jsx`, `MentorCard.jsx`, `MentorCardSkeleton.jsx`, `MentorGrid.jsx`, `MentorProfileModal.jsx`, and `SearchBar.jsx`.
-
-`src/components/mentee/dashboard/history/` currently contains `DetailDrawer.jsx`, `EscrowPaymentModal.jsx`, `EscrowSuccessModal.jsx`, `HistoryTable.jsx`, `RequestHistoryTab.jsx`, `StatusBadge.jsx`, and `constants.js`.
-
-`src/components/mentee/onboarding/` currently contains `InterestedFieldsSection.jsx`, `MenteeOnboardingShell.jsx`, `MentorshipPrefsSection.jsx`, `PersonalInfoSection.jsx`, `ProfessionalDetailsSection.jsx`, and `SocialLinksSection.jsx`.
-
-`src/components/mentee/profile/` currently contains `MenteeEditProfileShell.jsx`.
-
-### `src/components/mentor/`
-
-- `dashboard/` - mentor dashboard views.
-- `onboarding/` - mentor onboarding forms and sections.
-- `profile/` - mentor profile editing shells.
-- `PhoneNumberField.jsx`, `ResumeUpload.jsx`, `VerificationFormShell.jsx`, `VerificationInstructionsModal.jsx`, and `WorkExperienceUpload.jsx` - mentor verification and upload flow components.
-
-`src/components/mentor/dashboard/` currently contains `ComingSoon.jsx`, `DashboardLayout.jsx`, `MentorHomeTab.jsx`, `MentorshipPrefsCard.jsx`, `ProfessionalInfoCard.jsx`, `ProfileCard.jsx`, `ProfileTab.jsx`, `SkillsCard.jsx`, `SocialCard.jsx`, `Topbar.jsx`, plus `availability/`, `earnings/`, and `requests/`.
-
-`src/components/mentor/dashboard/availability/` currently contains `AvailabilityTab.jsx`, `CalendarAvailabilitySection.jsx`, `IntegrationsSection.jsx`, and `TimezoneDurationSection.jsx`.
-
-`src/components/mentor/dashboard/earnings/` currently contains `TrackEarningsTab.jsx`.
-
-`src/components/mentor/dashboard/requests/` currently contains `MenteeProfileModal.jsx`, `ReferModal.jsx`, `ReferredByProfileModal.jsx`, `RequestActionModal.jsx`, `RequestCard.jsx`, and `RequestsTab.jsx`.
-
-`src/components/mentor/onboarding/` currently contains `OnboardingFormShell.jsx`, `PersonalInfoSection.jsx`, `PreferencesSection.jsx`, `ProfessionalInfoSection.jsx`, `SkillsSection.jsx`, and `SocialLinksSection.jsx`.
-
-`src/components/mentor/profile/` currently contains `MentorEditProfileShell.jsx`.
-
-### `src/components/shared/`
-
-- `ConnectsTab.jsx` - shared connect dashboard entry used by the shared dashboard shell.
-
-### `src/components/shared-dashboard/`
-
-- `SharedDashboardLayout.jsx`
-- `SharedSidebar.jsx`
-- `SharedTopbar.jsx`
-- `tabs/` - overview, chat, goals, notes, notifications, and additional-session tabs.
-
-`src/components/shared-dashboard/tabs/` currently contains `AdditionalSessionPaymentModal.jsx`, `FeedbackModal.jsx`, `PrivateNotesTab.jsx`, `ReportModal.jsx`, `ReportSuccessModal.jsx`, `SharedAdditionalSessionTab.jsx`, `SharedChatTab.jsx`, `SharedGoalsTab.jsx`, `SharedHomeTab.jsx`, `SharedNotesTab.jsx`, `SharedNotificationsTab.jsx`, `SharedReportTab.jsx`, plus `goals/` and `utils/`.
-
-`src/components/shared-dashboard/tabs/goals/` currently contains `GoalForm.jsx`, `MilestoneList.jsx`, `SessionCard.jsx`, and `TimelineTracker.jsx`.
-
-`src/components/shared-dashboard/tabs/utils/` currently contains `notesHelpers.js`.
-
-### `src/components/ui/`
-
-- `connects/` - connect card and layout primitives used by connect-related screens.
-
-`src/components/ui/connects/` currently contains `ConnectCard.jsx` and `ConnectsLayout.jsx`.
-
-## `src/config/`
-
-- `onboardingFields.js` - onboarding field definitions used by mentor and mentee shells.
-
-## `src/constants/`
-
-- `httpStatus.js` - shared HTTP status helpers.
-- `images.js` - central image-path constants.
-- `menteeNavItems.jsx` - mentee nav configuration.
-- `mentorNavItems.jsx` - mentor nav configuration.
-
-## `src/context/`
-
-- `AdminAuthContext.jsx` - admin auth state and session bootstrap.
-- `ToastContext.jsx` - toast provider wrapper.
-
-## `src/hooks/`
-
-Reusable hooks for fetching data, mutating state, and tying UI to the API.
-
-Current files include `useAvailability.js`, `useChat.js`, `useConnectRequest.js`, `useGoals.js`, `useGoogleAuth.js`, `useMenteeDashboard.jsx`, `useMenteeEditProfile.js`, `useMenteeOnboarding.js`, `useMenteeSettings.js`, `useMentorDashboard.js`, `useMentorEditProfile.js`, `useMentorSearch.js`, `useMentorSettings.js`, `useNotes.js`, `useOngoingConnects.js`, `usePrivateNotes.js`, `usePushNotification.js`, `useReport.js`, `useReportComplaint.js`, `useRequestHistory.js`, `useRespondToRequest.js`, `useSessions.js`, `useSlotLock.js`, `useSocketToast.js`, `useTrackEarnings.js`, and `useUnreadCount.js`.
-
-## `src/mappers/`
-
-Normalization helpers that convert API payloads into stable client objects.
-
-Current files include `connectsMapper.js`, `earningsMapper.js`, `goalsMapper.js`, `menteeMapper.js`, `mentorMapper.js`, `notificationMapper.js`, `reportMapper.js`, `sessionsMapper.js`, `settingsMapper.js`, and `userMapper.js`.
-
-## `src/molecules/`
-
-- `ContactModal.jsx`
-- `DotIndicator.jsx`
-- `FeatureCard.jsx`
-- `HeroSlider.jsx`
-- `RegisterDropdownItem.jsx`
-- `StarRating.jsx`
-- `StatCard.jsx`
-- `SuccessCard.jsx`
-- `TermsAndConditionsModal.jsx`
-- `TestimonialCard.jsx`
-
-These are small composed UI pieces used by landing pages, onboarding, and auth screens.
-
-## `src/organisms/`
-
-- `Footer.jsx`
-- `Hero.jsx`
-- `Missions.jsx`
-- `Navbar.jsx`
-- `Testimonials.jsx`
-
-These are larger page sections, mostly for the public landing page.
-
-## `src/pages/`
-
-Route-level screens.
-
-- `ForgotPassword.jsx`
-- `LoginMentee.jsx`
-- `LoginMentor.jsx`
-- `MenteeDashboard.jsx`
-- `MenteeOnboarding.jsx`
-- `MentorDashboard.jsx`
-- `MentorMatchmaking.jsx`
-- `MentorOnboarding.jsx`
-- `MentorVerification.jsx`
-- `NotFound.jsx`
-- `Register.jsx`
-- `RegisterMentee.jsx`
-- `RegisterMentor.jsx`
-- `SSOCallback.jsx`
-- `SharedDashboardPage.jsx`
-- `VerifyEmail.jsx`
-- `admin/` - admin entry screens.
-- `shared/` - shared landing/home screens.
-
-`src/pages/admin/` currently contains `AdminEngagements.jsx`, `AdminLogin.jsx`, `AdminPayments.jsx`, `AdminReports.jsx`, `AdminSettings.jsx`, `AdminUserManagement.jsx`, `AdminVerifications.jsx`, and `AdminWalletRequests.jsx`.
-
-`src/pages/shared/` currently contains `Home.jsx`.
+## `src/lib/`
+Infrastructure, not business logic.
+- `axiosInstance.js` - authenticated axios client with refresh-token retry.
+- `adminAxiosInstance.js` - separate axios client for admin session cookies.
+- `apiResponse.js`, `cookies.js`, `logger.js`, `httpStatus.js`
+- `mappers/userMapper.js` - generic user-shape mapper shared by `authSlice` and `dashboardUserSlice`.
+- `validation/schemas.js`
 
 ## `src/store/`
+- `index.js` - Redux store composition only. Every feature slice above is combined here; no slice logic lives in this folder anymore.
 
-- `index.js` - Redux store composition.
-- `slices/` - feature slices for auth, onboarding, shared dashboard state, and dashboard profile state.
+## `src/config/`
+- `onboardingFields.js` - onboarding field definitions shared by both mentee and mentor onboarding.
 
-`src/store/slices/` currently contains `authSlice.js`, `dashboardUserSlice.js`, `menteeOnboardingSlice.js`, `mentorOnboardingSlice.js`, and `sharedDashboardSlice.js`.
-
-## `src/templates/`
-
-- `PublicLayout.jsx` - public-facing layout wrapper.
+## `src/constants/`
+- `images.js` - central image-path constants.
 
 ## `src/test/`
-
 - `setup.js` - Vitest setup and test environment bootstrap.
 
-## `src/ui/`
+## Why this shape
 
-- `OnboardingProgressBar.jsx`
-- `Testimonials.jsx`
-- `ai.jsx`
-
-These are shared UI helpers that sit outside the domain-specific component trees.
-
-## `src/utils/`
-
-Current files include `adminAxiosInstance.js`, `apiResponse.js`, `axiosInstance.js`, `cookies.js`, `httpStatus.js`, `logger.js`, `sessionFormat.js`, and `validation/`.
-
-`src/utils/validation/` currently contains `schemas.js`.
+- **Colocation.** Fixing a bug in mentor onboarding means everything you need — component, hook, api call, slice, mapper — is in one folder, not spread across five top-level ones.
+- **Deletability.** Dropping a feature means deleting one folder, not hunting through `hooks/`, `api/`, `store/slices/`, and `mappers/` separately.
+- **One place for "generic UI."** `components/ui/` replaces the old five-way split across `atoms/`, `molecules/`, `organisms/`, `ui/`, and `components/ui/`.
+- **Every API call has a name.** No component reaches for `axiosInstance` directly anymore — each domain has one `api/*.api.js` file with named functions, so grepping for an endpoint always lands you in the right feature.
