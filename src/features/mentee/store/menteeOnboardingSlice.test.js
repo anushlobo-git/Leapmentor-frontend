@@ -3,12 +3,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { configureStore } from "@reduxjs/toolkit";
+import axiosInstance from "@lib/axiosInstance";
 import menteeOnboardingReducer, {
   submitMenteeOnboarding,
   clearOnboardingMessages,
 } from "./menteeOnboardingSlice";
 
-// Mock axiosInstance
 vi.mock("@lib/axiosInstance", () => ({
   default: {
     post: vi.fn(),
@@ -114,6 +115,18 @@ describe("menteeOnboardingSlice", () => {
         expect(state.successMsg).toBe("Onboarding complete!");
       });
 
+      it("should use default success message when payload is undefined", () => {
+        const action = {
+          type: submitMenteeOnboarding.fulfilled.type,
+        };
+        const state = menteeOnboardingReducer(
+          { loading: true, error: null, successMsg: null },
+          action
+        );
+
+        expect(state.successMsg).toBe("Onboarding complete!");
+      });
+
       it("should keep error when fulfilled (slice doesn't clear it)", () => {
         const action = {
           type: submitMenteeOnboarding.fulfilled.type,
@@ -163,36 +176,71 @@ describe("menteeOnboardingSlice", () => {
     });
 
     describe("async thunk behavior", () => {
-      // Note: Testing actual async thunk execution requires more complex setup
-      // These tests focus on the reducer behavior with action types
-      it("should handle successful API call payload", () => {
-        const action = {
-          type: submitMenteeOnboarding.fulfilled.type,
-          payload: { message: "Profile created" },
-        };
-        const state = menteeOnboardingReducer(
-          { loading: true, error: null, successMsg: null },
-          action
-        );
+      const createStore = () =>
+        configureStore({ reducer: menteeOnboardingReducer });
 
-        expect(state.loading).toBe(false);
-        expect(state.successMsg).toBe("Profile created");
-        expect(state.error).toBeNull();
+      it("posts the payload and defaults missing profilePictureFileName to empty string", async () => {
+        axiosInstance.post.mockResolvedValue({
+          data: { message: "Profile created" },
+        });
+        const store = createStore();
+
+        await store.dispatch(submitMenteeOnboarding({ name: "Ada" }));
+
+        expect(axiosInstance.post).toHaveBeenCalledWith("/mentee-profile", {
+          name: "Ada",
+          profilePictureFileName: "",
+        });
+        expect(store.getState().loading).toBe(false);
+        expect(store.getState().successMsg).toBe("Profile created");
       });
 
-      it("should handle API error payload", () => {
-        const action = {
-          type: submitMenteeOnboarding.rejected.type,
-          payload: "Validation failed",
-        };
-        const state = menteeOnboardingReducer(
-          { loading: true, error: null, successMsg: null },
-          action
-        );
+      it("keeps an existing profilePictureFileName and handles undefined payload", async () => {
+        axiosInstance.post.mockResolvedValue({ data: {} });
+        const store = createStore();
 
-        expect(state.loading).toBe(false);
-        expect(state.error).toBe("Validation failed");
-        expect(state.successMsg).toBeNull();
+        await store.dispatch(
+          submitMenteeOnboarding({ profilePictureFileName: "pic.png" }),
+        );
+        expect(axiosInstance.post).toHaveBeenCalledWith("/mentee-profile", {
+          profilePictureFileName: "pic.png",
+        });
+
+        axiosInstance.post.mockResolvedValue({ data: { message: "ok" } });
+        await store.dispatch(submitMenteeOnboarding(undefined));
+        expect(axiosInstance.post).toHaveBeenCalledWith("/mentee-profile", {
+          profilePictureFileName: "",
+        });
+      });
+
+      it("rejects with the API response message", async () => {
+        axiosInstance.post.mockRejectedValue({
+          response: { data: { message: "Validation failed" } },
+        });
+        const store = createStore();
+
+        await store.dispatch(submitMenteeOnboarding({ name: "Ada" }));
+
+        expect(store.getState().loading).toBe(false);
+        expect(store.getState().error).toBe("Validation failed");
+      });
+
+      it("rejects with err.message when the response has no message", async () => {
+        axiosInstance.post.mockRejectedValue({ message: "Network down" });
+        const store = createStore();
+
+        await store.dispatch(submitMenteeOnboarding({ name: "Ada" }));
+
+        expect(store.getState().error).toBe("Network down");
+      });
+
+      it("rejects with undefined when neither response nor message exists", async () => {
+        axiosInstance.post.mockRejectedValue({});
+        const store = createStore();
+
+        await store.dispatch(submitMenteeOnboarding({ name: "Ada" }));
+
+        expect(store.getState().error).toBeUndefined();
       });
     });
   });

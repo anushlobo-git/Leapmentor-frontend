@@ -1,4 +1,0 @@
-/**
- * Copyright (c) 2026 Leapmentor. All rights reserved.
- */
-

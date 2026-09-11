@@ -119,6 +119,22 @@ describe("DashboardLayout component", () => {
     expect(DashboardShell).toHaveBeenCalledTimes(1);
     const passedProps = vi.mocked(DashboardShell).mock.calls[0][0];
     expect(passedProps.useDashboardData).toBe(useMentorDashboard);
+    expect(passedProps.listenForTabEvent).toBeUndefined();
+    expect(passedProps.tabs.map((tab) => tab.key)).toEqual([
+      "home",
+      "profile",
+      "availability",
+      "requests",
+      "connects",
+      "notifications",
+      "earnings",
+      "help",
+    ]);
+    expect(passedProps.tabs.find((tab) => tab.key === "profile").getProps).toBeUndefined();
+    expect(passedProps.tabs.find((tab) => tab.key === "availability").getProps).toBeUndefined();
+    passedProps.tabs.forEach((tab) => {
+      expect(tab.Component).toBeTruthy();
+    });
     expect(passedProps.loadingConfig).toEqual({
       spinnerBorderClass: "border-t-blue-600",
       message: "Loading...",

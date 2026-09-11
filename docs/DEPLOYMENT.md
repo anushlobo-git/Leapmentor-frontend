@@ -1,6 +1,6 @@
 # Deployment
 
-This repository ships a frontend build only. There is no CI/CD workflow checked in.
+This repository ships a frontend build only. The application is built with Vite and TypeScript, and there is no CI/CD workflow checked in.
 
 ## Build
 
@@ -9,6 +9,8 @@ npm run build
 ```
 
 The build output goes to `dist/`.
+
+Run `npm run typecheck` before the build to validate TypeScript without emitting files. The build itself is the final Vite compilation check.
 
 ## Runtime And Build Environment Variables
 
@@ -39,3 +41,7 @@ The root `Dockerfile` does the following:
 ## CI/CD
 
 No CI/CD configuration is present in the repository tree provided here. There is no `.github/workflows` directory or equivalent pipeline config checked in.
+
+## Generated Artifacts
+
+Do not deploy or commit local analysis output. `dist/` is the deployable build output; `coverage/` contains local test coverage; `.scannerwork/` is the SonarQube Scanner working directory. The latter two are ignored by `.gitignore`.
