@@ -15,9 +15,12 @@ import authReducer, {
   resetPassword,
   logout,
   setUser,
+  setAdminSession,
+  bootstrapAdminSession,
   clearMessages,
   selectIsAuthenticated,
   selectIsVerified,
+  selectRole,
 } from "./authSlice";
 
 // Mock mapAuthUser
@@ -29,6 +32,8 @@ describe("authSlice", () => {
   const initialState = {
     user: null,
     accessToken: null,
+    role: null,
+    adminBootstrapping: true,
     loading: false,
     sending: false,
     error: null,
@@ -105,6 +110,97 @@ describe("authSlice", () => {
     });
   });
 
+  describe("setAdminSession", () => {
+    it("should store the admin object and mark the session as admin", () => {
+      const action = setAdminSession({
+        name: "Admin User",
+        email: "a@leapmentor.app",
+      });
+      const state = authReducer(
+        { ...initialState, adminBootstrapping: true },
+        action,
+      );
+
+      expect(state.user).toEqual({
+        name: "Admin User",
+        email: "a@leapmentor.app",
+      });
+      expect(state.role).toBe("admin");
+      expect(state.adminBootstrapping).toBe(false);
+    });
+
+    it("should clear the session when called with null (e.g. on logout)", () => {
+      const loggedInState = {
+        ...initialState,
+        user: { name: "Admin User" },
+        role: "admin",
+      };
+      const state = authReducer(loggedInState, setAdminSession(null));
+
+      expect(state.user).toBeNull();
+      expect(state.role).toBeNull();
+    });
+  });
+
+  describe("bootstrapAdminSession", () => {
+    it("pending: should mark the session as bootstrapping", () => {
+      const action = { type: bootstrapAdminSession.pending.type };
+      const state = authReducer(initialState, action);
+
+      expect(state.adminBootstrapping).toBe(true);
+    });
+
+    it("fulfilled: should store the admin session returned by /admin/auth/me", () => {
+      const action = {
+        type: bootstrapAdminSession.fulfilled.type,
+        payload: { name: "Admin User" },
+      };
+      const state = authReducer(
+        { ...initialState, adminBootstrapping: true },
+        action,
+      );
+
+      expect(state.adminBootstrapping).toBe(false);
+      expect(state.user).toEqual({ name: "Admin User" });
+      expect(state.role).toBe("admin");
+    });
+
+    it("rejected: should clear a stale admin session, if one was set", () => {
+      const action = { type: bootstrapAdminSession.rejected.type };
+      const state = authReducer(
+        {
+          ...initialState,
+          adminBootstrapping: true,
+          user: { name: "Admin User" },
+          role: "admin",
+        },
+        action,
+      );
+
+      expect(state.adminBootstrapping).toBe(false);
+      expect(state.user).toBeNull();
+      expect(state.role).toBeNull();
+    });
+
+    it("rejected: should leave a mentor/mentee session alone (no admin role to clear)", () => {
+      const action = { type: bootstrapAdminSession.rejected.type };
+      const state = authReducer(
+        {
+          ...initialState,
+          adminBootstrapping: true,
+          user: { name: "Mentor User", mapped: true },
+          accessToken: "token123",
+          role: null,
+        },
+        action,
+      );
+
+      expect(state.adminBootstrapping).toBe(false);
+      expect(state.user).toEqual({ name: "Mentor User", mapped: true });
+      expect(state.accessToken).toBe("token123");
+    });
+  });
+
   describe("setUser", () => {
     it("should set user and accessToken", () => {
       const action = setUser({
@@ -113,7 +209,11 @@ describe("authSlice", () => {
       });
       const state = authReducer(initialState, action);
 
-      expect(state.user).toEqual({ name: "Test User", email: "test@example.com", mapped: true });
+      expect(state.user).toEqual({
+        name: "Test User",
+        email: "test@example.com",
+        mapped: true,
+      });
       expect(state.accessToken).toBe("token123");
     });
 
@@ -183,7 +283,9 @@ describe("authSlice", () => {
         expect(state.loading).toBe(false);
         expect(state.accessToken).toBe("token123");
         expect(state.user).toEqual({ name: "Test User", mapped: true });
-        expect(state.successMsg).toBe("Account created! Please verify your email.");
+        expect(state.successMsg).toBe(
+          "Account created! Please verify your email.",
+        );
       });
 
       it("should handle null user in payload", () => {
@@ -311,7 +413,9 @@ describe("authSlice", () => {
         const state = authReducer({ ...initialState, loading: true }, action);
 
         expect(state.loading).toBe(false);
-        expect(state.successMsg).toBe("Email verified! Redirecting to login...");
+        expect(state.successMsg).toBe(
+          "Email verified! Redirecting to login...",
+        );
       });
     });
 
@@ -350,7 +454,9 @@ describe("authSlice", () => {
         const state = authReducer({ ...initialState, loading: true }, action);
 
         expect(state.loading).toBe(false);
-        expect(state.successMsg).toBe("Email verified! Redirecting to login...");
+        expect(state.successMsg).toBe(
+          "Email verified! Redirecting to login...",
+        );
         expect(state.verifiedRole).toBe("mentor");
       });
 
@@ -470,7 +576,9 @@ describe("authSlice", () => {
         const state = authReducer({ ...initialState, loading: true }, action);
 
         expect(state.loading).toBe(false);
-        expect(state.successMsg).toBe("Password reset! Redirecting to login...");
+        expect(state.successMsg).toBe(
+          "Password reset! Redirecting to login...",
+        );
       });
     });
 
@@ -524,6 +632,41 @@ describe("authSlice", () => {
       it("should return false when both are null", () => {
         const state = { auth: initialState };
         expect(selectIsAuthenticated(state)).toBe(false);
+      });
+
+      it("should return true for an admin session even without an accessToken (cookie-only session)", () => {
+        const state = {
+          auth: {
+            ...initialState,
+            user: { name: "Admin User" },
+            role: "admin",
+            accessToken: null,
+          },
+        };
+        expect(selectIsAuthenticated(state)).toBe(true);
+      });
+
+      it("should return false for an admin role with no user (session cleared)", () => {
+        const state = {
+          auth: {
+            ...initialState,
+            user: null,
+            role: "admin",
+          },
+        };
+        expect(selectIsAuthenticated(state)).toBe(false);
+      });
+    });
+
+    describe("selectRole", () => {
+      it("should return the current role", () => {
+        const state = { auth: { ...initialState, role: "admin" } };
+        expect(selectRole(state)).toBe("admin");
+      });
+
+      it("should return null when no role is set (mentor/mentee sessions)", () => {
+        const state = { auth: initialState };
+        expect(selectRole(state)).toBeNull();
       });
     });
 

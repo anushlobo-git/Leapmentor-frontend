@@ -5,6 +5,20 @@
 import { afterEach, describe, expect, it, vi, beforeEach } from "vitest";
 import logger from "./logger";
 
+// Stub the Logtail SDK so tests never hit the real network regardless of
+// whatever VITE_LOGTAIL_SOURCE_TOKEN is set to in this environment, and so
+// we can assert on exactly what payload logger.ts would ship to Better Stack.
+// vi.mock calls are hoisted above imports by Vitest, so this takes effect
+// before logger.ts (imported above) evaluates `new Logtail(sourceToken)`.
+const { logtailInstance } = vi.hoisted(() => ({
+  logtailInstance: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+vi.mock("@logtail/browser", () => ({
+  Logtail: vi.fn(function Logtail() {
+    return logtailInstance;
+  }),
+}));
+
 describe("logger", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -14,57 +28,81 @@ describe("logger", () => {
     vi.restoreAllMocks();
   });
 
-  describe("logger.info", () => {
-    it("should call logtail.info when logtail is available", () => {
-      const logtailInfoSpy = vi.fn();
-      const consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
-
-      // Mock the logtail module
-      vi.doMock("@logtail/browser", () => ({
-        default: class Logtail {
-          info = logtailInfoSpy;
-        },
-      }));
-
-      logger.info("test message", { key: "value" });
-      expect(consoleInfoSpy).toHaveBeenCalled();
-    });
-
-    it("should not throw when logging fails", () => {
+  describe("logger.info (disabled — no-op per review)", () => {
+    it("should not write to the browser console", () => {
       const consoleInfoSpy = vi
         .spyOn(console, "info")
-        .mockImplementation(() => {
-          throw new Error("Console error");
-        });
+        .mockImplementation(() => {});
 
-      expect(() => logger.info("test")).not.toThrow();
-      consoleInfoSpy.mockRestore();
+      logger.info("test message", { key: "value" });
+
+      expect(consoleInfoSpy).not.toHaveBeenCalled();
     });
 
-    it("should handle empty message", () => {
-      const consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+    it("should not send anything to Better Stack (Logtail)", () => {
+      logger.info("test message", { key: "value" });
 
-      logger.info("", { key: "value" });
-      expect(consoleInfoSpy).toHaveBeenCalled();
-      consoleInfoSpy.mockRestore();
+      expect(logtailInstance.info).not.toHaveBeenCalled();
     });
 
-    it("should handle no context", () => {
-      const consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
-
-      logger.info("test message");
-      expect(consoleInfoSpy).toHaveBeenCalled();
-      consoleInfoSpy.mockRestore();
+    it("should never throw, regardless of arguments", () => {
+      expect(() => logger.info()).not.toThrow();
+      expect(() => logger.info("msg", { anything: true })).not.toThrow();
+      expect(() => logger.info(new Error("boom"))).not.toThrow();
     });
   });
 
   describe("logger.warn", () => {
     it("should call console.warn", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
 
       logger.warn("warning message", { key: "value" });
       expect(consoleWarnSpy).toHaveBeenCalled();
       consoleWarnSpy.mockRestore();
+    });
+
+    it("should ship an ECS-shaped payload to Logtail", () => {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      logger.warn("Refresh token expired — redirecting to login", {
+        correlationId: "abc-123",
+        url: "/auth/refresh",
+        method: "post",
+        status: 401,
+      });
+
+      expect(logtailInstance.warn).toHaveBeenCalledTimes(1);
+      const [message, meta] = logtailInstance.warn.mock.calls[0];
+
+      expect(message).toBe("Refresh token expired — redirecting to login");
+      expect(meta).toMatchObject({
+        "log.level": "warn",
+        "ecs.version": "8.11.0",
+        service: { name: "leapmentor-frontend" },
+        trace: { id: "abc-123" },
+        url: { path: "/auth/refresh" },
+        http: {
+          request: { method: "post" },
+          response: { status_code: 401 },
+        },
+      });
+    });
+
+    it("should fold unrecognized context keys into ECS `labels`", () => {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      logger.warn("Socket toast waiting for access token", {
+        roomId: "room-42",
+        attempt: 2,
+      });
+
+      const [, meta] = logtailInstance.warn.mock.calls[0];
+      expect(meta.labels).toEqual({ roomId: "room-42", attempt: 2 });
+      // These aren't standard ECS fields, so they must not leak onto the
+      // top-level meta object outside of `labels`.
+      expect(meta.roomId).toBeUndefined();
     });
 
     it("should not throw when logging fails", () => {
@@ -79,7 +117,9 @@ describe("logger", () => {
     });
 
     it("should handle empty message", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
 
       logger.warn("", { key: "value" });
       expect(consoleWarnSpy).toHaveBeenCalled();
@@ -87,10 +127,22 @@ describe("logger", () => {
     });
 
     it("should handle no context", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
 
       logger.warn("warning message");
       expect(consoleWarnSpy).toHaveBeenCalled();
+
+      const [, meta] = logtailInstance.warn.mock.calls[0];
+      expect(meta).toEqual({
+        "log.level": "warn",
+        "ecs.version": "8.11.0",
+        service: {
+          name: "leapmentor-frontend",
+          environment: expect.any(String),
+        },
+      });
       consoleWarnSpy.mockRestore();
     });
   });
@@ -138,19 +190,43 @@ describe("logger", () => {
       consoleError.mockRestore();
     });
 
+    it("should ship an ECS-shaped payload to Logtail, with error.type/stack_trace populated", () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      logger.error("Server internal error response", {
+        correlationId: "corr-9",
+        url: "/mentor/sessions",
+        status: 500,
+        stack: "Error: boom\n  at foo.js:1:1",
+        name: "Error",
+      });
+
+      expect(logtailInstance.error).toHaveBeenCalledTimes(1);
+      const [, meta] = logtailInstance.error.mock.calls[0];
+
+      expect(meta["log.level"]).toBe("error");
+      expect(meta.trace).toEqual({ id: "corr-9" });
+      expect(meta.url).toEqual({ path: "/mentor/sessions" });
+      expect(meta.http.response).toEqual({ status_code: 500 });
+      expect(meta.error).toEqual({
+        stack_trace: "Error: boom\n  at foo.js:1:1",
+        type: "Error",
+      });
+    });
+
     it("should not throw when logging fails", () => {
-      const consoleError = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {
-          throw new Error("Console error");
-        });
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {
+        throw new Error("Console error");
+      });
 
       expect(() => logger.error("test")).not.toThrow();
       consoleError.mockRestore();
     });
 
     it("should handle empty message", () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       logger.error("", { key: "value" });
       expect(consoleError).toHaveBeenCalled();
@@ -158,7 +234,9 @@ describe("logger", () => {
     });
 
     it("should handle no context", () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       logger.error("error message");
       expect(consoleError).toHaveBeenCalled();
@@ -375,10 +453,14 @@ describe("logger", () => {
 
   describe("formatConsoleArg", () => {
     it("should handle non-serializable objects", () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const obj = Object.create(null);
-      Object.defineProperty(obj, 'circular', {
-        get: function() { return this; }
+      Object.defineProperty(obj, "circular", {
+        get: function () {
+          return this;
+        },
       });
 
       logger.error("test", { problematic: obj });
@@ -390,7 +472,9 @@ describe("logger", () => {
 
   describe("normalizeErrorInput", () => {
     it("should normalize Error objects as message", () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const error = new Error("Test error");
       logger.error(error, { context: "test" });
 
@@ -401,7 +485,9 @@ describe("logger", () => {
     });
 
     it("should handle non-Error messages", () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       logger.error("Regular message", { context: "test" });
 
       const [message] = consoleError.mock.calls[0];

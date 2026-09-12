@@ -58,7 +58,6 @@ const FeedbackModal = ({ onClose, slotIndex, onFeedbackSubmitted }: FeedbackModa
       ? c.mentor?.name || "Mentor"
       : c.mentee?.name || "Mentee";
   });
-  console.log("[DEBUG] FeedbackModal rendering, connectId:", connectId);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [done, setDone] = useState(false);

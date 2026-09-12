@@ -5,6 +5,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import {
   selectIsAuthenticated,
   selectIsVerified,
+  selectRole,
 } from "@features/auth/store/authSlice";
 
 // Mock React Router DOM navigation component
@@ -24,12 +25,14 @@ vi.mock("react-router-dom", () => ({
 // Setup control flags for dynamic Redux selectors state switching
 let mockIsAuthenticated = true;
 let mockIsVerified = true;
+let mockRole = null;
 let mockUser = { email: "user@leapmentor.app", roles: ["mentor"] };
 
 vi.mock("react-redux", () => ({
   useSelector: vi.fn((selectorFn) => {
     if (selectorFn === selectIsAuthenticated) return mockIsAuthenticated;
     if (selectorFn === selectIsVerified) return mockIsVerified;
+    if (selectorFn === selectRole) return mockRole;
     // Execute inline selector (state) => state.auth.user cleanly
     return selectorFn({ auth: { user: mockUser } });
   }),
@@ -38,6 +41,7 @@ vi.mock("react-redux", () => ({
 vi.mock("@features/auth/store/authSlice", () => ({
   selectIsAuthenticated: vi.fn(),
   selectIsVerified: vi.fn(),
+  selectRole: vi.fn(),
 }));
 
 describe("ProtectedRoute", () => {
@@ -49,6 +53,7 @@ describe("ProtectedRoute", () => {
     // Reset defaults
     mockIsAuthenticated = true;
     mockIsVerified = true;
+    mockRole = null;
     mockUser = { email: "user@leapmentor.app", roles: ["mentor"] };
   });
 
@@ -95,7 +100,7 @@ describe("ProtectedRoute", () => {
     expect(navigationNode.getAttribute("data-to")).toBe("/login/mentee");
   });
 
-  it("should fallback to generic global login path when unauthenticated role type is not specifically matched", () => {
+  it("should redirect unauthenticated sessions to the admin login screen path", () => {
     mockIsAuthenticated = false;
 
     render(
@@ -105,16 +110,44 @@ describe("ProtectedRoute", () => {
     );
 
     const navigationNode = screen.getByTestId("mock-navigate");
-    expect(navigationNode.getAttribute("data-to")).toBe("/login");
+    expect(navigationNode.getAttribute("data-to")).toBe("/admin/login");
+  });
+
+  it("should render admin children once an authenticated session carries the admin role", () => {
+    mockRole = "admin";
+
+    render(
+      <ProtectedRoute role="admin">
+        <div data-testid="admin-content">Secret Admin Dashboard</div>
+      </ProtectedRoute>,
+    );
+
+    expect(screen.getByTestId("admin-content")).toBeInTheDocument();
+    expect(screen.queryByTestId("mock-navigate")).not.toBeInTheDocument();
+  });
+
+  it("should redirect an authenticated non-admin session away from admin-only routes", () => {
+    // Authenticated as a mentor/mentee session, not an admin one.
+    mockRole = null;
+
+    render(
+      <ProtectedRoute role="admin">
+        <div>Content</div>
+      </ProtectedRoute>,
+    );
+
+    const navigationNode = screen.getByTestId("mock-navigate");
+    expect(navigationNode).toBeInTheDocument();
+    expect(navigationNode.getAttribute("data-to")).toBe("/admin/login");
   });
 
   it("should prevent cross-dashboard access routing when authenticated session lacks explicit role mapping parameters", () => {
-    // Authenticated user is a mentor, trying to access an admin-only path
+    // Authenticated user is a mentor, trying to access a mentee-only path
     mockUser.roles = ["mentor"];
     global.storedRole = "mentor";
 
     render(
-      <ProtectedRoute role="admin">
+      <ProtectedRoute role="mentee">
         <div>Content</div>
       </ProtectedRoute>,
     );
@@ -160,5 +193,19 @@ describe("ProtectedRoute", () => {
     const navigationNode = screen.getByTestId("mock-navigate");
     const parsedState = JSON.parse(navigationNode.getAttribute("data-state"));
     expect(parsedState.role).toBe("mentor");
+  });
+
+  it("should never apply the email-verification gate to admin sessions", () => {
+    mockRole = "admin";
+    mockIsVerified = false;
+
+    render(
+      <ProtectedRoute role="admin">
+        <div data-testid="admin-content">Secret Admin Dashboard</div>
+      </ProtectedRoute>,
+    );
+
+    expect(screen.getByTestId("admin-content")).toBeInTheDocument();
+    expect(screen.queryByTestId("mock-navigate")).not.toBeInTheDocument();
   });
 });

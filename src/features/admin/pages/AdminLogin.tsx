@@ -5,8 +5,9 @@
 // src/pages/admin/AdminLogin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { adminLogin } from "@features/admin/api/admin.api";
-import { useAdminAuth } from "@features/admin/context/AdminAuthContext";
+import { setAdminSession } from "@features/auth/store/authSlice";
 import { IMAGES } from "@constants/images";
 
 const AdminLogin = () => {
@@ -15,7 +16,7 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const { login } = useAdminAuth(); // ← was: const { setAdmin } = useAdminAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -24,7 +25,7 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       const res = await adminLogin(email, password);
-      login(res.data.admin); // ← was: setAdmin(res.data.admin);
+      dispatch(setAdminSession(res.data.admin));
       navigate("/admin/users");
     } catch (err) {
       setError(

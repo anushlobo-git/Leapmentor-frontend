@@ -2,6 +2,16 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
+// src/lib/axiosInstance.ts
+//
+// Single shared HTTP client for the ENTIRE app — mentor, mentee, and admin
+// requests all go through this one axios instance. Previously admin traffic
+// had its own axios.create() (adminAxiosInstance.ts) with a parallel copy of
+// this same interceptor logic. That meant every new role introduced another
+// hand-rolled client. Instead, this file is "domain aware": it picks the
+// right base URL, auth strategy, refresh endpoint, and redirect target from
+// the request URL, via the AUTH_DOMAINS map below. Adding a new role later
+// means adding one entry to that map — never another axios instance.
 import axios from "axios";
 import { clearAuthRole } from "@lib/cookies";
 import * as Sentry from "@sentry/react";
@@ -13,8 +23,8 @@ import { HTTP_STATUS, isServerError, isRateLimited } from "@lib/httpStatus";
 
 let _store = null;
 /**
- * Injects the Redux store so the axios interceptor can read the current access token
- * and dispatch auth updates during refresh handling.
+ * Injects the Redux store so the axios interceptor can read the current
+ * session (access token / role) and dispatch auth updates during refresh.
  * @param {import('@reduxjs/toolkit').EnhancedStore} store - App Redux store instance.
  * @returns {void}
  */
@@ -22,8 +32,53 @@ export const injectStore = (store) => {
   _store = store;
 };
 
+// ─── AUTH DOMAINS ────────────────────────────────────────────────────────────
+// Every request is classified into exactly one domain based on its URL.
+// The domain decides: which base URL to hit, whether to attach a Bearer
+// token, where the silent-refresh endpoint lives, and where to redirect on
+// an unrecoverable 401. This is the one place role-specific auth behavior
+// lives — everything else in this file is domain-agnostic.
+const DEFAULT_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+// Admin routes are served by the same versioned API unless a deployment
+// explicitly provides a separate admin origin/base path.
+const ADMIN_BASE_URL =
+  import.meta.env.VITE_ADMIN_API_BASE_URL || DEFAULT_BASE_URL;
+
+const AUTH_DOMAINS = {
+  admin: {
+    name: "admin",
+    matches: (url) => !!url && url.startsWith("/admin"),
+    baseURL: ADMIN_BASE_URL,
+    usesBearer: false, // admin session lives entirely in an HttpOnly cookie
+    loginUrl: "/admin/auth/login",
+    refreshUrl: "/admin/auth/refresh",
+    redirectUrl: "/admin/login",
+  },
+  default: {
+    name: "default",
+    matches: () => true, // fallback — mentor/mentee (and anything unclassified)
+    baseURL: DEFAULT_BASE_URL,
+    usesBearer: true,
+    loginUrl: "/auth/login",
+    refreshUrl: "/auth/refresh",
+    redirectUrl: "/login",
+  },
+};
+
+const resolveDomain = (config) => {
+  // Prefer an explicit domain. URL matching remains a safe default for the
+  // conventional /admin/* routes, but some admin endpoints intentionally
+  // share an unprefixed path with user-facing endpoints.
+  if (config?.authDomain === "admin") return AUTH_DOMAINS.admin;
+  if (config?.authDomain === "default") return AUTH_DOMAINS.default;
+  return AUTH_DOMAINS.admin.matches(config?.url)
+    ? AUTH_DOMAINS.admin
+    : AUTH_DOMAINS.default;
+};
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1",
+  baseURL: DEFAULT_BASE_URL,
   withCredentials: true,
   timeout: 15000, // 15s default; override per-call for slow endpoints (e.g. exports)
 });
@@ -31,17 +86,21 @@ const axiosInstance = axios.create({
 // ─── REQUEST INTERCEPTOR ─────────────────────────────────────────────────────
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = _store?.getState().auth.accessToken;
+    const domain = resolveDomain(config);
+    config.baseURL = domain.baseURL;
 
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    if (domain.usesBearer) {
+      const accessToken = _store?.getState().auth.accessToken;
+      if (accessToken) {
+        config.headers["Authorization"] = `Bearer ${accessToken}`;
+      }
     }
 
     const correlationId = uuidv4();
     config.headers["X-Correlation-ID"] = correlationId;
     config.metadata = { correlationId, startTime: Date.now() };
 
-    logger.info("API Request", {
+    logger.info(domain.name === "admin" ? "Admin API Request" : "API Request", {
       method: config.method?.toUpperCase(),
       url: config.url,
       correlationId,
@@ -56,16 +115,24 @@ axiosInstance.interceptors.request.use(
 );
 
 // ─── RESPONSE INTERCEPTOR ────────────────────────────────────────────────────
-let isRefreshing = false;
-let failedQueue = [];
+// Refresh-in-flight state is tracked per domain so a stuck admin refresh
+// can never block or get confused with a concurrent mentor/mentee refresh.
+const isRefreshing = { admin: false, default: false };
+const failedQueue = { admin: [], default: [] };
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
+const processQueue = (domainName, error, token = null) => {
+  failedQueue[domainName].forEach((prom) => {
     if (error) prom.reject(error);
     else prom.resolve(token);
   });
-  failedQueue = [];
+  failedQueue[domainName] = [];
 };
+
+const isRefreshableRequest = (domain, status, originalRequest) =>
+  status === HTTP_STATUS.UNAUTHORIZED &&
+  !originalRequest?._retry &&
+  originalRequest?.url !== domain.refreshUrl &&
+  originalRequest?.url !== domain.loginUrl;
 
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -77,8 +144,9 @@ axiosInstance.interceptors.response.use(
       response.data = unwrapApiResponse(response.data);
     }
 
+    const domain = resolveDomain(response.config);
     const { correlationId, startTime } = response.config.metadata || {};
-    logger.info("API Response", {
+    logger.info(domain.name === "admin" ? "Admin API Response" : "API Response", {
       status: response.status,
       url: response.config.url,
       durationMs: startTime ? Date.now() - startTime : null,
@@ -92,46 +160,47 @@ axiosInstance.interceptors.response.use(
   },
 
   async (error) => {
+    const originalRequest = error?.config;
+    const domain = resolveDomain(originalRequest);
     const status = error?.response?.status;
     const url = error?.config?.url;
     const { correlationId } = error?.config?.metadata || {};
     const message = error?.response?.data?.message || error.message;
-    const originalRequest = error?.config;
+    const isSkipped = originalRequest?._skipAuthRedirect;
+    const logPrefix = domain.name === "admin" ? "Admin " : "";
 
     // 1. Network error / timeout
     if (!error.response) {
       const isTimeout = error.code === "ECONNABORTED";
       logger.error(
         isTimeout
-          ? "API Request Timeout"
-          : "API Network Failure — Server unreachable or CORS rejection",
-        {
-          url,
-          correlationId,
-          message,
-          stack: error.stack,
-        },
+          ? `${logPrefix}API Request Timeout`
+          : `${logPrefix}API Network Failure — Server unreachable or CORS rejection`,
+        { url, correlationId, message, stack: error.stack },
       );
+      // NOTE: preserves each domain's original toast behavior exactly.
+      // Mentor/mentee only ever toasted on a genuine timeout; admin toasted
+      // on any network failure. Unifying these into one shared "always
+      // toast" behavior would be a real UX change, not just a refactor, so
+      // it's kept domain-specific here rather than homogenized.
       if (isTimeout) {
         toast.error("This is taking longer than expected. Please try again.");
+      } else if (domain.name === "admin") {
+        toast.error("Network error. Please check your connection.");
       }
       throw error;
     }
 
     // 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
-    if (
-      status === HTTP_STATUS.UNAUTHORIZED &&
-      !originalRequest._retry &&
-      url !== "/auth/refresh" &&
-      url !== "/auth/login"
-    ) {
-      if (isRefreshing) {
-        // Queue the request until refresh completes
+    if (isRefreshableRequest(domain, status, originalRequest)) {
+      if (isRefreshing[domain.name]) {
         return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
+          failedQueue[domain.name].push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            if (domain.usesBearer && token) {
+              originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            }
             return axiosInstance(originalRequest);
           })
           .catch((err) => {
@@ -140,58 +209,90 @@ axiosInstance.interceptors.response.use(
       }
 
       originalRequest._retry = true;
-      isRefreshing = true;
+      isRefreshing[domain.name] = true;
 
       try {
-        // FIX: lazy-import authSlice actions here to avoid circular dependency
-        const { setUser } = await import("@features/auth/store/authSlice");
+        if (domain.usesBearer) {
+          // FIX: lazy-import authSlice actions here to avoid circular dependency
+          const { setUser } = await import("@features/auth/store/authSlice");
 
-        const { data } = await axiosInstance.post("/auth/refresh");
-        const newAccessToken = data?.accessToken;
+          const { data } = await axiosInstance.post(domain.refreshUrl);
+          const newAccessToken = data?.accessToken;
 
-        // FIX: use _store (not undefined `store`) throughout
-        _store.dispatch(
-          setUser({
-            user: _store.getState().auth.user,
-            accessToken: newAccessToken,
-          }),
-        );
+          _store.dispatch(
+            setUser({
+              user: _store.getState().auth.user,
+              accessToken: newAccessToken,
+            }),
+          );
 
-        processQueue(null, newAccessToken);
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          processQueue(domain.name, null, newAccessToken);
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        } else {
+          // Admin: refresh endpoint just extends the HttpOnly cookie — no
+          // token comes back to the client, and nothing to store.
+          await axiosInstance.post(domain.refreshUrl, null, {
+            _skipAuthRedirect: true,
+          });
+          processQueue(domain.name, null);
+        }
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
+        processQueue(domain.name, refreshError, null);
 
-        // FIX: removed the erroneous second /auth/refresh call that was here
-        // Refresh failed — clear everything and redirect
-        const { logout } = await import("@features/auth/store/authSlice");
-        _store.dispatch(logout());
-        clearAuthRole();
-        logger.warn("Refresh token expired — redirecting to login", {
+        logger.warn(`${logPrefix}Refresh token expired — redirecting to login`, {
           correlationId,
         });
-        globalThis.location.href = "/login";
+
+        if (domain.usesBearer) {
+          const { logout } = await import("@features/auth/store/authSlice");
+          _store.dispatch(logout());
+          clearAuthRole();
+        } else {
+          const { setAdminSession } = await import("@features/auth/store/authSlice");
+          _store?.dispatch(setAdminSession(null));
+        }
+
+        if (!isSkipped) {
+          globalThis.location.href = domain.redirectUrl;
+        }
         throw refreshError;
       } finally {
-        isRefreshing = false;
+        isRefreshing[domain.name] = false;
       }
     }
 
-    // 3. FORBIDDEN — blocked user
-    // FIX: replaced require() (CommonJS) with _store — we already have the reference
-    if (status === HTTP_STATUS.FORBIDDEN && message?.includes("blocked")) {
-      const { logout } = await import("@features/auth/store/authSlice");
-      _store.dispatch(logout());
-      clearAuthRole();
-      logger.warn("Blocked user terminated", { url, correlationId });
-      globalThis.location.href = "/login?reason=blocked";
+    // 3. FORBIDDEN / still-unauthorized after the checks above — blocked or expired session
+    if (
+      status === HTTP_STATUS.FORBIDDEN &&
+      (message?.includes("blocked") || domain.name === "admin")
+    ) {
+      logger.warn(`${logPrefix}Blocked or unauthorized session terminated`, {
+        url,
+        correlationId,
+      });
+
+      if (domain.usesBearer) {
+        const { logout } = await import("@features/auth/store/authSlice");
+        _store.dispatch(logout());
+        clearAuthRole();
+        if (!isSkipped) {
+          globalThis.location.href = `${domain.redirectUrl}?reason=blocked`;
+        }
+      } else {
+        const { setAdminSession } = await import("@features/auth/store/authSlice");
+        _store?.dispatch(setAdminSession(null));
+        if (!isSkipped) {
+          globalThis.location.href = domain.redirectUrl;
+        }
+      }
       throw error;
     }
 
     // 3.5 — Rate limited
     if (isRateLimited(status)) {
-      logger.warn("API rate limit hit", { url, correlationId });
+      logger.warn(`${logPrefix}API rate limit hit`, { url, correlationId });
       toast.error(
         "You're making requests too quickly. Please wait a moment and try again.",
       );
@@ -200,21 +301,21 @@ axiosInstance.interceptors.response.use(
 
     // 4. 5xx — server crash
     if (isServerError(status)) {
-      logger.error("Server internal error response", {
+      logger.error(`${logPrefix}Server internal error response`, {
         status,
         url,
         correlationId,
         message,
       });
       Sentry.captureException(error, {
-        extra: { url, status, correlationId, message },
+        extra: { url, status, correlationId, message, domain: domain.name },
       });
       toast.error("Something went wrong. Please try again.");
       throw error;
     }
 
     // 5. 400, 404, 422 etc.
-    logger.warn("API Client Validation Error", {
+    logger.warn(`${logPrefix}API Client Validation Error`, {
       status,
       url,
       correlationId,

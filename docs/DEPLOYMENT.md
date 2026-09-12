@@ -15,7 +15,7 @@ Run `npm run typecheck` before the build to validate TypeScript without emitting
 ## Runtime And Build Environment Variables
 
 Values observed in the codebase via `import.meta.env`:
-
+- `VITE_ADMIN_API_BASE_URL` (optional override for cookie-based `/admin/*` endpoints; include `/api/v1` when that is the backend API prefix)
 - `VITE_API_BASE_URL`
 - `VITE_SOCKET_URL`
 - `VITE_API_SOCKET_URL`

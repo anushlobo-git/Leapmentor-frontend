@@ -32,9 +32,14 @@ vi.mock("axios", () => ({
 // Mock dynamic import actions from Auth Slice cleanly
 const mockSetUser = vi.fn((payload) => ({ type: "auth/setUser", payload }));
 const mockLogout = vi.fn(() => ({ type: "auth/logout" }));
+const mockSetAdminSession = vi.fn((payload) => ({
+  type: "auth/setAdminSession",
+  payload,
+}));
 vi.mock("@features/auth/store/authSlice", () => ({
   setUser: mockSetUser,
   logout: mockLogout,
+  setAdminSession: mockSetAdminSession,
 }));
 
 // Mock external helper modules
@@ -78,7 +83,7 @@ vi.mock("@lib/httpStatus", () => ({
 }));
 
 // Import target under test after declaring global hoisted module mocks
-import axiosInstance, { injectStore } from "./axiosInstance";
+import { injectStore } from "./axiosInstance";
 import logger from "@lib/logger";
 import { toast } from "sonner";
 import * as Sentry from "@sentry/react";
@@ -141,6 +146,21 @@ describe("Axios Interceptors Instance Engine", () => {
       const finalizedConfig = mockAxiosInstance.requestFulfilled(initialConfig);
 
       expect(finalizedConfig.headers["Authorization"]).toBeUndefined();
+    });
+
+    it("should honor an explicit admin domain for an unprefixed admin endpoint", () => {
+      const config = mockAxiosInstance.requestFulfilled({
+        url: "/support/messages",
+        authDomain: "admin",
+        headers: {},
+      });
+
+      expect(config.baseURL).toBe("http://localhost:5000/api/v1");
+      expect(config.headers.Authorization).toBeUndefined();
+      expect(logger.info).toHaveBeenCalledWith(
+        "Admin API Request",
+        expect.any(Object),
+      );
     });
 
     it("should catch and log request configuration failure rejections natively", () => {

@@ -3,18 +3,24 @@
  */
 
 // src/utils/logger.js
+//
+// Log levels shipped by this app: warn and error only.
+// `info` exists as a callable no-op (see below) — success/informational
+// events (API 2xx responses, socket connects, SSO redirects, etc.) are not
+// sent anywhere, per review: don't ship success/info-level noise (incl.
+// 200/204 responses) to Better Stack. Only genuinely actionable signals
+// (warn/error) go to Better Stack, and only warn/error are shown in the
+// browser console — both per explicit sign-off from the team.
+// Whatever IS shipped to Better Stack is ECS (Elastic Common Schema) shaped
+// — see buildEcsMeta() below — so every log line has predictable field
+// names (`service.*`, `error.*`, `http.*`, `trace.id`) instead of an
+// arbitrary bag of per-call-site keys.
 import { Logtail } from "@logtail/browser"; // Uses the browser SDK, NOT node
 
 const sourceToken = import.meta.env.VITE_LOGTAIL_SOURCE_TOKEN;
 
 // Initialize Logtail only if the token exists (prevents local dev crashes if token is missing)
 const logtail = sourceToken ? new Logtail(sourceToken) : null;
-
-// Info-level console output (e.g. every API request/response) is dev-only —
-// it's not something we want visible to real users in production. Logtail
-// still receives info logs unconditionally, since that's the actual
-// production observability channel.
-const isDev = import.meta.env.DEV;
 
 const SENSITIVE_KEYS = [
   "accessToken",
@@ -168,7 +174,11 @@ function normalizeErrorInput(message, context) {
   if (message instanceof Error) {
     return {
       safeMessage: sanitizeMessage(message.message),
-      safeContext: redactObject({ ...context, stack: message.stack }),
+      safeContext: redactObject({
+        ...context,
+        name: message.name,
+        stack: message.stack,
+      }),
     };
   }
   return {
@@ -177,27 +187,79 @@ function normalizeErrorInput(message, context) {
   };
 }
 
+// ─── ECS (Elastic Common Schema) shaping ────────────────────────────────────
+// Applies ONLY to what we ship to Better Stack (Logtail) — not to the human-
+// readable browser console line, which stays as plain "[LEVEL] message ctx"
+// text for readability. ECS gives every log line a predictable, queryable
+// shape (`service.*`, `error.*`, `http.*`, `trace.id`, ...) instead of an
+// arbitrary bag of ad-hoc keys, so Better Stack views/alerts can filter on
+// consistent field names across the whole app instead of per-call-site keys.
+// Reference: https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html
+const ECS_VERSION = "8.11.0";
+const SERVICE_NAME = "leapmentor-frontend";
+const SERVICE_ENVIRONMENT = import.meta.env.MODE; // "development" | "production" | "test"
+
+/**
+ * Reshapes a level + message + free-form context into an ECS-ish metadata
+ * object suitable for the Logtail SDK's `context` parameter (Logtail itself
+ * supplies `@timestamp`/`dt` and the message; this is everything else).
+ * Known keys (correlationId, url, method, status, stack) are mapped onto
+ * their proper ECS fieldsets (`trace.id`, `url.path`, `http.*`, `error.*`);
+ * anything left over that doesn't have a standard ECS home is preserved
+ * under `labels` so no context data is silently dropped.
+ * @param {"warn"|"error"} level - Severity of this log line.
+ * @param {Record<string, any>} context - Already-redacted context object.
+ * @returns {Record<string, any>} ECS-shaped metadata for the Logtail context param.
+ */
+function buildEcsMeta(level, context) {
+  const meta: Record<string, any> = {
+    "log.level": level,
+    "ecs.version": ECS_VERSION,
+    service: {
+      name: SERVICE_NAME,
+      environment: SERVICE_ENVIRONMENT,
+    },
+  };
+
+  if (!context || typeof context !== "object") return meta;
+
+  const {
+    correlationId,
+    url,
+    method,
+    status,
+    stack,
+    name,
+    ...rest
+  } = context;
+
+  if (correlationId) meta.trace = { id: correlationId };
+  if (url) meta.url = { path: url };
+  if (method || status != null) {
+    meta.http = {};
+    if (method) meta.http.request = { method };
+    if (status != null) meta.http.response = { status_code: status };
+  }
+  if (stack || name) {
+    meta.error = { ...(stack && { stack_trace: stack }), ...(name && { type: name }) };
+  }
+  if (Object.keys(rest).length) meta.labels = rest;
+
+  return meta;
+}
+
 const logger = {
-  info: (message, context = {}) => {
-    const safeMessage = sanitizeMessage(message);
-    const safeContext = redactObject(context);
-    if (logtail) logtail.info(safeMessage, safeContext);
-    // Dev-only: keep console logging for local debugging, but never in prod
-    if (isDev) {
-      try {
-        // This is the app's single sanctioned console wrapper; info-level
-        // logs must show as info, not warnings, in the browser console.
-        // eslint-disable-next-line no-console
-        console.info(buildConsoleMessage("INFO", safeMessage, safeContext));
-      } catch {
-        // no-op: logging must never throw and break the caller's flow
-      }
-    }
-  },
+  // Intentionally a no-op — see the block comment above this object.
+  // Kept as a real (callable) function rather than deleted so the ~35
+  // existing call sites across the app (chat/socket lifecycle, SSO
+  // redirects, invoice downloads, etc.) don't need to change; they simply
+  // stop producing output. This is a one-line revert if info logging is
+  // ever needed again — flip the body back to what warn/error do below.
+  info: (..._args: any[]) => {},
   warn: (message, context = {}) => {
     const safeMessage = sanitizeMessage(message);
     const safeContext = redactObject(context);
-    if (logtail) logtail.warn(safeMessage, safeContext);
+    if (logtail) logtail.warn(safeMessage, buildEcsMeta("warn", safeContext));
     try {
       console.warn(buildConsoleMessage("WARN", safeMessage, safeContext));
     } catch {
@@ -206,7 +268,7 @@ const logger = {
   },
   error: (message, context = {}) => {
     const { safeMessage, safeContext } = normalizeErrorInput(message, context);
-    if (logtail) logtail.error(safeMessage, safeContext);
+    if (logtail) logtail.error(safeMessage, buildEcsMeta("error", safeContext));
     try {
       console.error(buildConsoleMessage("ERROR", safeMessage, safeContext));
     } catch {
