@@ -6,7 +6,7 @@ import {
   selectIsAuthenticated,
   selectIsVerified,
   selectRole,
-} from "@features/auth/store/authSlice";
+} from "@features/auth/models/authSlice";
 
 // Mock React Router DOM navigation component
 vi.mock("react-router-dom", () => ({
@@ -38,7 +38,7 @@ vi.mock("react-redux", () => ({
   }),
 }));
 
-vi.mock("@features/auth/store/authSlice", () => ({
+vi.mock("@features/auth/models/authSlice", () => ({
   selectIsAuthenticated: vi.fn(),
   selectIsVerified: vi.fn(),
   selectRole: vi.fn(),

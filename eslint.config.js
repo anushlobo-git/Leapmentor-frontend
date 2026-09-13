@@ -5,7 +5,11 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist/**", "node_modules/**", "coverage/**", "public/sw.js"] },
+  //it doesn't check for this folder
+  {
+    ignores: ["dist/**", "node_modules/**", "coverage/**", "public/sw.js"],
+  },
+  //use eslint recommended js rules like unused variable and other js mistake.
   js.configs.recommended,
   {
     plugins: {
@@ -13,8 +17,10 @@ export default [
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
+    //globalOptions in language allows ur backend to have browser variable without flagging them like window
     languageOptions: {
       globals: { ...globals.browser, ...globals.es2021 },
+      //it gives the information about how and which style we have written the ts code like (import/export) etc
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
@@ -23,11 +29,14 @@ export default [
         },
       },
     },
+    //checks the react downloaded version
     settings: {
       react: {
         version: "detect",
       },
     },
+    //rules that we want the eslint to find and detect in the application
+    //warn gives yellow signal and error gives red signal 
     rules: {
       "no-unused-vars": "warn",
       "no-undef": "warn",

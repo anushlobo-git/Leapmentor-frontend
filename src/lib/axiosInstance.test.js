@@ -36,7 +36,7 @@ const mockSetAdminSession = vi.fn((payload) => ({
   type: "auth/setAdminSession",
   payload,
 }));
-vi.mock("@features/auth/store/authSlice", () => ({
+vi.mock("@features/auth/models/authSlice", () => ({
   setUser: mockSetUser,
   logout: mockLogout,
   setAdminSession: mockSetAdminSession,

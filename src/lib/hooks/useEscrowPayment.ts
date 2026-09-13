@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { getEscrowStatus } from "@features/connects/api/escrow.api";
+import { getEscrowStatus } from "@features/connects/models/escrow.api";
 import logger from "@lib/logger";
 
 /**

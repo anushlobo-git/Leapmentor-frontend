@@ -5,7 +5,7 @@ import App from "./App";
 import axiosInstance from "@lib/axiosInstance";
 import logger from "@lib/logger";
 import { hasSessionHint, clearAuthRole } from "@lib/cookies";
-import { setUser, logout } from "@features/auth/store/authSlice";
+import { setUser, logout } from "@features/auth/models/authSlice";
 
 // ── 1. Mock External Modules & Libraries ──────────────────────────────────
 vi.mock("react-redux", () => ({
@@ -13,7 +13,7 @@ vi.mock("react-redux", () => ({
   useSelector: vi.fn(),
 }));
 
-vi.mock("@features/auth/store/authSlice", () => ({
+vi.mock("@features/auth/models/authSlice", () => ({
   setUser: vi.fn((payload) => ({ type: "auth/setUser", payload })),
   logout: vi.fn(() => ({ type: "auth/logout" })),
   bootstrapAdminSession: vi.fn(() => ({ type: "auth/bootstrapAdminSession" })),
@@ -37,89 +37,89 @@ vi.mock("@lib/cookies", () => ({
 }));
 
 // ── 2. Mock Page Components & Route Wrappers ──────────────────────────────
-vi.mock("@features/marketing/pages/Home", () => ({
+vi.mock("@features/marketing/views/Home", () => ({
   default: () => <div>Home Component</div>,
 }));
 vi.mock("@app/pages/NotFound", () => ({
   default: () => <div>NotFound Component</div>,
 }));
-vi.mock("@features/auth/pages/Register", () => ({
+vi.mock("@features/auth/views/Register", () => ({
   default: () => <div>Register Component</div>,
 }));
-vi.mock("@features/auth/pages/LoginMentor", () => ({
+vi.mock("@features/auth/views/LoginMentor", () => ({
   default: () => <div>LoginMentor Component</div>,
 }));
-vi.mock("@features/auth/pages/LoginMentee", () => ({
+vi.mock("@features/auth/views/LoginMentee", () => ({
   default: () => <div>LoginMentee Component</div>,
 }));
-vi.mock("@features/auth/pages/VerifyEmail", () => ({
+vi.mock("@features/auth/views/VerifyEmail", () => ({
   default: () => <div>VerifyEmail Component</div>,
 }));
-vi.mock("@features/auth/pages/ForgotPassword", () => ({
+vi.mock("@features/auth/views/ForgotPassword", () => ({
   default: () => <div>ForgotPassword Component</div>,
 }));
-vi.mock("@features/auth/pages/SSOCallback", () => ({
+vi.mock("@features/auth/views/SSOCallback", () => ({
   default: () => <div>SSOCallback Component</div>,
 }));
-vi.mock("@features/mentor/pages/MentorOnboarding", () => ({
+vi.mock("@features/mentor/views/MentorOnboarding", () => ({
   default: () => <div>MentorOnboarding Component</div>,
 }));
-vi.mock("@features/mentor/pages/MentorVerification", () => ({
+vi.mock("@features/mentor/views/MentorVerification", () => ({
   default: () => <div>MentorVerification Component</div>,
 }));
-vi.mock("@features/mentee/pages/MenteeOnboarding", () => ({
+vi.mock("@features/mentee/views/MenteeOnboarding", () => ({
   default: () => <div>MenteeOnboarding Component</div>,
 }));
-vi.mock("@features/mentee/components/profile/MenteeEditProfileShell", () => ({
+vi.mock("@features/mentee/views/profile/MenteeEditProfileShell", () => ({
   default: () => <div>MenteeEditProfileShell Component</div>,
 }));
-vi.mock("@features/mentor/components/profile/MentorEditProfileShell", () => ({
+vi.mock("@features/mentor/views/profile/MentorEditProfileShell", () => ({
   default: () => <div>MentorEditProfileShell Component</div>,
 }));
-vi.mock("@features/mentor/pages/MentorDashboard", () => ({
+vi.mock("@features/mentor/views/MentorDashboard", () => ({
   default: () => <div>MentorDashboard Component</div>,
 }));
-vi.mock("@features/mentee/pages/MenteeDashboard", () => ({
+vi.mock("@features/mentee/views/MenteeDashboard", () => ({
   default: () => <div>MenteeDashboard Component</div>,
 }));
-vi.mock("@features/shared-dashboard/pages/SharedDashboardPage", () => ({
+vi.mock("@features/shared-dashboard/views/SharedDashboardPage", () => ({
   default: () => <div>SharedDashboardPage Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminLogin", () => ({
+vi.mock("@features/admin/views/AdminLogin", () => ({
   default: () => <div>AdminLogin Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminUserManagement", () => ({
+vi.mock("@features/admin/views/AdminUserManagement", () => ({
   default: () => <div>AdminUserManagement Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminEngagements", () => ({
+vi.mock("@features/admin/views/AdminEngagements", () => ({
   default: () => <div>AdminEngagements Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminReports", () => ({
+vi.mock("@features/admin/views/AdminReports", () => ({
   default: () => <div>AdminReports Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminPayments", () => ({
+vi.mock("@features/admin/views/AdminPayments", () => ({
   default: () => <div>AdminPayments Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminSettings", () => ({
+vi.mock("@features/admin/views/AdminSettings", () => ({
   default: () => <div>AdminSettings Component</div>,
 }));
-vi.mock("@features/admin/components/AdminSupportMessages", () => ({
+vi.mock("@features/admin/views/AdminSupportMessages", () => ({
   default: () => <div>AdminSupportMessages Component</div>,
 }));
-vi.mock("@features/admin/components/AdminLayout", () => ({
+vi.mock("@features/admin/views/AdminLayout", () => ({
   default: ({ children }) => <div>AdminLayout Component {children}</div>,
 }));
-vi.mock("@features/admin/pages/AdminWalletRequests", () => ({
+vi.mock("@features/admin/views/AdminWalletRequests", () => ({
   default: () => <div>AdminWalletRequests Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminVerifications", () => ({
+vi.mock("@features/admin/views/AdminVerifications", () => ({
   default: () => <div>AdminVerifications Component</div>,
 }));
 
 vi.mock("@features/auth/components/ProtectedRoute", () => ({
   default: ({ children }) => <div>ProtectedRoute Wrapper {children}</div>,
 }));
-vi.mock("@features/admin/components/AdminSessionGate", async () => {
+vi.mock("@features/admin/views/AdminSessionGate", async () => {
   const { Outlet } = await vi.importActual("react-router-dom");
   return {
     default: () => (

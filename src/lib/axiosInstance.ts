@@ -214,7 +214,7 @@ axiosInstance.interceptors.response.use(
       try {
         if (domain.usesBearer) {
           // FIX: lazy-import authSlice actions here to avoid circular dependency
-          const { setUser } = await import("@features/auth/store/authSlice");
+          const { setUser } = await import("@features/auth/models/authSlice");
 
           const { data } = await axiosInstance.post(domain.refreshUrl);
           const newAccessToken = data?.accessToken;
@@ -246,11 +246,11 @@ axiosInstance.interceptors.response.use(
         });
 
         if (domain.usesBearer) {
-          const { logout } = await import("@features/auth/store/authSlice");
+          const { logout } = await import("@features/auth/models/authSlice");
           _store.dispatch(logout());
           clearAuthRole();
         } else {
-          const { setAdminSession } = await import("@features/auth/store/authSlice");
+          const { setAdminSession } = await import("@features/auth/models/authSlice");
           _store?.dispatch(setAdminSession(null));
         }
 
@@ -274,14 +274,14 @@ axiosInstance.interceptors.response.use(
       });
 
       if (domain.usesBearer) {
-        const { logout } = await import("@features/auth/store/authSlice");
+        const { logout } = await import("@features/auth/models/authSlice");
         _store.dispatch(logout());
         clearAuthRole();
         if (!isSkipped) {
           globalThis.location.href = `${domain.redirectUrl}?reason=blocked`;
         }
       } else {
-        const { setAdminSession } = await import("@features/auth/store/authSlice");
+        const { setAdminSession } = await import("@features/auth/models/authSlice");
         _store?.dispatch(setAdminSession(null));
         if (!isSkipped) {
           globalThis.location.href = domain.redirectUrl;

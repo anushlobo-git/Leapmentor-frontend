@@ -9,7 +9,7 @@ vi.mock("react-redux", () => ({
   useDispatch: () => mockDispatch,
 }));
 
-vi.mock("@features/profile/store/dashboardUserSlice", () => ({
+vi.mock("@features/profile/models/dashboardUserSlice", () => ({
   setUser: vi.fn((user) => ({ type: "SET_USER", payload: user })),
   setProfile: vi.fn((profile) => ({ type: "SET_PROFILE", payload: profile })),
   resetDashboardUser: vi.fn(() => ({ type: "RESET_DASHBOARD_USER" })),
@@ -17,7 +17,7 @@ vi.mock("@features/profile/store/dashboardUserSlice", () => ({
 
 const mockClearBadge = vi.fn();
 const mockIncrementBadge = vi.fn();
-vi.mock("@features/notifications/hooks/useUnreadCount", () => ({
+vi.mock("@features/notifications/presenters/useUnreadCount", () => ({
   default: () => ({
     unreadCount: 5,
     clearBadge: mockClearBadge,
@@ -25,7 +25,7 @@ vi.mock("@features/notifications/hooks/useUnreadCount", () => ({
   }),
 }));
 
-vi.mock("@features/notifications/hooks/useSocketToast", () => ({
+vi.mock("@features/notifications/presenters/useSocketToast", () => ({
   default: vi.fn((onRequestChanged, incrementBadge) => {
     if (onRequestChanged) onRequestChanged();
   }),
