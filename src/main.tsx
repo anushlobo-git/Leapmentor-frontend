@@ -6,11 +6,12 @@ import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "@store/index";
-import { injectStore } from "@lib/axiosInstance"; // FIX: import injectStore
+import { injectStore } from "@lib/http/axiosInstance"; // FIX: import injectStore
 import "./index.css";
 import { ToastProvider } from "@app/providers/ToastContext";
-import { initializeSentry } from "@lib/sentry";
-import * as Sentry from "@sentry/react"; 
+import { initializeSentry } from "@lib/monitoring/sentry";
+import * as Sentry from "@sentry/react";
+import ErrorBoundary from "@components/shared/ErrorBoundary";
 
 const App = lazy(() => import("@app/App"));
 
@@ -45,13 +46,15 @@ createRoot(document.getElementById("root")).render(
       )}
       showDialog
     >
-    <Provider store={store}>
-      <ToastProvider>
-        <Suspense fallback={null}>
-          <App />
-        </Suspense>
-      </ToastProvider>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <ToastProvider>
+          <Suspense fallback={null}>
+            <App />
+          </Suspense>
+        </ToastProvider>
+      </Provider>
+    </ErrorBoundary>
     </Sentry.ErrorBoundary>
   </StrictMode>,
 );

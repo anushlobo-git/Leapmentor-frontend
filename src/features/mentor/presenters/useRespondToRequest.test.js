@@ -5,13 +5,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useRespondToRequest from "./useRespondToRequest";
-import axiosInstance from "@lib/axiosInstance";
+import { respondToRequest, referRequest } from "@features/mentor/models/mentor.api";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    patch: vi.fn(),
-  },
+vi.mock("@features/mentor/models/mentor.api", () => ({
+  respondToRequest: vi.fn(),
+  referRequest: vi.fn(),
 }));
 
 // Mock ToastContext
@@ -38,7 +37,7 @@ describe("useRespondToRequest", () => {
 
   describe("respond - accept", () => {
     it("should accept request successfully", async () => {
-      axiosInstance.patch.mockResolvedValue({ data: {} });
+      respondToRequest.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -51,7 +50,7 @@ describe("useRespondToRequest", () => {
         });
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith("/connect-requests/req1", {
+      expect(respondToRequest).toHaveBeenCalledWith("req1", {
         status: "accepted",
         confirmedSlot: "2024-01-01T10:00:00Z",
       });
@@ -65,7 +64,7 @@ describe("useRespondToRequest", () => {
     });
 
     it("should set responding to true during request", async () => {
-      axiosInstance.patch.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 100)));
+      respondToRequest.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 100)));
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -84,7 +83,7 @@ describe("useRespondToRequest", () => {
 
   describe("respond - reject", () => {
     it("should reject request successfully", async () => {
-      axiosInstance.patch.mockResolvedValue({ data: {} });
+      respondToRequest.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -97,7 +96,7 @@ describe("useRespondToRequest", () => {
         });
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith("/connect-requests/req1", {
+      expect(respondToRequest).toHaveBeenCalledWith("req1", {
         status: "rejected",
         confirmedSlot: null,
       });
@@ -112,7 +111,7 @@ describe("useRespondToRequest", () => {
 
   describe("respond - error", () => {
     it("should handle respond error", async () => {
-      axiosInstance.patch.mockRejectedValue({
+      respondToRequest.mockRejectedValue({
         response: { data: { message: "Invalid request" } },
       });
 
@@ -137,7 +136,7 @@ describe("useRespondToRequest", () => {
     });
 
     it("should handle respond error with no response message", async () => {
-      axiosInstance.patch.mockRejectedValue(new Error("Network error"));
+      respondToRequest.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -161,7 +160,7 @@ describe("useRespondToRequest", () => {
 
   describe("refer", () => {
     it("should refer request successfully", async () => {
-      axiosInstance.patch.mockResolvedValue({ data: {} });
+      referRequest.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -174,9 +173,7 @@ describe("useRespondToRequest", () => {
         });
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith("/connect-requests/req1/refer", {
-        referToMentorId: "mentor2",
-      });
+      expect(referRequest).toHaveBeenCalledWith("req1", "mentor2");
       expect(mockShowToast).toHaveBeenCalledWith({
         type: "info",
         title: "Request Referred",
@@ -187,7 +184,7 @@ describe("useRespondToRequest", () => {
     });
 
     it("should set referring to true during referral", async () => {
-      axiosInstance.patch.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 100)));
+      referRequest.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ data: {} }), 100)));
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -206,7 +203,7 @@ describe("useRespondToRequest", () => {
 
   describe("refer - error", () => {
     it("should handle refer error", async () => {
-      axiosInstance.patch.mockRejectedValue({
+      referRequest.mockRejectedValue({
         response: { data: { message: "Referral failed" } },
       });
 
@@ -231,7 +228,7 @@ describe("useRespondToRequest", () => {
     });
 
     it("should handle refer error with no response message", async () => {
-      axiosInstance.patch.mockRejectedValue(new Error("Network error"));
+      referRequest.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -255,7 +252,8 @@ describe("useRespondToRequest", () => {
 
   describe("multiple operations", () => {
     it("should handle multiple operations sequentially", async () => {
-      axiosInstance.patch.mockResolvedValue({ data: {} });
+      respondToRequest.mockResolvedValue({ data: {} });
+      referRequest.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useRespondToRequest());
 
@@ -279,7 +277,8 @@ describe("useRespondToRequest", () => {
 
       expect(response1).toBe(true);
       expect(response2).toBe(true);
-      expect(axiosInstance.patch).toHaveBeenCalledTimes(2);
+      expect(respondToRequest).toHaveBeenCalledTimes(1);
+      expect(referRequest).toHaveBeenCalledTimes(1);
     });
   });
 });

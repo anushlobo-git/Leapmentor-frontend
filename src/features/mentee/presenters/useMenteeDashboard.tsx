@@ -5,8 +5,8 @@
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axiosInstance from "@lib/axiosInstance";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { getCurrentUser, getMenteeProfile } from "@features/mentee/models/mentee.api";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import { mapMenteeProfile } from "@features/mentee/models/menteeMapper";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 import { useSelector } from "react-redux";
@@ -34,7 +34,7 @@ const useMenteeDashboard = () => {
       return;
     }
     try {
-      const userRes  = await axiosInstance.get("/users/me");
+      const userRes  = await getCurrentUser();
       const userData = userRes.data;
 
       if (!userData.roles?.includes("mentee")) {
@@ -45,7 +45,7 @@ const useMenteeDashboard = () => {
 
       let profileData = null;
       try {
-        const profileRes = await axiosInstance.get("/mentee-profile/me");
+        const profileRes = await getMenteeProfile();
         profileData = profileRes.data;
       } catch (profileErr: any) {
         if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {

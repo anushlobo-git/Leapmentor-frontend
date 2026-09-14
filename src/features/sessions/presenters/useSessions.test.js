@@ -5,14 +5,26 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useSessions from "./useSessions";
-import axiosInstance from "@lib/axiosInstance";
+import {
+  getSessionSlots,
+  updateSlotMeetingLink,
+  markSlotCompleteRequest,
+  addSessionSlot,
+  cancelSessionSlot,
+  rescheduleSessionSlot,
+} from "@features/sessions/models/sessions.api";
 import {
   mapSlot,
   mapSessionSlotsResponse,
 } from "@features/sessions/models/sessionsMapper";
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: { get: vi.fn(), patch: vi.fn(), post: vi.fn() },
+vi.mock("@features/sessions/models/sessions.api", () => ({
+  getSessionSlots: vi.fn(),
+  updateSlotMeetingLink: vi.fn(),
+  markSlotCompleteRequest: vi.fn(),
+  addSessionSlot: vi.fn(),
+  cancelSessionSlot: vi.fn(),
+  rescheduleSessionSlot: vi.fn(),
 }));
 
 vi.mock("@features/sessions/models/sessionsMapper", () => ({
@@ -39,7 +51,7 @@ describe("useSessions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mapSessionSlotsResponse.mockReturnValue(defaultMapped);
-    axiosInstance.get.mockResolvedValue({ data: {} });
+    getSessionSlots.mockResolvedValue({ data: {} });
   });
 
   afterEach(() => {
@@ -56,7 +68,7 @@ describe("useSessions", () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/sessions/req-1/slots");
+      expect(getSessionSlots).toHaveBeenCalledWith("req-1");
       expect(result.current.slots).toEqual(defaultMapped.slots);
       expect(result.current.completedSlots).toBe(0);
       expect(result.current.totalSlots).toBe(2);
@@ -70,12 +82,12 @@ describe("useSessions", () => {
 
       await flush();
 
-      expect(axiosInstance.get).not.toHaveBeenCalled();
+      expect(getSessionSlots).not.toHaveBeenCalled();
       expect(result.current.loading).toBe(true);
     });
 
     it("should set an error message from the API response on fetch failure", async () => {
-      axiosInstance.get.mockRejectedValue({
+      getSessionSlots.mockRejectedValue({
         response: { data: { message: "Session not found" } },
       });
 
@@ -87,7 +99,7 @@ describe("useSessions", () => {
     });
 
     it("should fall back to a default error message on fetch failure", async () => {
-      axiosInstance.get.mockRejectedValue(new Error("network down"));
+      getSessionSlots.mockRejectedValue(new Error("network down"));
 
       const { result } = renderHook(() => useSessions("req-1"));
 
@@ -102,12 +114,12 @@ describe("useSessions", () => {
       });
 
       await waitFor(() => expect(result.current.loading).toBe(false));
-      expect(axiosInstance.get).toHaveBeenCalledWith("/sessions/req-1/slots");
+      expect(getSessionSlots).toHaveBeenCalledWith("req-1");
 
       rerender({ id: "req-2" });
 
       await waitFor(() => {
-        expect(axiosInstance.get).toHaveBeenCalledWith("/sessions/req-2/slots");
+        expect(getSessionSlots).toHaveBeenCalledWith("req-2");
       });
     });
   });
@@ -119,7 +131,7 @@ describe("useSessions", () => {
 
       await flush();
       expect(result.current.loading).toBe(false);
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getSessionSlots).toHaveBeenCalledTimes(1);
 
       await act(async () => {
         vi.advanceTimersByTime(5000);
@@ -127,7 +139,7 @@ describe("useSessions", () => {
         await Promise.resolve();
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledTimes(2);
+      expect(getSessionSlots).toHaveBeenCalledTimes(2);
       expect(result.current.loading).toBe(false);
     });
 
@@ -136,7 +148,7 @@ describe("useSessions", () => {
       const { unmount } = renderHook(() => useSessions("req-1"));
 
       await flush();
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getSessionSlots).toHaveBeenCalledTimes(1);
 
       unmount();
 
@@ -145,7 +157,7 @@ describe("useSessions", () => {
         await Promise.resolve();
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getSessionSlots).toHaveBeenCalledTimes(1);
     });
 
     it("should not set an interval when connectRequestId is missing", async () => {
@@ -157,7 +169,7 @@ describe("useSessions", () => {
         await Promise.resolve();
       });
 
-      expect(axiosInstance.get).not.toHaveBeenCalled();
+      expect(getSessionSlots).not.toHaveBeenCalled();
     });
   });
 
@@ -177,12 +189,12 @@ describe("useSessions", () => {
       });
 
       expect(response).toEqual({ success: false });
-      expect(axiosInstance.patch).not.toHaveBeenCalled();
+      expect(updateSlotMeetingLink).not.toHaveBeenCalled();
     });
 
     it("should patch the meeting link and update the matching slot", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockResolvedValue({ data: { slot: { raw: true } } });
+      updateSlotMeetingLink.mockResolvedValue({ data: { slot: { raw: true } } });
       mapSlot.mockReturnValue({ meetingLink: "https://zoom.us/xyz" });
 
       let response;
@@ -193,9 +205,10 @@ describe("useSessions", () => {
         );
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith(
-        "/sessions/req-1/slots/0/meeting-link",
-        { meetingLink: "https://zoom.us/xyz" },
+      expect(updateSlotMeetingLink).toHaveBeenCalledWith(
+        "req-1",
+        0,
+        "https://zoom.us/xyz",
       );
       expect(response).toEqual({ success: true });
       expect(result.current.slots[0]).toEqual({
@@ -207,7 +220,7 @@ describe("useSessions", () => {
 
     it("should set an error and return failure when the patch request fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue({
+      updateSlotMeetingLink.mockRejectedValue({
         response: { data: { message: "Invalid link" } },
       });
 
@@ -226,7 +239,7 @@ describe("useSessions", () => {
 
     it("should fall back to a default error message when saving the link fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue(new Error("network down"));
+      updateSlotMeetingLink.mockRejectedValue(new Error("network down"));
 
       let response;
       await act(async () => {
@@ -251,7 +264,7 @@ describe("useSessions", () => {
     it("should mark a slot complete and apply the updated slot data", async () => {
       const { result } = await setup();
       const updatedMapped = { ...defaultMapped, completedSlots: 1 };
-      axiosInstance.patch.mockResolvedValue({ data: { raw: "payload" } });
+      markSlotCompleteRequest.mockResolvedValue({ data: { raw: "payload" } });
       mapSessionSlotsResponse.mockReturnValue(updatedMapped);
 
       let response;
@@ -259,17 +272,14 @@ describe("useSessions", () => {
         response = await result.current.markSlotComplete(0);
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith(
-        "/sessions/req-1/slots/0/mark-complete",
-        {},
-      );
+      expect(markSlotCompleteRequest).toHaveBeenCalledWith("req-1", 0);
       expect(response).toEqual({ raw: "payload", success: true });
       expect(result.current.completedSlots).toBe(1);
     });
 
     it("should set an error and return failure when marking complete fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue({
+      markSlotCompleteRequest.mockRejectedValue({
         response: { data: { message: "Cannot complete" } },
       });
 
@@ -284,7 +294,7 @@ describe("useSessions", () => {
 
     it("should fall back to a default error message when marking complete fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue(new Error("boom"));
+      markSlotCompleteRequest.mockRejectedValue(new Error("boom"));
 
       await act(async () => {
         await result.current.markSlotComplete(0);
@@ -310,23 +320,20 @@ describe("useSessions", () => {
 
     it("should add a slot and return its slotId", async () => {
       const { result } = await setup();
-      axiosInstance.post.mockResolvedValue({ data: { slotId: "new-1" } });
+      addSessionSlot.mockResolvedValue({ data: { slotId: "new-1" } });
 
       let response;
       await act(async () => {
         response = await result.current.addSlot(newSlot);
       });
 
-      expect(axiosInstance.post).toHaveBeenCalledWith(
-        "/sessions/req-1/add-slot",
-        newSlot,
-      );
+      expect(addSessionSlot).toHaveBeenCalledWith("req-1", newSlot);
       expect(response).toEqual({ success: true, slotId: "new-1" });
     });
 
     it("should default slotId to null when the API does not return one", async () => {
       const { result } = await setup();
-      axiosInstance.post.mockResolvedValue({ data: {} });
+      addSessionSlot.mockResolvedValue({ data: {} });
 
       let response;
       await act(async () => {
@@ -338,7 +345,7 @@ describe("useSessions", () => {
 
     it("should set an error and return failure when adding a slot fails", async () => {
       const { result } = await setup();
-      axiosInstance.post.mockRejectedValue({
+      addSessionSlot.mockRejectedValue({
         response: { data: { message: "Slot conflict" } },
       });
 
@@ -353,7 +360,7 @@ describe("useSessions", () => {
 
     it("should fall back to a default error message when adding a slot fails", async () => {
       const { result } = await setup();
-      axiosInstance.post.mockRejectedValue(new Error("boom"));
+      addSessionSlot.mockRejectedValue(new Error("boom"));
 
       let response;
       await act(async () => {
@@ -373,37 +380,31 @@ describe("useSessions", () => {
 
     it("should cancel a slot with the given reason", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockResolvedValue({ data: { raw: "ok" } });
+      cancelSessionSlot.mockResolvedValue({ data: { raw: "ok" } });
 
       let response;
       await act(async () => {
         response = await result.current.cancelSlot(1, "Schedule conflict");
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith(
-        "/sessions/req-1/slots/1/cancel",
-        { reason: "Schedule conflict" },
-      );
+      expect(cancelSessionSlot).toHaveBeenCalledWith("req-1", 1, "Schedule conflict");
       expect(response).toEqual({ raw: "ok", success: true });
     });
 
     it("should default the reason to an empty string", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockResolvedValue({ data: {} });
+      cancelSessionSlot.mockResolvedValue({ data: {} });
 
       await act(async () => {
         await result.current.cancelSlot(1);
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith(
-        "/sessions/req-1/slots/1/cancel",
-        { reason: "" },
-      );
+      expect(cancelSessionSlot).toHaveBeenCalledWith("req-1", 1, "");
     });
 
     it("should set an error and return failure when cancelling fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue({
+      cancelSessionSlot.mockRejectedValue({
         response: { data: { message: "Cannot cancel" } },
       });
 
@@ -418,7 +419,7 @@ describe("useSessions", () => {
 
     it("should fall back to a default error message when cancelling fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue(new Error("boom"));
+      cancelSessionSlot.mockRejectedValue(new Error("boom"));
 
       let response;
       await act(async () => {
@@ -444,23 +445,20 @@ describe("useSessions", () => {
 
     it("should reschedule a slot", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockResolvedValue({ data: { raw: "ok" } });
+      rescheduleSessionSlot.mockResolvedValue({ data: { raw: "ok" } });
 
       let response;
       await act(async () => {
         response = await result.current.rescheduleSlot(0, newTime);
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith(
-        "/sessions/req-1/slots/0/reschedule",
-        newTime,
-      );
+      expect(rescheduleSessionSlot).toHaveBeenCalledWith("req-1", 0, newTime);
       expect(response).toEqual({ raw: "ok", success: true });
     });
 
     it("should set an error and return failure when rescheduling fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue({
+      rescheduleSessionSlot.mockRejectedValue({
         response: { data: { message: "Cannot reschedule" } },
       });
 
@@ -478,7 +476,7 @@ describe("useSessions", () => {
 
     it("should fall back to a default error message when rescheduling fails", async () => {
       const { result } = await setup();
-      axiosInstance.patch.mockRejectedValue(new Error("boom"));
+      rescheduleSessionSlot.mockRejectedValue(new Error("boom"));
 
       let response;
       await act(async () => {
@@ -494,12 +492,12 @@ describe("useSessions", () => {
       const { result } = renderHook(() => useSessions("req-1"));
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      axiosInstance.get.mockClear();
+      getSessionSlots.mockClear();
       await act(async () => {
         await result.current.refetch();
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/sessions/req-1/slots");
+      expect(getSessionSlots).toHaveBeenCalledWith("req-1");
     });
 
     it("should accept an updated onAllComplete callback across re-renders", async () => {

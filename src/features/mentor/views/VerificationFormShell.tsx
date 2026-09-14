@@ -3,7 +3,7 @@
  */
 
 // components/mentor/verification/VerificationFormShell.jsx
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import PhoneNumberField     from "@features/mentor/views/PhoneNumberField";
 import ResumeUpload         from "@features/mentor/views/ResumeUpload";
 import WorkExperienceUpload from "@features/mentor/views/WorkExperienceUpload";

@@ -13,13 +13,13 @@
 // the request URL, via the AUTH_DOMAINS map below. Adding a new role later
 // means adding one entry to that map — never another axios instance.
 import axios from "axios";
-import { clearAuthRole } from "@lib/cookies";
+import { clearAuthRole } from "@lib/http/cookies";
 import * as Sentry from "@sentry/react";
 import { v4 as uuidv4 } from "uuid";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { toast } from "sonner";
-import { unwrapApiResponse } from "@lib/apiResponse";
-import { HTTP_STATUS, isServerError, isRateLimited } from "@lib/httpStatus";
+import { unwrapApiResponse } from "@lib/http/apiResponse";
+import { HTTP_STATUS, isServerError, isRateLimited } from "@lib/http/httpStatus";
 
 let _store = null;
 /**

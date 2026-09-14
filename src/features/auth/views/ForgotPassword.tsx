@@ -5,7 +5,7 @@
 // View for the ForgotPassword page — pure JSX. All state/logic lives in
 // presenters/useForgotPasswordPresenter.ts.
 import { useForgotPasswordPresenter } from "@features/auth/presenters/useForgotPasswordPresenter";
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { IMAGES } from "@constants/images";
 import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 

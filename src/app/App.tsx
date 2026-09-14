@@ -5,13 +5,14 @@
 // src/App.jsx
 import { Toaster } from "sonner";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@store/index";
 import { setUser, logout } from "@features/auth/models/authSlice";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
-import { hasSessionHint, clearAuthRole } from "@lib/cookies";
+import { refreshTokenRequest } from "@features/auth/models/auth.api";
+import logger from "@lib/monitoring/logger";
+import { hasSessionHint, clearAuthRole } from "@lib/http/cookies";
+import ErrorBoundary from "@components/shared/ErrorBoundary";
 
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home from "@features/marketing/views/Home";
@@ -109,6 +110,7 @@ const AdminAuthLayout = lazy(
 // ── Inner app — needs access to Redux dispatch ────────────────
 const AppRoutes = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const accessToken = useSelector(
     (state: RootState) => state.auth.accessToken,
   );
@@ -132,7 +134,7 @@ const AppRoutes = () => {
 
     const rehydrate = async () => {
       try {
-        const { data } = await axiosInstance.post("/auth/refresh");
+        const { data } = await refreshTokenRequest();
         if (!data.user || !data.accessToken) {
           throw new Error("Incomplete refresh response");
         }
@@ -154,6 +156,7 @@ const AppRoutes = () => {
   if (rehydrating) return <PageLoader />;
 
   return (
+    <ErrorBoundary resetKeys={[location.pathname]}>
     <Routes>
       {/* ── Home ──────────────────────────────────────── */}
       <Route path="/" element={<Home />} />
@@ -313,6 +316,7 @@ const AppRoutes = () => {
       {/* ── 404 ───────────────────────────────────────── */}
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </ErrorBoundary>
   );
 };
 

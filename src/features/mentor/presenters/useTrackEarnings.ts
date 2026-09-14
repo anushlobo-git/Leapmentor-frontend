@@ -4,8 +4,13 @@
 
 // src/hooks/useTrackEarnings.js
 import { useState, useEffect, useCallback, useRef } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  getMentorEarnings,
+  getMentorEarningsChart,
+  getMentorEarningsPayouts,
+  withdrawMentorEarnings,
+} from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
 import { mapEarningsSummary, mapChartPoint, mapPayoutsResponse } from "@features/mentor/models/earningsMapper";
 
 /**
@@ -55,7 +60,7 @@ const useTrackEarnings = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoadingStats(true);
-      const res = await axiosInstance.get("/mentor/earnings");
+      const res = await getMentorEarnings();
       setStats(mapEarningsSummary(res.data));
     } catch (err) {
       setError(
@@ -73,7 +78,7 @@ const useTrackEarnings = () => {
   const fetchChart = useCallback(async (period) => {
     try {
       setLoadingChart(true);
-      const res = await axiosInstance.get(`/mentor/earnings/chart?period=${period}`);
+      const res = await getMentorEarningsChart(period);
       setChartData(Array.isArray(res.data.data) ? res.data.data.map(mapChartPoint) : []);
     } catch (err) {
       logger.error("Chart fetch error:", { error: err.message });
@@ -91,7 +96,7 @@ const useTrackEarnings = () => {
         limit: String(10),
         ...(currentSearch ? { search: currentSearch } : {}),
       });
-      const res = await axiosInstance.get(`/mentor/earnings/payouts?${params.toString()}`);
+      const res = await getMentorEarningsPayouts(params.toString());
       const mapped = mapPayoutsResponse(res.data);
       setPayouts((prev) => append ? [...prev, ...mapped.payouts] : mapped.payouts);
       setHasMore(mapped.pagination.hasMore);
@@ -162,7 +167,7 @@ const useTrackEarnings = () => {
     try {
       setWithdrawing(true);
       setWithdrawMsg({ type: "", text: "" });
-      const res = await axiosInstance.post("/mentor/earnings/withdraw", {});
+      const res = await withdrawMentorEarnings();
       setWithdrawMsg({ type: "success", text: res.data.message });
       setStats((prev) => ({ ...prev, walletBalance: 0 }));
       setTimeout(() => {

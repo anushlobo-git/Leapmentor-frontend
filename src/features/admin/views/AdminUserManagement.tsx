@@ -5,7 +5,7 @@
 // src/pages/admin/AdminUserManagement.tsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { ComponentType, FocusEvent, MouseEvent, ReactNode } from "react";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { getUserStats, getUserGrowth, getMentorIndustryStats, getUsers, deleteUser, blockUser, unblockUser } from "@features/admin/models/admin.api";
 import AdminLayout          from "@features/admin/views/AdminLayout";
 import StatCard             from "@features/admin/views/common/StatCard";

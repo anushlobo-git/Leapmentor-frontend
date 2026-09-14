@@ -43,7 +43,7 @@ vi.mock("@features/auth/models/authSlice", () => ({
   selectIsAuthenticated: vi.fn(),
 }));
 
-vi.mock("@lib/httpStatus", () => ({
+vi.mock("@lib/http/httpStatus", () => ({
   HTTP_STATUS: {
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,

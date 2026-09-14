@@ -8,7 +8,7 @@ import {
 } from "./sessions.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     get: vi.fn(),
   },
@@ -22,7 +22,7 @@ describe("sessions.api", () => {
   describe("getMentorAvailabilityForConnect", () => {
     it("should call axiosInstance.get with correct endpoint and query params", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getMentorAvailabilityForConnect("req123", 60);

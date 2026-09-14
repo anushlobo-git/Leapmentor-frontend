@@ -4,7 +4,7 @@
 
 // src/features/connects/components/ConnectsLayout.jsx
 import type { ReactNode } from "react";
-import Loader from "@components/common/Loader";
+import Loader from "@components/shared/Loader";
 
 interface EmptyStateConfig {
   message: string;

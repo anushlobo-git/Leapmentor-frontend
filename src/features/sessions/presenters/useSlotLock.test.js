@@ -5,14 +5,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useSlotLock from "./useSlotLock";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  lockSlotRequest,
+  unlockSlotRequest,
+  unlockAllSlotsRequest,
+} from "@features/sessions/models/sessions.api";
+import logger from "@lib/monitoring/logger";
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: { post: vi.fn() },
+vi.mock("@features/sessions/models/sessions.api", () => ({
+  lockSlotRequest: vi.fn(),
+  unlockSlotRequest: vi.fn(),
+  unlockAllSlotsRequest: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { warn: vi.fn(), info: vi.fn(), error: vi.fn() },
 }));
 
@@ -23,7 +29,7 @@ describe("useSlotLock", () => {
 
   describe("lockSlot", () => {
     it("should lock a slot successfully", async () => {
-      axiosInstance.post.mockResolvedValue({
+      lockSlotRequest.mockResolvedValue({
         data: { expiresAt: "2026-01-01T00:05:00Z" },
       });
       const { result } = renderHook(() => useSlotLock("mentor-1"));
@@ -37,17 +43,17 @@ describe("useSlotLock", () => {
         );
       });
 
-      expect(axiosInstance.post).toHaveBeenCalledWith("/slot-locks/lock", {
-        mentorId: "mentor-1",
-        date: "2026-01-05",
-        startTime: "10:00",
-        endTime: "11:00",
-      });
+      expect(lockSlotRequest).toHaveBeenCalledWith(
+        "mentor-1",
+        "2026-01-05",
+        "10:00",
+        "11:00",
+      );
       expect(response).toEqual({ ok: true, expiresAt: "2026-01-01T00:05:00Z" });
     });
 
     it("should return code and message from the API on failure", async () => {
-      axiosInstance.post.mockRejectedValue({
+      lockSlotRequest.mockRejectedValue({
         response: {
           data: { code: "SLOT_TAKEN", message: "Slot already locked" },
         },
@@ -71,7 +77,7 @@ describe("useSlotLock", () => {
     });
 
     it("should fall back to a default message when there is no response data", async () => {
-      axiosInstance.post.mockRejectedValue(new Error("network down"));
+      lockSlotRequest.mockRejectedValue(new Error("network down"));
       const { result } = renderHook(() => useSlotLock("mentor-1"));
 
       let response;
@@ -93,23 +99,23 @@ describe("useSlotLock", () => {
 
   describe("unlockSlot", () => {
     it("should call the unlock endpoint with the right payload", async () => {
-      axiosInstance.post.mockResolvedValue({ data: {} });
+      unlockSlotRequest.mockResolvedValue({ data: {} });
       const { result } = renderHook(() => useSlotLock("mentor-1"));
 
       await act(async () => {
         await result.current.unlockSlot("2026-01-05", "10:00", "11:00");
       });
 
-      expect(axiosInstance.post).toHaveBeenCalledWith("/slot-locks/unlock", {
-        mentorId: "mentor-1",
-        date: "2026-01-05",
-        startTime: "10:00",
-        endTime: "11:00",
-      });
+      expect(unlockSlotRequest).toHaveBeenCalledWith(
+        "mentor-1",
+        "2026-01-05",
+        "10:00",
+        "11:00",
+      );
     });
 
     it("should log a warning and not throw when the unlock request fails", async () => {
-      axiosInstance.post.mockRejectedValue(new Error("boom"));
+      unlockSlotRequest.mockRejectedValue(new Error("boom"));
       const { result } = renderHook(() => useSlotLock("mentor-1"));
 
       await act(async () => {
@@ -124,23 +130,18 @@ describe("useSlotLock", () => {
 
   describe("unlockAll", () => {
     it("should call the unlock-all endpoint with the mentorId", async () => {
-      axiosInstance.post.mockResolvedValue({ data: {} });
+      unlockAllSlotsRequest.mockResolvedValue({ data: {} });
       const { result } = renderHook(() => useSlotLock("mentor-1"));
 
       await act(async () => {
         await result.current.unlockAll();
       });
 
-      expect(axiosInstance.post).toHaveBeenCalledWith(
-        "/slot-locks/unlock-all",
-        {
-          mentorId: "mentor-1",
-        },
-      );
+      expect(unlockAllSlotsRequest).toHaveBeenCalledWith("mentor-1");
     });
 
     it("should log a warning and not throw when the unlock-all request fails", async () => {
-      axiosInstance.post.mockRejectedValue(new Error("boom"));
+      unlockAllSlotsRequest.mockRejectedValue(new Error("boom"));
       const { result } = renderHook(() => useSlotLock("mentor-1"));
 
       await act(async () => {

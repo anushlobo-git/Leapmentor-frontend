@@ -6,7 +6,7 @@ import { vi, describe, it, beforeEach, expect } from "vitest";
 vi.mock("@features/sessions/presenters/useSessions");
 vi.mock("@features/sessions/models/sessions.api");
 vi.mock("@features/connects/models/escrow.api");
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 vi.mock("@features/shared-dashboard/models/sharedDashboardSlice", () => ({

@@ -65,7 +65,7 @@ vi.mock("@features/auth/views/AuthSSOButtons", () => ({
   ),
 }));
 
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   default: ({ message }) => <div data-testid="fullscreen-loader">{message}</div>,
 }));
 
@@ -84,7 +84,7 @@ vi.mock("@components/ui/TermsAndConditionsModal", () => ({
     ) : null,
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: mockLogger,
 }));
 

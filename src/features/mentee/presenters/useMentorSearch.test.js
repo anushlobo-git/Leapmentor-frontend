@@ -1,14 +1,12 @@
 import { renderHook, act } from "@testing-library/react";
 import useMentorSearch from "./useMentorSearch";
-import axiosInstance from "@lib/axiosInstance";
+import { searchMentorsRequest } from "@features/mentee/models/mentee.api";
 
 import { describe, it, expect, vi } from "vitest";
 
-// Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-  },
+// Mock mentee.api
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  searchMentorsRequest: vi.fn(),
 }));
 
 // Mock mappers
@@ -28,7 +26,7 @@ describe("useMentorSearch hook", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    axiosInstance.get.mockResolvedValue({ data: mockApiResponse });
+    searchMentorsRequest.mockResolvedValue({ data: mockApiResponse });
   });
 
   afterEach(() => {
@@ -38,7 +36,7 @@ describe("useMentorSearch hook", () => {
   it("schedules search query with debounce timer on mount", async () => {
     const { result } = renderHook(() => useMentorSearch());
 
-    expect(axiosInstance.get).not.toHaveBeenCalled();
+    expect(searchMentorsRequest).not.toHaveBeenCalled();
 
     // Advance timer past DEBOUNCE_MS (300)
     act(() => {
@@ -51,8 +49,8 @@ describe("useMentorSearch hook", () => {
       await Promise.resolve(); // flush query promise
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith(
-      "/mentors/search?page=1&limit=6",
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
+      "page=1&limit=6",
     );
     expect(result.current.loading).toBe(false);
     expect(result.current.mentors).toEqual([{ id: "m1", name: "Alice" }]);
@@ -79,7 +77,7 @@ describe("useMentorSearch hook", () => {
     });
 
     // Axios should not be called yet because timer was reset
-    expect(axiosInstance.get).not.toHaveBeenCalled();
+    expect(searchMentorsRequest).not.toHaveBeenCalled();
 
     act(() => {
       vi.advanceTimersByTime(150);
@@ -89,8 +87,8 @@ describe("useMentorSearch hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith(
-      "/mentors/search?skill=React+Native&name=React+Native&page=1&limit=6",
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
+      "skill=React+Native&name=React+Native&page=1&limit=6",
     );
   });
 
@@ -112,8 +110,8 @@ describe("useMentorSearch hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith(
-      "/mentors/search?industry=Design&minPrice=20&maxPrice=100&minRating=4&page=1&limit=6",
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
+      "industry=Design&minPrice=20&maxPrice=100&minRating=4&page=1&limit=6",
     );
   });
 
@@ -130,7 +128,7 @@ describe("useMentorSearch hook", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(axiosInstance.get).toHaveBeenCalledWith(
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
       expect.stringContaining("minExperience=0&maxExperience=2"),
     );
 
@@ -144,10 +142,10 @@ describe("useMentorSearch hook", () => {
     await act(async () => {
       await Promise.resolve();
     });
-    expect(axiosInstance.get).toHaveBeenCalledWith(
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
       expect.stringContaining("minExperience=10"),
     );
-    expect(axiosInstance.get).not.toContain("maxExperience");
+    expect(searchMentorsRequest).not.toContain("maxExperience");
   });
 
   it("appends new mentors when loadMore is triggered", async () => {
@@ -162,7 +160,7 @@ describe("useMentorSearch hook", () => {
     });
 
     // Mock next page response
-    axiosInstance.get.mockResolvedValueOnce({
+    searchMentorsRequest.mockResolvedValueOnce({
       data: {
         mentors: [{ id: "m2", name: "Bob" }],
         pagination: { hasMore: false, totalCount: 15 },
@@ -227,13 +225,13 @@ describe("useMentorSearch hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith(
-      "/mentors/search?page=1&limit=6",
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
+      "page=1&limit=6",
     );
   });
 
   it("handles api search errors and formats messages", async () => {
-    axiosInstance.get.mockRejectedValueOnce({
+    searchMentorsRequest.mockRejectedValueOnce({
       response: { data: { message: "Server timeout overload error" } },
     });
 
@@ -251,7 +249,7 @@ describe("useMentorSearch hook", () => {
   });
 
   it("handles generic search exception fallback", async () => {
-    axiosInstance.get.mockRejectedValueOnce(new Error("Generic offline"));
+    searchMentorsRequest.mockRejectedValueOnce(new Error("Generic offline"));
 
     const { result } = renderHook(() => useMentorSearch());
 
@@ -281,14 +279,14 @@ describe("useMentorSearch hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith(
+    expect(searchMentorsRequest).toHaveBeenCalledWith(
       expect.stringContaining("maxExperience=1"),
     );
-    expect(axiosInstance.get).not.toContain("minExperience");
+    expect(searchMentorsRequest).not.toContain("minExperience");
   });
 
   it("handles search rejection without error message fallback", async () => {
-    axiosInstance.get.mockRejectedValueOnce({}); // no message or response
+    searchMentorsRequest.mockRejectedValueOnce({}); // no message or response
 
     const { result } = renderHook(() => useMentorSearch());
 

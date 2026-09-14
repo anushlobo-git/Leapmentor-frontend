@@ -13,7 +13,7 @@ import {
 } from "@features/admin/models/admin.api";
 import { setAdminSession } from "@features/auth/models/authSlice";
 import type { RootState } from "@store/index";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { IMAGES } from "@constants/images";
 
 const NAV_ITEMS = [

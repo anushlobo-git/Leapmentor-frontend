@@ -6,10 +6,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useReportComplaint from "./useReportComplaint";
-import axiosInstance from "@lib/axiosInstance";
+import { submitReportRequest } from "@features/reports/models/reports.api";
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: { post: vi.fn() },
+vi.mock("@features/reports/models/reports.api", () => ({
+  submitReportRequest: vi.fn(),
 }));
 
 const CONNECT_REQUEST_ID = "connect-123";
@@ -40,11 +40,11 @@ describe("useReportComplaint", () => {
     });
 
     expect(response).toEqual({ success: false });
-    expect(axiosInstance.post).not.toHaveBeenCalled();
+    expect(submitReportRequest).not.toHaveBeenCalled();
   });
 
   it("builds multipart form data without a screenshot and posts it", async () => {
-    axiosInstance.post.mockResolvedValueOnce({});
+    submitReportRequest.mockResolvedValueOnce({});
 
     const { result } = renderHook(() => useReportComplaint(CONNECT_REQUEST_ID));
 
@@ -57,10 +57,9 @@ describe("useReportComplaint", () => {
     });
 
     expect(response).toEqual({ success: true });
-    expect(axiosInstance.post).toHaveBeenCalledTimes(1);
+    expect(submitReportRequest).toHaveBeenCalledTimes(1);
 
-    const [url, formData] = axiosInstance.post.mock.calls[0];
-    expect(url).toBe("/reports");
+    const [formData] = submitReportRequest.mock.calls[0];
     expect(formData).toBeInstanceOf(FormData);
     expect(formData.get("connectRequestId")).toBe(CONNECT_REQUEST_ID);
     expect(formData.get("complaintType")).toBe("spam");
@@ -72,7 +71,7 @@ describe("useReportComplaint", () => {
   });
 
   it("appends the screenshot to the form data when provided", async () => {
-    axiosInstance.post.mockResolvedValueOnce({});
+    submitReportRequest.mockResolvedValueOnce({});
     const screenshot = new File(["x"], "shot.png", { type: "image/png" });
 
     const { result } = renderHook(() => useReportComplaint(CONNECT_REQUEST_ID));
@@ -85,12 +84,12 @@ describe("useReportComplaint", () => {
       });
     });
 
-    const [, formData] = axiosInstance.post.mock.calls[0];
+    const [formData] = submitReportRequest.mock.calls[0];
     expect(formData.get("screenshot")).toBe(screenshot);
   });
 
   it("returns a failure result and sets the error message from the response on failure", async () => {
-    axiosInstance.post.mockRejectedValueOnce({
+    submitReportRequest.mockRejectedValueOnce({
       response: { data: { message: "Duplicate report" } },
     });
 
@@ -113,7 +112,7 @@ describe("useReportComplaint", () => {
   });
 
   it("falls back to a generic error message when the failure has no response message", async () => {
-    axiosInstance.post.mockRejectedValueOnce(new Error("network down"));
+    submitReportRequest.mockRejectedValueOnce(new Error("network down"));
 
     const { result } = renderHook(() => useReportComplaint(CONNECT_REQUEST_ID));
 
@@ -135,7 +134,7 @@ describe("useReportComplaint", () => {
   });
 
   it("allows manually clearing the error via setError", async () => {
-    axiosInstance.post.mockRejectedValueOnce({
+    submitReportRequest.mockRejectedValueOnce({
       response: { data: { message: "boom" } },
     });
 

@@ -64,7 +64,7 @@ vi.mock("@features/auth/models/authSlice", () => ({
   clearMessages: mockClearMessages,
 }));
 
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   default: ({ message }) => <div data-testid="loader">{message}</div>,
 }));
 

@@ -3,8 +3,8 @@ import { render, screen, act, fireEvent } from "@testing-library/react";
 import SSOCallback from "./SSOCallback";
 import { setUser } from "@features/auth/models/authSlice";
 import { exchangeLinkedInToken } from "@features/auth/models/auth.api";
-import { setAuthRole } from "@lib/cookies";
-import logger from "@lib/logger";
+import { setAuthRole } from "@lib/http/cookies";
+import logger from "@lib/monitoring/logger";
 
 // ── Mock Framework Hooks & Stores ────────────────────────
 const mockNavigate = vi.fn();
@@ -26,11 +26,11 @@ vi.mock("@features/auth/models/auth.api", () => ({
   exchangeLinkedInToken: vi.fn(),
 }));
 
-vi.mock("@lib/cookies", () => ({
+vi.mock("@lib/http/cookies", () => ({
   setAuthRole: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
   },

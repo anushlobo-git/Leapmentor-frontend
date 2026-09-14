@@ -22,7 +22,7 @@ import {
   getPasswordValidation,
   getPasswordStrength,
 } from "@lib/validation/passwordValidation";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import type { AppDispatch, RootState } from "@store/index";
 
 const BASE_URL =

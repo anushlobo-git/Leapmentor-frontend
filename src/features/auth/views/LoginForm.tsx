@@ -8,7 +8,7 @@ import { useLoginPresenter } from "@features/auth/presenters/useLoginPresenter";
 import AuthSSOButtons from "@features/auth/views/AuthSSOButtons";
 import { AuthBrand } from "@features/auth/views/AuthUI";
 import { LeapMentorLogo } from "@features/auth/views/AuthIcons";
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 
 interface LoginFormProps {

@@ -14,7 +14,7 @@ import {
   getEscrowStatus,
 } from "@features/connects/models/escrow.api";
 import EscrowSuccessModal from "@features/mentee/views/dashboard/history/EscrowSuccessModal";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import {
   selectConnect,
   selectConnectId,

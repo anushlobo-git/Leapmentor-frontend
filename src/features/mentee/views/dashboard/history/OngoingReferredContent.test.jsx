@@ -31,7 +31,7 @@ vi.mock(
   }),
 );
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
     warn: vi.fn(),

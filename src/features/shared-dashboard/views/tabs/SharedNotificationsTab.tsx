@@ -14,7 +14,7 @@ import {
   markNotificationRead,
   deleteNotification,
 } from "@features/notifications/models/notifications.api";
-import EmptyState from "@components/common/EmptyState";
+import EmptyState from "@components/shared/EmptyState";
 import { normalizeApiNotif } from "@features/notifications/models/notificationMapper";
 
 type ViewerRole = "mentee" | "mentor";

@@ -11,7 +11,7 @@ import {
 } from "./privateNotes.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -28,7 +28,7 @@ describe("privateNotes.api", () => {
   describe("createPrivateNote", () => {
     it("should call axiosInstance.post with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await createPrivateNote("req123", "Test Title", "Test Content");
@@ -44,7 +44,7 @@ describe("privateNotes.api", () => {
   describe("getPrivateNotes", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getPrivateNotes("req123");
@@ -57,7 +57,7 @@ describe("privateNotes.api", () => {
   describe("updatePrivateNote", () => {
     it("should call axiosInstance.patch with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.patch.mockResolvedValue(mockResponse);
 
       const result = await updatePrivateNote("note123", "Updated Title", "Updated Content");
@@ -73,7 +73,7 @@ describe("privateNotes.api", () => {
   describe("deletePrivateNote", () => {
     it("should call axiosInstance.delete with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.delete.mockResolvedValue(mockResponse);
 
       const result = await deletePrivateNote("note123");

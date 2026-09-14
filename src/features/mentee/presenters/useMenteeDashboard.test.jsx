@@ -1,15 +1,14 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import useMenteeDashboard from "./useMenteeDashboard";
-import axiosInstance from "@lib/axiosInstance";
+import { getCurrentUser, getMenteeProfile } from "@features/mentee/models/mentee.api";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { mapMenteeProfile } from "@features/mentee/models/menteeMapper";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-  },
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getCurrentUser: vi.fn(),
+  getMenteeProfile: vi.fn(),
 }));
 
 vi.mock("@features/mentee/models/menteeMapper", () => ({
@@ -42,11 +41,8 @@ describe("useMenteeDashboard", () => {
     vi.clearAllMocks();
     mockPathname = "/dashboard/mentee";
     useSelector.mockReturnValue(true); // isAuthenticated = true
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me") return { data: mockUser };
-      if (url === "/mentee-profile/me") return { data: mockProfile };
-      return {};
-    });
+    getCurrentUser.mockResolvedValue({ data: mockUser });
+    getMenteeProfile.mockResolvedValue({ data: mockProfile });
   });
 
   it("redirects to login when user is not authenticated", async () => {
@@ -58,7 +54,7 @@ describe("useMenteeDashboard", () => {
   });
 
   it("redirects to mentor dashboard when roles does not include mentee", async () => {
-    axiosInstance.get.mockResolvedValueOnce({
+    getCurrentUser.mockResolvedValueOnce({
       data: { roles: ["mentor"] },
     });
 
@@ -70,13 +66,8 @@ describe("useMenteeDashboard", () => {
   });
 
   it("redirects to onboarding if profile is not found (404) and not on edit page", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me") return { data: mockUser };
-      if (url === "/mentee-profile/me") {
-        throw { response: { status: 404 } };
-      }
-      return {};
-    });
+    getCurrentUser.mockResolvedValue({ data: mockUser });
+    getMenteeProfile.mockRejectedValue({ response: { status: 404 } });
 
     const { result } = renderHook(() => useMenteeDashboard());
 
@@ -88,13 +79,8 @@ describe("useMenteeDashboard", () => {
 
   it("does not redirect to onboarding if profile is 404 and user is currently on edit page", async () => {
     mockPathname = "/dashboard/mentee/edit-profile";
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me") return { data: mockUser };
-      if (url === "/mentee-profile/me") {
-        throw { response: { status: 404 } };
-      }
-      return {};
-    });
+    getCurrentUser.mockResolvedValue({ data: mockUser });
+    getMenteeProfile.mockRejectedValue({ response: { status: 404 } });
 
     const { result } = renderHook(() => useMenteeDashboard());
 
@@ -105,13 +91,8 @@ describe("useMenteeDashboard", () => {
   });
 
   it("sets error message when profile query throws an unexpected error", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me") return { data: mockUser };
-      if (url === "/mentee-profile/me") {
-        throw new Error("Timeout database failure");
-      }
-      return {};
-    });
+    getCurrentUser.mockResolvedValue({ data: mockUser });
+    getMenteeProfile.mockRejectedValue(new Error("Timeout database failure"));
 
     const { result } = renderHook(() => useMenteeDashboard());
 
@@ -124,13 +105,8 @@ describe("useMenteeDashboard", () => {
   });
 
   it("does not set error message for unauthorized error response", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me") return { data: mockUser };
-      if (url === "/mentee-profile/me") {
-        throw { response: { status: 401 } };
-      }
-      return {};
-    });
+    getCurrentUser.mockResolvedValue({ data: mockUser });
+    getMenteeProfile.mockRejectedValue({ response: { status: 401 } });
 
     const { result } = renderHook(() => useMenteeDashboard());
 
@@ -173,9 +149,9 @@ describe("useMenteeDashboard", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    axiosInstance.get.mockClear();
+    getCurrentUser.mockClear();
     result.current.refetch();
 
-    expect(axiosInstance.get).toHaveBeenCalledWith("/users/me");
+    expect(getCurrentUser).toHaveBeenCalledWith();
   });
 });

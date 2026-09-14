@@ -6,13 +6,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useSocketToast from "./useSocketToast";
 import { io } from "socket.io-client";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 vi.mock("socket.io-client", () => ({
   io: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 

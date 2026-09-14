@@ -14,16 +14,16 @@ vi.mock("@lib/hooks/useSocketEvent", () => ({
 }));
 
 // Mock sub-components
-vi.mock("@components/common/Loader", () => ({
+vi.mock("@components/shared/Loader", () => ({
   default: ({ message }) => <div data-testid="loader">{message}</div>,
 }));
 
-vi.mock("@components/common/ErrorBanner", () => ({
+vi.mock("@components/shared/ErrorBanner", () => ({
   default: ({ message }) =>
     message ? <div data-testid="error-banner">{message}</div> : null,
 }));
 
-vi.mock("@components/common/FilterTabs", () => ({
+vi.mock("@components/shared/FilterTabs", () => ({
   default: ({ activeTab, onChange }) => (
     <div data-testid="filter-tabs">
       Active: {activeTab}
@@ -62,7 +62,7 @@ vi.mock("@features/mentee/views/dashboard/history/DetailDrawer", () => ({
     ) : null,
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
   },

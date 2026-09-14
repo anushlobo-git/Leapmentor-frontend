@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/common/ErrorBanner.jsx
+// src/components/shared/ErrorBanner.jsx
 
 const SIZE_CLASSES: Record<string, string> = {
   sm: "text-xs",

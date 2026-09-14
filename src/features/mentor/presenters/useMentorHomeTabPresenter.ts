@@ -9,7 +9,7 @@ import {
   getIncomingRequests,
   getMentorEarnings,
 } from "@features/mentor/models/mentor.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import {
   selectDashboardUser,
   selectDashboardProfile,

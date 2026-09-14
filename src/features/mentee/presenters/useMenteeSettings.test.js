@@ -1,19 +1,26 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useMenteeSettings from "./useMenteeSettings";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  getMenteeProfile,
+  getCurrentUser,
+  getEscrowWallet,
+  updateMenteeProfile,
+  changePasswordRequest,
+} from "@features/mentee/models/mentee.api";
+import logger from "@lib/monitoring/logger";
 import { describe, it, expect, vi } from "vitest";
 
-// Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    put: vi.fn(),
-  },
+// Mock mentee.api
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getMenteeProfile: vi.fn(),
+  getCurrentUser: vi.fn(),
+  getEscrowWallet: vi.fn(),
+  updateMenteeProfile: vi.fn(),
+  changePasswordRequest: vi.fn(),
 }));
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -37,8 +44,11 @@ vi.mock("@features/profile/models/settingsMapper", () => ({
 describe("useMenteeSettings hook", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    axiosInstance.get.mockResolvedValue({ data: {} });
-    axiosInstance.put.mockResolvedValue({ data: {} });
+    getMenteeProfile.mockResolvedValue({ data: {} });
+    getCurrentUser.mockResolvedValue({ data: {} });
+    getEscrowWallet.mockResolvedValue({ data: {} });
+    updateMenteeProfile.mockResolvedValue({ data: {} });
+    changePasswordRequest.mockResolvedValue({ data: {} });
   });
 
   it("pre-fills state if initialProfile is provided", () => {
@@ -52,17 +62,12 @@ describe("useMenteeSettings hook", () => {
     expect(result.current.fetching).toBe(false);
     expect(result.current.emailNotifications).toBe(false);
     expect(result.current.marketingPreferences).toBe(true);
-    expect(axiosInstance.get).not.toHaveBeenCalledWith("/mentee-profile/me");
+    expect(getMenteeProfile).not.toHaveBeenCalled();
   });
 
   it("fetches profile details if initialProfile is not provided", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/mentee-profile/me") {
-        return {
-          data: { emailNotifications: false, marketingPreferences: true },
-        };
-      }
-      return { data: {} };
+    getMenteeProfile.mockResolvedValue({
+      data: { emailNotifications: false, marketingPreferences: true },
     });
 
     const { result } = renderHook(() => useMenteeSettings(null));
@@ -79,12 +84,7 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("handles fetch profile api failure gracefully", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/mentee-profile/me") {
-        throw new Error("Internal failure");
-      }
-      return { data: {} };
-    });
+    getMenteeProfile.mockRejectedValue(new Error("Internal failure"));
 
     const { result } = renderHook(() => useMenteeSettings(null));
 
@@ -101,13 +101,10 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("fetches wallet and password changed information silently", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me")
-        return { data: { passwordChangedAt: "2026-07-01T10:00:00Z" } };
-      if (url === "/escrow/wallet")
-        return { data: { balance: 400, escrow: 50 } };
-      return { data: {} };
+    getCurrentUser.mockResolvedValue({
+      data: { passwordChangedAt: "2026-07-01T10:00:00Z" },
     });
+    getEscrowWallet.mockResolvedValue({ data: { balance: 400, escrow: 50 } });
 
     const { result } = renderHook(() => useMenteeSettings(null));
 
@@ -121,12 +118,8 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("handles user or wallet fetch failure silently", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/users/me" || url === "/escrow/wallet") {
-        throw new Error("Silent db fail");
-      }
-      return { data: {} };
-    });
+    getCurrentUser.mockRejectedValue(new Error("Silent db fail"));
+    getEscrowWallet.mockRejectedValue(new Error("Silent db fail"));
 
     const { result } = renderHook(() => useMenteeSettings(null));
 
@@ -139,13 +132,8 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("saves email and marketing notification preferences successfully", async () => {
-    axiosInstance.get.mockImplementation(async (url) => {
-      if (url === "/mentee-profile/me") {
-        return {
-          data: { emailNotifications: true, marketingPreferences: false },
-        };
-      }
-      return { data: {} };
+    getMenteeProfile.mockResolvedValue({
+      data: { emailNotifications: true, marketingPreferences: false },
     });
 
     const { result } = renderHook(() => useMenteeSettings(null));
@@ -173,7 +161,7 @@ describe("useMenteeSettings hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.put).toHaveBeenCalledWith("/mentee-profile/me", {
+    expect(updateMenteeProfile).toHaveBeenCalledWith({
       emailNotifications: false,
       marketingPreferences: true,
     });
@@ -191,7 +179,7 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("handles save preference errors", async () => {
-    axiosInstance.put.mockRejectedValueOnce(
+    updateMenteeProfile.mockRejectedValueOnce(
       new Error("Preference put failure"),
     );
     const { result } = renderHook(() => useMenteeSettings({}));
@@ -261,7 +249,7 @@ describe("useMenteeSettings hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.put).toHaveBeenCalledWith("/auth/change-password", {
+    expect(changePasswordRequest).toHaveBeenCalledWith({
       currentPassword: "old-secret",
       newPassword: "new-secret",
     });
@@ -280,7 +268,7 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("handles change password API errors", async () => {
-    axiosInstance.put.mockRejectedValueOnce({
+    changePasswordRequest.mockRejectedValueOnce({
       response: { data: { message: "Invalid credentials" } },
     });
     const { result } = renderHook(() => useMenteeSettings({}));
@@ -303,7 +291,7 @@ describe("useMenteeSettings hook", () => {
   });
 
   it("handles change password API generic error fallback", async () => {
-    axiosInstance.put.mockRejectedValueOnce(
+    changePasswordRequest.mockRejectedValueOnce(
       new Error("Timeout server connection"),
     );
     const { result } = renderHook(() => useMenteeSettings({}));

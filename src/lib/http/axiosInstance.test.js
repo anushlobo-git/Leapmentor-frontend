@@ -47,7 +47,7 @@ vi.mock("uuid", () => ({
   v4: () => "mocked-correlation-uuid-1111",
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
     error: vi.fn(),
@@ -65,15 +65,15 @@ vi.mock("@sentry/react", () => ({
   captureException: vi.fn(),
 }));
 
-vi.mock("@lib/cookies", () => ({
+vi.mock("@lib/http/cookies", () => ({
   clearAuthRole: vi.fn(),
 }));
 
-vi.mock("@lib/apiResponse", () => ({
+vi.mock("@lib/http/apiResponse", () => ({
   unwrapApiResponse: vi.fn((data) => ({ ...data, unwrapped: true })),
 }));
 
-vi.mock("@lib/httpStatus", () => ({
+vi.mock("@lib/http/httpStatus", () => ({
   HTTP_STATUS: {
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
@@ -84,12 +84,12 @@ vi.mock("@lib/httpStatus", () => ({
 
 // Import target under test after declaring global hoisted module mocks
 import { injectStore } from "./axiosInstance";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { toast } from "sonner";
 import * as Sentry from "@sentry/react";
-import { clearAuthRole } from "@lib/cookies";
-import { unwrapApiResponse } from "@lib/apiResponse";
-import { isServerError, isRateLimited } from "@lib/httpStatus";
+import { clearAuthRole } from "@lib/http/cookies";
+import { unwrapApiResponse } from "@lib/http/apiResponse";
+import { isServerError, isRateLimited } from "@lib/http/httpStatus";
 
 describe("Axios Interceptors Instance Engine", () => {
   let mockStore;

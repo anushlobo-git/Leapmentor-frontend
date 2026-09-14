@@ -5,8 +5,8 @@
 // src/hooks/useMenteeEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMenteeProfile, updateMenteeProfile } from "@features/mentee/models/mentee.api";
+import logger from "@lib/monitoring/logger";
 /**
  * Custom hook for mentee edit profile.
  * @returns {Object} Hook state and handlers for the caller.
@@ -29,7 +29,7 @@ const useMenteeEditProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await axiosInstance.get("/mentee-profile/me");
+        const { data } = await getMenteeProfile();
         setForm({
           currentRole: data.currentRole || "",
           industry: data.industry || "",
@@ -99,7 +99,7 @@ const useMenteeEditProfile = () => {
         ...form,
         yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
       };
-      await axiosInstance.put("/mentee-profile/me", payload);
+      await updateMenteeProfile(payload);
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     } catch (err) {

@@ -13,7 +13,7 @@ import {
 } from "./escrow.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -28,7 +28,7 @@ describe("escrow.api", () => {
   describe("payEscrow", () => {
     it("should call axiosInstance.post with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const params = {
@@ -48,7 +48,7 @@ describe("escrow.api", () => {
 
     it("should handle API errors", async () => {
       const mockError = new Error("Payment failed");
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockRejectedValue(mockError);
 
       const params = {
@@ -64,7 +64,7 @@ describe("escrow.api", () => {
   describe("releaseEscrow", () => {
     it("should call axiosInstance.post with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const requestId = "req123";
@@ -79,7 +79,7 @@ describe("escrow.api", () => {
 
     it("should handle API errors", async () => {
       const mockError = new Error("Release failed");
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockRejectedValue(mockError);
 
       await expect(releaseEscrow("req123")).rejects.toThrow("Release failed");
@@ -89,7 +89,7 @@ describe("escrow.api", () => {
   describe("refundEscrow", () => {
     it("should call axiosInstance.post with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const requestId = "req123";
@@ -104,7 +104,7 @@ describe("escrow.api", () => {
 
     it("should handle API errors", async () => {
       const mockError = new Error("Refund failed");
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockRejectedValue(mockError);
 
       await expect(refundEscrow("req123")).rejects.toThrow("Refund failed");
@@ -114,7 +114,7 @@ describe("escrow.api", () => {
   describe("getEscrowStatus", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: { status: "locked" } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const requestId = "req123";
@@ -128,7 +128,7 @@ describe("escrow.api", () => {
 
     it("should handle API errors", async () => {
       const mockError = new Error("Status fetch failed");
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockRejectedValue(mockError);
 
       await expect(getEscrowStatus("req123")).rejects.toThrow("Status fetch failed");
@@ -138,7 +138,7 @@ describe("escrow.api", () => {
   describe("payAdditionalEscrow", () => {
     it("should call axiosInstance.post with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const params = {
@@ -158,7 +158,7 @@ describe("escrow.api", () => {
 
     it("should handle API errors", async () => {
       const mockError = new Error("Additional payment failed");
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockRejectedValue(mockError);
 
       const params = {
@@ -174,7 +174,7 @@ describe("escrow.api", () => {
   describe("getPlatformCommissionRate", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: { commissionRate: 0.1 } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getPlatformCommissionRate();
@@ -185,7 +185,7 @@ describe("escrow.api", () => {
 
     it("should handle API errors", async () => {
       const mockError = new Error("Commission rate fetch failed");
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockRejectedValue(mockError);
 
       await expect(getPlatformCommissionRate()).rejects.toThrow("Commission rate fetch failed");

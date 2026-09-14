@@ -10,8 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "@features/auth/models/authSlice";
 import { exchangeLinkedInToken } from "@features/auth/models/auth.api";
-import { setAuthRole } from "@lib/cookies";
-import logger from "@lib/logger";
+import { setAuthRole } from "@lib/http/cookies";
+import logger from "@lib/monitoring/logger";
 import type { AppDispatch } from "@store/index";
 
 export const useSSOCallbackPresenter = () => {

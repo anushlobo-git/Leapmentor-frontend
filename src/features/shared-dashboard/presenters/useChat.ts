@@ -4,8 +4,8 @@
 
 // src/features/shared-dashboard/hooks/useChat.js
 import { useState, useEffect, useRef, useCallback } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getChatHistory } from "@features/shared-dashboard/models/shared-dashboard.api";
+import logger from "@lib/monitoring/logger";
 import useSocketEvent from "@lib/hooks/useSocketEvent";
 
 const TYPING_DEBOUNCE_MS = 2000;
@@ -49,9 +49,7 @@ const useChat = (connectRequestId) => {
   // ── Fetch message history (REST) ──────────────────────────
   const fetchHistory = useCallback(async (roomId, pageNum = 1) => {
     logger.info("Loading chat history", { roomId, page: pageNum });
-    const res = await axiosInstance.get(`/messages/${roomId}`, {
-      params: { page: pageNum, limit: PAGE_LIMIT },
-    });
+    const res = await getChatHistory(roomId, pageNum, PAGE_LIMIT);
     return res.data;
   }, []); // ✅ stable — no dependencies
 

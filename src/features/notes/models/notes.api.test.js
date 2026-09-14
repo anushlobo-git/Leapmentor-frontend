@@ -11,7 +11,7 @@ import {
 } from "./notes.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -27,7 +27,7 @@ describe("notes.api", () => {
   describe("uploadNote", () => {
     it("should call axiosInstance.post with correct endpoint and formData", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const file = new File(["content"], "test.txt");
@@ -42,7 +42,7 @@ describe("notes.api", () => {
 
     it("should append title when provided", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const file = new File(["content"], "test.txt");
@@ -54,7 +54,7 @@ describe("notes.api", () => {
 
     it("should not append title when empty", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const file = new File(["content"], "test.txt");
@@ -66,7 +66,7 @@ describe("notes.api", () => {
 
     it("should append isPrivate when true", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const file = new File(["content"], "test.txt");
@@ -78,7 +78,7 @@ describe("notes.api", () => {
 
     it("should not append isPrivate when false", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const file = new File(["content"], "test.txt");
@@ -92,7 +92,7 @@ describe("notes.api", () => {
   describe("getNotes", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getNotes("req123");
@@ -105,7 +105,7 @@ describe("notes.api", () => {
   describe("getPrivateNotes", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getPrivateNotes("req123");
@@ -118,7 +118,7 @@ describe("notes.api", () => {
   describe("deleteNote", () => {
     it("should call axiosInstance.delete with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.delete.mockResolvedValue(mockResponse);
 
       const result = await deleteNote("note123");

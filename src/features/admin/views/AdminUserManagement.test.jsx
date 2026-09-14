@@ -11,7 +11,7 @@ import {
   blockUser,
   unblockUser,
 } from "@features/admin/models/admin.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // ── 1. Mock External Modules & Sub-charts ─────────────────────────────────
 vi.mock("@features/admin/models/admin.api", () => ({
@@ -24,7 +24,7 @@ vi.mock("@features/admin/models/admin.api", () => ({
   unblockUser: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },

@@ -40,14 +40,14 @@ vi.mock("@features/auth/views/AuthUI", () => ({
 vi.mock("@features/auth/views/AuthIcons", () => ({
   LeapMentorLogo: () => <div data-testid="logo" />,
 }));
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   __esModule: true,
   default: ({ message }) => <div data-testid="loader">{message}</div>,
 }));
-vi.mock("@lib/cookies", () => ({
+vi.mock("@lib/http/cookies", () => ({
   setAuthRole: (...args) => mockSetAuthRole(...args),
 }));
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   __esModule: true,
   default: { info: vi.fn() },
 }));

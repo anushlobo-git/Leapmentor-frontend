@@ -5,7 +5,7 @@
 // View for the VerifyEmail page — pure JSX. All state/logic lives in
 // presenters/useVerifyEmailPresenter.ts.
 import { useVerifyEmailPresenter } from "@features/auth/presenters/useVerifyEmailPresenter";
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { IMAGES } from "@constants/images";
 
 const VerifyEmail = () => {

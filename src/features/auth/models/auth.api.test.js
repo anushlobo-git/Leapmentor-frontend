@@ -10,7 +10,7 @@ import {
 } from "./auth.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
   },
@@ -24,7 +24,7 @@ describe("auth.api", () => {
   describe("login", () => {
     it("should call axiosInstance.post with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await login("user@example.com", "password123");
@@ -40,7 +40,7 @@ describe("auth.api", () => {
   describe("exchangeLinkedInToken", () => {
     it("should call axiosInstance.post with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const payload = {
@@ -61,7 +61,7 @@ describe("auth.api", () => {
   describe("logoutRequest", () => {
     it("should call axiosInstance.post with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await logoutRequest();

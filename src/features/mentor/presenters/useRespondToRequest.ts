@@ -4,7 +4,7 @@
 
 // src/hooks/useRespondToRequest.js
 import { useState } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { respondToRequest, referRequest } from "@features/mentor/models/mentor.api";
 import { useToast } from "@app/providers/ToastContext"; // ✅
 /**
  * Custom hook for respond to request.
@@ -22,7 +22,7 @@ const useRespondToRequest = () => {
     try {
       setResponding(true);
       
-      await axiosInstance.patch(`/connect-requests/${requestId}`, { status, confirmedSlot });
+      await respondToRequest(requestId, { status, confirmedSlot });
 
       if (status === "accepted") {
         showToast({
@@ -51,9 +51,7 @@ const useRespondToRequest = () => {
   const refer = async ({ requestId, referToMentorId, menteeName, referredMentorName }) => {
     try {
       setReferring(true);
-      await axiosInstance.patch(`/connect-requests/${requestId}/refer`,
-        { referToMentorId }
-      );
+      await referRequest(requestId, referToMentorId);
       showToast({
         type: "info",
         title: "Request Referred",

@@ -7,14 +7,20 @@ import { render, screen } from "@testing-library/react";
 import ErrorBoundary from "./ErrorBoundary";
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
     info: vi.fn(),
   },
 }));
 
-import logger from "@lib/logger";
+// Mock Sentry — this boundary reports caught errors to it directly now
+vi.mock("@sentry/react", () => ({
+  captureException: vi.fn(),
+}));
+
+import logger from "@lib/monitoring/logger";
+import * as Sentry from "@sentry/react";
 
 describe("ErrorBoundary", () => {
   beforeEach(() => {
@@ -160,5 +166,64 @@ describe("ErrorBoundary", () => {
     const iconContainer = container.querySelector(".animate-pulse");
     expect(iconContainer).toHaveClass("bg-rose-100");
     expect(iconContainer).toHaveClass("text-rose-600");
+  });
+
+  it("should report the caught error to Sentry", () => {
+    const thrown = new Error("Test error");
+    const ThrowError = () => {
+      throw thrown;
+    };
+
+    render(
+      <ErrorBoundary>
+        <ThrowError />
+      </ErrorBoundary>
+    );
+
+    expect(Sentry.captureException).toHaveBeenCalledWith(thrown);
+  });
+
+  it("should automatically clear the error when a resetKey changes", () => {
+    const ThrowError = () => {
+      throw new Error("Test error");
+    };
+
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={["/dashboard"]}>
+        <ThrowError />
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["/login"]}>
+        <div>Recovered content</div>
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText("Recovered content")).toBeInTheDocument();
+  });
+
+  it("should not clear the error when resetKeys stays the same", () => {
+    const ThrowError = () => {
+      throw new Error("Test error");
+    };
+
+    const { rerender } = render(
+      <ErrorBoundary resetKeys={["/dashboard"]}>
+        <ThrowError />
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+
+    rerender(
+      <ErrorBoundary resetKeys={["/dashboard"]}>
+        <div>Should not appear</div>
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
   });
 });

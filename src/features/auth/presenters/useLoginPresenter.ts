@@ -13,10 +13,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { login } from "@features/auth/models/auth.api";
 import { setUser } from "@features/auth/models/authSlice";
 import useGoogleAuth from "@features/auth/presenters/useGoogleAuth";
-import { setAuthRole } from "@lib/cookies";
+import { setAuthRole } from "@lib/http/cookies";
 import { loginSchema } from "@lib/validation/schemas";
-import logger from "@lib/logger";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import logger from "@lib/monitoring/logger";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import type { AppDispatch } from "@store/index";
 
 const API_BASE =

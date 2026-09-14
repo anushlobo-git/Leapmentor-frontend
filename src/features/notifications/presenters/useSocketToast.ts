@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { useToast } from "@app/providers/ToastContext";
 import { useSelector } from "react-redux";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import type { RootState } from "@store/index";
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";

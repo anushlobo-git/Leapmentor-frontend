@@ -54,7 +54,7 @@ vi.mock("react-redux", () => ({
 }));
 
 // ── Mock Core Application Paths & Elements ───────────────
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   default: ({ message }) => <div data-testid="loader">{message}</div>,
 }));
 

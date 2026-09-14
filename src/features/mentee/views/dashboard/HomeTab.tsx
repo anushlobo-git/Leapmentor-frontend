@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SessionCard from "@features/sessions/views/SessionCard";
-import Loader from "@components/common/Loader";
+import Loader from "@components/shared/Loader";
 import MentorProfileModal from "@features/mentee/views/dashboard/findMentors/MentorProfileModal";
 import LeapBuddy from "@features/support/views/LeapBuddy";
 import {

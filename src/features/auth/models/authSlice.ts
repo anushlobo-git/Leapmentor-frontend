@@ -4,7 +4,8 @@
 
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
+import { login as loginRequest } from "@features/auth/models/auth.api";
 import { mapAuthUser } from "@lib/mappers/userMapper";
 import type { RootState } from "@store/index";
 
@@ -56,7 +57,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }: any) => {
     try {
-      const res = await axiosInstance.post(`/auth/login`, { email, password });
+      const res = await loginRequest(email, password);
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Login failed.");

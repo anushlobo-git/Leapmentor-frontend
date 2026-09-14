@@ -12,7 +12,7 @@ import {
   deleteNote as apiDeleteNote,
   getPrivateNotes as apiGetPrivateNotes,
 } from "@features/notes/models/notes.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // Mock dependencies
 vi.mock("@features/notes/models/notes.api", () => ({
@@ -22,7 +22,7 @@ vi.mock("@features/notes/models/notes.api", () => ({
   getPrivateNotes: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     warn: vi.fn(),
     error: vi.fn(),

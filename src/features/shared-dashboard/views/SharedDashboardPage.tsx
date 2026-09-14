@@ -13,7 +13,7 @@ import {
   setActiveTab,
   resetSharedDashboard,
 } from "@features/shared-dashboard/models/sharedDashboardSlice";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 
 const VALID_TABS = new Set([

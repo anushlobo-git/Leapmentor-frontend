@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import ConnectsLayout from "./ConnectsLayout";
 
 // ── 1. Mock External Components ───────────────────────────────────────────
-vi.mock("@components/common/Loader", () => ({
+vi.mock("@components/shared/Loader", () => ({
   default: ({ minHeight }) => (
     <div data-testid="mock-loader">Loading with height {minHeight}</div>
   ),

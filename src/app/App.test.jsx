@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
 import App from "./App";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
-import { hasSessionHint, clearAuthRole } from "@lib/cookies";
+import axiosInstance from "@lib/http/axiosInstance";
+import logger from "@lib/monitoring/logger";
+import { hasSessionHint, clearAuthRole } from "@lib/http/cookies";
 import { setUser, logout } from "@features/auth/models/authSlice";
 
 // ── 1. Mock External Modules & Libraries ──────────────────────────────────
@@ -19,19 +19,19 @@ vi.mock("@features/auth/models/authSlice", () => ({
   bootstrapAdminSession: vi.fn(() => ({ type: "auth/bootstrapAdminSession" })),
 }));
 
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
   },
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     warn: vi.fn(),
   },
 }));
 
-vi.mock("@lib/cookies", () => ({
+vi.mock("@lib/http/cookies", () => ({
   hasSessionHint: vi.fn(),
   clearAuthRole: vi.fn(),
 }));

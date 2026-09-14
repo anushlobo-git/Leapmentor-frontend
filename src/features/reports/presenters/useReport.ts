@@ -4,8 +4,8 @@
 
 // src/hooks/useReport.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getFeedback, submitFeedbackRequest } from "@features/reports/models/reports.api";
+import logger from "@lib/monitoring/logger";
 import { mapFeedback } from "@features/reports/models/reportMapper";
 /**
  * Custom hook for report.
@@ -25,7 +25,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosInstance.get(`/feedback/${connectRequestId}`);
+      const res = await getFeedback(connectRequestId);
       setMyFeedback(res.data.myFeedback ? mapFeedback(res.data.myFeedback) : null);
       setTheirFeedback(res.data.theirFeedback ? mapFeedback(res.data.theirFeedback) : null);
       setSessionStatus(res.data.sessionStatus || null);
@@ -45,7 +45,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
     try {
       setSubmitting(true);
       setError(null);
-      const res = await axiosInstance.post("/feedback", {
+      const res = await submitFeedbackRequest({
         connectRequestId,
         rating,
         comment,

@@ -1,22 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { useEffect, useRef } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import { setAuthRole } from "@lib/cookies";
-import logger from "@lib/logger";
+import { googleAuthRequest } from "@features/auth/models/auth.api";
+import { setAuthRole } from "@lib/http/cookies";
+import logger from "@lib/monitoring/logger";
 
 // Mock External System Modules
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    post: vi.fn(),
-  },
+vi.mock("@features/auth/models/auth.api", () => ({
+  googleAuthRequest: vi.fn(),
 }));
 
-vi.mock("@lib/cookies", () => ({
+vi.mock("@lib/http/cookies", () => ({
   setAuthRole: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
     info: vi.fn(),
@@ -178,7 +176,7 @@ describe("useGoogleAuth", () => {
     expect(mockOnError).toHaveBeenCalledWith(
       "Please accept the terms to continue.",
     );
-    expect(axiosInstance.post).not.toHaveBeenCalled();
+    expect(googleAuthRequest).not.toHaveBeenCalled();
   });
 
   it("should complete full successful sign-in pipeline workflow, assigning authRole cookie to 'mentor'", async () => {
@@ -186,7 +184,7 @@ describe("useGoogleAuth", () => {
     const mockOnLoading = vi.fn();
     const mockDispatch = vi.fn();
 
-    axiosInstance.post.mockResolvedValueOnce({
+    googleAuthRequest.mockResolvedValueOnce({
       data: {
         accessToken: "jwt-token-abc",
         user: { roles: ["mentor", "user"] },
@@ -206,7 +204,7 @@ describe("useGoogleAuth", () => {
     expect(logger.info).toHaveBeenCalledWith(
       "Google sign-in callback received",
     );
-    expect(axiosInstance.post).toHaveBeenCalledWith("/auth/google", {
+    expect(googleAuthRequest).toHaveBeenCalledWith({
       credential: "mock-credential-token",
       roles: ["mentor"],
       termsAccepted: true,
@@ -222,7 +220,7 @@ describe("useGoogleAuth", () => {
   });
 
   it("should alternate authRole assignment to 'mentee' when response includes appropriate matching payload credentials", async () => {
-    axiosInstance.post.mockResolvedValueOnce({
+    googleAuthRequest.mockResolvedValueOnce({
       data: {
         accessToken: "jwt-token-def",
         user: { roles: ["mentee"] },
@@ -236,7 +234,7 @@ describe("useGoogleAuth", () => {
   });
 
   it("should bypass setting authRole cookies if user attributes returns an empty list or missing roles completely", async () => {
-    axiosInstance.post.mockResolvedValueOnce({
+    googleAuthRequest.mockResolvedValueOnce({
       data: {
         accessToken: "jwt-token-xyz",
         user: { roles: [] },
@@ -259,7 +257,7 @@ describe("useGoogleAuth", () => {
       },
     };
 
-    axiosInstance.post.mockRejectedValueOnce(networkErrorResponse);
+    googleAuthRequest.mockRejectedValueOnce(networkErrorResponse);
 
     await renderTestComponent({ onError: mockOnError });
 
@@ -279,7 +277,7 @@ describe("useGoogleAuth", () => {
       },
     };
 
-    axiosInstance.post.mockRejectedValueOnce(alternativeErrorResponse);
+    googleAuthRequest.mockRejectedValueOnce(alternativeErrorResponse);
 
     await renderTestComponent({ onError: mockOnError });
 
@@ -291,7 +289,7 @@ describe("useGoogleAuth", () => {
 
   it("should process structural javascript engine runtime exceptions seamlessly during authentication failures", async () => {
     const mockOnError = vi.fn();
-    axiosInstance.post.mockRejectedValueOnce(
+    googleAuthRequest.mockRejectedValueOnce(
       new Error("Local device connection termination request failure."),
     );
 
@@ -305,7 +303,7 @@ describe("useGoogleAuth", () => {
 
   it("should fallback cleanly onto default catch blocks string literal when err payload contains no usable details", async () => {
     const mockOnError = vi.fn();
-    axiosInstance.post.mockRejectedValueOnce({});
+    googleAuthRequest.mockRejectedValueOnce({});
 
     await renderTestComponent({ onError: mockOnError });
 

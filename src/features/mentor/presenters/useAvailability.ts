@@ -4,8 +4,8 @@
 
 // src/hooks/useAvailability.js
 import { useState, useEffect } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { getMyAvailability, updateMyAvailability } from "@features/mentor/models/mentor.api";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 /**
  * Custom hook for availability.
  * @returns {Object} Hook state and handlers for the caller.
@@ -29,7 +29,7 @@ const useAvailability = () => {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get(`/availability/me`);
+        const res = await getMyAvailability();
         const { ...data } = res.data;
         setAvailability((prev) => ({
           ...prev,
@@ -79,12 +79,11 @@ const useAvailability = () => {
     setMsg({ type: "", text: "" });
     try {
       setSaving(true);
-      await axiosInstance.patch(`/availability/me`, {
+      await updateMyAvailability({
         timezone:         availability.timezone,
         sessionDurations: availability.sessionDurations,
         specificDates:    availability.specificDates,
-        },
-      );
+      });
       setMsg({ type: "success", text: "Availability saved successfully!" });
     } catch (err) {
       const apiMsg = err?.response?.data?.message || err?.message || "Failed to save.";
@@ -98,7 +97,7 @@ const useAvailability = () => {
   const cancelChanges = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`/availability/me`);
+      const res = await getMyAvailability();
       const { ...data } = res.data;
       setAvailability((prev) => ({
         ...prev,

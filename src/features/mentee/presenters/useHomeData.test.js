@@ -12,7 +12,7 @@ import {
   getEscrowWallet,
 } from "@features/mentee/models/mentee.api";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 
 // Mock API layer
@@ -26,7 +26,7 @@ vi.mock("@features/mentor/models/mentorMapper", () => ({
   mapMentorProfile: vi.fn((m) => m),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },

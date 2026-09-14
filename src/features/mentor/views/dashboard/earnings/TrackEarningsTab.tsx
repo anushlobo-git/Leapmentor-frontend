@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import useTrackEarnings from "@features/mentor/presenters/useTrackEarnings";
-import Loader from "@components/common/Loader";
+import Loader from "@components/shared/Loader";
 import type { ReactNode } from "react";
 import { formatDecimal as fmt } from "@lib/formatters/number";
 

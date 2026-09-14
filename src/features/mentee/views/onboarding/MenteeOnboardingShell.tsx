@@ -12,7 +12,7 @@ import InterestedFieldsSection from "@features/mentee/views/onboarding/Intereste
 import MentorshipPrefsSection from "@features/mentee/views/onboarding/MentorshipPrefsSection";
 import SocialLinksSection from "@features/mentee/views/onboarding/SocialLinksSection";
 import OnboardingProgressBar from "@components/ui/OnboardingProgressBar";
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { IMAGES } from "@constants/images";
 
 import { MENTEE_ONBOARDING_FIELDS } from "@config/onboardingFields";

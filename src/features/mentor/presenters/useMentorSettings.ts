@@ -4,8 +4,8 @@
 
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
 import { mapMentorSettings } from "@features/profile/models/settingsMapper";
 
 const BADGES = [
@@ -71,7 +71,7 @@ const useMentorSettings = (initialProfile) => {
   const fetchProfile = async () => {
     try {
       setFetching(true);
-      const res = await axiosInstance.get("/mentor-profile/me");
+      const res = await getMentorProfile();
       const mapped = mapMentorSettings(res.data);
       setProfile(res.data);
       setHourlyRate(mapped.hourlyRate);
@@ -92,7 +92,7 @@ const useMentorSettings = (initialProfile) => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      await axiosInstance.put("/mentor-profile/me", {
+      await updateMentorProfile({
         hourlyRate: Number(hourlyRate) || 0,
         emailNotifications,
         isProfilePublished: publicProfile,

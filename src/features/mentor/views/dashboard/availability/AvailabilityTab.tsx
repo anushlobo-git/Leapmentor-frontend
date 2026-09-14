@@ -4,7 +4,7 @@
 
 // components/mentor/dashboard/availability/AvailabilityTab.jsx
 import { useState } from "react";
-import Loader from "@components/common/Loader";
+import Loader from "@components/shared/Loader";
 import useAvailability from "@features/mentor/presenters/useAvailability";
 import CalendarAvailabilitySection from "@features/mentor/views/dashboard/availability/CalendarAvailabilitySection";
 import TimezoneDurationSection from "@features/mentor/views/dashboard/availability/TimezoneDurationSection";

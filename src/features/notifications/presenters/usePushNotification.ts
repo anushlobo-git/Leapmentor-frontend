@@ -3,9 +3,9 @@
  */
 
 import { useEffect } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { subscribeToPush } from "@features/notifications/models/notifications.api";
 import { useToast } from "@app/providers/ToastContext";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 
@@ -44,7 +44,7 @@ const usePushNotification = () => {
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
 
-        await axiosInstance.post(`/push/subscribe`, { subscription });
+        await subscribeToPush(subscription);
 
         logger.info("Push notifications enabled");
       } catch (err) {

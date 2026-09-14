@@ -37,7 +37,7 @@ import {
 } from "./admin.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -56,7 +56,7 @@ describe("admin.api", () => {
     describe("adminLogin", () => {
       it("should call axiosInstance.post with correct endpoint and payload", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.post.mockResolvedValue(mockResponse);
 
         const result = await adminLogin("admin@example.com", "password123");
@@ -73,7 +73,7 @@ describe("admin.api", () => {
     describe("adminLogout", () => {
       it("should call axiosInstance.post with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.post.mockResolvedValue(mockResponse);
 
         const result = await adminLogout();
@@ -92,7 +92,7 @@ describe("admin.api", () => {
     describe("getPendingLeapRequestsCount", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { count: 5 } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getPendingLeapRequestsCount();
@@ -110,7 +110,7 @@ describe("admin.api", () => {
     describe("getSupportMessages", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getSupportMessages();
@@ -126,7 +126,7 @@ describe("admin.api", () => {
     describe("resolveSupportMessage", () => {
       it("should call axiosInstance.patch with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await resolveSupportMessage("msg123");
@@ -145,7 +145,7 @@ describe("admin.api", () => {
     describe("getMentorVerifications", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getMentorVerifications();
@@ -161,7 +161,7 @@ describe("admin.api", () => {
     describe("verifyMentorProfile", () => {
       it("should call axiosInstance.patch with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await verifyMentorProfile("mentor123");
@@ -180,7 +180,7 @@ describe("admin.api", () => {
     describe("getReportStats", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { total: 10 } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getReportStats();
@@ -196,7 +196,7 @@ describe("admin.api", () => {
     describe("getReports", () => {
       it("should call axiosInstance.get with correct endpoint and params", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const params = { page: 1, limit: 10 };
@@ -213,7 +213,7 @@ describe("admin.api", () => {
     describe("updateReport", () => {
       it("should call axiosInstance.patch with correct endpoint and payload", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await updateReport("report123", {
@@ -233,7 +233,7 @@ describe("admin.api", () => {
     describe("refundReport", () => {
       it("should call axiosInstance.post with correct endpoint and payload", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.post.mockResolvedValue(mockResponse);
 
         const result = await refundReport("report123", "Refunded");
@@ -250,7 +250,7 @@ describe("admin.api", () => {
     describe("deleteReportSession", () => {
       it("should call axiosInstance.delete with correct endpoint and data", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.delete.mockResolvedValue(mockResponse);
 
         const result = await deleteReportSession("report123", "Deleted");
@@ -271,7 +271,7 @@ describe("admin.api", () => {
     describe("getPaymentStats", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { total: 1000 } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getPaymentStats();
@@ -287,7 +287,7 @@ describe("admin.api", () => {
     describe("getPaymentChart", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getPaymentChart();
@@ -303,7 +303,7 @@ describe("admin.api", () => {
     describe("getPaymentTransactions", () => {
       it("should call axiosInstance.get with correct endpoint and params", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const params = { page: 1 };
@@ -322,7 +322,7 @@ describe("admin.api", () => {
     describe("getEngagementStats", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { total: 50 } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getEngagementStats();
@@ -338,7 +338,7 @@ describe("admin.api", () => {
     describe("getEngagements", () => {
       it("should call axiosInstance.get with correct endpoint and params", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const params = { status: "active" };
@@ -357,7 +357,7 @@ describe("admin.api", () => {
     describe("getLeapRequests", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getLeapRequests();
@@ -373,7 +373,7 @@ describe("admin.api", () => {
     describe("approveLeapRequest", () => {
       it("should call axiosInstance.patch with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await approveLeapRequest("req123");
@@ -390,7 +390,7 @@ describe("admin.api", () => {
     describe("rejectLeapRequest", () => {
       it("should call axiosInstance.patch with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await rejectLeapRequest("req123");
@@ -409,7 +409,7 @@ describe("admin.api", () => {
     describe("getUserStats", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { total: 100 } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getUserStats();
@@ -425,7 +425,7 @@ describe("admin.api", () => {
     describe("getUserGrowth", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getUserGrowth();
@@ -441,7 +441,7 @@ describe("admin.api", () => {
     describe("getMentorIndustryStats", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getMentorIndustryStats();
@@ -457,7 +457,7 @@ describe("admin.api", () => {
     describe("getUsers", () => {
       it("should call axiosInstance.get with correct endpoint and params", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const params = { role: "mentor" };
@@ -474,7 +474,7 @@ describe("admin.api", () => {
     describe("deleteUser", () => {
       it("should call axiosInstance.delete with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.delete.mockResolvedValue(mockResponse);
 
         const result = await deleteUser("user123");
@@ -490,7 +490,7 @@ describe("admin.api", () => {
     describe("blockUser", () => {
       it("should call axiosInstance.patch with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await blockUser("user123");
@@ -507,7 +507,7 @@ describe("admin.api", () => {
     describe("unblockUser", () => {
       it("should call axiosInstance.patch with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.patch.mockResolvedValue(mockResponse);
 
         const result = await unblockUser("user123");
@@ -526,7 +526,7 @@ describe("admin.api", () => {
     describe("getCommissionSettings", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { commissionRate: 0.1 } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getCommissionSettings();
@@ -542,7 +542,7 @@ describe("admin.api", () => {
     describe("updateCommissionSettings", () => {
       it("should call axiosInstance.put with correct endpoint and payload", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.put.mockResolvedValue(mockResponse);
 
         const result = await updateCommissionSettings(0.15);
@@ -559,7 +559,7 @@ describe("admin.api", () => {
     describe("addAdmin", () => {
       it("should call axiosInstance.post with correct endpoint and payload", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.post.mockResolvedValue(mockResponse);
 
         const result = await addAdmin({

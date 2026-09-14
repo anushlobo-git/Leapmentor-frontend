@@ -4,13 +4,13 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { configureStore } from "@reduxjs/toolkit";
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 import menteeOnboardingReducer, {
   submitMenteeOnboarding,
   clearOnboardingMessages,
 } from "./menteeOnboardingSlice";
 
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
   },

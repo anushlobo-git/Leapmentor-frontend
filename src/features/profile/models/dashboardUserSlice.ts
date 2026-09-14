@@ -4,8 +4,8 @@
 
 // src/store/slices/dashboardUserSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import axiosInstance from "@lib/http/axiosInstance";
+import logger from "@lib/monitoring/logger";
 import { mapAuthUser } from "@lib/mappers/userMapper";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 

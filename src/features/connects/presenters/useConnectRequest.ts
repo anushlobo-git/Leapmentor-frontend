@@ -4,7 +4,7 @@
 
 // src/hooks/useConnectRequest.js
 import { useState, useRef } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { sendConnectRequest } from "@features/connects/models/connects.api";
 /**
  * Custom hook for connect request.
  * @returns {Object} Hook state and handlers for the caller.
@@ -36,7 +36,7 @@ const useConnectRequest = () => {
     try {
       inFlightRef.current = true; // ← lock before async starts
       setSending(true);
-      await axiosInstance.post(`/connect-requests`, {
+      await sendConnectRequest({
         mentorId,
         message,
         selectedSlots,

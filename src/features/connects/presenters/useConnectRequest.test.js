@@ -1,13 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useConnectRequest from "./useConnectRequest";
-import axiosInstance from "@lib/axiosInstance";
+import { sendConnectRequest } from "@features/connects/models/connects.api";
 
 // ── Mock Axios Instance Module ──────────────────────────────────────────────
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    post: vi.fn(),
-  },
+vi.mock("@features/connects/models/connects.api", () => ({
+  sendConnectRequest: vi.fn(),
 }));
 
 describe("useConnectRequest", () => {
@@ -48,7 +46,7 @@ describe("useConnectRequest", () => {
     expect(result.current.error).toBe(
       "Please select at least one available slot before sending.",
     );
-    expect(axiosInstance.post).not.toHaveBeenCalled();
+    expect(sendConnectRequest).not.toHaveBeenCalled();
   });
 
   it("should fail validation and set error when selectedSlots parameter is empty", async () => {
@@ -66,12 +64,12 @@ describe("useConnectRequest", () => {
     expect(result.current.error).toBe(
       "Please select at least one available slot before sending.",
     );
-    expect(axiosInstance.post).not.toHaveBeenCalled();
+    expect(sendConnectRequest).not.toHaveBeenCalled();
   });
 
   // ── Successful Execution Pipeline ─────────────────────────────────────────
   it("should post data successfully and cycle state attributes correctly", async () => {
-    axiosInstance.post.mockResolvedValueOnce({ data: { success: true } });
+    sendConnectRequest.mockResolvedValueOnce({ data: { success: true } });
     const { result } = renderHook(() => useConnectRequest());
     let successResponse;
 
@@ -83,10 +81,7 @@ describe("useConnectRequest", () => {
     expect(result.current.sending).toBe(false);
     expect(result.current.success).toBe(true);
     expect(result.current.error).toBe("");
-    expect(axiosInstance.post).toHaveBeenCalledWith(
-      "/connect-requests",
-      mockPayload,
-    );
+    expect(sendConnectRequest).toHaveBeenCalledWith(mockPayload);
   });
 
   // ── Error Boundary Branches Coverage ────────────────────────────────────────
@@ -98,7 +93,7 @@ describe("useConnectRequest", () => {
         },
       },
     };
-    axiosInstance.post.mockRejectedValueOnce(mockApiError);
+    sendConnectRequest.mockRejectedValueOnce(mockApiError);
     const { result } = renderHook(() => useConnectRequest());
     let successResponse;
 
@@ -114,7 +109,7 @@ describe("useConnectRequest", () => {
 
   it("should handle structural client execution throw messages gracefully", async () => {
     const mockClientError = new Error("Local operational blowout");
-    axiosInstance.post.mockRejectedValueOnce(mockClientError);
+    sendConnectRequest.mockRejectedValueOnce(mockClientError);
     const { result } = renderHook(() => useConnectRequest());
     let successResponse;
 
@@ -127,7 +122,7 @@ describe("useConnectRequest", () => {
   });
 
   it("should fall back to fallback message string when error object details are empty", async () => {
-    axiosInstance.post.mockRejectedValueOnce({});
+    sendConnectRequest.mockRejectedValueOnce({});
     const { result } = renderHook(() => useConnectRequest());
     let successResponse;
 
@@ -145,7 +140,7 @@ describe("useConnectRequest", () => {
     const delayedPromise = new Promise((resolve) => {
       resolvePromise = resolve;
     });
-    axiosInstance.post.mockReturnValueOnce(delayedPromise);
+    sendConnectRequest.mockReturnValueOnce(delayedPromise);
 
     const { result } = renderHook(() => useConnectRequest());
     let callOneResponse;
@@ -171,7 +166,7 @@ describe("useConnectRequest", () => {
 
   // ── State Reset Functional Actions Coverage ───────────────────────────────
   it("should wipe structural states completely upon invoking reset handler routines", async () => {
-    axiosInstance.post.mockResolvedValueOnce({ data: { success: true } });
+    sendConnectRequest.mockResolvedValueOnce({ data: { success: true } });
     const { result } = renderHook(() => useConnectRequest());
 
     await act(async () => {

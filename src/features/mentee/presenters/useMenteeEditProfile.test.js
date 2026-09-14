@@ -1,15 +1,13 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import useMenteeEditProfile from "./useMenteeEditProfile";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMenteeProfile, updateMenteeProfile } from "@features/mentee/models/mentee.api";
+import logger from "@lib/monitoring/logger";
 
-// Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    put: vi.fn(),
-  },
+// Mock mentee.api
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getMenteeProfile: vi.fn(),
+  updateMenteeProfile: vi.fn(),
 }));
 
 // Mock useNavigate
@@ -19,7 +17,7 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -44,8 +42,8 @@ describe("useMenteeEditProfile hook", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    axiosInstance.get.mockResolvedValue({ data: mockProfileData });
-    axiosInstance.put.mockResolvedValue({ data: { success: true } });
+    getMenteeProfile.mockResolvedValue({ data: mockProfileData });
+    updateMenteeProfile.mockResolvedValue({ data: { success: true } });
   });
 
   afterEach(() => {
@@ -61,13 +59,13 @@ describe("useMenteeEditProfile hook", () => {
       await Promise.resolve(); // flush mount microtasks
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith("/mentee-profile/me");
+    expect(getMenteeProfile).toHaveBeenCalledWith();
     expect(result.current.fetchLoading).toBe(false);
     expect(result.current.form.currentRole).toBe("Designer");
   });
 
   it("logs error and sets message if fetch profile fails", async () => {
-    axiosInstance.get.mockRejectedValueOnce(new Error("Timeout"));
+    getMenteeProfile.mockRejectedValueOnce(new Error("Timeout"));
 
     const { result } = renderHook(() => useMenteeEditProfile());
 
@@ -265,10 +263,7 @@ describe("useMenteeEditProfile hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.put).toHaveBeenCalledWith(
-      "/mentee-profile/me",
-      mockProfileData,
-    );
+    expect(updateMenteeProfile).toHaveBeenCalledWith(mockProfileData);
     expect(result.current.msg.text).toBe("Profile updated successfully!");
 
     act(() => {
@@ -280,7 +275,7 @@ describe("useMenteeEditProfile hook", () => {
   });
 
   it("sets error message if submit query fails", async () => {
-    axiosInstance.put.mockRejectedValueOnce({
+    updateMenteeProfile.mockRejectedValueOnce({
       response: { data: { message: "Internal server error 500" } },
     });
 
@@ -303,7 +298,7 @@ describe("useMenteeEditProfile hook", () => {
   });
 
   it("handles empty API error responses gracefully on submit failure", async () => {
-    axiosInstance.put.mockRejectedValueOnce(new Error("Timeout server"));
+    updateMenteeProfile.mockRejectedValueOnce(new Error("Timeout server"));
 
     const { result } = renderHook(() => useMenteeEditProfile());
     await act(async () => {
@@ -323,7 +318,7 @@ describe("useMenteeEditProfile hook", () => {
   });
 
   it("handles fallback to empty inputs if profile data fields are missing on mount", async () => {
-    axiosInstance.get.mockResolvedValueOnce({ data: {} }); // no fields
+    getMenteeProfile.mockResolvedValueOnce({ data: {} }); // no fields
 
     const { result } = renderHook(() => useMenteeEditProfile());
     await act(async () => {
@@ -358,6 +353,6 @@ describe("useMenteeEditProfile hook", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.put).toHaveBeenCalled();
+    expect(updateMenteeProfile).toHaveBeenCalled();
   });
 });

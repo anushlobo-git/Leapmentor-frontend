@@ -5,18 +5,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import useMentorDashboard from "./useMentorDashboard";
-import axiosInstance from "@lib/axiosInstance";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { getCurrentUser, getMentorProfile } from "@features/mentor/models/mentor.api";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-  },
+vi.mock("@features/mentor/models/mentor.api", () => ({
+  getCurrentUser: vi.fn(),
+  getMentorProfile: vi.fn(),
 }));
 
-vi.mock("@lib/httpStatus", () => ({
+vi.mock("@lib/http/httpStatus", () => ({
   HTTP_STATUS: {
     NOT_FOUND: 404,
     UNAUTHORIZED: 401,
@@ -82,9 +81,8 @@ describe("useMentorDashboard", () => {
         bio: "Test bio",
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockResolvedValueOnce({ data: mockProfileData });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockResolvedValueOnce({ data: mockProfileData });
 
       const { result } = renderHook(() => useMentorDashboard());
 
@@ -95,8 +93,8 @@ describe("useMentorDashboard", () => {
       expect(result.current.user).toEqual(mockUserData);
       expect(result.current.profile).toEqual(mockProfileData);
       expect(result.current.error).toBe("");
-      expect(axiosInstance.get).toHaveBeenCalledWith("/users/me");
-      expect(axiosInstance.get).toHaveBeenCalledWith("/mentor-profile/me");
+      expect(getCurrentUser).toHaveBeenCalledWith();
+      expect(getMentorProfile).toHaveBeenCalledWith();
     });
 
     it("should redirect to mentee dashboard if user is not mentor", async () => {
@@ -106,7 +104,7 @@ describe("useMentorDashboard", () => {
         roles: ["mentee"],
       };
 
-      axiosInstance.get.mockResolvedValueOnce({ data: mockUserData });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
 
       renderHook(() => useMentorDashboard());
 
@@ -122,9 +120,8 @@ describe("useMentorDashboard", () => {
         roles: ["mentor"],
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockRejectedValueOnce({ response: { status: HTTP_STATUS.NOT_FOUND } });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockRejectedValueOnce({ response: { status: HTTP_STATUS.NOT_FOUND } });
 
       const { result } = renderHook(() => useMentorDashboard());
 
@@ -143,9 +140,8 @@ describe("useMentorDashboard", () => {
         roles: ["mentor"],
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockRejectedValueOnce({ response: { status: HTTP_STATUS.NOT_FOUND } });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockRejectedValueOnce({ response: { status: HTTP_STATUS.NOT_FOUND } });
 
       renderHook(() => useMentorDashboard());
 
@@ -161,9 +157,8 @@ describe("useMentorDashboard", () => {
         roles: ["mentor"],
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockRejectedValueOnce({ response: { status: HTTP_STATUS.UNAUTHORIZED } });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockRejectedValueOnce({ response: { status: HTTP_STATUS.UNAUTHORIZED } });
 
       renderHook(() => useMentorDashboard());
 
@@ -185,9 +180,8 @@ describe("useMentorDashboard", () => {
 
       mapMentorProfile.mockReturnValue(mockProfileData);
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockResolvedValueOnce({ data: mockProfileData });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockResolvedValueOnce({ data: mockProfileData });
 
       const { result } = renderHook(() => useMentorDashboard());
 
@@ -212,9 +206,8 @@ describe("useMentorDashboard", () => {
 
       mapMentorProfile.mockReturnValue(mockProfileData);
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockResolvedValueOnce({ data: mockProfileData });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockResolvedValueOnce({ data: mockProfileData });
 
       renderHook(() => useMentorDashboard());
 
@@ -230,9 +223,8 @@ describe("useMentorDashboard", () => {
         roles: ["mentor"],
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockRejectedValueOnce(new Error("Unexpected error"));
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockRejectedValueOnce(new Error("Unexpected error"));
 
       const { result } = renderHook(() => useMentorDashboard());
 
@@ -244,7 +236,7 @@ describe("useMentorDashboard", () => {
     });
 
     it("should redirect to login on 401 error from user fetch", async () => {
-      axiosInstance.get.mockRejectedValueOnce({
+      getCurrentUser.mockRejectedValueOnce({
         response: { status: HTTP_STATUS.UNAUTHORIZED },
       });
 
@@ -266,9 +258,8 @@ describe("useMentorDashboard", () => {
         isProfileComplete: true,
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockUserData })
-        .mockResolvedValueOnce({ data: mockProfileData });
+      getCurrentUser.mockResolvedValueOnce({ data: mockUserData });
+      getMentorProfile.mockResolvedValueOnce({ data: mockProfileData });
 
       renderHook(() => useMentorDashboard());
 

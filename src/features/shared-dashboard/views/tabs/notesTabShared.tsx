@@ -8,7 +8,7 @@
 // files render near-identical file lists (loading skeletons, day separators,
 // file-type badges) and duplicate the same day-grouping and download logic.
 // Extracted here so both files stay in sync without copy-pasting.
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { formatDateSeparator, isSameDay } from "@lib/formatters/dateTime";
 
 export interface NoteFile {

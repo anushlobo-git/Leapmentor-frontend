@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useGoals from "./useGoals";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  fetchGoalRequest,
+  createGoalRequest,
+  updateGoalRequest,
+  addMilestoneRequest,
+  toggleMilestoneRequest,
+  deleteMilestoneRequest,
+} from "@features/goals/models/goals.api";
+import logger from "@lib/monitoring/logger";
 
 // ── Shared Mutable Context References for Sockets ───────
 let capturedSocketInitializer = null;
@@ -13,16 +20,16 @@ vi.mock("@app/providers/ToastContext", () => ({
   useToast: () => ({ showToast: mockShowToast }),
 }));
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-  },
+vi.mock("@features/goals/models/goals.api", () => ({
+  fetchGoalRequest: vi.fn(),
+  createGoalRequest: vi.fn(),
+  updateGoalRequest: vi.fn(),
+  addMilestoneRequest: vi.fn(),
+  toggleMilestoneRequest: vi.fn(),
+  deleteMilestoneRequest: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -47,7 +54,7 @@ describe("useGoals", () => {
     capturedSocketInitializer = null;
 
     // Provide a baseline default fallback mock resolution to prevent leaking unhandled promises
-    vi.mocked(axiosInstance.get).mockResolvedValue({
+    vi.mocked(fetchGoalRequest).mockResolvedValue({
       data: { goal: null, milestones: [] },
     });
   });
@@ -58,7 +65,7 @@ describe("useGoals", () => {
 
     await act(async () => {});
     expect(result.current.loading).toBe(true);
-    expect(axiosInstance.get).not.toHaveBeenCalled();
+    expect(fetchGoalRequest).not.toHaveBeenCalled();
   });
 
   it("should populate goal and milestone states successfully on a valid fetch", async () => {
@@ -66,7 +73,7 @@ describe("useGoals", () => {
       goal: { _id: "g1", title: "Target Goal" },
       milestones: [{ _id: "m1", title: "Task 1" }],
     };
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({ data: mockData });
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({ data: mockData });
 
     const { result } = renderHook(() => useGoals("conn_123"));
     expect(result.current.loading).toBe(true);
@@ -80,7 +87,7 @@ describe("useGoals", () => {
 
   it("should catch fetch errors, update error status state, and record warning trace logs", async () => {
     const networkError = new Error("Network Timeout");
-    vi.mocked(axiosInstance.get).mockRejectedValueOnce(networkError);
+    vi.mocked(fetchGoalRequest).mockRejectedValueOnce(networkError);
 
     const { result } = renderHook(() => useGoals("conn_123"));
 
@@ -96,14 +103,14 @@ describe("useGoals", () => {
 
   // ── Create and Update Goal Action Branches ───────────────
   it("should process createGoal actions successfully and clear milestones array state", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
     const newGoal = { _id: "g2", title: "New Goal Title" };
-    vi.mocked(axiosInstance.post).mockResolvedValueOnce({
+    vi.mocked(createGoalRequest).mockResolvedValueOnce({
       data: { goal: newGoal },
     });
 
@@ -120,7 +127,7 @@ describe("useGoals", () => {
   });
 
   it("should handle createGoal error responses safely and parse custom error payloads", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -129,7 +136,7 @@ describe("useGoals", () => {
     const serverError = {
       response: { data: { message: "Validation failure details." } },
     };
-    vi.mocked(axiosInstance.post).mockRejectedValueOnce(serverError);
+    vi.mocked(createGoalRequest).mockRejectedValueOnce(serverError);
 
     let actionResponse;
     await act(async () => {
@@ -144,14 +151,14 @@ describe("useGoals", () => {
   });
 
   it("should process updateGoal actions successfully and modify active goal parameters", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
     const updatedGoal = { _id: "g1", title: "Updated Goal Title" };
-    vi.mocked(axiosInstance.patch).mockResolvedValueOnce({
+    vi.mocked(updateGoalRequest).mockResolvedValueOnce({
       data: { goal: updatedGoal },
     });
 
@@ -167,13 +174,13 @@ describe("useGoals", () => {
   });
 
   it("should fail updateGoal operations and report standard error string payloads if request rejects", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
-    vi.mocked(axiosInstance.patch).mockRejectedValueOnce(
+    vi.mocked(updateGoalRequest).mockRejectedValueOnce(
       new Error("Patch Failed"),
     );
 
@@ -190,14 +197,14 @@ describe("useGoals", () => {
 
   // ── Milestone Mutations Branches (Add, Toggle, Delete) ──
   it("should process addMilestone actions and append newly mapped milestones into state arrays", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
     const addedMilestone = { _id: "m2", title: "New Task Item" };
-    vi.mocked(axiosInstance.post).mockResolvedValueOnce({
+    vi.mocked(addMilestoneRequest).mockResolvedValueOnce({
       data: { milestone: addedMilestone },
     });
 
@@ -213,13 +220,13 @@ describe("useGoals", () => {
   });
 
   it("should fail addMilestone actions and update hook errors states when server throws error exceptions", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
-    vi.mocked(axiosInstance.post).mockRejectedValueOnce(
+    vi.mocked(addMilestoneRequest).mockRejectedValueOnce(
       new Error("Post Rejected"),
     );
 
@@ -238,7 +245,7 @@ describe("useGoals", () => {
     const originalMilestones = [
       { _id: "m1", title: "Task 1", isCompleted: false },
     ];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: originalMilestones },
     });
 
@@ -246,7 +253,7 @@ describe("useGoals", () => {
     await act(async () => {});
 
     const updatedMilestone = { _id: "m1", title: "Task 1", isCompleted: true };
-    vi.mocked(axiosInstance.patch).mockResolvedValueOnce({
+    vi.mocked(toggleMilestoneRequest).mockResolvedValueOnce({
       data: { milestone: updatedMilestone },
     });
 
@@ -261,14 +268,14 @@ describe("useGoals", () => {
     const originalMilestones = [
       { _id: "m1", title: "Task 1", isCompleted: false },
     ];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: originalMilestones },
     });
 
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
-    vi.mocked(axiosInstance.patch).mockRejectedValueOnce(
+    vi.mocked(toggleMilestoneRequest).mockRejectedValueOnce(
       new Error("Toggle Server Crash"),
     );
 
@@ -282,14 +289,14 @@ describe("useGoals", () => {
 
   it("should support optimistic delete workflows when server returning validation checks pass with ok codes", async () => {
     const initialMilestones = [{ _id: "m1", title: "Delete Target" }];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: initialMilestones },
     });
 
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
-    vi.mocked(axiosInstance.delete).mockResolvedValueOnce({ ok: true });
+    vi.mocked(deleteMilestoneRequest).mockResolvedValueOnce({ ok: true });
 
     let response;
     await act(async () => {
@@ -302,7 +309,7 @@ describe("useGoals", () => {
 
   it("should restore previous milestone listings if delete returns false ok codes with custom messages", async () => {
     const initialMilestones = [{ _id: "m1", title: "Delete Target" }];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: initialMilestones },
     });
 
@@ -314,7 +321,7 @@ describe("useGoals", () => {
     const deferredPromise = new Promise((resolve) => {
       deferredResolve = resolve;
     });
-    vi.mocked(axiosInstance.delete).mockReturnValueOnce(deferredPromise);
+    vi.mocked(deleteMilestoneRequest).mockReturnValueOnce(deferredPromise);
 
     let p;
     await act(async () => {
@@ -342,7 +349,7 @@ describe("useGoals", () => {
 
   it("should fallback to standard error strings inside delete paths if json resolution maps reject empty", async () => {
     const initialMilestones = [{ _id: "m1", title: "Delete Target" }];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: initialMilestones },
     });
 
@@ -353,7 +360,7 @@ describe("useGoals", () => {
     const deferredPromise = new Promise((resolve) => {
       deferredResolve = resolve;
     });
-    vi.mocked(axiosInstance.delete).mockReturnValueOnce(deferredPromise);
+    vi.mocked(deleteMilestoneRequest).mockReturnValueOnce(deferredPromise);
 
     let p;
     await act(async () => {
@@ -389,7 +396,7 @@ describe("useGoals", () => {
   });
 
   it("should join room structures and fire trace metrics on standard connect hooks", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     renderHook(() => useGoals("conn_123"));
@@ -412,7 +419,7 @@ describe("useGoals", () => {
   });
 
   it("should handle external goal_created events and launch notifications cards cleanly", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -438,7 +445,7 @@ describe("useGoals", () => {
   });
 
   it("should intercept and skip own actions inside socket streams via internal counter refs", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -446,7 +453,7 @@ describe("useGoals", () => {
 
     const setupConfig = capturedSocketInitializer();
 
-    vi.mocked(axiosInstance.post).mockResolvedValueOnce({
+    vi.mocked(createGoalRequest).mockResolvedValueOnce({
       data: { goal: { title: "Self Form" } },
     });
 
@@ -462,7 +469,7 @@ describe("useGoals", () => {
   });
 
   it("should handle goal_updated socket events and launch update notifications safely", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -485,7 +492,7 @@ describe("useGoals", () => {
   });
 
   it("should intercept own goal updates and bypass secondary notifications calls inside the hook", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -493,7 +500,7 @@ describe("useGoals", () => {
 
     const setupConfig = capturedSocketInitializer();
 
-    vi.mocked(axiosInstance.patch).mockResolvedValueOnce({
+    vi.mocked(updateGoalRequest).mockResolvedValueOnce({
       data: { goal: { title: "Own Mod" } },
     });
     await act(async () => {
@@ -508,7 +515,7 @@ describe("useGoals", () => {
   });
 
   it("should handle milestone_added socket stream signals and push targets directly to state lists", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -529,7 +536,7 @@ describe("useGoals", () => {
   });
 
   it("should skip own milestone creations inside socket listener feedback paths", async () => {
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: [] },
     });
     const { result } = renderHook(() => useGoals("conn_123"));
@@ -537,7 +544,7 @@ describe("useGoals", () => {
 
     const setupConfig = capturedSocketInitializer();
 
-    vi.mocked(axiosInstance.post).mockResolvedValueOnce({
+    vi.mocked(addMilestoneRequest).mockResolvedValueOnce({
       data: { milestone: { _id: "m2" } },
     });
     await act(async () => {
@@ -556,7 +563,7 @@ describe("useGoals", () => {
     const baselineMilestones = [
       { _id: "m1", title: "Target Task", isCompleted: false },
     ];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: baselineMilestones },
     });
 
@@ -581,7 +588,7 @@ describe("useGoals", () => {
     const baselineMilestones = [
       { _id: "m1", title: "Target Task", isCompleted: true },
     ];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: baselineMilestones },
     });
 
@@ -606,14 +613,14 @@ describe("useGoals", () => {
     const baselineMilestones = [
       { _id: "m1", title: "Target", isCompleted: false },
     ];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: baselineMilestones },
     });
 
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
-    vi.mocked(axiosInstance.patch).mockResolvedValueOnce({
+    vi.mocked(toggleMilestoneRequest).mockResolvedValueOnce({
       data: { milestone: { _id: "m1", isCompleted: true } },
     });
     await act(async () => {
@@ -634,7 +641,7 @@ describe("useGoals", () => {
 
   it("should handle external milestone_deleted socket actions and drop targets from active states", async () => {
     const baselineMilestones = [{ _id: "m1", title: "Drop Item" }];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: baselineMilestones },
     });
 
@@ -654,14 +661,14 @@ describe("useGoals", () => {
 
   it("should bypass milestone delete events if operations originate from internal hook executions", async () => {
     const baselineMilestones = [{ _id: "m1", title: "Drop Item" }];
-    vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+    vi.mocked(fetchGoalRequest).mockResolvedValueOnce({
       data: { goal: null, milestones: baselineMilestones },
     });
 
     const { result } = renderHook(() => useGoals("conn_123"));
     await act(async () => {});
 
-    vi.mocked(axiosInstance.delete).mockResolvedValueOnce({ ok: true });
+    vi.mocked(deleteMilestoneRequest).mockResolvedValueOnce({ ok: true });
     await act(async () => {
       await result.current.deleteMilestone("m1");
     });

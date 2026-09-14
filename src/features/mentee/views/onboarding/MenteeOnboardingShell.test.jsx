@@ -14,7 +14,7 @@ vi.mock("@components/ui/OnboardingProgressBar", () => ({
   default: () => <div data-testid="progress-bar">ProgressBar</div>,
 }));
 
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   default: ({ message }) => (
     <div data-testid="full-screen-loader">{message}</div>
   ),

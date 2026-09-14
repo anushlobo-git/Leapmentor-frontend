@@ -3,14 +3,14 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MenteeHistoryModal from "./MenteeHistoryModal";
 import { getEngagements } from "@features/admin/models/admin.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // ── 1. Mock External Modules & Libraries ──────────────────────────────────
 vi.mock("@features/admin/models/admin.api", () => ({
   getEngagements: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },

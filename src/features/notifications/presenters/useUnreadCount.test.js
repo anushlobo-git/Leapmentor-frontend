@@ -5,11 +5,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useUnreadCount from "./useUnreadCount";
-import axiosInstance from "@lib/axiosInstance";
+import { getNotifications } from "@features/notifications/models/notifications.api";
 import { normalizeApiNotif } from "@features/notifications/models/notificationMapper";
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: { get: vi.fn() },
+vi.mock("@features/notifications/models/notifications.api", () => ({
+  getNotifications: vi.fn(),
 }));
 
 vi.mock("@features/notifications/models/notificationMapper", () => ({
@@ -47,12 +47,12 @@ describe("useUnreadCount", () => {
       await Promise.resolve();
     });
 
-    expect(axiosInstance.get).not.toHaveBeenCalled();
+    expect(getNotifications).not.toHaveBeenCalled();
   });
 
   it("should fetch and count unread notifications when authenticated", async () => {
     mockUseSelector.mockReturnValue(true);
-    axiosInstance.get.mockResolvedValue({
+    getNotifications.mockResolvedValue({
       data: {
         notifications: [
           { id: 1, read: false },
@@ -68,18 +68,18 @@ describe("useUnreadCount", () => {
       expect(result.current.unreadCount).toBe(2);
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith("/notifications");
+    expect(getNotifications).toHaveBeenCalledWith();
     expect(normalizeApiNotif).toHaveBeenCalledTimes(3);
   });
 
   it("should default to an empty list when notifications is not an array", async () => {
     mockUseSelector.mockReturnValue(true);
-    axiosInstance.get.mockResolvedValue({ data: {} });
+    getNotifications.mockResolvedValue({ data: {} });
 
     const { result } = renderHook(() => useUnreadCount());
 
     await waitFor(() => {
-      expect(axiosInstance.get).toHaveBeenCalled();
+      expect(getNotifications).toHaveBeenCalled();
     });
 
     expect(result.current.unreadCount).toBe(0);
@@ -87,12 +87,12 @@ describe("useUnreadCount", () => {
 
   it("should silently fail and leave count unchanged on fetch error", async () => {
     mockUseSelector.mockReturnValue(true);
-    axiosInstance.get.mockRejectedValue(new Error("Network error"));
+    getNotifications.mockRejectedValue(new Error("Network error"));
 
     const { result } = renderHook(() => useUnreadCount());
 
     await waitFor(() => {
-      expect(axiosInstance.get).toHaveBeenCalled();
+      expect(getNotifications).toHaveBeenCalled();
     });
 
     expect(result.current.unreadCount).toBe(0);
@@ -133,7 +133,7 @@ describe("useUnreadCount", () => {
 
   it("should expose a refetch function that re-fetches unread count", async () => {
     mockUseSelector.mockReturnValue(true);
-    axiosInstance.get
+    getNotifications
       .mockResolvedValueOnce({
         data: { notifications: [{ id: 1, read: false }] },
       })
@@ -157,23 +157,23 @@ describe("useUnreadCount", () => {
     });
 
     expect(result.current.unreadCount).toBe(2);
-    expect(axiosInstance.get).toHaveBeenCalledTimes(2);
+    expect(getNotifications).toHaveBeenCalledTimes(2);
   });
 
   it("should re-fetch when authentication status changes", async () => {
     mockUseSelector.mockReturnValue(false);
-    axiosInstance.get.mockResolvedValue({
+    getNotifications.mockResolvedValue({
       data: { notifications: [{ id: 1, read: false }] },
     });
 
     const { rerender } = renderHook(() => useUnreadCount());
-    expect(axiosInstance.get).not.toHaveBeenCalled();
+    expect(getNotifications).not.toHaveBeenCalled();
 
     mockUseSelector.mockReturnValue(true);
     rerender();
 
     await waitFor(() => {
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getNotifications).toHaveBeenCalledTimes(1);
     });
   });
 });
