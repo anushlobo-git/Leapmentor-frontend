@@ -8,7 +8,7 @@ import {
   changePasswordRequest,
 } from "@features/mentee/models/mentee.api";
 import logger from "@lib/monitoring/logger";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi ,beforeEach } from "vitest";
 
 // Mock mentee.api
 vi.mock("@features/mentee/models/mentee.api", () => ({

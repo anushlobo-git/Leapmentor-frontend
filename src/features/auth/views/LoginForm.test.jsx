@@ -8,10 +8,11 @@ const mockLogin = vi.fn();
 const mockSetAuthRole = vi.fn();
 const mockSetUser = vi.fn();
 const mockUseGoogleAuth = vi.fn();
-
+//we are mocking the usedispatch and usenavigate hooks that is the dependency which is needed during the login
 vi.mock("react-redux", () => ({
   useDispatch: () => mockUseDispatch,
 }));
+//useNaviget comes under the react-router-dom package
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockUseNavigate,
 }));
@@ -61,18 +62,26 @@ const setUp = () =>
   render(<LoginForm placeholder="you@example.com" registerPath="/register" />);
 
 describe("LoginForm", () => {
+  //vi.clearAllMocks() does NOT restore the mock to its initial implementation/value.
+  //It only clears the recorded call history.
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
+  //vi.advanceTimersByTime(5000);  by doing this when we are using the setTimeOut in the code
+  //we can skip 5 seconds from the real time to skip waiting so if its done then to reset to
+  //the actual time we do it
   afterEach(() => {
     vi.useRealTimers();
   });
 
   it("renders the login form with placeholder and register link", () => {
     setUp();
-
+    //The i is a regular expression flag meaning case-insensitive.
     expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument();
+    //The i is a regular expression flag meaning case-insensitive. like
+    //Login to Dashboard
+     //login to dashboard
+      //LOGIN TO DASHBOARD
     expect(screen.getByText(/Login to Dashboard/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Register here/i }),
@@ -81,15 +90,22 @@ describe("LoginForm", () => {
 
   it("toggles password visibility when the toggle button is clicked", () => {
     setUp();
-
+    //so all the html elements have a role such as button when u write <button implicitly we have
+    //role="button" written for that component so we can search for that in the jsdom.
+    //name is the text u give inside the <button>this text </button>
     const toggle = screen.getByRole("button", {
       name: /Show password|Hide password/i,
     });
+    // to get the ui with the associated label to that input <label htmlFor="password">Password</label>
+    //this is how both are connected
+    //<label htmlFor="password">Password</label>   <input   id="password"  type="password" />
     const passwordInput = screen.getByLabelText(/Password/i, {
       selector: "input",
     });
+    //<input id="password" type="password"></input> now id and type inside is the attribute so give the key and value
+    //and search for it
     expect(passwordInput).toHaveAttribute("type", "password");
-
+    //for simulating the user interaction with the html elements
     fireEvent.click(toggle);
     expect(passwordInput).toHaveAttribute("type", "text");
 
@@ -117,7 +133,8 @@ describe("LoginForm", () => {
     });
 
     setUp();
-
+    //there is 2 things that is happening here one is finding the input field and
+    //filling the input field with the value we want to test and then we are submitting the form
     fireEvent.input(screen.getByPlaceholderText(/you@example.com/i), {
       target: { value: "mentor@example.com" },
     });

@@ -2,7 +2,7 @@ import { renderHook, act } from "@testing-library/react";
 import useMentorSearch from "./useMentorSearch";
 import { searchMentorsRequest } from "@features/mentee/models/mentee.api";
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi ,beforeEach , afterEach } from "vitest";
 
 // Mock mentee.api
 vi.mock("@features/mentee/models/mentee.api", () => ({

@@ -5,7 +5,11 @@
 // src/components/shared/ErrorBoundary.jsx
 import React from "react";
 import type { ReactNode, ErrorInfo } from "react";
+//Sentry is an error monitoring and application-performance monitoring tool.
+//this is imported so that the sentry capture the error caught by this error boundary and
+// send it to the sentry dashboard for monitoring and debugging.
 import * as Sentry from "@sentry/react";
+//same here for the logging purpose
 import logger from "@lib/monitoring/logger";
 
 interface ErrorFallbackProps {

@@ -1,6 +1,7 @@
 /**
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
+//obj used in this file can be of this way logObj={user :"",accessToken:""}
 
 // src/utils/logger.js
 //
@@ -43,10 +44,12 @@ const isLikelyJwt = (str) => {
   return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(str);
 };
 
+//logObj={user :"",accessToken:""} and key =[user,accessToken] ,value .......
 function redactValue(key, value) {
   if (value == null) return value;
 
-  // Errors lose their message/stack via Object.entries (non-enumerable),
+  // Errors lose their message/stack via Object.entries (non-enumerable is
+  // something that exists in the object but when looped we cant find it its lost),
   // so handle them explicitly instead of falling through to redactObject.
   if (value instanceof Error) {
     return {
@@ -58,13 +61,14 @@ function redactValue(key, value) {
 
   if (typeof value === "string") {
     if (
+      //some returns true or false u give the array ask question if at least one element satisfies then true
       SENSITIVE_KEYS.some((k) => key?.toLowerCase().includes(k.toLowerCase()))
     ) {
       return "[REDACTED]";
     }
     if (isLikelyJwt(value)) return "[REDACTED_JWT]";
-    // Only redact strings that are ENTIRELY token-like characters (no spaces/
-    // punctuation). Anchored so normal sentences/messages/URLs aren't nuked —
+    // Only redact strings that are ENTIRELY token-like characters
+    // normal sentences/messages/URLs aren't nuked —
     // the previous unanchored regex matched any string containing at least
     // one alphanumeric char, which meant almost every long string qualified.
     if (value.length > 64 && /^[A-Za-z0-9+/=_-]+$/.test(value))
@@ -101,6 +105,7 @@ function sanitizeMessage(message) {
 
 function formatConsoleArg(value) {
   if (value == null) return "";
+  //sanitize is to replace the confidential string with redact string
   if (typeof value === "string") return sanitizeMessage(value);
   if (typeof value === "number" || typeof value === "boolean")
     return String(value);
@@ -115,6 +120,9 @@ function formatConsoleArg(value) {
   }
 }
 
+//this function is for console.log ,warn ,error or other logging calls in the application
+//and then catches the logs and replaces it with redact if it consist sensitive info
+//with the help of formatConsoleArg
 function patchConsoleMethod(methodName) {
   const original = console[methodName];
   if (!original || original.__leapmentorPatched) return;
@@ -142,6 +150,7 @@ function patchConsoleMethod(methodName) {
 
 ["log", "info", "warn", "error"].forEach(patchConsoleMethod);
 
+//value in it is replace with redact for the sensitive information
 function formatLogValue(value) {
   if (value == null) return "";
   if (typeof value === "string") return sanitizeMessage(value);
@@ -153,6 +162,7 @@ function formatLogValue(value) {
   }
 }
 
+//builds the console message to a standardized format
 function buildConsoleMessage(level, message, context) {
   const parts = [];
   const messageText = formatLogValue(message);
@@ -188,13 +198,12 @@ function normalizeErrorInput(message, context) {
 }
 
 // ─── ECS (Elastic Common Schema) shaping ────────────────────────────────────
-// Applies ONLY to what we ship to Better Stack (Logtail) — not to the human-
+// Applies ONLY to what we ship to Better Stack  — not to the human-
 // readable browser console line, which stays as plain "[LEVEL] message ctx"
 // text for readability. ECS gives every log line a predictable, queryable
 // shape (`service.*`, `error.*`, `http.*`, `trace.id`, ...) instead of an
 // arbitrary bag of ad-hoc keys, so Better Stack views/alerts can filter on
 // consistent field names across the whole app instead of per-call-site keys.
-// Reference: https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html
 const ECS_VERSION = "8.11.0";
 const SERVICE_NAME = "leapmentor-frontend";
 const SERVICE_ENVIRONMENT = import.meta.env.MODE; // "development" | "production" | "test"
@@ -211,6 +220,7 @@ const SERVICE_ENVIRONMENT = import.meta.env.MODE; // "development" | "production
  * @param {Record<string, any>} context - Already-redacted context object.
  * @returns {Record<string, any>} ECS-shaped metadata for the Logtail context param.
  */
+//returns the object meta that has ECS standard items init 
 function buildEcsMeta(level, context) {
   const meta: Record<string, any> = {
     "log.level": level,
@@ -232,7 +242,7 @@ function buildEcsMeta(level, context) {
     name,
     ...rest
   } = context;
-
+  //meta.trace=correlationId
   if (correlationId) meta.trace = { id: correlationId };
   if (url) meta.url = { path: url };
   if (method || status != null) {

@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach ,afterEach} from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useTrackEarnings from "./useTrackEarnings";
 import {
