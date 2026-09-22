@@ -5,6 +5,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as Sentry from "@sentry/react";
 
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+
 vi.mock("@sentry/react", () => ({
   init: vi.fn(),
 }));
@@ -30,7 +32,7 @@ describe("sentry", () => {
     const { initializeSentry } = await import("./sentry");
     initializeSentry();
     expect(Sentry.init).toHaveBeenCalledWith({
-      dsn: "https://fb4accd47575799b807ef1b990ab5ebb@o4511471540240384.ingest.de.sentry.io/4511471555575888",
+      dsn: sentryDsn,
       sendDefaultPii: true,
       environment: "production",
     });
@@ -43,7 +45,7 @@ describe("sentry", () => {
     const { initializeSentry } = await import("./sentry");
     initializeSentry();
     expect(Sentry.init).toHaveBeenCalledWith({
-      dsn: "https://fb4accd47575799b807ef1b990ab5ebb@o4511471540240384.ingest.de.sentry.io/4511471555575888",
+      dsn: sentryDsn,
       sendDefaultPii: true,
       environment: "staging",
     });
@@ -56,7 +58,7 @@ describe("sentry", () => {
     const { initializeSentry } = await import("./sentry");
     initializeSentry();
     expect(Sentry.init).toHaveBeenCalledWith({
-      dsn: "https://fb4accd47575799b807ef1b990ab5ebb@o4511471540240384.ingest.de.sentry.io/4511471555575888",
+      dsn: sentryDsn,
       sendDefaultPii: true,
       environment: "production",
     });

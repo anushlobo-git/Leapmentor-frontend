@@ -116,7 +116,7 @@ describe("otpUtils", () => {
       document.getElementById = vi.fn().mockReturnValue(null);
 
       handleOtpKeyDown({ key: "Backspace" }, 1, otpArray);
-      // Should not throw error
+      expect(document.getElementById).toHaveBeenCalledWith("otp-0");
     });
 
     it("should use custom idPrefix for focusing previous input", () => {

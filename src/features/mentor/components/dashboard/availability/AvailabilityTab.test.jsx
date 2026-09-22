@@ -2,6 +2,9 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import AvailabilityTab from "./AvailabilityTab";
 import useAvailability from "@features/mentor/hooks/useAvailability";
 
+// handleSave only checks dates >= today; keep fixtures in the future so conflict tests do not expire.
+const FUTURE_DATE = "2099-07-15";
+
 // Mock sub-components
 vi.mock("@components/common/Loader", () => ({
   default: ({ message }) => <div data-testid="loader">{message}</div>,
@@ -29,8 +32,8 @@ vi.mock(
           onClick={() => {
             onBusySlotsChange([
               {
-                start: "2026-07-15T14:30:00",
-                end: "2026-07-15T15:30:00",
+                start: `${FUTURE_DATE}T14:30:00`,
+                end: `${FUTURE_DATE}T15:30:00`,
               },
             ]);
           }}
@@ -43,8 +46,8 @@ vi.mock(
           onClick={() => {
             onBusySlotsChange([
               {
-                start: "2026-07-15T10:30:00",
-                end: "2026-07-15T11:30:00",
+                start: `${FUTURE_DATE}T10:30:00`,
+                end: `${FUTURE_DATE}T11:30:00`,
               },
             ]);
           }}
@@ -57,8 +60,8 @@ vi.mock(
           onClick={() => {
             onBusySlotsChange([
               {
-                start: "2026-07-15T08:00:00",
-                end: "2026-07-15T09:00:00",
+                start: `${FUTURE_DATE}T08:00:00`,
+                end: `${FUTURE_DATE}T09:00:00`,
               },
             ]);
           }}
@@ -122,7 +125,7 @@ describe("AvailabilityTab component", () => {
   const defaultAvailability = {
     specificDates: [
       {
-        date: "2026-07-15",
+        date: FUTURE_DATE,
         // 14:00 = PM path; 15:00 end so conflict with 14:30-15:30 busy slot works
         slots: [{ startTime: "14:00", endTime: "15:00" }],
       },
@@ -250,7 +253,7 @@ describe("AvailabilityTab component", () => {
     globalThis.Date = class extends OriginalDate {
       constructor(...args) {
         if (typeof args[0] === "string" && args[0].includes("null")) {
-          return new OriginalDate("2026-07-15T10:00:00");
+          return new OriginalDate(`${FUTURE_DATE}T10:00:00`);
         }
         return new OriginalDate(...args);
       }
@@ -259,7 +262,7 @@ describe("AvailabilityTab component", () => {
     const customAvailability = {
       specificDates: [
         {
-          date: "2026-07-15",
+          date: FUTURE_DATE,
           slots: [
             { startTime: "09:00", endTime: "12:00" }, // covers AM and || 12 wraps
             { startTime: null, endTime: "15:00" }, // falsy startTime triggers formatSlotTime early return

@@ -3,10 +3,18 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { configureStore } from "@reduxjs/toolkit";
+import axiosInstance from "@lib/axiosInstance";
 import mentorOnboardingReducer, {
   submitMentorOnboarding,
   clearMentorOnboardingMessages,
 } from "./mentorOnboardingSlice";
+
+vi.mock("@lib/axiosInstance", () => ({
+  default: {
+    post: vi.fn(),
+  },
+}));
 
 describe("mentorOnboardingSlice", () => {
   beforeEach(() => {
@@ -111,6 +119,74 @@ describe("mentorOnboardingSlice", () => {
       expect(state.loading).toBe(false);
       expect(state.error).toBeNull();
       expect(state.successMsg).toBeNull();
+    });
+  });
+
+  describe("submitMentorOnboarding thunk", () => {
+    const createStore = () =>
+      configureStore({ reducer: mentorOnboardingReducer });
+
+    it("posts the payload and defaults missing profilePictureFileName to empty string", async () => {
+      axiosInstance.post.mockResolvedValue({ data: { id: 1 } });
+      const store = createStore();
+
+      await store.dispatch(submitMentorOnboarding({ name: "Ada" }));
+
+      expect(axiosInstance.post).toHaveBeenCalledWith("/mentor-profile", {
+        name: "Ada",
+        profilePictureFileName: "",
+      });
+      expect(store.getState().loading).toBe(false);
+      expect(store.getState().successMsg).toBe(
+        "Profile saved! Redirecting to dashboard…",
+      );
+    });
+
+    it("keeps an existing profilePictureFileName and handles undefined payload", async () => {
+      axiosInstance.post.mockResolvedValue({ data: {} });
+      const store = createStore();
+
+      await store.dispatch(
+        submitMentorOnboarding({ profilePictureFileName: "pic.png" }),
+      );
+      expect(axiosInstance.post).toHaveBeenCalledWith("/mentor-profile", {
+        profilePictureFileName: "pic.png",
+      });
+
+      await store.dispatch(submitMentorOnboarding(undefined));
+      expect(axiosInstance.post).toHaveBeenCalledWith("/mentor-profile", {
+        profilePictureFileName: "",
+      });
+    });
+
+    it("rejects with the API response message", async () => {
+      axiosInstance.post.mockRejectedValue({
+        response: { data: { message: "Validation failed" } },
+      });
+      const store = createStore();
+
+      await store.dispatch(submitMentorOnboarding({ name: "Ada" }));
+
+      expect(store.getState().loading).toBe(false);
+      expect(store.getState().error).toBe("Validation failed");
+    });
+
+    it("rejects with err.message when the response has no message", async () => {
+      axiosInstance.post.mockRejectedValue({ message: "Network down" });
+      const store = createStore();
+
+      await store.dispatch(submitMentorOnboarding({ name: "Ada" }));
+
+      expect(store.getState().error).toBe("Network down");
+    });
+
+    it("rejects with a fallback when neither response nor message exists", async () => {
+      axiosInstance.post.mockRejectedValue({});
+      const store = createStore();
+
+      await store.dispatch(submitMentorOnboarding({ name: "Ada" }));
+
+      expect(store.getState().error).toBe("Something went wrong.");
     });
   });
 });

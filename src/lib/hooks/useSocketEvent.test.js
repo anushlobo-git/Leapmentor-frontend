@@ -33,8 +33,8 @@ describe("useSocketEvent", () => {
   });
 
   it("should not subscribe when setup returns falsy value", () => {
-    const { unmount } = renderHook(() => 
-      useSocketEvent(() => null, [], "Test")
+    const { unmount } = renderHook(() =>
+      useSocketEvent(() => null, [], "Test"),
     );
 
     expect(mockSocket.on).not.toHaveBeenCalled();
@@ -43,8 +43,8 @@ describe("useSocketEvent", () => {
   });
 
   it("should not subscribe when setup returns object without events", () => {
-    const { unmount } = renderHook(() => 
-      useSocketEvent(() => ({}), [], "Test")
+    const { unmount } = renderHook(() =>
+      useSocketEvent(() => ({}), [], "Test"),
     );
 
     expect(mockSocket.on).not.toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe("useSocketEvent", () => {
 
   it("should poll for socket connection", () => {
     vi.useFakeTimers();
-    
+
     const setup = vi.fn(() => ({
       events: { test: vi.fn() },
     }));
@@ -62,18 +62,18 @@ describe("useSocketEvent", () => {
     renderHook(() => useSocketEvent(setup, [], "Test"));
 
     expect(setup).toHaveBeenCalled();
-    
+
     // Advance timer to trigger poll
     vi.advanceTimersByTime(200);
-    
+
     expect(mockSocket.on).not.toHaveBeenCalled(); // Not connected yet
-    
+
     vi.useRealTimers();
   });
 
   it("should register listeners when socket connects", () => {
     vi.useFakeTimers();
-    
+
     const handler = vi.fn();
     const setup = vi.fn(() => ({
       events: { test: handler },
@@ -88,7 +88,7 @@ describe("useSocketEvent", () => {
     expect(mockSocket.on).toHaveBeenCalledWith("test", handler);
     expect(logger.info).toHaveBeenCalledWith(
       "Test connected, registering listeners",
-      { events: ["test"] }
+      { events: ["test"] },
     );
 
     vi.useRealTimers();
@@ -96,7 +96,7 @@ describe("useSocketEvent", () => {
 
   it("should call onConnect when socket connects", () => {
     vi.useFakeTimers();
-    
+
     const onConnect = vi.fn();
     const setup = vi.fn(() => ({
       events: { test: vi.fn() },
@@ -115,7 +115,7 @@ describe("useSocketEvent", () => {
 
   it("should register multiple event listeners", () => {
     vi.useFakeTimers();
-    
+
     const handler1 = vi.fn();
     const handler2 = vi.fn();
     const setup = vi.fn(() => ({
@@ -135,7 +135,7 @@ describe("useSocketEvent", () => {
 
   it("should clean up listeners on unmount", () => {
     vi.useFakeTimers();
-    
+
     const handler = vi.fn();
     const setup = vi.fn(() => ({
       events: { test: handler },
@@ -155,7 +155,7 @@ describe("useSocketEvent", () => {
 
   it("should call onCleanup on unmount", () => {
     vi.useFakeTimers();
-    
+
     const onCleanup = vi.fn();
     const setup = vi.fn(() => ({
       events: { test: vi.fn() },
@@ -176,7 +176,7 @@ describe("useSocketEvent", () => {
 
   it("should clear polling interval on unmount", () => {
     vi.useFakeTimers();
-    
+
     const setup = vi.fn(() => ({
       events: { test: vi.fn() },
     }));
@@ -185,15 +185,16 @@ describe("useSocketEvent", () => {
 
     unmount();
 
-    // Should not crash when timer advances after unmount
+    mockSocket.connected = true;
     vi.advanceTimersByTime(200);
 
+    expect(mockSocket.on).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
 
   it("should re-subscribe when dependencies change", () => {
     vi.useFakeTimers();
-    
+
     const handler = vi.fn();
     const setup = vi.fn(() => ({
       events: { test: handler },
@@ -201,7 +202,7 @@ describe("useSocketEvent", () => {
 
     const { rerender } = renderHook(
       ({ deps }) => useSocketEvent(setup, deps, "Test"),
-      { initialProps: { deps: [1] } }
+      { initialProps: { deps: [1] } },
     );
 
     mockSocket.connected = true;
@@ -220,7 +221,7 @@ describe("useSocketEvent", () => {
 
   it("should use custom log label", () => {
     vi.useFakeTimers();
-    
+
     const setup = vi.fn(() => ({
       events: { test: vi.fn() },
     }));
@@ -232,7 +233,7 @@ describe("useSocketEvent", () => {
 
     expect(logger.info).toHaveBeenCalledWith(
       "CustomLabel connected, registering listeners",
-      expect.any(Object)
+      expect.any(Object),
     );
 
     vi.useRealTimers();
@@ -240,24 +241,25 @@ describe("useSocketEvent", () => {
 
   it("should handle missing socket gracefully", () => {
     vi.useFakeTimers();
-    
+
     delete globalThis.__leapSocket;
-    
+
     const setup = vi.fn(() => ({
       events: { test: vi.fn() },
     }));
 
     renderHook(() => useSocketEvent(setup, [], "Test"));
 
-    // Should not crash even without socket
     vi.advanceTimersByTime(200);
 
+    expect(setup).toHaveBeenCalledTimes(1);
+    expect(logger.info).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
 
   it("should handle socket.off when socket is null during cleanup", () => {
     vi.useFakeTimers();
-    
+
     const handler = vi.fn();
     const setup = vi.fn(() => ({
       events: { test: handler },
@@ -271,9 +273,8 @@ describe("useSocketEvent", () => {
     // Remove socket before unmount
     delete globalThis.__leapSocket;
 
-    unmount();
+    expect(() => unmount()).not.toThrow();
 
-    // Should not crash
     vi.useRealTimers();
   });
 });
