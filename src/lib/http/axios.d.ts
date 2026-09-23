@@ -25,7 +25,6 @@ declare module "axios" {
     authDomain?: "admin" | "default";
   }
 }
-
 // const config = {
 //   url: "/users",
 //   method: "GET",

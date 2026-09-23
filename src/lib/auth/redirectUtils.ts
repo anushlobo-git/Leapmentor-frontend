@@ -5,29 +5,36 @@
 // Common utilities for role-based redirects in auth flows
 // Used after login, signup, and OAuth flows
 
-/**
- * Determine primary role from roles array
- * Mentor > Mentee priority (if multiple roles)
- */
-export const getPrimaryRole = (roles) => {
-  if (roles?.includes("mentor")) return "mentor";
-  if (roles?.includes("mentee")) return "mentee";
-  return null;
-};
+import {
+  ROLE_CONFIG,
+  getPrimaryRole as getPrimaryRoleFromRegistry,
+  type RouteRole,
+} from "@constants/roles";
 
 /**
- * Get dashboard path for a role
+ * Determine primary role from roles array.
+ * Delegates to the central role registry (constants/roles.ts) so the
+ * mentor > mentee tie-break lives in exactly one place — this function is
+ * kept as a re-export so every existing `import { getPrimaryRole } from
+ * "@lib/auth/redirectUtils"` call site keeps working unchanged.
  */
-export const getDashboardPath = (role) => {
-  return role ? `/dashboard/${role}` : "/";
-};
+export const getPrimaryRole = (roles?: string[] | null) =>
+  getPrimaryRoleFromRegistry(roles);
 
 /**
- * Get onboarding path for a role
+ * Get dashboard path for a role. Reads ROLE_CONFIG (the same source the
+ * router and ProtectedRoute use) instead of building the URL by string
+ * interpolation, so a role with no dashboard (admin) or an unknown role
+ * gets "/" rather than a URL that doesn't exist.
  */
-export const getOnboardingPath = (role) => {
-  return role ? `/onboarding/${role}` : "/";
-};
+export const getDashboardPath = (role?: string | null) =>
+  ROLE_CONFIG[role as RouteRole]?.dashboardPath ?? "/";
+
+/**
+ * Get onboarding path for a role (same registry lookup as above).
+ */
+export const getOnboardingPath = (role?: string | null) =>
+  ROLE_CONFIG[role as RouteRole]?.onboardingPath ?? "/";
 
 /**
  * Common redirect delays (ms)

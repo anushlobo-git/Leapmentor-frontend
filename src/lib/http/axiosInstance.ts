@@ -3,7 +3,15 @@
  */
 
 // src/lib/axiosInstance.ts
-
+//
+// Single shared HTTP client for the ENTIRE app — mentor, mentee, and admin
+// requests all go through this one axios instance. Previously admin traffic
+// had its own axios.create() (adminAxiosInstance.ts) with a parallel copy of
+// this same interceptor logic. That meant every new role introduced another
+// hand-rolled client. Instead, this file is "domain aware": it picks the
+// right base URL, auth strategy, refresh endpoint, and redirect target from
+// the request URL, via the AUTH_DOMAINS map below. Adding a new role later
+// means adding one entry to that map — never another axios instance.
 import axios from "axios";
 import { clearAuthRole } from "@lib/http/cookies";
 import * as Sentry from "@sentry/react";
@@ -15,7 +23,7 @@ import { HTTP_STATUS, isServerError, isRateLimited } from "@lib/http/httpStatus"
 
 let _store = null;
 /**
- * Injects the Redux store so the axios interceptor can read the store object
+ * Injects the Redux store so the axios interceptor can read the current
  * session (access token / role) and dispatch auth updates during refresh.
  * @param {import('@reduxjs/toolkit').EnhancedStore} store - App Redux store instance.
  * @returns {void}
@@ -24,7 +32,7 @@ export const injectStore = (store) => {
   _store = store;
 };
 
-
+// ─── AUTH DOMAINS ────────────────────────────────────────────────────────────
 // Every request is classified into exactly one domain based on its URL.
 // The domain decides: which base URL to hit, whether to attach a Bearer
 // token, where the silent-refresh endpoint lives, and where to redirect on
@@ -43,14 +51,14 @@ const AUTH_DOMAINS = {
     //if the passed url as admin or starts with the admin then this matches gives true
     matches: (url) => !!url && url.startsWith("/admin"),
     baseURL: ADMIN_BASE_URL,
-    usesBearer: false,
+    usesBearer: false, // admin session lives entirely in an HttpOnly cookie
     loginUrl: "/admin/auth/login",
     refreshUrl: "/admin/auth/refresh",
     redirectUrl: "/admin/login",
   },
   default: {
     name: "default",
-    matches: () => true,
+    matches: () => true, // fallback — mentor/mentee (and anything unclassified)
     baseURL: DEFAULT_BASE_URL,
     usesBearer: true,
     loginUrl: "/auth/login",
@@ -63,28 +71,30 @@ const AUTH_DOMAINS = {
 //axiosInstance.get("/admin/stats",adminConfig)
 const resolveDomain = (config) => {
   // Check the config and see which domain to use
+  // Prefer an explicit domain. URL matching remains a safe default for the
+  // conventional /admin/* routes, but some admin endpoints intentionally
+  // share an unprefixed path with user-facing endpoints.
   if (config?.authDomain === "admin") return AUTH_DOMAINS.admin;
   if (config?.authDomain === "default") return AUTH_DOMAINS.default;
   return AUTH_DOMAINS.admin.matches(config?.url)
     ? AUTH_DOMAINS.admin
     : AUTH_DOMAINS.default;
 };
-
 //it gives a function object that can be used to make requests to the api
+
 const axiosInstance = axios.create({
   baseURL: DEFAULT_BASE_URL,
-  //sends cookies with the request
+    //sends cookies with the request
   withCredentials: true,
-  //u get 15 seconds to make the request, if it takes longer, it will throw an error ECONNABORTED
-  timeout: 15000,
+  timeout: 15000, // 15s default; override per-call for slow endpoints (e.g. exports)
 });
 
-//REQUEST INTERCEPTOR
+// ─── REQUEST INTERCEPTOR ─────────────────────────────────────────────────────
 axiosInstance.interceptors.request.use(
   (config) => {
-    //for all the requests, we need to know which domain to use
+        //for all the requests, we need to know which domain to use
     const domain = resolveDomain(config);
-    //attach base url for it
+        //attach base url for it
     config.baseURL = domain.baseURL;
 
     if (domain.usesBearer) {
@@ -111,10 +121,11 @@ axiosInstance.interceptors.request.use(
     throw error;
   },
 );
-
-//  RESPONSE INTERCEPTOR
 //this variable holds true for the domain if a request is running the refresh endpoint
 //if default domain request is running then default :true else vise versa
+// ─── RESPONSE INTERCEPTOR ────────────────────────────────────────────────────
+// Refresh-in-flight state is tracked per domain so a stuck admin refresh
+// can never block or get confused with a concurrent mentor/mentee refresh.
 const isRefreshing = { admin: false, default: false };
 //this object stores the promises that needs to be run later for replacing the token
 //so example requestA is running refresh then requestB and requestC with the expired token will be here
@@ -126,7 +137,6 @@ const isRefreshing = { admin: false, default: false };
 //now if the first request gets the token then the next function gets called with the new token so eliminating
 //concurrent calls
 const failedQueue = { admin: [], default: [] };
-
 
 const processQueue = (domainName, error, token = null) => {
   failedQueue[domainName].forEach((prom) => {
@@ -175,11 +185,11 @@ axiosInstance.interceptors.response.use(
   },
 
   async (error) => {
-    //u get the config of the request that was sent which got an error
+        //u get the config of the request that was sent which got an error
     const originalRequest = error?.config;
-    //is it admin or default
+        //is it admin or default
     const domain = resolveDomain(originalRequest);
-    //status code is it 500 or 401 etc
+        //status code is it 500 or 401 etc
     const status = error?.response?.status;
     const url = error?.config?.url;
     const { correlationId } = error?.config?.metadata || {};
@@ -196,7 +206,11 @@ axiosInstance.interceptors.response.use(
           : `${logPrefix}API Network Failure — Server unreachable or CORS rejection`,
         { url, correlationId, message, stack: error.stack },
       );
-      //toast for network errors
+      // NOTE: preserves each domain's original toast behavior exactly.
+      // Mentor/mentee only ever toasted on a genuine timeout; admin toasted
+      // on any network failure. Unifying these into one shared "always
+      // toast" behavior would be a real UX change, not just a refactor, so
+      // it's kept domain-specific here rather than homogenized.
       if (isTimeout) {
         toast.error("This is taking longer than expected. Please try again.");
       } else if (domain.name === "admin") {
@@ -217,9 +231,8 @@ axiosInstance.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue[domain.name].push({ resolve, reject });
         })
-          //here the requests are paused and then stored in failedQueue this runs after the refresh is run
+        //here the requests are paused and then stored in failedQueue this runs after the refresh is run
           //and it gets the token for the first request in the failedQueue and for the rest request this function is called
-
           .then((token) => {
             if (domain.usesBearer && token) {
               originalRequest.headers["Authorization"] = `Bearer ${token}`;
@@ -233,7 +246,6 @@ axiosInstance.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing[domain.name] = true;
-
       //refresh calls in here
       try {
         if (domain.usesBearer) {

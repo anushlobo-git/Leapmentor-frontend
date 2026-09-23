@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@features/auth/models/authSlice";
 import { exchangeLinkedInToken } from "@features/auth/models/auth.api";
 import { setAuthRole } from "@lib/http/cookies";
+import { getPrimaryRole, getDashboardPath, getOnboardingPath } from "@lib/auth/redirectUtils";
 import logger from "@lib/monitoring/logger";
 import type { AppDispatch } from "@store/index";
 
@@ -57,13 +58,19 @@ export const useSSOCallbackPresenter = () => {
         sessionStorage.removeItem("linkedin_code_used");
 
         const { user, isNewUser } = res.data;
-        const resolvedRole = user?.roles?.includes("mentor") ? "mentor" : "mentee";
+        // Was `user?.roles?.includes("mentor") ? "mentor" : "mentee"` — that
+        // silently defaulted to mentee even for an account with NO roles at
+        // all. getPrimaryRole applies the same mentor > mentee tie-break
+        // used everywhere else; "mentee" is kept only as the final fallback
+        // for the (expected, LinkedIn-signup) case of a genuinely new user
+        // who has no roles yet.
+        const resolvedRole = getPrimaryRole(user?.roles) || "mentee";
 
         dispatch(setUser({ accessToken: res.data.accessToken || null, user })); // ✅
         setAuthRole(resolvedRole);
 
         navigate(
-          isNewUser ? `/onboarding/${resolvedRole}` : `/dashboard/${resolvedRole}`,
+          isNewUser ? getOnboardingPath(resolvedRole) : getDashboardPath(resolvedRole),
           { replace: true }
         );
       } catch (err: any) {

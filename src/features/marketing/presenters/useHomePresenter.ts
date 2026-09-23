@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
+import { getPrimaryRole } from "@lib/auth/redirectUtils";
+import { ROLE_CONFIG } from "@constants/roles";
 import type { RootState } from "@store/index";
 
 export const useHomePresenter = () => {
@@ -19,8 +21,17 @@ export const useHomePresenter = () => {
   useEffect(() => {
     // authToken is HttpOnly (unreadable), check authRole cookie instead
     if (isAuthenticated) {
-      const role = user?.roles?.[0];
-      navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee", { replace: true });
+      // Was `user?.roles?.[0]` — just took whatever order the array
+      // happened to be in, and fell back to the mentee dashboard for ANY
+      // non-mentor value (including no roles at all). getPrimaryRole
+      // applies the same mentor > mentee tie-break used everywhere else
+      // in the app, and ROLE_CONFIG supplies the actual path so this hook
+      // has no role names hardcoded into it.
+      const primaryRole = getPrimaryRole(user?.roles);
+      const destination = primaryRole
+        ? ROLE_CONFIG[primaryRole]?.dashboardPath
+        : undefined;
+      navigate(destination ?? "/", { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

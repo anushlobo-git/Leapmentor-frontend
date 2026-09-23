@@ -38,8 +38,17 @@ describe("redirectUtils", () => {
       expect(getPrimaryRole(undefined)).toBe(null);
     });
 
-    it("should return null when roles array has neither mentor nor mentee", () => {
-      expect(getPrimaryRole(["admin"])).toBe(null);
+    it("falls back to the role itself (rather than null) for a role outside the mentor/mentee priority list", () => {
+      // Changed behavior, intentionally: this used to return null for any
+      // role it didn't recognize by name. That was fine when "mentor" and
+      // "mentee" were the only two roles that would ever exist, but it
+      // meant a brand-new role added to the system (see constants/roles.ts
+      // ROLE_PRIORITY) would silently get NO primary role — breaking
+      // dashboard redirects for that role — until someone remembered to
+      // add it here too. Falling back to the role itself means a new role
+      // works correctly the moment it's added to constants/roles.ts,
+      // before it's ever added to the priority tie-break list.
+      expect(getPrimaryRole(["moderator"])).toBe("moderator");
     });
   });
 
@@ -62,6 +71,18 @@ describe("redirectUtils", () => {
 
     it("should return root path when role is undefined", () => {
       expect(getDashboardPath(undefined)).toBe("/");
+    });
+  });
+
+  describe("getDashboardPath reads the role registry", () => {
+    it("returns '/' for admin (no dashboard) instead of a made-up /dashboard/admin", () => {
+      expect(getDashboardPath("admin")).toBe("/");
+    });
+
+    it("returns '/' for an unknown role", () => {
+      expect(getDashboardPath("ghost")).toBe("/");
+      expect(getOnboardingPath("ghost")).toBe("/");
+      expect(getOnboardingPath("admin")).toBe("/");
     });
   });
 
@@ -107,7 +128,6 @@ describe("redirectUtils", () => {
       vi.stubEnv("VITE_API_BASE_URL", undefined);
       expect(getBaseUrl()).toBe("http://localhost:5000/api/v1");
     });
-
   });
 
   describe("buildOAuthUrl", () => {
@@ -120,16 +140,20 @@ describe("redirectUtils", () => {
     it("should build OAuth URL with params", () => {
       vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
       const result = buildOAuthUrl("google", { redirect: "/dashboard" });
-      expect(result).toBe("https://api.example.com/api/v1/auth/google?redirect=%2Fdashboard");
+      expect(result).toBe(
+        "https://api.example.com/api/v1/auth/google?redirect=%2Fdashboard",
+      );
     });
 
     it("should build OAuth URL with multiple params", () => {
       vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
-      const result = buildOAuthUrl("linkedin", { redirect: "/dashboard", state: "abc123" });
+      const result = buildOAuthUrl("linkedin", {
+        redirect: "/dashboard",
+        state: "abc123",
+      });
       expect(result).toContain("redirect=%2Fdashboard");
       expect(result).toContain("state=abc123");
     });
-
 
     it("should handle empty params object", () => {
       vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/api/v1");
