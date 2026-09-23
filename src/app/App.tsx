@@ -5,8 +5,7 @@
 // src/App.jsx
 import { Toaster } from "sonner";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import { AdminAuthProvider } from "@features/admin/context/AdminAuthContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@store/index";
 import { setUser, logout } from "@features/auth/store/authSlice";
@@ -17,7 +16,6 @@ import { hasSessionHint, clearAuthRole } from "@lib/cookies";
 // ── Eager loaded — tiny, always needed immediately ────────────
 import Home from "@features/marketing/pages/Home";
 import NotFound from "@app/pages/NotFound";
-import AdminRoute from "@features/admin/components/AdminRoute";
 import ProtectedRoute from "@features/auth/components/ProtectedRoute";
 
 // ── Auth pages ────────────────────────────────────────────────
@@ -85,12 +83,6 @@ const AdminVerifications = lazy(
   () => import("@features/admin/pages/AdminVerifications"),
 );
 
-const AdminAuthLayout = () => (
-  <AdminAuthProvider>
-    <Outlet />
-  </AdminAuthProvider>
-);
-
 // ── Global loading spinner ────────────────────────────────────
 const PageLoader = () => (
   <div
@@ -107,6 +99,11 @@ const PageLoader = () => (
       </p>
     </div>
   </div>
+);
+
+// ── Admin session bootstrap — replaces the old AdminAuthProvider ──────
+const AdminAuthLayout = lazy(
+  () => import("@features/admin/components/AdminSessionGate"),
 );
 
 // ── Inner app — needs access to Redux dispatch ────────────────
@@ -246,69 +243,69 @@ const AppRoutes = () => {
         <Route
           path="/admin/users"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminUserManagement />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/engagements"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminEngagements />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/reports"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminReports />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/payments"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminPayments />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/settings"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminSettings />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/wallet-requests"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminWalletRequests />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/support"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminLayout>
                 <AdminSupportMessages />
               </AdminLayout>
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/verifications"
           element={
-            <AdminRoute>
+            <ProtectedRoute role="admin">
               <AdminLayout>
                 <AdminVerifications />
               </AdminLayout>
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
       </Route>

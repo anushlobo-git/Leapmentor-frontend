@@ -182,8 +182,10 @@ export const resetPassword = createAsyncThunk(
 );
 
 interface AuthState {
-  user: ReturnType<typeof mapAuthUser> | null;
+  user: ReturnType<typeof mapAuthUser> | Record<string, any> | null;
   accessToken: string | null;
+  role: "admin" | null;
+  adminBootstrapping: boolean;
   loading: boolean;
   sending: boolean;
   error: string | null | unknown;
@@ -191,12 +193,35 @@ interface AuthState {
   verifiedRole: string | null;
 }
 
+/**
+ * Bootstraps an admin session on mount by probing the HttpOnly admin cookie.
+ * Unlike mentor/mentee sessions, the admin backend never returns an access
+ * token to the client — the cookie itself is the session — so this thunk
+ * only needs to know whether `/admin/auth/me` resolves.
+ * @returns {Promise<any>} The admin object from the backend, or null.
+ */
+export const bootstrapAdminSession = createAsyncThunk(
+  "auth/bootstrapAdminSession",
+  async (_: void, { rejectWithValue }: any) => {
+    try {
+      const res = await axiosInstance.get("/admin/auth/me", {
+        _skipAuthRedirect: true,
+      } as any);
+      return res.data?.admin ?? null;
+    } catch {
+      return rejectWithValue(null);
+    }
+  }
+);
+
 // ── Slice ───────────────────────────────────────────────────
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user:       null,
     accessToken:null,
+    role:       null,
+    adminBootstrapping: true,
     loading:    false,
     sending:    false,   // for resend/send OTP actions
     error:      null,
@@ -212,6 +237,7 @@ const authSlice = createSlice({
     logout(state) {
       state.user       = null;
       state.accessToken      = null;
+      state.role        = null;
       state.error      = null;
       state.successMsg = null;
     },
@@ -225,6 +251,19 @@ const authSlice = createSlice({
     setUser(state, action: { payload: { user?: Record<string, any>; accessToken?: string } }) {
       state.user  = action.payload.user ? mapAuthUser(action.payload.user) : null;
       state.accessToken = action.payload.accessToken;
+    },
+    /**
+     * Stores an authenticated admin session. Admins have no access token —
+     * their session lives entirely in the HttpOnly admin cookie — so this
+     * only needs to record the admin object and flip the role marker.
+     * @param {Object} state - Slice state.
+     * @param {{ payload: Record<string, any> | null }} action - Admin payload.
+     * @returns {void}
+     */
+    setAdminSession(state, action: { payload: Record<string, any> | null }) {
+      state.user  = action.payload;
+      state.role  = action.payload ? "admin" : null;
+      state.adminBootstrapping = false;
     },
     /**
      * Clears transient auth feedback messages.
@@ -369,14 +408,44 @@ const authSlice = createSlice({
         state.loading = false;
         state.error   = action.payload;
       });
+
+    // ── Bootstrap Admin Session ──
+    builder
+      .addCase(bootstrapAdminSession.pending, (state) => {
+        state.adminBootstrapping = true;
+      })
+      .addCase(bootstrapAdminSession.fulfilled, (state, action) => {
+        state.adminBootstrapping = false;
+        state.user = action.payload;
+        state.role = action.payload ? "admin" : null;
+      })
+      .addCase(bootstrapAdminSession.rejected, (state) => {
+        state.adminBootstrapping = false;
+        if (state.role === "admin") {
+          state.user = null;
+          state.role = null;
+        }
+      });
   },
 });
 
-export const selectIsAuthenticated = (state: RootState) =>
-  Boolean(state.auth.accessToken && state.auth.user);
+/**
+ * True once the current session is fully authenticated, regardless of role.
+ * Mentor/mentee sessions need both a Redux access token and a user object
+ * (the token proves the bearer session; the cookie alone isn't enough).
+ * Admin sessions carry no access token by design — the HttpOnly admin
+ * cookie is themselves the session — so presence of an admin user is enough.
+ */
+export const selectIsAuthenticated = (state: RootState) => {
+  const { user, accessToken, role } = state.auth;
+  if (!user) return false;
+  return role === "admin" ? true : Boolean(accessToken);
+};
 
 export const selectIsVerified = (state: RootState) => state.auth.user?.isVerified === true;
 
-export const { logout, setUser, clearMessages } = authSlice.actions;
+export const selectRole = (state: RootState) => state.auth.role;
+
+export const { logout, setUser, setAdminSession, clearMessages } = authSlice.actions;
 
 export default authSlice.reducer;

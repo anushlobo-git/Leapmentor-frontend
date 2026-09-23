@@ -16,6 +16,7 @@ vi.mock("react-redux", () => ({
 vi.mock("@features/auth/store/authSlice", () => ({
   setUser: vi.fn((payload) => ({ type: "auth/setUser", payload })),
   logout: vi.fn(() => ({ type: "auth/logout" })),
+  bootstrapAdminSession: vi.fn(() => ({ type: "auth/bootstrapAdminSession" })),
 }));
 
 vi.mock("@lib/axiosInstance", () => ({
@@ -115,17 +116,20 @@ vi.mock("@features/admin/pages/AdminVerifications", () => ({
   default: () => <div>AdminVerifications Component</div>,
 }));
 
-vi.mock("@features/admin/components/AdminRoute", () => ({
-  default: ({ children }) => <div>AdminRoute Wrapper {children}</div>,
-}));
 vi.mock("@features/auth/components/ProtectedRoute", () => ({
   default: ({ children }) => <div>ProtectedRoute Wrapper {children}</div>,
 }));
-vi.mock("@features/admin/context/AdminAuthContext", () => ({
-  AdminAuthProvider: ({ children }) => (
-    <div>AdminAuthProvider Component {children}</div>
-  ),
-}));
+vi.mock("@features/admin/components/AdminSessionGate", async () => {
+  const { Outlet } = await vi.importActual("react-router-dom");
+  return {
+    default: () => (
+      <>
+        <div>AdminSessionGate Component</div>
+        <Outlet />
+      </>
+    ),
+  };
+});
 
 // ── 3. Test Suites ────────────────────────────────────────────────────────
 describe("App", () => {
@@ -302,44 +306,44 @@ describe("App", () => {
     {
       path: "/admin/login",
       targetText: "AdminLogin Component",
-      wrappers: ["AdminAuthProvider Component"],
+      wrappers: ["AdminSessionGate Component"],
     },
     {
       path: "/admin/users",
       targetText: "AdminUserManagement Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/engagements",
       targetText: "AdminEngagements Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/reports",
       targetText: "AdminReports Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/payments",
       targetText: "AdminPayments Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/settings",
       targetText: "AdminSettings Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/wallet-requests",
       targetText: "AdminWalletRequests Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/support",
       targetText: "AdminSupportMessages Component",
       wrappers: [
-        "AdminAuthProvider Component",
-        "AdminRoute Wrapper",
+        "AdminSessionGate Component",
+        "ProtectedRoute Wrapper",
         "AdminLayout Component",
       ],
     },
@@ -347,8 +351,8 @@ describe("App", () => {
       path: "/admin/verifications",
       targetText: "AdminVerifications Component",
       wrappers: [
-        "AdminAuthProvider Component",
-        "AdminRoute Wrapper",
+        "AdminSessionGate Component",
+        "ProtectedRoute Wrapper",
         "AdminLayout Component",
       ],
     },

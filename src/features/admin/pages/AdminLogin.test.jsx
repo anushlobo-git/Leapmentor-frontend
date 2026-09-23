@@ -1,16 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
 import AdminLogin from "@features/admin/pages/AdminLogin";
-import { useAdminAuth } from "@features/admin/context/AdminAuthContext";
+import authReducer from "@features/auth/store/authSlice";
 import { adminLogin } from "@features/admin/api/admin.api";
 
 vi.mock("@features/admin/api/admin.api", () => ({
   adminLogin: vi.fn(),
-}));
-
-vi.mock("@features/admin/context/AdminAuthContext", () => ({
-  useAdminAuth: vi.fn(),
 }));
 
 vi.mock("react-router-dom", async () => {
@@ -21,19 +19,26 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+const renderWithStore = () => {
+  const store = configureStore({ reducer: { auth: authReducer } });
+  render(
+    <Provider store={store}>
+      <AdminLogin />
+    </Provider>,
+  );
+  return store;
+};
+
 describe("AdminLogin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useAdminAuth.mockReturnValue({ login: vi.fn() });
   });
 
-  it("submits credentials and navigates to the admin users page", async () => {
+  it("submits credentials, stores the admin session in Redux, and navigates to the admin users page", async () => {
     const user = userEvent.setup();
-    const login = vi.fn();
-    useAdminAuth.mockReturnValue({ login });
     adminLogin.mockResolvedValue({ data: { admin: { name: "Admin" } } });
 
-    render(<AdminLogin />);
+    const store = renderWithStore();
 
     await user.type(screen.getByLabelText(/email/i), "admin@leapmentor.com");
     await user.type(screen.getByLabelText(/password/i), "secret123");
@@ -43,7 +48,10 @@ describe("AdminLogin", () => {
       "admin@leapmentor.com",
       "secret123",
     );
-    expect(login).toHaveBeenCalled();
+
+    const state = store.getState().auth;
+    expect(state.role).toBe("admin");
+    expect(state.user).toEqual({ name: "Admin" });
   });
 
   it("shows an error message when login fails", async () => {
@@ -52,7 +60,7 @@ describe("AdminLogin", () => {
       response: { data: { message: "Invalid credentials" } },
     });
 
-    render(<AdminLogin />);
+    renderWithStore();
 
     await user.type(screen.getByLabelText(/email/i), "bad@example.com");
     await user.type(screen.getByLabelText(/password/i), "wrong");

@@ -37,6 +37,7 @@ npm install
 Create a `.env` file in the project root and provide the API and feature keys required by your environment. Typical variables used by the app:
 
 ```env
+VITE_ADMIN_API_BASE_URL=http://localhost:5000/api/v1
 VITE_API_BASE_URL=http://localhost:5000/api/v1
 VITE_SOCKET_URL=http://localhost:5000
 VITE_API_SOCKET_URL=http://localhost:5000

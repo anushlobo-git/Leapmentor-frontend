@@ -6,11 +6,13 @@
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getPendingLeapRequestsCount,
   adminLogout,
 } from "@features/admin/api/admin.api";
-import { useAdminAuth } from "@features/admin/context/AdminAuthContext";
+import { setAdminSession } from "@features/auth/store/authSlice";
+import type { RootState } from "@store/index";
 import logger from "@lib/logger";
 import { IMAGES } from "@constants/images";
 
@@ -190,7 +192,8 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
 
-  const { admin, setAdmin } = useAdminAuth();
+  const dispatch = useDispatch();
+  const admin = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
   // ── Fetch pending wallet request count for sidebar badge ──
@@ -214,7 +217,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         error: error instanceof Error ? error.message : error,
       });
     } finally {
-      setAdmin(null); // Clear global auth state
+      dispatch(setAdminSession(null)); // Clear global auth state
       navigate("/admin/login");
     }
   };

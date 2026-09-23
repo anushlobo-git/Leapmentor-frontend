@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
 import AdminLayout from "@features/admin/components/AdminLayout";
-import { AdminAuthProvider } from "@features/admin/context/AdminAuthContext";
+import authReducer from "@features/auth/store/authSlice";
 import {
   getPendingLeapRequestsCount,
   adminLogout,
 } from "@features/admin/api/admin.api";
-import adminAxiosInstance from "@lib/adminAxiosInstance";
 
 vi.mock("@features/admin/api/admin.api", () => ({
   getPendingLeapRequestsCount: vi.fn(() =>
@@ -16,18 +17,15 @@ vi.mock("@features/admin/api/admin.api", () => ({
   adminLogout: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock("@lib/adminAxiosInstance", () => ({
-  default: {
-    get: vi.fn(() => Promise.resolve({ data: { admin: null } })),
-    post: vi.fn(() => Promise.resolve()),
-  },
-}));
+// AdminLayout only needs a dispatch target (setAdminSession) — a bare Redux
+// store with the real auth reducer is enough, no admin-specific context.
+const makeStore = () => configureStore({ reducer: { auth: authReducer } });
 
-const renderWithProviders = (ui) =>
+const renderWithProviders = (ui, { route = "/admin/users" } = {}) =>
   render(
-    <MemoryRouter>
-      <AdminAuthProvider>{ui}</AdminAuthProvider>
-    </MemoryRouter>,
+    <Provider store={makeStore()}>
+      <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+    </Provider>,
   );
 
 describe("AdminLayout", () => {
@@ -48,9 +46,6 @@ describe("AdminLayout", () => {
     expect(await screen.findByText("24")).toBeInTheDocument();
 
     expect(getPendingLeapRequestsCount).toHaveBeenCalledTimes(1);
-    expect(adminAxiosInstance.get).toHaveBeenCalledWith("/admin/auth/me", {
-      _skipAuthRedirect: true,
-    });
   });
 
   it("opens and closes the mobile sidebar", async () => {
@@ -108,14 +103,11 @@ describe("AdminLayout", () => {
   it("does not show badge when Wallet Requests nav is active", async () => {
     getPendingLeapRequestsCount.mockResolvedValueOnce({ data: { count: 10 } });
 
-    render(
-      <MemoryRouter initialEntries={["/admin/wallet-requests"]}>
-        <AdminAuthProvider>
-          <AdminLayout>
-            <div />
-          </AdminLayout>
-        </AdminAuthProvider>
-      </MemoryRouter>,
+    renderWithProviders(
+      <AdminLayout>
+        <div />
+      </AdminLayout>,
+      { route: "/admin/wallet-requests" },
     );
 
     // await fetch
