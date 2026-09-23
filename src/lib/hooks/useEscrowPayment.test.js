@@ -7,7 +7,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { useEscrowPayment } from "./useEscrowPayment";
 
 // Mock dependencies
-vi.mock("@features/connects/api/escrow.api", () => ({
+vi.mock("@features/connects/models/escrow.api", () => ({
   getEscrowStatus: vi.fn(),
 }));
 
@@ -17,7 +17,7 @@ vi.mock("@lib/logger", () => ({
   },
 }));
 
-import { getEscrowStatus } from "@features/connects/api/escrow.api";
+import { getEscrowStatus } from "@features/connects/models/escrow.api";
 import logger from "@lib/logger";
 
 describe("useEscrowPayment", () => {
@@ -38,9 +38,7 @@ describe("useEscrowPayment", () => {
   });
 
   it("should use custom default values", () => {
-    const { result } = renderHook(() =>
-      useEscrowPayment(null, 100, 15)
-    );
+    const { result } = renderHook(() => useEscrowPayment(null, 100, 15));
 
     expect(result.current.commissionRate).toBe(15);
     expect(result.current.sessionRate).toBe(100);
@@ -67,7 +65,6 @@ describe("useEscrowPayment", () => {
     expect(result.current.sessionRate).toBe(150);
     expect(result.current.remoteSessionCount).toBe(5);
   });
-
 
   it("should handle API errors gracefully", async () => {
     const mockError = new Error("API Error");
@@ -129,13 +126,12 @@ describe("useEscrowPayment", () => {
     expect(result.current.walletBalance).toBe(null);
   });
 
-
   it("should refetch when connectId changes", async () => {
     getEscrowStatus.mockResolvedValue({ wallet: { balance: 500 } });
 
     const { result, rerender } = renderHook(
       ({ connectId }) => useEscrowPayment(connectId),
-      { initialProps: { connectId: "connect-1" } }
+      { initialProps: { connectId: "connect-1" } },
     );
 
     await waitFor(() => {

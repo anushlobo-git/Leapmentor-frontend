@@ -8,79 +8,79 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@store/index";
-import { setUser, logout } from "@features/auth/store/authSlice";
+import { setUser, logout } from "@features/auth/models/authSlice";
 import axiosInstance from "@lib/axiosInstance";
 import logger from "@lib/logger";
 import { hasSessionHint, clearAuthRole } from "@lib/cookies";
 
 // ── Eager loaded — tiny, always needed immediately ────────────
-import Home from "@features/marketing/pages/Home";
+import Home from "@features/marketing/views/Home";
 import NotFound from "@app/pages/NotFound";
 import ProtectedRoute from "@features/auth/components/ProtectedRoute";
 
 // ── Auth pages ────────────────────────────────────────────────
 
-const Register = lazy(() => import("@features/auth/pages/Register"));
-const LoginMentor = lazy(() => import("@features/auth/pages/LoginMentor"));
-const LoginMentee = lazy(() => import("@features/auth/pages/LoginMentee"));
-const VerifyEmail = lazy(() => import("@features/auth/pages/VerifyEmail"));
+const Register = lazy(() => import("@features/auth/views/Register"));
+const LoginMentor = lazy(() => import("@features/auth/views/LoginMentor"));
+const LoginMentee = lazy(() => import("@features/auth/views/LoginMentee"));
+const VerifyEmail = lazy(() => import("@features/auth/views/VerifyEmail"));
 const ForgotPassword = lazy(
-  () => import("@features/auth/pages/ForgotPassword"),
+  () => import("@features/auth/views/ForgotPassword"),
 );
-const SSOCallback = lazy(() => import("@features/auth/pages/SSOCallback"));
+const SSOCallback = lazy(() => import("@features/auth/views/SSOCallback"));
 
 // ── Onboarding ────────────────────────────────────────────────
 const MentorOnboarding = lazy(
-  () => import("@features/mentor/pages/MentorOnboarding"),
+  () => import("@features/mentor/views/MentorOnboarding"),
 );
 const MentorVerification = lazy(
-  () => import("@features/mentor/pages/MentorVerification"),
+  () => import("@features/mentor/views/MentorVerification"),
 );
 const MenteeOnboarding = lazy(
-  () => import("@features/mentee/pages/MenteeOnboarding"),
+  () => import("@features/mentee/views/MenteeOnboarding"),
 );
 
 // ── Edit Profile ──────────────────────────────────────────────
 const MenteeEditProfileShell = lazy(
-  () => import("@features/mentee/components/profile/MenteeEditProfileShell"),
+  () => import("@features/mentee/views/profile/MenteeEditProfileShell"),
 );
 const MentorEditProfileShell = lazy(
-  () => import("@features/mentor/components/profile/MentorEditProfileShell"),
+  () => import("@features/mentor/views/profile/MentorEditProfileShell"),
 );
 
 // ── Dashboards ────────────────────────────────────────────────
 const MentorDashboard = lazy(
-  () => import("@features/mentor/pages/MentorDashboard"),
+  () => import("@features/mentor/views/MentorDashboard"),
 );
 const MenteeDashboard = lazy(
-  () => import("@features/mentee/pages/MenteeDashboard"),
+  () => import("@features/mentee/views/MenteeDashboard"),
 );
 const SharedDashboardPage = lazy(
-  () => import("@features/shared-dashboard/pages/SharedDashboardPage"),
+  () => import("@features/shared-dashboard/views/SharedDashboardPage"),
 );
 
 // ── Admin ─────────────────────────────────────────────────────
-const AdminLogin = lazy(() => import("@features/admin/pages/AdminLogin"));
+const AdminLogin = lazy(() => import("@features/admin/views/AdminLogin"));
 const AdminUserManagement = lazy(
-  () => import("@features/admin/pages/AdminUserManagement"),
+  () => import("@features/admin/views/AdminUserManagement"),
 );
 const AdminEngagements = lazy(
-  () => import("@features/admin/pages/AdminEngagements"),
+  () => import("@features/admin/views/AdminEngagements"),
 );
-const AdminReports = lazy(() => import("@features/admin/pages/AdminReports"));
-const AdminPayments = lazy(() => import("@features/admin/pages/AdminPayments"));
-const AdminSettings = lazy(() => import("@features/admin/pages/AdminSettings"));
+const AdminReports = lazy(() => import("@features/admin/views/AdminReports"));
+const AdminPayments = lazy(() => import("@features/admin/views/AdminPayments"));
+const AdminSettings = lazy(() => import("@features/admin/views/AdminSettings"));
 const AdminSupportMessages = lazy(
-  () => import("@features/admin/components/AdminSupportMessages"),
+  () => import("@features/admin/views/AdminSupportMessages"),
 );
 const AdminLayout = lazy(
-  () => import("@features/admin/components/AdminLayout"),
+  () => import("@features/admin/views/AdminLayout"),
 );
 const AdminWalletRequests = lazy(
-  () => import("@features/admin/pages/AdminWalletRequests"),
+  () => import("@features/admin/views/AdminWalletRequests"),
 );
 const AdminVerifications = lazy(
-  () => import("@features/admin/pages/AdminVerifications"),
+  () => import("@features/admin/views/AdminVerifications"),
 );
 
 // ── Global loading spinner ────────────────────────────────────
@@ -103,7 +103,7 @@ const PageLoader = () => (
 
 // ── Admin session bootstrap — replaces the old AdminAuthProvider ──────
 const AdminAuthLayout = lazy(
-  () => import("@features/admin/components/AdminSessionGate"),
+  () => import("@features/admin/views/AdminSessionGate"),
 );
 
 // ── Inner app — needs access to Redux dispatch ────────────────

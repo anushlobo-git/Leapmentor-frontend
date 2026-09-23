@@ -6,9 +6,9 @@
 import { useState, useEffect, Suspense } from "react";
 import type { ComponentType, CSSProperties } from "react";
 import { useDispatch } from "react-redux";
-import { setUser, setProfile, resetDashboardUser } from "@features/profile/store/dashboardUserSlice";
-import useUnreadCount from "@features/notifications/hooks/useUnreadCount";
-import useSocketToast from "@features/notifications/hooks/useSocketToast";
+import { setUser, setProfile, resetDashboardUser } from "@features/profile/models/dashboardUserSlice";
+import useUnreadCount from "@features/notifications/presenters/useUnreadCount";
+import useSocketToast from "@features/notifications/presenters/useSocketToast";
 import type { AppDispatch } from "@store/index";
 
 const TabSkeleton = () => (

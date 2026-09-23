@@ -5,8 +5,8 @@
 // src/components/shared-dashboard/DashboardTopbar.jsx
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logoutRequest } from "@features/auth/api/auth.api";
-import { logout } from "@features/auth/store/authSlice";
+import { logoutRequest } from "@features/auth/models/auth.api";
+import { logout } from "@features/auth/models/authSlice";
 import { clearAuthRole } from "@lib/cookies";
 import { IMAGES } from "@constants/images";
 import type { AppDispatch } from "@store/index";

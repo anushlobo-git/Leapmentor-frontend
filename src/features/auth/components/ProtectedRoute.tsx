@@ -10,7 +10,7 @@
 // the same Redux auth slice, keyed by `role`.
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated, selectIsVerified, selectRole } from "@features/auth/store/authSlice";
+import { selectIsAuthenticated, selectIsVerified, selectRole } from "@features/auth/models/authSlice";
 import type { ReactNode } from "react";
 import type { RootState } from "@store/index";
 
