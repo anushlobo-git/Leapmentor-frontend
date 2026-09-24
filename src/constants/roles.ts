@@ -28,8 +28,13 @@ export const ROLES = Object.freeze({
   MENTEE: "mentee",
 } as const);
 
+// this type is for the variable that can hold either "mentee" | "mentor"
+// and the type is like this "mentor"|"mentee"
+//[Keyof] gives u the or either first one or else the second value the keys
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
+//here ALL_ROLLS =["mentor","mentee"] so basically the type of each
+//element is "mentor"|"mentee"
 export const ALL_ROLES: Role[] = Object.values(ROLES);
 
 /**
@@ -37,6 +42,7 @@ export const ALL_ROLES: Role[] = Object.values(ROLES);
  * "primary" one (which dashboard to land on, what to put in the authRole
  * routing-hint cookie), earlier entries here win the tie.
  */
+//["mentor","mentee"]
 export const ROLE_PRIORITY: Role[] = [ROLES.MENTOR, ROLES.MENTEE];
 
 /**
@@ -49,7 +55,13 @@ export const ROLE_PRIORITY: Role[] = [ROLES.MENTOR, ROLES.MENTEE];
  * accepts; Role (above) is the narrower "real account role" set used for
  * things like the register form and the "add a role to my account" flow.
  */
+
+//here what as const does is it keeps the ADMIN_ROLE strict to the string
+//"admin" as "admin" is a string it should be any string right so
+//avoid that as const is used
 export const ADMIN_ROLE = "admin" as const;
+
+//RouteRole will be of type "mentor"|"mentee"|"admin"
 export type RouteRole = Role | typeof ADMIN_ROLE;
 
 /**
@@ -80,7 +92,7 @@ interface RoleRouteConfig {
    */
   sessionType: "bearer" | "cookie";
 }
-
+//Record is used for defining the object where Record<K,V> where k is the key type and v is value type
 export const ROLE_CONFIG: Record<RouteRole, RoleRouteConfig> = Object.freeze({
   [ROLES.MENTOR]: {
     loginPath: "/login/mentor",
@@ -106,9 +118,12 @@ export const ROLE_CONFIG: Record<RouteRole, RoleRouteConfig> = Object.freeze({
  * Which role's login page the bare `/login` URL shows. Kept here (not
  * hardcoded in the router) so changing the default is a one-line edit.
  */
+//"mentee"
 export const DEFAULT_LOGIN_ROLE: Role = ROLES.MENTEE;
 
 /** Is this a role name the frontend recognizes as a real account role? */
+//isValidRole("mentee")  // true, isValidRole("mentor")  // true
+//isValidRole("hello")   // false,  isValidRole(123)       // false
 export const isValidRole = (role: unknown): role is Role =>
   typeof role === "string" && (ALL_ROLES as string[]).includes(role);
 
