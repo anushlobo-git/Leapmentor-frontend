@@ -7,7 +7,9 @@ import { Provider } from "react-redux";
 import { configureStore, combineReducers, type Reducer } from "@reduxjs/toolkit";
 import { render, renderHook } from "@testing-library/react";
 import notificationsReducer from "@features/notifications/models/notificationsSlice";
+import dashboardUserReducer from "@features/profile/models/dashboardUserSlice";
 import connectRequestsReducer from "@features/connects/models/connectRequestsSlice";
+import walletReducer from "@features/mentee/models/walletSlice";
 
 /** Real reducers, fresh state per call — tests mock the API modules, not Redux. */
 export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedState?: any) =>
@@ -15,6 +17,8 @@ export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedStat
     reducer: combineReducers({
       notifications: notificationsReducer,
       connectRequests: connectRequestsReducer,
+      dashboardUser: dashboardUserReducer,
+      wallet: walletReducer,
       ...extra,
     }) as Reducer<any>,
     preloadedState,

@@ -3,7 +3,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
+import { renderHookWithStore as renderHook } from "@test/renderWithStore";
+import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 import useMentorDashboard from "./useMentorDashboard";
 import { getCurrentUser, getMentorProfile } from "@features/mentor/models/mentor.api";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
@@ -35,12 +37,7 @@ vi.mock("react-router-dom", () => ({
   useLocation: () => mockLocation,
 }));
 
-// Mock redux
-const mockUseSelector = vi.fn();
-vi.mock("react-redux", () => ({
-  useSelector: (selectorFn) => mockUseSelector(selectorFn),
-}));
-
+// Real store (dashboardUser slice); only auth and the network are mocked.
 vi.mock("@features/auth/models/authSlice", () => ({
   selectIsAuthenticated: vi.fn(),
 }));
@@ -54,7 +51,7 @@ describe("useMentorDashboard", () => {
 
   describe("unauthenticated user", () => {
     it("should redirect to login if not authenticated", async () => {
-      mockUseSelector.mockReturnValue(false);
+      selectIsAuthenticated.mockReturnValue(false);
 
       renderHook(() => useMentorDashboard());
 
@@ -66,7 +63,7 @@ describe("useMentorDashboard", () => {
 
   describe("authenticated user", () => {
     beforeEach(() => {
-      mockUseSelector.mockReturnValue(true);
+      selectIsAuthenticated.mockReturnValue(true);
     });
 
     it("should fetch user and profile data successfully", async () => {
@@ -90,11 +87,27 @@ describe("useMentorDashboard", () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(result.current.user).toEqual(mockUserData);
+      expect(result.current.user).toMatchObject({ _id: "user1", name: "John Doe" }); // mapped by mapAuthUser
       expect(result.current.profile).toEqual(mockProfileData);
       expect(result.current.error).toBe("");
       expect(getCurrentUser).toHaveBeenCalledWith();
       expect(getMentorProfile).toHaveBeenCalledWith();
+    });
+
+    it("loads user + profile into dashboardUserSlice with exactly one fetch each", async () => {
+      getCurrentUser.mockResolvedValue({ data: { _id: "u1", name: "Jane", roles: ["mentor"] } });
+      getMentorProfile.mockResolvedValue({ data: { isProfileComplete: true, bio: "hi" } });
+
+      const { result, store } = renderHook(() => useMentorDashboard());
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      const slice = store.getState().dashboardUser;
+      expect(slice.user).toMatchObject({ name: "Jane" });
+      expect(slice.profile).toMatchObject({ bio: "hi" });
+      expect(slice).toMatchObject({ status: "succeeded", loadedOnce: true });
+      expect(result.current.user).toBe(slice.user); // same object — no local copy
+      expect(getCurrentUser).toHaveBeenCalledTimes(1);
+      expect(getMentorProfile).toHaveBeenCalledTimes(1);
     });
 
     it("should redirect to mentee dashboard if user is not mentor", async () => {

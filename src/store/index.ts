@@ -11,6 +11,7 @@ import sharedDashboardReducer  from "@features/shared-dashboard/models/sharedDas
 import notificationsReducer     from "@features/notifications/models/notificationsSlice";
 import connectRequestsReducer    from "@features/connects/models/connectRequestsSlice";
 import dashboardUserReducer    from "@features/profile/models/dashboardUserSlice";
+import walletReducer           from "@features/mentee/models/walletSlice";
 
 const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ const store = configureStore({
     dashboardUser:    dashboardUserReducer,
     notifications:    notificationsReducer,
     connectRequests:  connectRequestsReducer,
+    wallet:           walletReducer,
   },
 });
 

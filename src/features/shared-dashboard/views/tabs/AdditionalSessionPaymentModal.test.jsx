@@ -3,9 +3,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AdditionalSessionPaymentModal from "./AdditionalSessionPaymentModal";
+import { renderWithStore } from "@test/renderWithStore";
 
 // ── Mocks ──────────────────────────────────────────────────────
 vi.mock("@features/connects/models/escrow.api", () => ({
@@ -59,6 +60,10 @@ vi.mock("@components/shared/payment/EscrowPaymentUI", () => ({
   ),
 }));
 
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getEscrowWallet: vi.fn(),
+}));
+
 vi.mock("@lib/formatters/dateTime", () => ({
   formatTimeString: (value) => `time(${value})`,
   formatSlotDate: (value) => `date(${value})`,
@@ -70,6 +75,7 @@ vi.mock("@lib/hooks/useEscrowPayment", () => ({
 }));
 
 import { payAdditionalEscrow } from "@features/connects/models/escrow.api";
+import { getEscrowWallet } from "@features/mentee/models/mentee.api";
 
 // ── Fixtures ───────────────────────────────────────────────────
 const baseConnect = {
@@ -106,10 +112,11 @@ describe("AdditionalSessionPaymentModal", () => {
     onClose = vi.fn();
     onSuccess = vi.fn();
     mockUseEscrowPayment.mockReturnValue(makeHookState());
+    getEscrowWallet.mockResolvedValue({ data: { balance: 380, escrow: 120 } });
   });
 
   it("should render the modal shell with title and computed total amount", () => {
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -125,7 +132,7 @@ describe("AdditionalSessionPaymentModal", () => {
   });
 
   it("should render slot info rows including mentor, date, time and rate", () => {
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -144,7 +151,7 @@ describe("AdditionalSessionPaymentModal", () => {
   });
 
   it("should omit date and time rows when slot has no date/startTime", () => {
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={{}}
@@ -159,7 +166,7 @@ describe("AdditionalSessionPaymentModal", () => {
   });
 
   it("should fall back to 'Mentor' when connect.mentor.name is missing", () => {
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={{ _id: "c1" }}
         slot={baseSlot}
@@ -175,7 +182,7 @@ describe("AdditionalSessionPaymentModal", () => {
   it("should show commission rate placeholder while fetching", () => {
     mockUseEscrowPayment.mockReturnValue(makeHookState({ fetching: true }));
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -189,7 +196,7 @@ describe("AdditionalSessionPaymentModal", () => {
   });
 
   it("should show the resolved commission rate percentage once fetched", () => {
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -207,7 +214,7 @@ describe("AdditionalSessionPaymentModal", () => {
       makeHookState({ walletBalance: 50, sessionRate: 100 }),
     );
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -221,7 +228,7 @@ describe("AdditionalSessionPaymentModal", () => {
   });
 
   it("should not render the insufficient balance banner when balance is sufficient", () => {
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -239,7 +246,7 @@ describe("AdditionalSessionPaymentModal", () => {
       makeHookState({ walletBalance: 0, sessionRate: 100 }),
     );
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -255,7 +262,7 @@ describe("AdditionalSessionPaymentModal", () => {
   it("should disable the pay action while fetching escrow status", () => {
     mockUseEscrowPayment.mockReturnValue(makeHookState({ fetching: true }));
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -271,7 +278,7 @@ describe("AdditionalSessionPaymentModal", () => {
   it("should disable the pay action when sessionRate is falsy", () => {
     mockUseEscrowPayment.mockReturnValue(makeHookState({ sessionRate: 0 }));
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -286,7 +293,7 @@ describe("AdditionalSessionPaymentModal", () => {
 
   it("should call onClose when the close button in the shell is clicked", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -307,7 +314,7 @@ describe("AdditionalSessionPaymentModal", () => {
     );
 
     const user = userEvent.setup();
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -330,7 +337,7 @@ describe("AdditionalSessionPaymentModal", () => {
     payAdditionalEscrow.mockResolvedValueOnce({});
     const user = userEvent.setup();
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -353,11 +360,52 @@ describe("AdditionalSessionPaymentModal", () => {
     expect(screen.getByText("Mentor: Jane Mentor")).toBeInTheDocument();
   });
 
+  it("should refresh the shared wallet after a successful payment", async () => {
+    payAdditionalEscrow.mockResolvedValueOnce({});
+    const user = userEvent.setup();
+
+    const { store } = renderWithStore(
+      <AdditionalSessionPaymentModal
+        connect={baseConnect}
+        slot={baseSlot}
+        slotId="slot-1"
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />,
+    );
+    expect(getEscrowWallet).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Pay" }));
+
+    await waitFor(() => expect(store.getState().wallet.balance).toBe(380));
+    expect(getEscrowWallet).toHaveBeenCalledTimes(1);
+    expect(store.getState().wallet.escrow).toBe(120);
+  });
+
+  it("should not refresh the wallet when the payment fails", async () => {
+    payAdditionalEscrow.mockRejectedValueOnce(new Error("network down"));
+    const user = userEvent.setup();
+
+    renderWithStore(
+      <AdditionalSessionPaymentModal
+        connect={baseConnect}
+        slot={baseSlot}
+        slotId="slot-1"
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pay" }));
+
+    expect(getEscrowWallet).not.toHaveBeenCalled();
+  });
+
   it("should call onSuccess and onClose when the success modal Done button is clicked", async () => {
     payAdditionalEscrow.mockResolvedValueOnce({});
     const user = userEvent.setup();
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -385,7 +433,7 @@ describe("AdditionalSessionPaymentModal", () => {
     );
 
     const user = userEvent.setup();
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -410,7 +458,7 @@ describe("AdditionalSessionPaymentModal", () => {
     mockUseEscrowPayment.mockReturnValue(makeHookState({ setError }));
 
     const user = userEvent.setup();
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -430,7 +478,7 @@ describe("AdditionalSessionPaymentModal", () => {
       makeHookState({ error: "Something went wrong" }),
     );
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -448,7 +496,7 @@ describe("AdditionalSessionPaymentModal", () => {
       makeHookState({ walletBalance: 300, fetching: true }),
     );
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -469,7 +517,7 @@ describe("AdditionalSessionPaymentModal", () => {
       return makeHookState();
     });
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         connect={baseConnect}
         slot={baseSlot}
@@ -487,7 +535,7 @@ describe("AdditionalSessionPaymentModal", () => {
       return makeHookState({ sessionRate: 0 });
     });
 
-    render(
+    renderWithStore(
       <AdditionalSessionPaymentModal
         slot={baseSlot}
         slotId="slot-1"

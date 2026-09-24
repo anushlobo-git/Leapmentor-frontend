@@ -10,8 +10,6 @@ vi.mock("react-redux", () => ({
 }));
 
 vi.mock("@features/profile/models/dashboardUserSlice", () => ({
-  setUser: vi.fn((user) => ({ type: "SET_USER", payload: user })),
-  setProfile: vi.fn((profile) => ({ type: "SET_PROFILE", payload: profile })),
   resetDashboardUser: vi.fn(() => ({ type: "RESET_DASHBOARD_USER" })),
 }));
 
@@ -171,7 +169,7 @@ describe("DashboardShell", () => {
   });
 
   // ── Redux Sync Effects & Lifecycle Unmounting Coverage ────────────────────
-  it("should dispatch store sync modifications when data loads and clear state values on lifecycle component unmount", () => {
+  it("should not mirror user/profile into Redux (the slice owns them) and should reset shared slices on unmount", () => {
     const { unmount } = render(
       <DashboardShell
         useDashboardData={mockUseDashboardData}
@@ -182,17 +180,14 @@ describe("DashboardShell", () => {
       />,
     );
 
-    expect(mockDispatch).toHaveBeenCalledWith({
-      type: "SET_USER",
-      payload: { name: "Alex" },
-    });
-    expect(mockDispatch).toHaveBeenCalledWith({
-      type: "SET_PROFILE",
-      payload: { bio: "Developer" },
-    });
+    // dashboardUserSlice is filled by the dashboard hooks' thunks — no mirroring effects here
+    expect(mockDispatch).not.toHaveBeenCalled();
 
     unmount();
     expect(mockDispatch).toHaveBeenCalledWith({ type: "RESET_DASHBOARD_USER" });
+    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "notifications/resetNotifications" }));
+    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "connectRequests/resetConnectRequests" }));
+    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "wallet/resetWallet" }));
   });
 
   // ── Context Refetch Conditional Triggers Coverage ─────────────────────────

@@ -1,4 +1,6 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
+import { renderHookWithStore as renderHook, makeTestStore } from "@test/renderWithStore";
+import { walletSynced } from "@features/mentee/models/walletSlice";
 import useMenteeSettings from "./useMenteeSettings";
 import {
   getMenteeProfile,
@@ -23,6 +25,7 @@ vi.mock("@features/mentee/models/mentee.api", () => ({
 vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -100,31 +103,43 @@ describe("useMenteeSettings hook", () => {
     });
   });
 
-  it("fetches wallet and password changed information silently", async () => {
+  it("fetches password changed information silently and reads the wallet from the shared slice", async () => {
     getCurrentUser.mockResolvedValue({
       data: { passwordChangedAt: "2026-07-01T10:00:00Z" },
     });
     getEscrowWallet.mockResolvedValue({ data: { balance: 400, escrow: 50 } });
 
-    const { result } = renderHook(() => useMenteeSettings(null));
+    const { result, store } = renderHook(() => useMenteeSettings(null));
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(result.current.balance).toBe(400);
     });
 
-    expect(result.current.passwordChangedAt).toBe("2026-07-01T10:00:00Z");
-    expect(result.current.balance).toBe(400);
     expect(result.current.escrow).toBe(50);
+    expect(result.current.passwordChangedAt).toBe("2026-07-01T10:00:00Z");
+    expect(getEscrowWallet).toHaveBeenCalledTimes(1);
+    expect(store.getState().wallet).toMatchObject({ balance: 400, escrow: 50, loadedOnce: true });
+  });
+
+  it("shows a balance another screen already put in the wallet slice", () => {
+    getEscrowWallet.mockReturnValue(new Promise(() => {})); // refresh still pending
+    const store = makeTestStore();
+    store.dispatch(walletSynced({ balance: 275, escrow: 25 }));
+
+    const { result } = renderHook(() => useMenteeSettings(null), store);
+
+    expect(result.current.balance).toBe(275);
+    expect(result.current.escrow).toBe(25);
   });
 
   it("handles user or wallet fetch failure silently", async () => {
     getCurrentUser.mockRejectedValue(new Error("Silent db fail"));
     getEscrowWallet.mockRejectedValue(new Error("Silent db fail"));
 
-    const { result } = renderHook(() => useMenteeSettings(null));
+    const { result, store } = renderHook(() => useMenteeSettings(null));
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(store.getState().wallet.status).toBe("failed");
     });
 
     expect(logger.error).toHaveBeenCalled();
