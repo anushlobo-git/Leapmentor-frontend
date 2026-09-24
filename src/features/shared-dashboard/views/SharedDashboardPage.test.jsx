@@ -3,243 +3,88 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import SharedDashboardPage from "./SharedDashboardPage";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashboard.api";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import {
   setConnect,
   setActiveTab,
   resetSharedDashboard,
+  selectConnect,
 } from "@features/shared-dashboard/models/sharedDashboardSlice";
-import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 
-// ── Mocks for every module SharedDashboardPage.jsx imports ──────────────────
-vi.mock("react-redux", () => ({
-  useDispatch: vi.fn(),
-  useSelector: vi.fn(),
-}));
-
+vi.mock("react-redux", () => ({ useDispatch: vi.fn(), useSelector: vi.fn() }));
 vi.mock("react-router-dom", () => ({
-  useParams: vi.fn(),
+  useLoaderData: vi.fn(),
   useNavigate: vi.fn(),
   useSearchParams: vi.fn(),
 }));
-
-vi.mock("@features/shared-dashboard/models/shared-dashboard.api", () => ({
-  getConnectDetail: vi.fn(),
-}));
-
 vi.mock("@features/shared-dashboard/models/sharedDashboardSlice", () => ({
   setConnect: vi.fn((c) => ({ type: "dashboard/setConnect", payload: c })),
   setActiveTab: vi.fn((t) => ({ type: "dashboard/setActiveTab", payload: t })),
-  resetSharedDashboard: vi.fn(() => ({
-    type: "dashboard/resetSharedDashboard",
-  })),
+  resetSharedDashboard: vi.fn(() => ({ type: "dashboard/resetSharedDashboard" })),
+  selectConnect: vi.fn(),
 }));
-
-vi.mock("@features/auth/models/authSlice", () => ({
-  selectIsAuthenticated: vi.fn(),
-}));
-
-vi.mock("@lib/http/httpStatus", () => ({
-  HTTP_STATUS: {
-    UNAUTHORIZED: 401,
-    FORBIDDEN: 403,
-  },
-}));
-
 vi.mock("@features/shared-dashboard/views/SharedDashboardLayout", () => ({
-  default: () => (
-    <div data-testid="mock-dashboard-layout">Dashboard Main View Layout</div>
-  ),
+  default: () => <div data-testid="mock-dashboard-layout">Layout</div>,
 }));
 
-describe("SharedDashboardPage", () => {
+describe("SharedDashboardPage (loader-driven)", () => {
   let mockDispatch;
   let mockNavigate;
-  let mockSearchParams;
+  let params;
+  let connectInStore;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockDispatch = vi.fn().mockResolvedValue({ type: "mock/action" });
-    useDispatch.mockReturnValue(mockDispatch);
-
+    mockDispatch = vi.fn();
     mockNavigate = vi.fn();
+    params = new URLSearchParams();
+    connectInStore = { _id: "77" };
+    useDispatch.mockReturnValue(mockDispatch);
     useNavigate.mockReturnValue(mockNavigate);
-
-    useParams.mockReturnValue({ connectRequestId: "conn-req-77" });
-
-    mockSearchParams = new URLSearchParams();
-    useSearchParams.mockReturnValue([mockSearchParams]);
-
-    // Default: authenticated
-    useSelector.mockImplementation((selectorFn) => {
-      if (selectorFn === selectIsAuthenticated) return true;
-      return null;
-    });
+    useSearchParams.mockImplementation(() => [params]);
+    useLoaderData.mockReturnValue({ connect: { _id: "77" }, error: null });
+    useSelector.mockImplementation((sel) => (sel === selectConnect ? connectInStore : null));
   });
 
-  // ── Loading state ──────────────────────────────────────────────────────
-  it("shows the loading spinner while the request is in flight", () => {
-    getConnectDetail.mockReturnValue(new Promise(() => {})); // never resolves
+  it("mirrors loader data into Redux and renders the layout", () => {
     render(<SharedDashboardPage />);
+    expect(mockDispatch).toHaveBeenCalledWith(setConnect({ _id: "77" }));
+    expect(screen.getByTestId("mock-dashboard-layout")).toBeInTheDocument();
+  });
 
+  it("shows the spinner for the one frame before the store is populated", () => {
+    connectInStore = null;
+    render(<SharedDashboardPage />);
     expect(screen.getByText("Loading session…")).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("mock-dashboard-layout"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("mock-dashboard-layout")).not.toBeInTheDocument();
   });
 
-  // ── Unauthenticated guard ───────────────────────────────────────────────
-  it("redirects to /login immediately when the user is not authenticated", async () => {
-    useSelector.mockImplementation((selectorFn) => {
-      if (selectorFn === selectIsAuthenticated) return false;
-      return null;
-    });
-
+  it("renders the loader's error inline with a working Go back button", () => {
+    useLoaderData.mockReturnValue({ connect: null, error: "Failed to load session." });
+    connectInStore = null;
     render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/login");
-    });
-    expect(getConnectDetail).not.toHaveBeenCalled();
-  });
-
-  // ── Tab query-param sync ────────────────────────────────────────────────
-  it("dispatches the tab from the URL when it is a valid tab", async () => {
-    mockSearchParams.set("tab", "goals");
-    getConnectDetail.mockResolvedValueOnce({
-      data: { connect: { _id: "77" } },
-    });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(setActiveTab("goals"));
-      expect(screen.getByTestId("mock-dashboard-layout")).toBeInTheDocument();
-    });
-  });
-
-  it("falls back to 'overview' when the URL tab param is invalid", async () => {
-    mockSearchParams.set("tab", "MALFORMED_UNSUPPORTED_TAB");
-    getConnectDetail.mockResolvedValueOnce({
-      data: { connect: { _id: "77" } },
-    });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(setActiveTab("overview"));
-      expect(screen.getByTestId("mock-dashboard-layout")).toBeInTheDocument();
-    });
-  });
-
-  it("falls back to 'overview' when there is no tab param at all", async () => {
-    getConnectDetail.mockResolvedValueOnce({
-      data: { connect: { _id: "77" } },
-    });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(setActiveTab("overview"));
-    });
-  });
-
-  // ── Successful fetch ────────────────────────────────────────────────────
-  it("fetches connect details and dispatches setConnect on success", async () => {
-    const mockPayload = {
-      _id: "conn-req-77",
-      status: "ongoing",
-      title: "Active Track",
-    };
-    getConnectDetail.mockResolvedValueOnce({ data: { connect: mockPayload } });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(getConnectDetail).toHaveBeenCalledWith("conn-req-77");
-      expect(mockDispatch).toHaveBeenCalledWith(setConnect(mockPayload));
-      expect(screen.getByTestId("mock-dashboard-layout")).toBeInTheDocument();
-    });
-  });
-
-  // ── Error branches ──────────────────────────────────────────────────────
-  it("navigates to /login on a 401 response", async () => {
-    getConnectDetail.mockRejectedValueOnce({ response: { status: 401 } });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/login");
-    });
-  });
-
-  it("navigates back (-1) on a 403 response", async () => {
-    getConnectDetail.mockRejectedValueOnce({ response: { status: 403 } });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith(-1);
-    });
-  });
-
-  it("shows the server-provided message for a generic error", async () => {
-    getConnectDetail.mockRejectedValueOnce({
-      response: {
-        status: 500,
-        data: { message: "Database connection timeouts detected" },
-      },
-    });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByText("Database connection timeouts detected"),
-      ).toBeInTheDocument();
-    });
-    expect(
-      screen.queryByTestId("mock-dashboard-layout"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("shows a default message when the error has no response payload", async () => {
-    getConnectDetail.mockRejectedValueOnce({ response: {} });
-
-    render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Failed to load session.")).toBeInTheDocument();
-    });
-
-    const backBtn = screen.getByRole("button", { name: /Go back/i });
-    fireEvent.click(backBtn);
-
+    expect(screen.getByText("Failed to load session.")).toBeInTheDocument();
+    expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: "dashboard/setConnect" }));
+    fireEvent.click(screen.getByText("← Go back"));
     expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
-  it("shows a default message when the error has no response object at all", async () => {
-    getConnectDetail.mockRejectedValueOnce(new Error("network down"));
-
+  it.each([
+    ["goals", "goals"],
+    ["MALFORMED", "overview"],
+    [null, "overview"],
+  ])("tab param %s → active tab %s", (tab, expected) => {
+    if (tab) params.set("tab", tab);
     render(<SharedDashboardPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Failed to load session.")).toBeInTheDocument();
-    });
+    expect(mockDispatch).toHaveBeenCalledWith(setActiveTab(expected));
   });
 
-  // ── Unmount cleanup ─────────────────────────────────────────────────────
-  it("dispatches resetSharedDashboard on unmount", () => {
-    getConnectDetail.mockResolvedValueOnce({
-      data: { connect: { _id: "77" } },
-    });
+  it("resets the slice on unmount", () => {
     const { unmount } = render(<SharedDashboardPage />);
-
+    mockDispatch.mockClear();
     unmount();
     expect(mockDispatch).toHaveBeenCalledWith(resetSharedDashboard());
   });

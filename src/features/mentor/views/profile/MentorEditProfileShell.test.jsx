@@ -13,6 +13,11 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Shells call useBlocker via this hook, which needs a data router; stub it here.
+vi.mock("@lib/hooks/useUnsavedChangesPrompt", () => ({
+  useUnsavedChangesPrompt: () => ({ state: "unblocked" }),
+}));
+
 // Mock the hook
 const mockUseMentorEditProfile = vi.fn();
 vi.mock("@features/mentor/presenters/useMentorEditProfile", () => ({

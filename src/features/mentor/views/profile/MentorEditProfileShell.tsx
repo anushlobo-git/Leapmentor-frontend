@@ -10,12 +10,15 @@ import ProfessionalInfoSection from "@features/mentor/views/onboarding/Professio
 import SkillsSection from "@features/mentor/views/onboarding/SkillsSection";
 import PreferencesSection from "@features/mentor/views/onboarding/PreferencesSection";
 import SocialLinksSection from "@features/mentor/views/onboarding/SocialLinksSection";
+import UnsavedChangesDialog from "@components/shared/UnsavedChangesDialog";
+import { useUnsavedChangesPrompt } from "@lib/hooks/useUnsavedChangesPrompt";
 import { IMAGES } from "@constants/images";
 
 const MentorEditProfileShell = () => {
   const navigate = useNavigate();
-  const { form, loading, fetchLoading, msg, handleChange, handleSubmit } =
+  const { form, loading, fetchLoading, msg, isDirty, handleChange, handleSubmit } =
     useMentorEditProfile();
+  const blocker = useUnsavedChangesPrompt(isDirty);
 
   if (fetchLoading) {
     return (
@@ -32,6 +35,7 @@ const MentorEditProfileShell = () => {
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
+      <UnsavedChangesDialog blocker={blocker} />
       <div className="h-1 w-full bg-[#2563eb]" />
 
       <header className="sticky top-0 z-10 bg-white border-b border-[#e8edf5] shadow-sm">

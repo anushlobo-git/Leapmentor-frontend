@@ -10,6 +10,7 @@ import {
   submitMenteeOnboarding,
   clearOnboardingMessages,
 } from "@features/mentee/models/menteeOnboardingSlice";
+import { useFormDirty } from "@lib/hooks/useFormDirty";
 import type { RootState, AppDispatch } from "@store/index";
 /**
  * Custom hook for mentee onboarding.
@@ -65,6 +66,7 @@ const useMenteeOnboarding = () => {
 
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
+  const isDirty = useFormDirty(form, { disabled: redirecting });
 
   useEffect(() => {
     if (error) {
@@ -162,7 +164,7 @@ const useMenteeOnboarding = () => {
     );
   };
 
-  return { form, loading, msg, redirecting, handleChange, handleSubmit };
+  return { form, loading, msg, redirecting, isDirty, handleChange, handleSubmit };
 };
 
 export default useMenteeOnboarding;

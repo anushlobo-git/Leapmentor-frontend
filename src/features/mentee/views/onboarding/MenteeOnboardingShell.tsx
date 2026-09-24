@@ -13,12 +13,15 @@ import MentorshipPrefsSection from "@features/mentee/views/onboarding/Mentorship
 import SocialLinksSection from "@features/mentee/views/onboarding/SocialLinksSection";
 import OnboardingProgressBar from "@components/ui/OnboardingProgressBar";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
+import UnsavedChangesDialog from "@components/shared/UnsavedChangesDialog";
+import { useUnsavedChangesPrompt } from "@lib/hooks/useUnsavedChangesPrompt";
 import { IMAGES } from "@constants/images";
 
 import { MENTEE_ONBOARDING_FIELDS } from "@config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
-  const { form, loading, msg,redirecting, handleChange, handleSubmit } = useMenteeOnboarding();
+  const { form, loading, msg, redirecting, isDirty, handleChange, handleSubmit } = useMenteeOnboarding();
+  const blocker = useUnsavedChangesPrompt(isDirty);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   // ── Refs for custom tag-input sections that have no real name= in the DOM ──
@@ -78,6 +81,7 @@ const MenteeOnboardingShell = () => {
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]">
+        <UnsavedChangesDialog blocker={blocker} />
         {redirecting && <FullScreenLoader message="Setting up your profile..." />}
 
       {/* Top accent */}

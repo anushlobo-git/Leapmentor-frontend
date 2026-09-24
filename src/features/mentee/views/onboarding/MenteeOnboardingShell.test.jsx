@@ -4,6 +4,11 @@ import userEvent from "@testing-library/user-event";
 import MenteeOnboardingShell from "./MenteeOnboardingShell";
 import useMenteeOnboarding from "@features/mentee/presenters/useMenteeOnboarding";
 
+// Shells call useBlocker via this hook, which needs a data router; stub it here.
+vi.mock("@lib/hooks/useUnsavedChangesPrompt", () => ({
+  useUnsavedChangesPrompt: () => ({ state: "unblocked" }),
+}));
+
 // Mock custom hook
 vi.mock("@features/mentee/presenters/useMenteeOnboarding", () => ({
   default: vi.fn(),
