@@ -8,6 +8,8 @@ import authReducer             from "@features/auth/models/authSlice";
 import menteeOnboardingReducer from "@features/mentee/models/menteeOnboardingSlice";
 import mentorOnboardingReducer from "@features/mentor/models/mentorOnboardingSlice";
 import sharedDashboardReducer  from "@features/shared-dashboard/models/sharedDashboardSlice";
+import notificationsReducer     from "@features/notifications/models/notificationsSlice";
+import connectRequestsReducer    from "@features/connects/models/connectRequestsSlice";
 import dashboardUserReducer    from "@features/profile/models/dashboardUserSlice";
 
 const store = configureStore({
@@ -17,6 +19,8 @@ const store = configureStore({
     mentorOnboarding: mentorOnboardingReducer,
     sharedDashboard:  sharedDashboardReducer,
     dashboardUser:    dashboardUserReducer,
+    notifications:    notificationsReducer,
+    connectRequests:  connectRequestsReducer,
   },
 });
 

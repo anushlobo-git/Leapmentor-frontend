@@ -2,49 +2,43 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/hooks/useUnreadCount.js
-import { useState, useEffect, useCallback } from "react";
-import { getNotifications } from "@features/notifications/models/notifications.api";
-import { normalizeApiNotif } from "@features/notifications/models/notificationMapper";
-import { useSelector } from "react-redux";
+// Same return shape as before (DashboardShell is unchanged), but the count now
+// lives in notificationsSlice so the notifications tab and the header badge
+// can't drift apart.
+import { useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
-
-/**
- * Custom hook for unread count.
- * @returns {Object} Hook state and handlers for the caller.
- */
-
+import {
+  fetchNotifications,
+  incrementUnread,
+  clearBadge as clearBadgeAction,
+  selectUnreadCount,
+} from "@features/notifications/models/notificationsSlice";
+import type { AppDispatch } from "@store/index";
 
 const useUnreadCount = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const unreadCount = useSelector(selectUnreadCount);
 
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      if (!isAuthenticated) return;
-      const res = await getNotifications();
-      const normalized = Array.isArray(res.data.notifications)
-        ? res.data.notifications.map(normalizeApiNotif)
-        : [];
-      const count = normalized.filter((n) => !n.read).length;
-      setUnreadCount(count);
-    } catch {
-      // silently fail
-    }
-  }, [isAuthenticated]);
+  const refetch = useCallback(async () => {
+    if (!isAuthenticated) return;
+    await dispatch(fetchNotifications()); // failure is stored in the slice; badge stays as-is
+  }, [dispatch, isAuthenticated]);
 
- useEffect(() => {
-   fetchUnreadCount();
- }, [fetchUnreadCount]);
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
-  // increment badge when socket/push notification arrives
   const incrementBadge = useCallback(() => {
-    setUnreadCount((prev) => prev + 1);
-  }, []);
+    dispatch(incrementUnread());
+  }, [dispatch]);
 
-  const clearBadge = useCallback(() => setUnreadCount(0), []);
+  const clearBadge = useCallback(() => {
+    dispatch(clearBadgeAction());
+  }, [dispatch]);
 
-  return { unreadCount, clearBadge, refetch: fetchUnreadCount, incrementBadge };
+  return { unreadCount, clearBadge, refetch, incrementBadge };
 };
 
 export default useUnreadCount;

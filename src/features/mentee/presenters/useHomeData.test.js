@@ -1,4 +1,5 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
+import { renderHookWithStore as renderHook } from "@test/renderWithStore";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   useHomeData,
@@ -13,7 +14,6 @@ import {
 } from "@features/mentee/models/mentee.api";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 import logger from "@lib/monitoring/logger";
-
 
 // Mock API layer
 vi.mock("@features/mentee/models/mentee.api", () => ({

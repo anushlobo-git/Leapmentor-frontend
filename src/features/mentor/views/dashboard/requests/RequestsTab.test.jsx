@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { screen, fireEvent, act } from "@testing-library/react";
+import { renderWithStore as render } from "@test/renderWithStore";
 import RequestsTab from "./RequestsTab";
 import { getIncomingRequests } from "@features/mentor/models/mentor.api";
 import useSocketEvent from "@lib/hooks/useSocketEvent";

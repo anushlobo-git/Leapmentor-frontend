@@ -5,36 +5,29 @@
 // src/features/shared-dashboard/components/tabs/SharedNotificationsTab.jsx
 // Used by both mentee and mentor dashboards — the notification model,
 // styling, and behavior are identical for both roles.
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import type { MouseEvent, ReactNode } from "react";
-import {
-  getNotifications,
-  markAllNotificationsRead,
-  clearAllNotifications,
-  markNotificationRead,
-  deleteNotification,
-} from "@features/notifications/models/notifications.api";
+import { useDispatch, useSelector } from "react-redux";
 import EmptyState from "@components/shared/EmptyState";
-import { normalizeApiNotif } from "@features/notifications/models/notificationMapper";
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  removeNotification,
+  clearNotifications,
+  loadSampleData,
+  selectNotifications,
+  selectNotificationsStatus,
+  selectUsingSampleData,
+  type NotificationItem,
+} from "@features/notifications/models/notificationsSlice";
+import type { AppDispatch } from "@store/index";
 
 type ViewerRole = "mentee" | "mentor";
 
 interface NotificationAction {
   label: string;
   primary: boolean;
-}
-
-interface NotificationItem {
-  id: string | number | null;
-  type: string;
-  read: boolean;
-  time: string;
-  accent?: boolean;
-  title: string;
-  senderName: string;
-  body: string;
-  actions: NotificationAction[];
-  isApi?: boolean;
 }
 
 interface StatCardProps {
@@ -320,28 +313,23 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab, role }: NotifCar
 
 // ── Main Component ────────────────────────────────────────────
 const SharedNotificationsTab = ({ setActiveTab, role }: SharedNotificationsTabProps) => {
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [useStatic, setUseStatic] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const notifications = useSelector(selectNotifications);
+  const status = useSelector(selectNotificationsStatus);
+  const usingSampleData = useSelector(selectUsingSampleData);
 
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      const res = await getNotifications();
-      const apiNotifs = (res.data.notifications || []).map(normalizeApiNotif) as NotificationItem[];
-      setNotifications(apiNotifs);
-      setUseStatic(false);
-    } catch {
-      setNotifications(INITIAL_NOTIFICATIONS);
-      setUseStatic(true);
-      setError("Could not load live notifications. Showing sample data.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // The shell's unread badge may already have loaded the list — then show it
+  // straight away and refresh in the background instead of a skeleton.
+  const loading = status === "idle" || (status === "loading" && notifications.length === 0);
+  const error = usingSampleData ? "Could not load live notifications. Showing sample data." : "";
 
-  useEffect(() => { fetchNotifications(); }, []);
+  useEffect(() => {
+    dispatch(fetchNotifications())
+      .unwrap()
+      .catch(() => {
+        dispatch(loadSampleData(INITIAL_NOTIFICATIONS));
+      });
+  }, [dispatch]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const thisWeekCount = notifications.filter((n) => {
@@ -355,23 +343,19 @@ const SharedNotificationsTab = ({ setActiveTab, role }: SharedNotificationsTabPr
   }).length;
 
   const markAllRead = async () => {
-    if (!useStatic) await markAllNotificationsRead();
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    await dispatch(markAllNotificationsAsRead());
   };
 
   const clearAll = async () => {
-    if (!useStatic) await clearAllNotifications();
-    setNotifications([]);
+    await dispatch(clearNotifications());
   };
 
   const markRead = async (id: NotificationItem["id"]) => {
-    if (!useStatic) await markNotificationRead(id);
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    await dispatch(markNotificationAsRead(id));
   };
 
   const deleteOne = async (id: NotificationItem["id"]) => {
-    if (!useStatic) await deleteNotification(id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    await dispatch(removeNotification(id));
   };
 
   if (loading) {
