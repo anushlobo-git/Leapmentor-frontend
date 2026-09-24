@@ -3,12 +3,12 @@
  */
 
 // src/features/mentor/components/dashboard/requests/RequestsTab.jsx
-import Loader from "@components/common/Loader";
-import ErrorBanner from "@components/common/ErrorBanner";
-import FilterTabs from "@components/common/FilterTabs";
+import Loader from "@components/shared/Loader";
+import ErrorBanner from "@components/shared/ErrorBanner";
+import FilterTabs from "@components/shared/FilterTabs";
 import RequestCard from "@features/mentor/views/dashboard/requests/RequestCard";
 import MenteeProfileModal from "@features/mentor/views/dashboard/requests/MenteeProfileModal";
-import EmptyState from "@components/common/EmptyState";
+import EmptyState from "@components/shared/EmptyState";
 import type { RequestCardRequest } from "@features/mentor/views/dashboard/requests/RequestCard";
 import { useRequestsTabPresenter } from "@features/mentor/presenters/useRequestsTabPresenter";
 

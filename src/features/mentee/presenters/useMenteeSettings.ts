@@ -4,8 +4,14 @@
 
 // src/hooks/useMenteeSettings.js
 import { useState, useEffect } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  getMenteeProfile,
+  getCurrentUser,
+  getEscrowWallet,
+  updateMenteeProfile,
+  changePasswordRequest,
+} from "@features/mentee/models/mentee.api";
+import logger from "@lib/monitoring/logger";
 import {
   mapMenteeSettings,
   mapWallet,
@@ -49,7 +55,7 @@ const useMenteeSettings = (initialProfile) => {
     const fetchProfile = async () => {
       try {
         setFetching(true);
-        const res = await axiosInstance.get("/mentee-profile/me");
+        const res = await getMenteeProfile();
         const mapped = mapMenteeSettings(res.data);
         setEmailNotifications(mapped.emailNotifications);
         setMarketingPreferences(mapped.marketingPreferences);
@@ -68,7 +74,7 @@ const useMenteeSettings = (initialProfile) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axiosInstance.get("/users/me");
+        const res = await getCurrentUser();
         const mapped = mapUserPasswordInfo(res.data);
         setPasswordChangedAt(mapped.passwordChangedAt);
       } catch (err) {
@@ -83,7 +89,7 @@ const useMenteeSettings = (initialProfile) => {
   useEffect(() => {
     const fetchWallet = async () => {
       try {
-        const res = await axiosInstance.get("/escrow/wallet");
+        const res = await getEscrowWallet();
         const mapped = mapWallet(res.data);
         setBalance(mapped.balance);
         setEscrow(mapped.escrow);
@@ -100,7 +106,7 @@ const useMenteeSettings = (initialProfile) => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      await axiosInstance.put("/mentee-profile/me", {
+      await updateMenteeProfile({
         emailNotifications,
         marketingPreferences,
       });
@@ -133,7 +139,7 @@ const useMenteeSettings = (initialProfile) => {
 
     try {
       setChangingPw(true);
-      await axiosInstance.put("/auth/change-password", {
+      await changePasswordRequest({
         currentPassword,
         newPassword,
       });

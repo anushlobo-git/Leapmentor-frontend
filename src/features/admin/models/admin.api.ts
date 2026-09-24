@@ -7,7 +7,7 @@
 // Single source of truth for every admin-side HTTP call. Previously these lived
 // inline inside page/component bodies (calling adminAxiosInstance directly),
 // which made the endpoints hard to find, hard to reuse, and hard to test.
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 // This is a request option, not another axios instance. Keeping the domain
 // explicit is essential because a few admin operations share unprefixed URLs

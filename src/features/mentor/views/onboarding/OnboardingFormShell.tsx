@@ -3,7 +3,7 @@
  */
 
 // components/mentor/onboarding/OnboardingFormShell.jsx
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import PersonalInfoSection from "@features/mentor/views/onboarding/PersonalInfoSection";
 import ProfessionalInfoSection from "@features/mentor/views/onboarding/ProfessionalInfoSection";
 import SkillsSection from "@features/mentor/views/onboarding/SkillsSection";

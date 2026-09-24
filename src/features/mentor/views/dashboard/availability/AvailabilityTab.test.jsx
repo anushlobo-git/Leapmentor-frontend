@@ -6,7 +6,7 @@ import useAvailability from "@features/mentor/presenters/useAvailability";
 const FUTURE_DATE = "2099-07-15";
 
 // Mock sub-components
-vi.mock("@components/common/Loader", () => ({
+vi.mock("@components/shared/Loader", () => ({
   default: ({ message }) => <div data-testid="loader">{message}</div>,
 }));
 

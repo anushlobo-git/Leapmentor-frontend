@@ -5,7 +5,7 @@
 // src/components/mentee/dashboard/findMentors/MentorGrid.jsx
 import MentorCard from "@features/mentee/views/dashboard/findMentors/MentorCard";
 import type { FindMentorsMentor } from "@features/mentee/views/dashboard/findMentors/MentorCard";
-import Loader from "@components/common/Loader";
+import Loader from "@components/shared/Loader";
 
 interface MentorGridProps {
   mentors: FindMentorsMentor[];

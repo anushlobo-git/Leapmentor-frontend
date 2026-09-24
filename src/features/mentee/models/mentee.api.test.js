@@ -15,7 +15,7 @@ import {
 } from "./mentee.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -30,7 +30,7 @@ describe("mentee.api", () => {
   describe("uploadProfilePicture", () => {
     it("should call axiosInstance.post with correct endpoint and config", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const formData = new FormData();
@@ -49,7 +49,7 @@ describe("mentee.api", () => {
   describe("downloadInvoice", () => {
     it("should call axiosInstance.get with correct endpoint and responseType", async () => {
       const mockResponse = { data: new Blob() };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await downloadInvoice("req123");
@@ -65,7 +65,7 @@ describe("mentee.api", () => {
   describe("searchMentorsBySkill", () => {
     it("should call axiosInstance.get with correct endpoint and params", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await searchMentorsBySkill("javascript", 4);
@@ -79,7 +79,7 @@ describe("mentee.api", () => {
 
     it("should use default limit when not provided", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await searchMentorsBySkill("javascript");
@@ -95,7 +95,7 @@ describe("mentee.api", () => {
   describe("getMyConnectRequests", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getMyConnectRequests();
@@ -108,7 +108,7 @@ describe("mentee.api", () => {
   describe("getEscrowWallet", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: { balance: 100 } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getEscrowWallet();
@@ -121,7 +121,7 @@ describe("mentee.api", () => {
   describe("getMyLeapRequest", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: null };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getMyLeapRequest();
@@ -134,7 +134,7 @@ describe("mentee.api", () => {
   describe("createLeapRequest", () => {
     it("should call axiosInstance.post with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await createLeapRequest("Need more credits");
@@ -150,7 +150,7 @@ describe("mentee.api", () => {
   describe("getMentorAvailability", () => {
     it("should call axiosInstance.get with correct endpoint and query params", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getMentorAvailability("mentor123", 60);

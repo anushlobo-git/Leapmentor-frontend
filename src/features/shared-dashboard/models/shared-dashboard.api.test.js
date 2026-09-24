@@ -8,7 +8,7 @@ import {
 } from "./shared-dashboard.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     get: vi.fn(),
   },
@@ -22,7 +22,7 @@ describe("shared-dashboard.api", () => {
   describe("getConnectDetail", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getConnectDetail("req123");

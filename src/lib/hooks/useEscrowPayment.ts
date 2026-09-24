@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { getEscrowStatus } from "@features/connects/models/escrow.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 /**
  * Shared hook for escrow payment logic

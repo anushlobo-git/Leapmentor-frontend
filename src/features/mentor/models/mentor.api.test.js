@@ -18,7 +18,7 @@ import {
 } from "./mentor.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -34,7 +34,7 @@ describe("mentor.api", () => {
   describe("uploadVerificationDocuments", () => {
     it("should call axiosInstance.post with correct endpoint and config", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const formData = new FormData();
@@ -53,7 +53,7 @@ describe("mentor.api", () => {
   describe("uploadMentorProfilePicture", () => {
     it("should call axiosInstance.post with correct endpoint and config", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.post.mockResolvedValue(mockResponse);
 
       const formData = new FormData();
@@ -72,7 +72,7 @@ describe("mentor.api", () => {
   describe("getIncomingRequests", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getIncomingRequests();
@@ -85,7 +85,7 @@ describe("mentor.api", () => {
   describe("respondToRequest", () => {
     it("should call axiosInstance.patch with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.patch.mockResolvedValue(mockResponse);
 
       const body = { status: "accepted" };
@@ -102,7 +102,7 @@ describe("mentor.api", () => {
   describe("getSimilarMentors", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getSimilarMentors("req123");
@@ -117,7 +117,7 @@ describe("mentor.api", () => {
   describe("referRequest", () => {
     it("should call axiosInstance.patch with correct endpoint and payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.patch.mockResolvedValue(mockResponse);
 
       const result = await referRequest("req123", "mentor456");
@@ -133,7 +133,7 @@ describe("mentor.api", () => {
   describe("getMentorEarnings", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: { total: 1000 } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getMentorEarnings();
@@ -147,7 +147,7 @@ describe("mentor.api", () => {
     describe("getGoogleCalendarAuthUrl", () => {
       it("should call axiosInstance.get with correct endpoint", async () => {
         const mockResponse = { data: { authUrl: "https://example.com" } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const result = await getGoogleCalendarAuthUrl();
@@ -160,7 +160,7 @@ describe("mentor.api", () => {
     describe("disconnectGoogleCalendar", () => {
       it("should call axiosInstance.post with correct endpoint", async () => {
         const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.post.mockResolvedValue(mockResponse);
 
         const result = await disconnectGoogleCalendar();
@@ -173,7 +173,7 @@ describe("mentor.api", () => {
     describe("getGoogleCalendarBusySlots", () => {
       it("should call axiosInstance.get with correct endpoint and params", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const params = { start: "2024-01-01", end: "2024-01-31" };
@@ -190,7 +190,7 @@ describe("mentor.api", () => {
     describe("getGoogleCalendarEvents", () => {
       it("should call axiosInstance.get with correct endpoint and params", async () => {
         const mockResponse = { data: [] };
-        const axiosInstance = (await import("@lib/axiosInstance")).default;
+        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
         axiosInstance.get.mockResolvedValue(mockResponse);
 
         const params = { start: "2024-01-01", end: "2024-01-31" };

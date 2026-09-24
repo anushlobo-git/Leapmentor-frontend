@@ -5,8 +5,8 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 
@@ -43,7 +43,7 @@ const useMentorEditProfile = () => {
 
     const fetchProfile = async () => {
       try {
-        const { data } = await axiosInstance.get("/mentor-profile/me");
+        const { data } = await getMentorProfile();
         setForm({
           profilePicture: data.profilePicture || "",
           bio: data.bio || "",
@@ -113,7 +113,7 @@ const useMentorEditProfile = () => {
           : form.languages,
       };
 
-      await axiosInstance.put("/mentor-profile/me", payload);
+      await updateMentorProfile(payload);
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);

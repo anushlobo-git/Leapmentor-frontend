@@ -4,7 +4,7 @@
 
 // src/store/slices/mentorOnboardingSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 export const submitMentorOnboarding = createAsyncThunk(
   "mentorOnboarding/submit",

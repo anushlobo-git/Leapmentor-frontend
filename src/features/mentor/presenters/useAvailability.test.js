@@ -5,18 +5,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useAvailability from "./useAvailability";
-import axiosInstance from "@lib/axiosInstance";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { getMyAvailability, updateMyAvailability } from "@features/mentor/models/mentor.api";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    patch: vi.fn(),
-  },
+vi.mock("@features/mentor/models/mentor.api", () => ({
+  getMyAvailability: vi.fn(),
+  updateMyAvailability: vi.fn(),
 }));
 
-vi.mock("@lib/httpStatus", () => ({
+vi.mock("@lib/http/httpStatus", () => ({
   HTTP_STATUS: {
     NOT_FOUND: 404,
   },
@@ -51,7 +49,7 @@ describe("useAvailability", () => {
         googleCalendarConnected: true,
         specificDates: ["2024-01-01", "2024-01-02"],
       };
-      axiosInstance.get.mockResolvedValue({ data: mockData });
+      getMyAvailability.mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -59,7 +57,7 @@ describe("useAvailability", () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/availability/me");
+      expect(getMyAvailability).toHaveBeenCalledWith();
       expect(result.current.availability).toEqual({
         timezone: "America/New_York",
         sessionDurations: [30, 45, 60],
@@ -74,7 +72,7 @@ describe("useAvailability", () => {
         sessionDurations: [30, 60],
         googleCalendarConnected: false,
       };
-      axiosInstance.get.mockResolvedValue({ data: mockData });
+      getMyAvailability.mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -86,7 +84,7 @@ describe("useAvailability", () => {
     });
 
     it("should handle 404 error gracefully", async () => {
-      axiosInstance.get.mockRejectedValue({
+      getMyAvailability.mockRejectedValue({
         response: { status: HTTP_STATUS.NOT_FOUND },
       });
 
@@ -100,7 +98,7 @@ describe("useAvailability", () => {
     });
 
     it("should handle other errors", async () => {
-      axiosInstance.get.mockRejectedValue({
+      getMyAvailability.mockRejectedValue({
         response: { status: 500 },
       });
 
@@ -119,7 +117,7 @@ describe("useAvailability", () => {
 
   describe("toggleDuration", () => {
     it("should add duration if not present", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -136,7 +134,7 @@ describe("useAvailability", () => {
     });
 
     it("should remove duration if present", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -153,7 +151,7 @@ describe("useAvailability", () => {
     });
 
     it("should keep durations sorted", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -172,7 +170,7 @@ describe("useAvailability", () => {
 
   describe("updateTimezone", () => {
     it("should update timezone", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -190,7 +188,7 @@ describe("useAvailability", () => {
 
   describe("setSpecificDates", () => {
     it("should set specificDates with value", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -207,7 +205,7 @@ describe("useAvailability", () => {
     });
 
     it("should set specificDates with updater function", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -225,7 +223,7 @@ describe("useAvailability", () => {
 
   describe("setAvailability", () => {
     it("should allow direct setAvailability for googleCalendarConnected", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -246,8 +244,8 @@ describe("useAvailability", () => {
 
   describe("saveAvailability", () => {
     it("should save availability successfully", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.patch.mockResolvedValue({ data: {} });
+      getMyAvailability.mockResolvedValue({ data: {} });
+      updateMyAvailability.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -259,7 +257,7 @@ describe("useAvailability", () => {
         await result.current.saveAvailability();
       });
 
-      expect(axiosInstance.patch).toHaveBeenCalledWith("/availability/me", {
+      expect(updateMyAvailability).toHaveBeenCalledWith({
         timezone: "Asia/Kolkata",
         sessionDurations: [30, 60],
         specificDates: [],
@@ -272,8 +270,8 @@ describe("useAvailability", () => {
     });
 
     it("should handle save error", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.patch.mockRejectedValue({
+      getMyAvailability.mockResolvedValue({ data: {} });
+      updateMyAvailability.mockRejectedValue({
         response: { data: { message: "Server error" } },
       });
 
@@ -295,8 +293,8 @@ describe("useAvailability", () => {
     });
 
     it("should handle save error with no response message", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.patch.mockRejectedValue(new Error("Network error"));
+      getMyAvailability.mockResolvedValue({ data: {} });
+      updateMyAvailability.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useAvailability());
 
@@ -322,7 +320,7 @@ describe("useAvailability", () => {
         sessionDurations: [30],
         specificDates: [],
       };
-      axiosInstance.get.mockResolvedValue({ data: mockData });
+      getMyAvailability.mockResolvedValue({ data: mockData });
 
       const { result } = renderHook(() => useAvailability());
 
@@ -350,8 +348,8 @@ describe("useAvailability", () => {
     });
 
     it("should handle cancel error silently", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.get.mockRejectedValueOnce(new Error("Error"));
+      getMyAvailability.mockResolvedValue({ data: {} });
+      getMyAvailability.mockRejectedValueOnce(new Error("Error"));
 
       const { result } = renderHook(() => useAvailability());
 

@@ -12,14 +12,14 @@ import {
   beforeAll,
 } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { subscribeToPush } from "@features/notifications/models/notifications.api";
+import logger from "@lib/monitoring/logger";
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: { post: vi.fn() },
+vi.mock("@features/notifications/models/notifications.api", () => ({
+  subscribeToPush: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
@@ -79,7 +79,7 @@ describe("usePushNotification", () => {
       requestPermission: vi.fn().mockResolvedValue("granted"),
     };
 
-    axiosInstance.post.mockResolvedValue({ data: {} });
+    subscribeToPush.mockResolvedValue({ data: {} });
   });
 
   afterEach(() => {
@@ -102,7 +102,7 @@ describe("usePushNotification", () => {
 
       renderHook(() => usePushNotification());
 
-      expect(axiosInstance.post).not.toHaveBeenCalled();
+      expect(subscribeToPush).not.toHaveBeenCalled();
     });
 
     it("should do nothing when PushManager is not supported", async () => {
@@ -111,7 +111,7 @@ describe("usePushNotification", () => {
 
       renderHook(() => usePushNotification());
 
-      expect(axiosInstance.post).not.toHaveBeenCalled();
+      expect(subscribeToPush).not.toHaveBeenCalled();
     });
 
     it("should register service worker and subscribe when authenticated and permission granted", async () => {
@@ -120,7 +120,7 @@ describe("usePushNotification", () => {
       renderHook(() => usePushNotification());
 
       await waitFor(() => {
-        expect(axiosInstance.post).toHaveBeenCalled();
+        expect(subscribeToPush).toHaveBeenCalled();
       });
 
       expect(navigator.serviceWorker.register).toHaveBeenCalledWith("/sw.js");
@@ -128,9 +128,7 @@ describe("usePushNotification", () => {
       expect(mockRegistration.pushManager.subscribe).toHaveBeenCalledWith(
         expect.objectContaining({ userVisibleOnly: true }),
       );
-      expect(axiosInstance.post).toHaveBeenCalledWith("/push/subscribe", {
-        subscription: mockSubscription,
-      });
+      expect(subscribeToPush).toHaveBeenCalledWith(mockSubscription);
       expect(logger.info).toHaveBeenCalledWith("Push notifications enabled");
     });
 
@@ -148,7 +146,7 @@ describe("usePushNotification", () => {
       });
 
       expect(mockRegistration.pushManager.subscribe).not.toHaveBeenCalled();
-      expect(axiosInstance.post).not.toHaveBeenCalled();
+      expect(subscribeToPush).not.toHaveBeenCalled();
     });
 
     it("should log a warning when setup fails", async () => {
@@ -164,7 +162,7 @@ describe("usePushNotification", () => {
           error: "register failed",
         });
       });
-      expect(axiosInstance.post).not.toHaveBeenCalled();
+      expect(subscribeToPush).not.toHaveBeenCalled();
     });
   });
 

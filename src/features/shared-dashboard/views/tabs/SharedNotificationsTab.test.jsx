@@ -29,7 +29,7 @@ vi.mock("@features/notifications/models/notificationMapper", () => ({
   normalizeApiNotif: vi.fn((notif) => ({ ...notif, isApi: true })),
 }));
 
-vi.mock("@components/common/EmptyState", () => ({
+vi.mock("@components/shared/EmptyState", () => ({
   default: ({ title, message }) => (
     <div data-testid="mock-empty-state">
       <h3>{title}</h3>

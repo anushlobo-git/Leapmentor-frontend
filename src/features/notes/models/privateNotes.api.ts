@@ -3,7 +3,7 @@
  */
 
 // ✅ replace entire file
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 /**
  * Creates a private note for a connect request.

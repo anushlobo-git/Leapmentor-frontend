@@ -7,7 +7,7 @@ import { useState } from "react";
 import { respondToRequest } from "@features/mentor/models/mentor.api";
 import RequestActionModal from "@features/mentor/views/dashboard/requests/RequestActionModal";
 import ReferModal from "@features/mentor/views/dashboard/requests/ReferModal";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 const formatTime = (time: string) => {
   if (!time) return "";

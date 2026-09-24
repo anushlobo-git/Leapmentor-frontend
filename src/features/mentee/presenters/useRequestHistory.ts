@@ -4,8 +4,8 @@
 
 // src/hooks/useRequestHistory.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMyConnectRequests, deleteConnectRequest } from "@features/mentee/models/mentee.api";
+import logger from "@lib/monitoring/logger";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
 /**
  * Custom hook for request history.
@@ -24,7 +24,7 @@ const useRequestHistory = () => {
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/connect-requests/my-requests");
+      const res = await getMyConnectRequests();
       setRequests(Array.isArray(res.data.requests) ? res.data.requests.map(mapConnectRequest) : []);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load requests.");
@@ -41,7 +41,7 @@ const useRequestHistory = () => {
   // ── Delete / cancel a request ───────────────────────────────
   const deleteRequest = useCallback(async (id) => {
     try {
-      await axiosInstance.delete(`/connect-requests/${id}`);
+      await deleteConnectRequest(id);
       setRequests((prev) => prev.filter((r) => r._id !== id));
       setSelected((prev) => (prev?._id === id ? null : prev));
     } catch (err) {

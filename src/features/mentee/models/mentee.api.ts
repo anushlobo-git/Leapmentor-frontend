@@ -3,7 +3,7 @@
  */
 
 // src/features/mentee/api/mentee.api.js
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 // --- onboarding ---
 export const uploadProfilePicture = (formData, onUploadProgress) =>
@@ -28,3 +28,27 @@ export const createLeapRequest = (reason) => axiosInstance.post(`/leap-requests`
 // --- find mentors / availability ---
 export const getMentorAvailability = (mentorUserId, duration) =>
   axiosInstance.get(`/availability/${mentorUserId}/slots?duration=${duration}`);
+
+export const searchMentorsRequest = (queryString: string) =>
+  axiosInstance.get(`/mentors/search?${queryString}`);
+
+// --- current user / mentee profile ---
+export const getCurrentUser = () => axiosInstance.get("/users/me");
+
+export const getMenteeProfile = () => axiosInstance.get("/mentee-profile/me");
+
+export const updateMenteeProfile = (payload: any) =>
+  axiosInstance.put("/mentee-profile/me", payload);
+
+export const changePasswordRequest = ({
+  currentPassword,
+  newPassword,
+}: {
+  currentPassword: string;
+  newPassword: string;
+}) =>
+  axiosInstance.put("/auth/change-password", { currentPassword, newPassword });
+
+// --- request history ---
+export const deleteConnectRequest = (id: string) =>
+  axiosInstance.delete(`/connect-requests/${id}`);

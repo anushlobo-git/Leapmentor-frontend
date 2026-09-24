@@ -3,7 +3,14 @@
  */
 //src/features/sessions/hooks/useSessions.js
 import { useState, useEffect, useCallback, useRef } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import {
+  getSessionSlots,
+  updateSlotMeetingLink,
+  markSlotCompleteRequest,
+  addSessionSlot,
+  cancelSessionSlot,
+  rescheduleSessionSlot,
+} from "@features/sessions/models/sessions.api";
 import { mapSlot, mapSessionSlotsResponse } from "@features/sessions/models/sessionsMapper";
 /**
  * Custom hook for sessions.
@@ -47,7 +54,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     try {
       if (!silent) setLoading(true);
       setError(null);
-      const res = await axiosInstance.get(`/sessions/${connectRequestId}/slots`);
+      const res = await getSessionSlots(connectRequestId);
       applySlotUpdate(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load sessions.");
@@ -76,7 +83,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/meeting-link`, { meetingLink });
+        const res = await updateSlotMeetingLink(connectRequestId, slotIndex, meetingLink);
         const mappedSlot = mapSlot(res.data.slot);
         setSlots((prev) =>
           prev.map((s, i) =>
@@ -100,10 +107,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axiosInstance.patch(
-          `/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
-          {},
-        );
+        const res = await markSlotCompleteRequest(connectRequestId, slotIndex);
         applySlotUpdate(res.data); //  replaces manual setSlots/setCompletedSlots/setProgress
         return { ...res.data, success: true };
       } catch (err) {
@@ -121,7 +125,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(-1, true);
         setError(null);
-        const res = await axiosInstance.post(`/sessions/${connectRequestId}/add-slot`, { day, date, startTime, endTime });
+        const res = await addSessionSlot(connectRequestId, { day, date, startTime, endTime });
         applySlotUpdate(res.data);
         return { success: true, slotId: res.data.slotId ?? null };
       } catch (err) {
@@ -140,7 +144,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/cancel`, { reason });
+        const res = await cancelSessionSlot(connectRequestId, slotIndex, reason);
         applySlotUpdate(res.data);
         return { ...res.data, success: true };
       } catch (err) {
@@ -159,7 +163,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await axiosInstance.patch(`/sessions/${connectRequestId}/slots/${slotIndex}/reschedule`, { date, startTime, endTime });
+        const res = await rescheduleSessionSlot(connectRequestId, slotIndex, { date, startTime, endTime });
         applySlotUpdate(res.data);
         return { ...res.data, success: true };
       } catch (err) {

@@ -5,7 +5,7 @@
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
 import { getGoogleCalendarAuthUrl, disconnectGoogleCalendar } from "@features/mentor/models/mentor.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 interface IntegrationsSectionProps {
   googleCalendarConnected: boolean;

@@ -8,7 +8,7 @@ import { useLoginPresenter } from "@features/auth/presenters/useLoginPresenter";
 import AuthSSOButtons from "@features/auth/views/AuthSSOButtons";
 import { AuthBrand } from "@features/auth/views/AuthUI";
 import { LeapMentorLogo } from "@features/auth/views/AuthIcons";
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 
 interface LoginFormProps {
@@ -55,6 +55,13 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
         </div>
       )}
 
+      {/*
+      you can write the function for the form submit like this
+      function onSubmit(data){...}
+      and the data is the object that will have all the input fields such as
+      {email:.....,
+      password:....}
+      */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label
@@ -72,6 +79,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
             placeholder={placeholder || "you@example.com"}
             className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150 placeholder:text-slate-400"
           />
+          {/* if there is any mistake that u have done then the error object is created */}
           {errors.email && (
             <span
               id="email-error"
@@ -109,6 +117,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
               {getPasswordToggleIcon(showPw)}
             </button>
           </div>
+          {/* if there is any mistake that u have done then the error object is created */}
           {errors.password && (
             <span
               id="password-error"

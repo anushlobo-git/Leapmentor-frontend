@@ -9,7 +9,7 @@ import {
   getEscrowWallet,
 } from "@features/mentee/models/mentee.api";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 export const useHomeData = (profile) => {

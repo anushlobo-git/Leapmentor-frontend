@@ -4,7 +4,7 @@
 
 // src/hooks/useUnreadCount.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { getNotifications } from "@features/notifications/models/notifications.api";
 import { normalizeApiNotif } from "@features/notifications/models/notificationMapper";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
@@ -22,7 +22,7 @@ const useUnreadCount = () => {
   const fetchUnreadCount = useCallback(async () => {
     try {
       if (!isAuthenticated) return;
-      const res = await axiosInstance.get("/notifications");
+      const res = await getNotifications();
       const normalized = Array.isArray(res.data.notifications)
         ? res.data.notifications.map(normalizeApiNotif)
         : [];

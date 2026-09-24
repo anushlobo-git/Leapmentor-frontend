@@ -4,7 +4,7 @@ import {
   getGoogleCalendarAuthUrl,
   disconnectGoogleCalendar,
 } from "@features/mentor/models/mentor.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // Mock API layer
 vi.mock("@features/mentor/models/mentor.api", () => ({
@@ -13,7 +13,7 @@ vi.mock("@features/mentor/models/mentor.api", () => ({
 }));
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
     error: vi.fn(),

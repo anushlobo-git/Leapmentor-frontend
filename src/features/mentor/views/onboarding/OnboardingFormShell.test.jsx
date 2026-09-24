@@ -25,7 +25,7 @@ vi.mock("@features/mentor/models/mentorOnboardingSlice", () => ({
   clearMentorOnboardingMessages: vi.fn(() => ({ type: "clear" })),
 }));
 
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   default: ({ message }) => (
     <div data-testid="fullscreen-loader">{message}</div>
   ),

@@ -5,7 +5,7 @@
 // View for RegisterForm — pure JSX. All state/logic lives in
 // presenters/useRegisterPresenter.ts.
 import { useRegisterPresenter } from "@features/auth/presenters/useRegisterPresenter";
-import FullScreenLoader from "@components/common/FullScreenLoader";
+import FullScreenLoader from "@components/shared/FullScreenLoader";
 import AuthSSOButtons from "@features/auth/views/AuthSSOButtons";
 import {
   AuthMessageBanner,

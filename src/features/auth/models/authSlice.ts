@@ -4,7 +4,8 @@
 
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
+import { login as loginRequest } from "@features/auth/models/auth.api";
 import { mapAuthUser } from "@lib/mappers/userMapper";
 import type { RootState } from "@store/index";
 
@@ -28,6 +29,19 @@ export const redirectByRole = (
  * @param {{ name: string, email: string, password: string, roles: string[], termsAccepted: boolean }} payload - Registration payload.
  * @returns {Promise<any>} Backend response payload.
  */
+
+
+//registerUser when u log has 3 properties assigned that is
+//here createAsyncThunk creates three functions that are actionCreator
+//registerUser.pending : [Function: actionCreator] {
+//whatever type u give plus the promise property
+//*type : 'auth/registerUser/pending'
+//} ,
+ //registerUser.rejected : [Function: actionCreator]  {type :same here with rejected },
+ //registerUser.fulfilled : [Function: actionCreator] {same}
+ //but when u call it after calling registerUser() u get a function
+
+
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (
@@ -56,7 +70,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }: any) => {
     try {
-      const res = await axiosInstance.post(`/auth/login`, { email, password });
+      const res = await loginRequest(email, password);
       return res.data;
     } catch (err) {
       return rejectWithValue(err?.response?.data?.message || err?.message || "Login failed.");
@@ -275,6 +289,7 @@ const authSlice = createSlice({
       state.successMsg = null;
     },
   },
+  //builder is object that might look like {addCase: function{}}
   extraReducers: (builder) => {
     // ── Register ──
     builder
@@ -446,6 +461,9 @@ export const selectIsVerified = (state: RootState) => state.auth.user?.isVerifie
 
 export const selectRole = (state: RootState) => state.auth.role;
 
+
+//this exports the action creator function such that by calling this function returns the action object such as
+//{type:'auth/logout', payload:data} this is how it might look like
 export const { logout, setUser, setAdminSession, clearMessages } = authSlice.actions;
 
 export default authSlice.reducer;

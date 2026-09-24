@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/common/EmptyState.jsx
+// src/components/shared/EmptyState.jsx
 import type { ReactNode } from "react";
 
 

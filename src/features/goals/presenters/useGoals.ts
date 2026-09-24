@@ -5,8 +5,15 @@
 // src/hooks/useGoals.js
 import { useToast } from "@app/providers/ToastContext";
 import { useState, useEffect, useCallback, useRef } from "react";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  fetchGoalRequest,
+  createGoalRequest,
+  updateGoalRequest,
+  addMilestoneRequest,
+  toggleMilestoneRequest,
+  deleteMilestoneRequest,
+} from "@features/goals/models/goals.api";
+import logger from "@lib/monitoring/logger";
 import useSocketEvent from "@lib/hooks/useSocketEvent";
 import { mapGoal, mapMilestone } from "@features/goals/models/goalsMapper";
 
@@ -46,7 +53,7 @@ const useGoals = (connectRequestId) => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axiosInstance.get(`/goals/${connectRequestId}`);
+      const { data } = await fetchGoalRequest(connectRequestId);
       setGoal(mapGoal(data.goal));
       setMilestones(
         Array.isArray(data.milestones) ? data.milestones.map(mapMilestone) : [],
@@ -172,7 +179,7 @@ const useGoals = (connectRequestId) => {
       setError(null);
       pendingOwnGoalCreate.current += 1;
       try {
-        const { data } = await axiosInstance.post("/goals", {
+        const { data } = await createGoalRequest({
           connectRequestId,
           title,
           description,
@@ -199,7 +206,7 @@ const useGoals = (connectRequestId) => {
     setError(null);
     pendingOwnGoalUpdate.current += 1;
     try {
-      const { data } = await axiosInstance.patch(`/goals/${goalId}`, fields);
+      const { data } = await updateGoalRequest(goalId, fields);
       setGoal(mapGoal(data.goal));
       return { success: true };
     } catch (err) {
@@ -216,7 +223,7 @@ const useGoals = (connectRequestId) => {
     setError(null);
     pendingOwnMilestoneAdd.current += 1;
     try {
-      const { data } = await axiosInstance.post(`/goals/${goalId}/milestones`, {
+      const { data } = await addMilestoneRequest(goalId, {
         title,
         dueDate,
       });
@@ -237,10 +244,7 @@ const useGoals = (connectRequestId) => {
       prev.map((m) => (m._id === milestoneId ? { ...m, isCompleted } : m)),
     );
     try {
-      const { data } = await axiosInstance.patch(
-        `/goals/milestones/${milestoneId}`,
-        { isCompleted },
-      );
+      const { data } = await toggleMilestoneRequest(milestoneId, isCompleted);
       setMilestones((prev) =>
         prev.map((m) =>
           m._id === milestoneId ? mapMilestone(data.milestone) : m,
@@ -267,13 +271,11 @@ const useGoals = (connectRequestId) => {
     });
     try {
       // NOTE (found during TS migration, left unchanged to preserve existing
-      // behavior): axiosInstance.delete() returns an Axios response, which
-      // never has `.ok`/`.json()` (those are fetch-API members). This branch
+      // behavior): deleteMilestoneRequest() returns a raw Axios response,
+      // which never has `.ok`/`.json()` (those are fetch-API members). This branch
       // is effectively always truthy today, so failures are misreported.
       // Flagging for a follow-up fix rather than changing behavior here.
-      const res: any = await axiosInstance.delete(
-        `/goals/milestones/${milestoneId}`,
-      );
+      const res: any = await deleteMilestoneRequest(milestoneId);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.message || "Failed to delete milestone");

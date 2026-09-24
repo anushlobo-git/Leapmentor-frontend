@@ -10,7 +10,7 @@ vi.mock("@features/mentee/views/dashboard/findMentors/MentorCard", () => ({
   ),
 }));
 
-vi.mock("@components/common/Loader", () => ({
+vi.mock("@components/shared/Loader", () => ({
   default: ({ size }) => (
     <div data-testid="loader">Loading ({size || "default"})...</div>
   ),

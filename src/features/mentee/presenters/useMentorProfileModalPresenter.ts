@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { getMentorAvailability } from "@features/mentee/models/mentee.api";
 import useConnectRequest from "@features/connects/presenters/useConnectRequest";
 import useSlotLock from "@features/sessions/presenters/useSlotLock";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import { MENTOR_BADGES } from "@features/mentor/models/mentorBadges";
 
 const BADGES = MENTOR_BADGES;

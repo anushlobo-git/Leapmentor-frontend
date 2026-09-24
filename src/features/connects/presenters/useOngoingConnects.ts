@@ -4,7 +4,7 @@
 
 // src/hooks/useOngoingConnects.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { getOngoingConnects } from "@features/connects/models/connects.api";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
 /**
  * Custom hook for ongoing connects.
@@ -21,7 +21,7 @@ const useOngoingConnects = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosInstance.get("/connect-requests/ongoing");
+      const res = await getOngoingConnects();
       const all = Array.isArray(res.data.connects) ? res.data.connects.map(mapConnectRequest) : [];
 
       // ✅ Split into ongoing and completed

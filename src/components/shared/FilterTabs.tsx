@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/common/FilterTabs.jsx
+// src/components/shared/FilterTabs.jsx
 
 const defaultBadgeClass = (tabKey: string, activeTab: string) =>
   activeTab === tabKey ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500";

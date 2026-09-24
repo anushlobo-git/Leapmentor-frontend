@@ -5,7 +5,7 @@
 // src/features/mentor/components/dashboard/MentorHomeTab.jsx
 import type React from "react";
 import SessionCard from "@features/sessions/views/SessionCard";
-import Loader from "@components/common/Loader";
+import Loader from "@components/shared/Loader";
 import LeapBuddy from "@features/support/views/LeapBuddy";
 import { useMentorHomeTabPresenter } from "@features/mentor/presenters/useMentorHomeTabPresenter";
 import { formatDecimal } from "@lib/formatters/number";

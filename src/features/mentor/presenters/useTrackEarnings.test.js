@@ -2,11 +2,16 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach ,afterEach} from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useTrackEarnings from "./useTrackEarnings";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import {
+  getMentorEarnings,
+  getMentorEarningsChart,
+  getMentorEarningsPayouts,
+  withdrawMentorEarnings,
+} from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
 import {
   mapEarningsSummary,
   mapChartPoint,
@@ -14,14 +19,14 @@ import {
 } from "@features/mentor/models/earningsMapper";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    post: vi.fn(),
-  },
+vi.mock("@features/mentor/models/mentor.api", () => ({
+  getMentorEarnings: vi.fn(),
+  getMentorEarningsChart: vi.fn(),
+  getMentorEarningsPayouts: vi.fn(),
+  withdrawMentorEarnings: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -98,10 +103,9 @@ describe("useTrackEarnings", () => {
         pagination: { hasMore: true, totalCount: 1 },
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: mockStats })
-        .mockResolvedValueOnce({ data: { data: mockChartData } })
-        .mockResolvedValueOnce({ data: mockPayouts });
+      getMentorEarnings.mockResolvedValueOnce({ data: mockStats });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: mockChartData } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: mockPayouts });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -111,23 +115,18 @@ describe("useTrackEarnings", () => {
         expect(result.current.loadingPayouts).toBe(false);
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/mentor/earnings");
-      expect(axiosInstance.get).toHaveBeenCalledWith(
-        "/mentor/earnings/chart?period=monthly",
-      );
-      expect(axiosInstance.get).toHaveBeenCalledWith(
-        "/mentor/earnings/payouts?page=1&limit=10",
-      );
+      expect(getMentorEarnings).toHaveBeenCalledWith();
+      expect(getMentorEarningsChart).toHaveBeenCalledWith("monthly");
+      expect(getMentorEarningsPayouts).toHaveBeenCalledWith("page=1&limit=10");
       expect(mapEarningsSummary).toHaveBeenCalledWith(mockStats);
       expect(result.current.chartData).toEqual(mockChartData);
       expect(result.current.payouts).toEqual(mockPayouts.payouts);
     });
 
     it("should handle empty chart data", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: null } })
-        .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: null } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -139,10 +138,9 @@ describe("useTrackEarnings", () => {
     });
 
     it("should handle fetch errors", async () => {
-      axiosInstance.get
-        .mockRejectedValueOnce(new Error("Stats error"))
-        .mockRejectedValueOnce(new Error("Chart error"))
-        .mockRejectedValueOnce(new Error("Payouts error"));
+      getMentorEarnings.mockRejectedValueOnce(new Error("Stats error"));
+      getMentorEarningsChart.mockRejectedValueOnce(new Error("Chart error"));
+      getMentorEarningsPayouts.mockRejectedValueOnce(new Error("Payouts error"));
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -164,11 +162,11 @@ describe("useTrackEarnings", () => {
 
   describe("handleChartPeriod", () => {
     it("should change chart period and fetch new data", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart
         .mockResolvedValueOnce({ data: { data: [] } })
-        .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } })
         .mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -181,17 +179,15 @@ describe("useTrackEarnings", () => {
       });
 
       expect(result.current.chartPeriod).toBe("weekly");
-      expect(axiosInstance.get).toHaveBeenCalledWith(
-        "/mentor/earnings/chart?period=weekly",
-      );
+      expect(getMentorEarningsChart).toHaveBeenCalledWith("weekly");
     });
   });
 
   describe("search", () => {
     it("should update search and trigger debounced fetch", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } })
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
@@ -210,16 +206,16 @@ describe("useTrackEarnings", () => {
       await new Promise((resolve) => setTimeout(resolve, 350));
 
       await waitFor(() => {
-        expect(axiosInstance.get).toHaveBeenCalledWith(
-          "/mentor/earnings/payouts?page=1&limit=10&search=test",
+        expect(getMentorEarningsPayouts).toHaveBeenCalledWith(
+          "page=1&limit=10&search=test",
         );
       });
     });
 
     it("should debounce search input", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } })
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
@@ -245,8 +241,11 @@ describe("useTrackEarnings", () => {
       await new Promise((resolve) => setTimeout(resolve, 350));
 
       await waitFor(() => {
-        expect(axiosInstance.get).toHaveBeenCalledTimes(4); // initial + final search
+        // initial mount call (1) + final debounced search call (1)
+        expect(getMentorEarningsPayouts).toHaveBeenCalledTimes(2);
       });
+      expect(getMentorEarnings).toHaveBeenCalledTimes(1);
+      expect(getMentorEarningsChart).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -261,9 +260,9 @@ describe("useTrackEarnings", () => {
         pagination: { hasMore: false, totalCount: 2 },
       };
 
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts
         .mockResolvedValueOnce({ data: mockPayouts1 })
         .mockResolvedValueOnce({ data: mockPayouts2 });
 
@@ -284,9 +283,9 @@ describe("useTrackEarnings", () => {
     });
 
     it("should go to next page", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } })
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
@@ -304,9 +303,9 @@ describe("useTrackEarnings", () => {
     });
 
     it("should go to previous page", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } })
         .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
@@ -330,10 +329,9 @@ describe("useTrackEarnings", () => {
     });
 
     it("should not go below page 1", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
-        .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -351,11 +349,10 @@ describe("useTrackEarnings", () => {
 
   describe("handleWithdraw", () => {
     it("should withdraw successfully", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
-        .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
-      axiosInstance.post.mockResolvedValue({
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
+      withdrawMentorEarnings.mockResolvedValue({
         data: { message: "Withdrawal successful" },
       });
 
@@ -373,10 +370,7 @@ describe("useTrackEarnings", () => {
         await result.current.handleWithdraw();
       });
 
-      expect(axiosInstance.post).toHaveBeenCalledWith(
-        "/mentor/earnings/withdraw",
-        {},
-      );
+      expect(withdrawMentorEarnings).toHaveBeenCalledWith();
       expect(result.current.withdrawMsg).toEqual({
         type: "success",
         text: "Withdrawal successful",
@@ -392,11 +386,10 @@ describe("useTrackEarnings", () => {
     });
 
     it("should handle withdraw error", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
-        .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
-      axiosInstance.post.mockRejectedValue({
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
+      withdrawMentorEarnings.mockRejectedValue({
         response: { data: { message: "Insufficient balance" } },
       });
 
@@ -422,11 +415,10 @@ describe("useTrackEarnings", () => {
     });
 
     it("should handle withdraw error with no response message", async () => {
-      axiosInstance.get
-        .mockResolvedValueOnce({ data: {} })
-        .mockResolvedValueOnce({ data: { data: [] } })
-        .mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
-      axiosInstance.post.mockRejectedValue(new Error("Network error"));
+      getMentorEarnings.mockResolvedValueOnce({ data: {} });
+      getMentorEarningsChart.mockResolvedValueOnce({ data: { data: [] } });
+      getMentorEarningsPayouts.mockResolvedValueOnce({ data: { payouts: [], pagination: {} } });
+      withdrawMentorEarnings.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -452,7 +444,11 @@ describe("useTrackEarnings", () => {
   describe("fetchStats", () => {
     it("should manually fetch stats", async () => {
       const mockStats = { totalEarnings: 2000 };
-      axiosInstance.get.mockResolvedValue({ data: mockStats });
+      // Blanket default across all three GET-style endpoints, mirroring the
+      // original single shared getter default for this test.
+      getMentorEarnings.mockResolvedValue({ data: mockStats });
+      getMentorEarningsChart.mockResolvedValue({ data: mockStats });
+      getMentorEarningsPayouts.mockResolvedValue({ data: mockStats });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -460,14 +456,16 @@ describe("useTrackEarnings", () => {
         await result.current.fetchStats();
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/mentor/earnings");
+      expect(getMentorEarnings).toHaveBeenCalledWith();
       expect(mapEarningsSummary).toHaveBeenCalledWith(mockStats);
     });
   });
 
   describe("state setters", () => {
     it("should update search", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorEarnings.mockResolvedValue({ data: {} });
+      getMentorEarningsChart.mockResolvedValue({ data: {} });
+      getMentorEarningsPayouts.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -479,7 +477,9 @@ describe("useTrackEarnings", () => {
     });
 
     it("should update showWithdraw", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorEarnings.mockResolvedValue({ data: {} });
+      getMentorEarningsChart.mockResolvedValue({ data: {} });
+      getMentorEarningsPayouts.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useTrackEarnings());
 
@@ -491,7 +491,9 @@ describe("useTrackEarnings", () => {
     });
 
     it("should update page", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorEarnings.mockResolvedValue({ data: {} });
+      getMentorEarningsChart.mockResolvedValue({ data: {} });
+      getMentorEarningsPayouts.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useTrackEarnings());
 

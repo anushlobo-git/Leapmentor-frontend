@@ -5,18 +5,16 @@
 import { describe, it, expect, vi, beforeEach ,afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useMentorEditProfile from "./useMentorEditProfile";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    put: vi.fn(),
-  },
+vi.mock("@features/mentor/models/mentor.api", () => ({
+  getMentorProfile: vi.fn(),
+  updateMentorProfile: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -91,7 +89,7 @@ describe("useMentorEditProfile", () => {
         linkedInUrl: "https://linkedin.com/in/test",
         portfolioUrl: "https://portfolio.com",
       };
-      axiosInstance.get.mockResolvedValue({ data: mockProfileData });
+      getMentorProfile.mockResolvedValue({ data: mockProfileData });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -99,7 +97,7 @@ describe("useMentorEditProfile", () => {
         expect(result.current.fetchLoading).toBe(false);
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/mentor-profile/me");
+      expect(getMentorProfile).toHaveBeenCalledWith();
       expect(result.current.form).toEqual({
         profilePicture: "https://example.com/avatar.jpg",
         bio: "Test bio",
@@ -122,7 +120,7 @@ describe("useMentorEditProfile", () => {
         bio: "Test bio",
         currentRole: "Software Engineer",
       };
-      axiosInstance.get.mockResolvedValue({ data: mockProfileData });
+      getMentorProfile.mockResolvedValue({ data: mockProfileData });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -141,7 +139,7 @@ describe("useMentorEditProfile", () => {
       const mockProfileData = {
         languages: ["English", "Spanish"],
       };
-      axiosInstance.get.mockResolvedValue({ data: mockProfileData });
+      getMentorProfile.mockResolvedValue({ data: mockProfileData });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -157,7 +155,7 @@ describe("useMentorEditProfile", () => {
       const mockProfileData = {
         languages: "English, Spanish",
       };
-      axiosInstance.get.mockResolvedValue({ data: mockProfileData });
+      getMentorProfile.mockResolvedValue({ data: mockProfileData });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -170,7 +168,7 @@ describe("useMentorEditProfile", () => {
 
     it("should handle fetch error", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockRejectedValue(new Error("Network error"));
+      getMentorProfile.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -192,7 +190,7 @@ describe("useMentorEditProfile", () => {
   describe("handleChange", () => {
     it("should update form field", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -211,7 +209,7 @@ describe("useMentorEditProfile", () => {
 
     it("should update multiple fields", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -236,7 +234,7 @@ describe("useMentorEditProfile", () => {
   describe("handleSubmit", () => {
     it("should validate currentRole is not only numbers", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -263,7 +261,7 @@ describe("useMentorEditProfile", () => {
 
     it("should validate company is not only numbers", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -290,7 +288,7 @@ describe("useMentorEditProfile", () => {
 
     it("should validate LinkedIn URL format", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -317,7 +315,7 @@ describe("useMentorEditProfile", () => {
 
     it("should validate portfolio URL format", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -344,7 +342,7 @@ describe("useMentorEditProfile", () => {
 
     it("should redirect to login if not authenticated", async () => {
       mockUseSelector.mockReturnValue(false);
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -362,8 +360,8 @@ describe("useMentorEditProfile", () => {
 
     it("should submit profile successfully", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -394,7 +392,7 @@ describe("useMentorEditProfile", () => {
         result.current.handleSubmit(event);
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith("/mentor-profile/me", {
+      expect(updateMentorProfile).toHaveBeenCalledWith({
         ...result.current.form,
         yearsOfExperience: 5,
         hourlyRate: 50,
@@ -409,8 +407,8 @@ describe("useMentorEditProfile", () => {
 
     it("should handle submit error", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockRejectedValue({
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockRejectedValue({
         response: { data: { message: "Server error" } },
       });
 
@@ -434,8 +432,8 @@ describe("useMentorEditProfile", () => {
 
     it("should handle submit error with no response message", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockRejectedValue(new Error("Network error"));
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -456,8 +454,8 @@ describe("useMentorEditProfile", () => {
 
     it("should convert yearsOfExperience to number", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -476,8 +474,7 @@ describe("useMentorEditProfile", () => {
         result.current.handleSubmit(event);
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith(
-        "/mentor-profile/me",
+      expect(updateMentorProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           yearsOfExperience: 10,
         }),
@@ -486,8 +483,8 @@ describe("useMentorEditProfile", () => {
 
     it("should handle empty yearsOfExperience as 0", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -500,8 +497,7 @@ describe("useMentorEditProfile", () => {
         result.current.handleSubmit(event);
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith(
-        "/mentor-profile/me",
+      expect(updateMentorProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           yearsOfExperience: 0,
         }),
@@ -510,8 +506,8 @@ describe("useMentorEditProfile", () => {
 
     it("should convert hourlyRate to number", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -530,8 +526,7 @@ describe("useMentorEditProfile", () => {
         result.current.handleSubmit(event);
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith(
-        "/mentor-profile/me",
+      expect(updateMentorProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           hourlyRate: 75,
         }),
@@ -540,8 +535,8 @@ describe("useMentorEditProfile", () => {
 
     it("should split languages string into array", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -560,8 +555,7 @@ describe("useMentorEditProfile", () => {
         result.current.handleSubmit(event);
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith(
-        "/mentor-profile/me",
+      expect(updateMentorProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           languages: ["English", "Spanish", "French"],
         }),
@@ -570,8 +564,8 @@ describe("useMentorEditProfile", () => {
 
     it("should filter empty language items", async () => {
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 
@@ -590,8 +584,7 @@ describe("useMentorEditProfile", () => {
         result.current.handleSubmit(event);
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith(
-        "/mentor-profile/me",
+      expect(updateMentorProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           languages: ["English", "Spanish"],
         }),
@@ -601,8 +594,8 @@ describe("useMentorEditProfile", () => {
     it("should redirect to dashboard after successful submit", async () => {
       vi.useFakeTimers(); // <-- enable only here
       mockUseSelector.mockReturnValue(true);
-      axiosInstance.get.mockResolvedValue({ data: {} });
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      getMentorProfile.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorEditProfile());
 

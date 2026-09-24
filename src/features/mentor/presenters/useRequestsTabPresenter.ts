@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getIncomingRequests } from "@features/mentor/models/mentor.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import useSocketEvent from "@lib/hooks/useSocketEvent";
 import type { RequestCardRequest } from "@features/mentor/views/dashboard/requests/RequestCard";
 

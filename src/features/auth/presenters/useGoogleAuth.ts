@@ -4,9 +4,9 @@
 
 import { useEffect, useRef } from "react";
 import type React from "react";
-import axiosInstance from "@lib/axiosInstance";
-import { setAuthRole } from "@lib/cookies";
-import logger from "@lib/logger";
+import { googleAuthRequest } from "@features/auth/models/auth.api";
+import { setAuthRole } from "@lib/http/cookies";
+import logger from "@lib/monitoring/logger";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -90,7 +90,7 @@ const useGoogleAuth = ({
               callbackRef.onLoadingChange?.(true);
               logger.info("Google sign-in callback received");
 
-              const res = await axiosInstance.post(`/auth/google`, {
+              const res = await googleAuthRequest({
                 credential: response.credential,
                 roles: callbackRef.rolesRef.current,
                 termsAccepted: true,

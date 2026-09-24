@@ -13,17 +13,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { login } from "@features/auth/models/auth.api";
 import { setUser } from "@features/auth/models/authSlice";
 import useGoogleAuth from "@features/auth/presenters/useGoogleAuth";
-import { setAuthRole } from "@lib/cookies";
+import { setAuthRole } from "@lib/http/cookies";
 import { loginSchema } from "@lib/validation/schemas";
-import logger from "@lib/logger";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import logger from "@lib/monitoring/logger";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import type { AppDispatch } from "@store/index";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
-// Sonar (S3358): nested ternaries are hard to read, so this resolves the
-// user's primary role as an independent, linear statement instead.
+//from string[] i,e role=["mentor"] or ['mentee'] gives u back the string
 const getPrimaryRole = (roles: string[]) => {
   if (roles.includes("mentor")) return "mentor";
   if (roles.includes("mentee")) return "mentee";
@@ -38,8 +37,10 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const googleBtnRef = useRef<HTMLDivElement>(null);
-
+  //this is from react-hook form ,it is basically to manage the entire form
   const {
+    //function that connects HTML input to React Hook Form <input {...register("email")} />
+    //register('email')~ <input name="email" onChange={...} onBlur={...} ref={...}/>
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
@@ -62,13 +63,16 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
   }, []);
 
   const handlePostAuth = (user: any, accessToken: string) => {
+    //saves in the redux
     dispatch(setUser({ accessToken, user }));
 
     const roles = user?.roles || [];
+    //u get the string ("mentee" or "mentor" ) from ["mentor"] string[]
     const primaryRole = getPrimaryRole(roles);
 
+    //it sets the role in the cookie in this pattern `authRole=${role};path=/;SameSite=Lax`
     if (primaryRole) {
-      setAuthRole(primaryRole); // this is what was missing
+      setAuthRole(primaryRole);
     } else {
       setMsg({ type: "error", text: "No role found. Please register first." });
       return;
@@ -97,6 +101,8 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
     });
     globalThis.location.href = `${API_BASE}/auth/linkedin?termsAccepted=true`;
   };
+
+  //this function is for the email and password submission in the login page
 
   const onSubmit = async (data: { email: string; password: string }) => {
     setMsg({ type: "", text: "" });

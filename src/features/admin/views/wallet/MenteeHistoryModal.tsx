@@ -5,7 +5,7 @@
 // src/features/admin/components/wallet/MenteeHistoryModal.tsx
 import { useState, useEffect } from "react";
 import { getEngagements } from "@features/admin/models/admin.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import WalletStatusBadge from "./WalletStatusBadge";
 import {
   getInitials,

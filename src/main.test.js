@@ -12,11 +12,11 @@ vi.mock("@store/index", () => ({
   default: { id: "mock-redux-store-instance" },
 }));
 
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   injectStore: vi.fn(),
 }));
 
-vi.mock("@lib/sentry", () => ({
+vi.mock("@lib/monitoring/sentry", () => ({
   initializeSentry: vi.fn(),
 }));
 
@@ -49,8 +49,8 @@ describe("Application Root Entry Point (main.jsx)", () => {
 
   // ── Branch Path 1: Core Initializations ────────────────────────────────────
   it("should inject the store reference into Axios, initialize Sentry metrics, and render into the DOM", async () => {
-    const { injectStore } = await import("@lib/axiosInstance");
-    const { initializeSentry } = await import("@lib/sentry");
+    const { injectStore } = await import("@lib/http/axiosInstance");
+    const { initializeSentry } = await import("@lib/monitoring/sentry");
     const { createRoot } = await import("react-dom/client");
     const storeModule = await import("@store/index");
 

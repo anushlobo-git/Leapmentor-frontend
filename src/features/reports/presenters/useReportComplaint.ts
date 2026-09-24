@@ -4,7 +4,7 @@
 
 // src/hooks/useReportComplaint.js
 import { useState, useCallback } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { submitReportRequest } from "@features/reports/models/reports.api";
 /**
  * Custom hook for report complaint.
  * @returns {Object} Hook state and handlers for the caller.
@@ -28,7 +28,7 @@ const useReportComplaint = (connectRequestId) => {
       formData.append("description",      description);
       if (screenshot) formData.append("screenshot", screenshot);
 
-      await axiosInstance.post("/reports", formData);
+      await submitReportRequest(formData);
 
       return { success: true };
     } catch (err) {

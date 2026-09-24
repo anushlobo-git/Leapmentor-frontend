@@ -4,7 +4,7 @@
 
 // src/hooks/useMentorSearch.js
 import { useState, useEffect, useCallback, useRef } from "react";
-import axiosInstance from "@lib/axiosInstance";
+import { searchMentorsRequest } from "@features/mentee/models/mentee.api";
 import { mapMentorSearchResponse } from "@features/mentor/models/mentorMapper";
 
 const DEBOUNCE_MS = 300;
@@ -103,7 +103,7 @@ const useMentorSearch = () => {
           currentFilters,
           currentPage,
         );
-        const res = await axiosInstance.get(`/mentors/search?${queryString}`);
+        const res = await searchMentorsRequest(queryString);
 
         const { mentors: newMentors, pagination } = mapMentorSearchResponse(
           res.data,

@@ -12,7 +12,7 @@ import {
 } from "./notifications.api";
 
 // Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     get: vi.fn(),
     patch: vi.fn(),
@@ -28,7 +28,7 @@ describe("notifications.api", () => {
   describe("getNotifications", () => {
     it("should call axiosInstance.get with correct endpoint", async () => {
       const mockResponse = { data: [] };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.get.mockResolvedValue(mockResponse);
 
       const result = await getNotifications();
@@ -41,7 +41,7 @@ describe("notifications.api", () => {
   describe("markAllNotificationsRead", () => {
     it("should call axiosInstance.patch with correct endpoint and empty payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.patch.mockResolvedValue(mockResponse);
 
       const result = await markAllNotificationsRead();
@@ -54,7 +54,7 @@ describe("notifications.api", () => {
   describe("clearAllNotifications", () => {
     it("should call axiosInstance.delete with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.delete.mockResolvedValue(mockResponse);
 
       const result = await clearAllNotifications();
@@ -67,7 +67,7 @@ describe("notifications.api", () => {
   describe("markNotificationRead", () => {
     it("should call axiosInstance.patch with correct endpoint and empty payload", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.patch.mockResolvedValue(mockResponse);
 
       const result = await markNotificationRead("notif123");
@@ -80,7 +80,7 @@ describe("notifications.api", () => {
   describe("deleteNotification", () => {
     it("should call axiosInstance.delete with correct endpoint", async () => {
       const mockResponse = { data: { success: true } };
-      const axiosInstance = (await import("@lib/axiosInstance")).default;
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
       axiosInstance.delete.mockResolvedValue(mockResponse);
 
       const result = await deleteNotification("notif123");

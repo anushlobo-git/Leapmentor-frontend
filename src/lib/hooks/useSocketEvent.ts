@@ -4,7 +4,7 @@
 
 // src/lib/hooks/useSocketEvent.js
 import { useEffect } from "react";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 const SOCKET_POLL_INTERVAL_MS = 200;
 

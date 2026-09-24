@@ -1,20 +1,18 @@
 import { renderHook, act } from "@testing-library/react";
 import useRequestHistory from "./useRequestHistory";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMyConnectRequests, deleteConnectRequest } from "@features/mentee/models/mentee.api";
+import logger from "@lib/monitoring/logger";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock axiosInstance
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    delete: vi.fn(),
-  },
+// Mock mentee.api
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getMyConnectRequests: vi.fn(),
+  deleteConnectRequest: vi.fn(),
 }));
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -34,8 +32,8 @@ describe("useRequestHistory hook", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    axiosInstance.get.mockResolvedValue({ data: { requests: mockRequests } });
-    axiosInstance.delete.mockResolvedValue({ data: { success: true } });
+    getMyConnectRequests.mockResolvedValue({ data: { requests: mockRequests } });
+    deleteConnectRequest.mockResolvedValue({ data: { success: true } });
   });
 
   it("fetches requests on mount and maps results", async () => {
@@ -47,16 +45,14 @@ describe("useRequestHistory hook", () => {
       await Promise.resolve(); // flush mount microtasks
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledWith(
-      "/connect-requests/my-requests",
-    );
+    expect(getMyConnectRequests).toHaveBeenCalledWith();
     expect(mapConnectRequest).toHaveBeenCalled();
     expect(result.current.requests).toEqual(mockRequests);
     expect(result.current.loading).toBe(false);
   });
 
   it("handles fallback to empty array if response requests is not an array", async () => {
-    axiosInstance.get.mockResolvedValueOnce({ data: { requests: null } });
+    getMyConnectRequests.mockResolvedValueOnce({ data: { requests: null } });
 
     const { result } = renderHook(() => useRequestHistory());
 
@@ -68,7 +64,7 @@ describe("useRequestHistory hook", () => {
   });
 
   it("handles load error during fetching", async () => {
-    axiosInstance.get.mockRejectedValueOnce({
+    getMyConnectRequests.mockRejectedValueOnce({
       response: { data: { message: "Internal server error" } },
     });
 
@@ -96,7 +92,7 @@ describe("useRequestHistory hook", () => {
       await result.current.deleteRequest("req1");
     });
 
-    expect(axiosInstance.delete).toHaveBeenCalledWith("/connect-requests/req1");
+    expect(deleteConnectRequest).toHaveBeenCalledWith("req1");
     expect(result.current.requests).toHaveLength(2);
     expect(result.current.selected).toBeNull();
   });
@@ -120,7 +116,7 @@ describe("useRequestHistory hook", () => {
   });
 
   it("logs error if deleteRequest api call fails", async () => {
-    axiosInstance.delete.mockRejectedValueOnce(
+    deleteConnectRequest.mockRejectedValueOnce(
       new Error("Database disconnected"),
     );
 
@@ -188,7 +184,7 @@ describe("useRequestHistory hook", () => {
   });
 
   it("handles fetching error without response message fallback", async () => {
-    axiosInstance.get.mockRejectedValueOnce({}); // no message or response
+    getMyConnectRequests.mockRejectedValueOnce({}); // no message or response
 
     const { result } = renderHook(() => useRequestHistory());
 

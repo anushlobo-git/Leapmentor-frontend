@@ -49,7 +49,7 @@ vi.mock("@features/sessions/views/SessionCard", () => ({
   ),
 }));
 
-vi.mock("@components/common/Loader", () => ({
+vi.mock("@components/shared/Loader", () => ({
   default: ({ minHeight }) => (
     <div data-testid="mock-loader" style={{ height: minHeight }}>
       Loading Spinner

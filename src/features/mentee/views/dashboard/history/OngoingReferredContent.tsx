@@ -17,7 +17,7 @@ import {
 import { SlotRow } from "@features/mentee/views/dashboard/history/RequestStatusViews";
 import MentorProfileModal from "@features/mentee/views/dashboard/findMentors/MentorProfileModal";
 import type { HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // ── Ongoing content ─────────────────────────────────────────
 export const OngoingContent = ({ request, onClose }: { request: HistoryRequest; onClose: () => void }) => {

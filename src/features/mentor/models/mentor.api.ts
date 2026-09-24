@@ -3,7 +3,7 @@
  */
 
 // src/features/mentor/api/mentor.api.js
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 // --- onboarding / verification uploads ---
 export const uploadVerificationDocuments = (formData, onUploadProgress) =>
@@ -26,6 +26,32 @@ export const referRequest = (requestId, referToMentorId) =>
 
 // --- earnings ---
 export const getMentorEarnings = () => axiosInstance.get(`/mentor/earnings`);
+
+export const getMentorEarningsChart = (period: string) =>
+  axiosInstance.get(`/mentor/earnings/chart?period=${period}`);
+
+export const getMentorEarningsPayouts = (queryString: string) =>
+  axiosInstance.get(`/mentor/earnings/payouts?${queryString}`);
+
+export const withdrawMentorEarnings = () =>
+  axiosInstance.post(`/mentor/earnings/withdraw`, {});
+
+// --- availability ---
+export const getMyAvailability = () => axiosInstance.get(`/availability/me`);
+
+export const updateMyAvailability = (payload: {
+  timezone: string;
+  sessionDurations: number[];
+  specificDates: any[];
+}) => axiosInstance.patch(`/availability/me`, payload);
+
+// --- current user / mentor profile ---
+export const getCurrentUser = () => axiosInstance.get("/users/me");
+
+export const getMentorProfile = () => axiosInstance.get("/mentor-profile/me");
+
+export const updateMentorProfile = (payload: any) =>
+  axiosInstance.put("/mentor-profile/me", payload);
 
 // --- google calendar integration ---
 export const getGoogleCalendarAuthUrl = () => axiosInstance.get("/google-calendar/auth-url");

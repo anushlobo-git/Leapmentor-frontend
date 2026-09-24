@@ -1,14 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useOngoingConnects from "./useOngoingConnects";
-import axiosInstance from "@lib/axiosInstance";
+import { getOngoingConnects } from "@features/connects/models/connects.api";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
 
 // Mock external axios instance and data mappers
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-  },
+vi.mock("@features/connects/models/connects.api", () => ({
+  getOngoingConnects: vi.fn(),
 }));
 
 vi.mock("@features/connects/models/connectsMapper", () => ({
@@ -31,7 +29,7 @@ describe("useOngoingConnects", () => {
       },
     };
 
-    axiosInstance.get.mockResolvedValueOnce(mockApiResponse);
+    getOngoingConnects.mockResolvedValueOnce(mockApiResponse);
 
     let hookResult;
     await act(async () => {
@@ -39,8 +37,8 @@ describe("useOngoingConnects", () => {
       hookResult = result;
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledTimes(1);
-    expect(axiosInstance.get).toHaveBeenCalledWith("/connect-requests/ongoing");
+    expect(getOngoingConnects).toHaveBeenCalledTimes(1);
+    expect(getOngoingConnects).toHaveBeenCalledWith();
     expect(mapConnectRequest).toHaveBeenCalledTimes(3);
 
     expect(hookResult.current.loading).toBe(false);
@@ -60,7 +58,7 @@ describe("useOngoingConnects", () => {
 
   it("should fallback cleanly to empty arrays when the API payload is missing or malformed", async () => {
     const mockApiResponse = { data: { connects: null } };
-    axiosInstance.get.mockResolvedValueOnce(mockApiResponse);
+    getOngoingConnects.mockResolvedValueOnce(mockApiResponse);
 
     let hookResult;
     await act(async () => {
@@ -82,7 +80,7 @@ describe("useOngoingConnects", () => {
         },
       },
     };
-    axiosInstance.get.mockRejectedValueOnce(mockError);
+    getOngoingConnects.mockRejectedValueOnce(mockError);
 
     let hookResult;
     await act(async () => {
@@ -98,7 +96,7 @@ describe("useOngoingConnects", () => {
   });
 
   it("should fallback to generic fallback text when network errors occur without explicit messages", async () => {
-    axiosInstance.get.mockRejectedValueOnce(new Error("Network Failure"));
+    getOngoingConnects.mockRejectedValueOnce(new Error("Network Failure"));
 
     let hookResult;
     await act(async () => {
@@ -111,7 +109,7 @@ describe("useOngoingConnects", () => {
   });
 
   it("should re-fetch active connections and reset status variables when refetch is manually triggered", async () => {
-    axiosInstance.get.mockResolvedValueOnce({ data: { connects: [] } });
+    getOngoingConnects.mockResolvedValueOnce({ data: { connects: [] } });
 
     let hookResult;
     await act(async () => {
@@ -120,7 +118,7 @@ describe("useOngoingConnects", () => {
     });
 
     // Setup second response call matrix configuration
-    axiosInstance.get.mockResolvedValueOnce({
+    getOngoingConnects.mockResolvedValueOnce({
       data: { connects: [{ id: "10", status: "ongoing" }] },
     });
 
@@ -128,7 +126,7 @@ describe("useOngoingConnects", () => {
       await hookResult.current.refetch();
     });
 
-    expect(axiosInstance.get).toHaveBeenCalledTimes(2);
+    expect(getOngoingConnects).toHaveBeenCalledTimes(2);
     expect(hookResult.current.ongoing).toHaveLength(1);
     expect(hookResult.current.ongoing[0].id).toBe("10");
   });

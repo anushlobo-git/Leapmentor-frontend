@@ -25,3 +25,17 @@ declare module "axios" {
     authDomain?: "admin" | "default";
   }
 }
+
+// const config = {
+//   url: "/users",
+//   method: "GET",
+//   metadata: {
+//     correlationId: "abc",
+//     startTime: 12345
+//   },
+//   _skipAuthRedirect: true
+// };
+//this might be our config element for the request so for the typescript for testing the object
+//u can use this axiosRequestConfig is a type for the config object that u pass during
+//axiosInstance.interceptors.request.use((config) => {
+   // config is an Axios request config object }

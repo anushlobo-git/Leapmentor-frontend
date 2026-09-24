@@ -3,7 +3,7 @@
  */
 
 // ✅ replace entire file
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 /**
  * Uploads a note or note attachment for a connect request.

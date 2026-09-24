@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useChat from "./useChat";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getChatHistory } from "@features/shared-dashboard/models/shared-dashboard.api";
+import logger from "@lib/monitoring/logger";
 
 // ── Hoist Variable Container Definitions to Prevent Temporal Dead Zone (TDZ) ──
 const { globalSocketContext } = vi.hoisted(() => ({
@@ -10,13 +10,11 @@ const { globalSocketContext } = vi.hoisted(() => ({
 }));
 
 // ── Mock Core Libraries & Core Modules ───────────────────
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-  },
+vi.mock("@features/shared-dashboard/models/shared-dashboard.api", () => ({
+  getChatHistory: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -37,7 +35,7 @@ describe("useChat Hook Test Suite", () => {
     globalSocketContext.capturedInitializer = null;
 
     // Provide a baseline default fallback mock resolution to prevent leaking unhandled promises
-    vi.mocked(axiosInstance.get).mockResolvedValue({
+    vi.mocked(getChatHistory).mockResolvedValue({
       data: { messages: [], hasMore: false },
     });
   });
@@ -53,7 +51,7 @@ describe("useChat Hook Test Suite", () => {
 
       await act(async () => {});
       expect(result.current.loading).toBe(true);
-      expect(axiosInstance.get).not.toHaveBeenCalled();
+      expect(getChatHistory).not.toHaveBeenCalled();
     });
 
     it("should populate messages history successfully on an initial valid fetch", async () => {
@@ -64,7 +62,7 @@ describe("useChat Hook Test Suite", () => {
         ],
         hasMore: true,
       };
-      vi.mocked(axiosInstance.get).mockResolvedValueOnce({ data: mockData });
+      vi.mocked(getChatHistory).mockResolvedValueOnce({ data: mockData });
 
       const { result } = renderHook(() => useChat("room_123"));
       expect(result.current.loading).toBe(true);
@@ -83,7 +81,7 @@ describe("useChat Hook Test Suite", () => {
           data: { message: "Database cluster synchronization timeout." },
         },
       };
-      vi.mocked(axiosInstance.get).mockRejectedValueOnce(customServerError);
+      vi.mocked(getChatHistory).mockRejectedValueOnce(customServerError);
 
       const { result } = renderHook(() => useChat("room_123"));
 
@@ -100,7 +98,7 @@ describe("useChat Hook Test Suite", () => {
     });
 
     it("should fall back to default failure strings if error payload fields return empty", async () => {
-      vi.mocked(axiosInstance.get).mockRejectedValueOnce(
+      vi.mocked(getChatHistory).mockRejectedValueOnce(
         new Error("Network Drop"),
       );
 
@@ -116,7 +114,7 @@ describe("useChat Hook Test Suite", () => {
       const pendingPromise = new Promise((resolve) => {
         resolvePromise = resolve;
       });
-      vi.mocked(axiosInstance.get).mockReturnValueOnce(pendingPromise);
+      vi.mocked(getChatHistory).mockReturnValueOnce(pendingPromise);
 
       const { result, unmount } = renderHook(() => useChat("room_123"));
 
@@ -134,7 +132,7 @@ describe("useChat Hook Test Suite", () => {
   // ── 2. Paginated History Expansion Branches ────────────────────────────────
   describe("Paginated Pagination (loadMore)", () => {
     it("should short-circuit loadMore requests if loadingMore equals true or hasMore is false", async () => {
-      vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+      vi.mocked(getChatHistory).mockResolvedValueOnce({
         data: { messages: [], hasMore: false },
       });
 
@@ -146,7 +144,7 @@ describe("useChat Hook Test Suite", () => {
         await result.current.loadMore();
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getChatHistory).toHaveBeenCalledTimes(1);
     });
 
     it("should prepend older message payloads onto history states cleanly on successful expansions", async () => {
@@ -159,7 +157,7 @@ describe("useChat Hook Test Suite", () => {
         hasMore: false,
       };
 
-      vi.mocked(axiosInstance.get)
+      vi.mocked(getChatHistory)
         .mockResolvedValueOnce({ data: initialData })
         .mockResolvedValueOnce({ data: olderData });
 
@@ -178,14 +176,14 @@ describe("useChat Hook Test Suite", () => {
     });
 
     it("should map exception messages accurately if secondary page requests reject", async () => {
-      vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+      vi.mocked(getChatHistory).mockResolvedValueOnce({
         data: { messages: [], hasMore: true },
       });
 
       const { result } = renderHook(() => useChat("room_123"));
       await act(async () => {});
 
-      vi.mocked(axiosInstance.get).mockRejectedValueOnce(
+      vi.mocked(getChatHistory).mockRejectedValueOnce(
         new Error("Gateway Crash"),
       );
 
@@ -373,7 +371,7 @@ describe("useChat Hook Test Suite", () => {
         ],
         hasMore: false,
       };
-      vi.mocked(axiosInstance.get).mockResolvedValueOnce({
+      vi.mocked(getChatHistory).mockResolvedValueOnce({
         data: legacyHistory,
       });
 

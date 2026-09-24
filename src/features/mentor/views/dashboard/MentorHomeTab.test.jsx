@@ -6,7 +6,7 @@ import {
   getMentorEarnings,
 } from "@features/mentor/models/mentor.api";
 import { useSelector, useDispatch } from "react-redux";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // Mock API layer
 vi.mock("@features/mentor/models/mentor.api", () => ({
@@ -26,7 +26,7 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -39,7 +39,7 @@ vi.mock("@features/sessions/views/SessionCard", () => ({
   ),
 }));
 
-vi.mock("@components/common/Loader", () => ({
+vi.mock("@components/shared/Loader", () => ({
   default: () => <div data-testid="loader">Loading...</div>,
 }));
 

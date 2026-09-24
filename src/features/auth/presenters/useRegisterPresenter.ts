@@ -17,12 +17,15 @@ import {
   clearMessages,
   setUser,
 } from "@features/auth/models/authSlice";
+//these are all thunks that is created by the createAsyncThunk when called upon returns a thunk function
+//like registerUser() ===== thunk function
+
 import { registerSchema } from "@lib/validation/schemas";
 import {
   getPasswordValidation,
   getPasswordStrength,
 } from "@lib/validation/passwordValidation";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import type { AppDispatch, RootState } from "@store/index";
 
 const BASE_URL =
@@ -144,6 +147,24 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
         text: "Please accept the terms to continue.",
       });
 
+    //that is registerUser() returns thunk function not a action,
+    // next that thunkFunction(dispatch,getState) is called, RTK provides the 2 args dispatch and getState
+    //actionCreator function created by createAsyncThunk like registerUser.pending ,registerUser.fulfilled,registerUser.rejected in the imported registerUser
+    // const pendingAction = registerUser.pending();  Calling it:  creates  {type: "auth/registerUser/pending"}
+    //1 step
+    //const pendingAction = { type: "auth/registerUser/pending"};  dispatch(pendingAction);
+    // Redux reducers receive it and addCase(registerUser.pending ) is called, that is saved with the type auth/registerUser/pending
+    //after this the thunk actually moves to the async function that u had given in the createAsyncThunk
+    //2 step
+    //async function in the createThunk is the payload creator now that is called
+    //After the pending action has been dispatched and its reducer has run, createAsyncThunk now calls your payload creator:
+    //the async function in the create thunk runs gives the error object or the success object
+    //Now suppose in the api success case lets say the function returns the res.data={data}
+    //action creator fn call =,, const fulfilledAction = registerUser.fulfilled(successResult); gives actionObject  {  type: "auth/registerUser/fulfilled", payload: { data }}
+    // redux calls the related reducers to success case that is registerUser.fulfilled(actionObject)
+    //if it gets the object returned from the rejectWihValue then it will call the registerUser.rejected(result) and reducers attached to it runs
+
+
     const result = await dispatch(
       registerUser({
         name: data.name.trim(),
@@ -153,6 +174,7 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
         termsAccepted: true,
       }),
     );
+
 
     if (registerUser.fulfilled.match(result)) {
       const { isNewUser } = result.payload;

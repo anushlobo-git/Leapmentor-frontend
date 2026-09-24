@@ -4,7 +4,7 @@
 
 // src/hooks/useNotes.js
 import { useState, useEffect, useCallback } from "react";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import {
   getNotes        as apiGetNotes,
   uploadNote      as apiUploadNote,

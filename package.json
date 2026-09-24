@@ -14,8 +14,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:adminlayout": "vitest run src/features/admin/components/AdminLayout.test.jsx",
-    "test:adminlayout:coverage": "vitest run --coverage --run src/features/admin/components/AdminLayout.test.jsx",
     "analyze": "source-map-explorer 'dist/assets/*.js'"
   },
   "engines": {

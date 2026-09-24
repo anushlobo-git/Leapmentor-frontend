@@ -3,10 +3,10 @@
  */
 
 // src/features/mentee/components/dashboard/history/RequestHistoryTab.jsx
-import logger from "@lib/logger";
-import Loader from "@components/common/Loader";
-import ErrorBanner from "@components/common/ErrorBanner";
-import FilterTabs from "@components/common/FilterTabs";
+import logger from "@lib/monitoring/logger";
+import Loader from "@components/shared/Loader";
+import ErrorBanner from "@components/shared/ErrorBanner";
+import FilterTabs from "@components/shared/FilterTabs";
 import useSocketEvent from "@lib/hooks/useSocketEvent";
 import useRequestHistory from "@features/mentee/presenters/useRequestHistory";
 import { TABS } from "@features/mentee/views/dashboard/history/constants";

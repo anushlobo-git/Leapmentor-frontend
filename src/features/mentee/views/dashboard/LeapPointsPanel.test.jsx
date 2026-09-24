@@ -6,7 +6,7 @@ import {
   getMyLeapRequest,
   createLeapRequest,
 } from "@features/mentee/models/mentee.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 // ── Mock External Modules ──────────────────────────────────────────────────
 vi.mock("@features/mentee/models/mentee.api", () => ({
@@ -14,14 +14,14 @@ vi.mock("@features/mentee/models/mentee.api", () => ({
   createLeapRequest: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     warn: vi.fn(),
     error: vi.fn(),
   },
 }));
 
-vi.mock("@lib/httpStatus", () => ({
+vi.mock("@lib/http/httpStatus", () => ({
   HTTP_STATUS: {
     CONFLICT: 409,
   },

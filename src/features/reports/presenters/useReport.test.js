@@ -6,15 +6,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useReport from "./useReport";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getFeedback, submitFeedbackRequest } from "@features/reports/models/reports.api";
+import logger from "@lib/monitoring/logger";
 import { mapFeedback } from "@features/reports/models/reportMapper";
 
-vi.mock("@lib/axiosInstance", () => ({
-  default: { get: vi.fn(), post: vi.fn() },
+vi.mock("@features/reports/models/reports.api", () => ({
+  getFeedback: vi.fn(),
+  submitFeedbackRequest: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
@@ -32,11 +33,11 @@ describe("useReport", () => {
   describe("initial fetch", () => {
     it("does nothing when connectRequestId is falsy", () => {
       renderHook(() => useReport(undefined));
-      expect(axiosInstance.get).not.toHaveBeenCalled();
+      expect(getFeedback).not.toHaveBeenCalled();
     });
 
     it("fetches feedback on mount and maps both feedback objects", async () => {
-      axiosInstance.get.mockResolvedValueOnce({
+      getFeedback.mockResolvedValueOnce({
         data: {
           myFeedback: { rating: 5 },
           theirFeedback: { rating: 4 },
@@ -50,9 +51,7 @@ describe("useReport", () => {
 
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      expect(axiosInstance.get).toHaveBeenCalledWith(
-        `/feedback/${CONNECT_REQUEST_ID}`,
-      );
+      expect(getFeedback).toHaveBeenCalledWith(CONNECT_REQUEST_ID);
       expect(mapFeedback).toHaveBeenCalledWith({ rating: 5 });
       expect(mapFeedback).toHaveBeenCalledWith({ rating: 4 });
       expect(result.current.myFeedback).toEqual({ rating: 5, mapped: true });
@@ -65,7 +64,7 @@ describe("useReport", () => {
     });
 
     it("sets myFeedback/theirFeedback to null when the API returns none", async () => {
-      axiosInstance.get.mockResolvedValueOnce({ data: {} });
+      getFeedback.mockResolvedValueOnce({ data: {} });
 
       const { result } = renderHook(() => useReport(CONNECT_REQUEST_ID));
 
@@ -78,7 +77,7 @@ describe("useReport", () => {
     });
 
     it("sets an error message from the response when fetching fails", async () => {
-      axiosInstance.get.mockRejectedValueOnce({
+      getFeedback.mockRejectedValueOnce({
         response: { data: { message: "Feedback not found" } },
       });
 
@@ -89,7 +88,7 @@ describe("useReport", () => {
     });
 
     it("falls back to a generic error message when the error has no response message", async () => {
-      axiosInstance.get.mockRejectedValueOnce(new Error("network down"));
+      getFeedback.mockRejectedValueOnce(new Error("network down"));
 
       const { result } = renderHook(() => useReport(CONNECT_REQUEST_ID));
 
@@ -98,7 +97,7 @@ describe("useReport", () => {
     });
 
     it("refetches when refreshKey changes", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getFeedback.mockResolvedValue({ data: {} });
 
       const { result, rerender } = renderHook(
         ({ refreshKey }) => useReport(CONNECT_REQUEST_ID, refreshKey),
@@ -106,19 +105,19 @@ describe("useReport", () => {
       );
 
       await waitFor(() => expect(result.current.loading).toBe(false));
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getFeedback).toHaveBeenCalledTimes(1);
 
       rerender({ refreshKey: 1 });
 
       await waitFor(() =>
-        expect(axiosInstance.get).toHaveBeenCalledTimes(2),
+        expect(getFeedback).toHaveBeenCalledTimes(2),
       );
     });
   });
 
   describe("submitFeedback", () => {
     const setupResolvedFetch = () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getFeedback.mockResolvedValue({ data: {} });
     };
 
     it("returns a failure result and does not call the API when connectRequestId is missing", async () => {
@@ -130,7 +129,7 @@ describe("useReport", () => {
       });
 
       expect(response).toEqual({ success: false });
-      expect(axiosInstance.post).not.toHaveBeenCalled();
+      expect(submitFeedbackRequest).not.toHaveBeenCalled();
     });
 
     it("submits feedback, logs the attempt, and stores the mapped result on success", async () => {
@@ -139,7 +138,7 @@ describe("useReport", () => {
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       const feedbackPayload = { rating: 5, comment: "great" };
-      axiosInstance.post.mockResolvedValueOnce({
+      submitFeedbackRequest.mockResolvedValueOnce({
         data: { feedback: feedbackPayload },
       });
 
@@ -154,7 +153,7 @@ describe("useReport", () => {
         comment: "great",
         slotIndex: 2,
       });
-      expect(axiosInstance.post).toHaveBeenCalledWith("/feedback", {
+      expect(submitFeedbackRequest).toHaveBeenCalledWith({
         connectRequestId: CONNECT_REQUEST_ID,
         rating: 5,
         comment: "great",
@@ -174,7 +173,7 @@ describe("useReport", () => {
       const { result } = renderHook(() => useReport(CONNECT_REQUEST_ID));
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      axiosInstance.post.mockRejectedValueOnce({
+      submitFeedbackRequest.mockRejectedValueOnce({
         response: { data: { message: "Already submitted" } },
       });
 
@@ -196,7 +195,7 @@ describe("useReport", () => {
       const { result } = renderHook(() => useReport(CONNECT_REQUEST_ID));
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      axiosInstance.post.mockRejectedValueOnce(new Error("network down"));
+      submitFeedbackRequest.mockRejectedValueOnce(new Error("network down"));
 
       let response;
       await act(async () => {
@@ -213,18 +212,18 @@ describe("useReport", () => {
 
   describe("refetch", () => {
     it("exposes a refetch function that re-invokes the fetch", async () => {
-      axiosInstance.get.mockResolvedValue({ data: {} });
+      getFeedback.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useReport(CONNECT_REQUEST_ID));
       await waitFor(() => expect(result.current.loading).toBe(false));
 
-      axiosInstance.get.mockClear();
+      getFeedback.mockClear();
 
       await act(async () => {
         await result.current.refetch();
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledTimes(1);
+      expect(getFeedback).toHaveBeenCalledTimes(1);
     });
   });
 });

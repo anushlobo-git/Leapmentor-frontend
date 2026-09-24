@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import MenteeProfileModal from "./MenteeProfileModal";
 import { respondToRequest } from "@features/mentor/models/mentor.api";
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 vi.mock("@features/mentor/models/mentor.api");
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },

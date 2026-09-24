@@ -14,7 +14,7 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // Mock common loader
-vi.mock("@components/common/FullScreenLoader", () => ({
+vi.mock("@components/shared/FullScreenLoader", () => ({
   default: ({ message }) => (
     <div data-testid="fullscreen-loader">{message}</div>
   ),

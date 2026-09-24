@@ -15,7 +15,7 @@ vi.mock("@features/auth/models/auth.api", () => ({
   logoutRequest: vi.fn(),
 }));
 
-vi.mock("@lib/cookies", () => ({
+vi.mock("@lib/http/cookies", () => ({
   clearAuthRole: vi.fn(),
 }));
 
@@ -26,7 +26,7 @@ vi.mock("@constants/images", () => ({
 }));
 
 import { logoutRequest } from "@features/auth/models/auth.api";
-import { clearAuthRole } from "@lib/cookies";
+import { clearAuthRole } from "@lib/http/cookies";
 
 describe("DashboardTopbar", () => {
   let store;

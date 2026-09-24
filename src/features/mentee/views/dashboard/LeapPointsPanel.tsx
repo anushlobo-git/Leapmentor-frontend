@@ -7,8 +7,8 @@ import {
   getMyLeapRequest,
   createLeapRequest,
 } from "@features/mentee/models/mentee.api";
-import logger from "@lib/logger";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import logger from "@lib/monitoring/logger";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 
 interface LeapPointsPanelProps {
   balance: number;

@@ -3,7 +3,7 @@
  */
 
 // src/escrow.api.js
-import axiosInstance from "@lib/axiosInstance"; // Use the configured axios instance with interceptors
+import axiosInstance from "@lib/http/axiosInstance"; // Use the configured axios instance with interceptors
 
 /**
  * Locks tokens into escrow for a connect request.

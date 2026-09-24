@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { vi, describe, it, beforeEach, afterEach, expect } from "vitest";
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn() },
 }));
 vi.mock("@lib/formatters/dateTime", () => ({
@@ -12,7 +12,7 @@ vi.mock("@lib/formatters/dateTime", () => ({
 }));
 
 // ─── Imports after mocks ─────────────────────────────────────────────────────
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 import { formatDateSeparator, isSameDay } from "@lib/formatters/dateTime";
 import {
   groupNotesByDay,

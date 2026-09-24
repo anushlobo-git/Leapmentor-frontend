@@ -3,7 +3,7 @@
  */
 
 // src/features/support/api/support.api.js
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 export const sendSupportMessage = (form, role) =>
   axiosInstance.post("/support/messages", { ...form, role });

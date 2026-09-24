@@ -6,9 +6,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axiosInstance from "@lib/axiosInstance";
+import { getCurrentUser, getMentorProfile } from "@features/mentor/models/mentor.api";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
-import { HTTP_STATUS } from "@lib/httpStatus";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 /**
  * Custom hook for mentor dashboard.
@@ -35,7 +35,7 @@ const useMentorDashboard = () => {
     const fetchData = async () => {
       try {
         // 1) Fetch user
-        const userRes = await axiosInstance.get("/users/me");
+        const userRes = await getCurrentUser();
         const userData = userRes.data;
 
         // 2) Role guard
@@ -49,7 +49,7 @@ const useMentorDashboard = () => {
         // 3) Fetch mentor profile
         let profileData = null;
         try {
-          const profileRes = await axiosInstance.get("/mentor-profile/me");
+          const profileRes = await getMentorProfile();
           profileData = profileRes.data;
         } catch (profileErr) {
           if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {

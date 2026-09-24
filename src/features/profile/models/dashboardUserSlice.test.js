@@ -13,16 +13,16 @@ import dashboardUserReducer, {
   selectDashboardUser,
   selectDashboardProfile,
 } from "./dashboardUserSlice";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import axiosInstance from "@lib/http/axiosInstance";
+import logger from "@lib/monitoring/logger";
 import { mapAuthUser } from "@lib/mappers/userMapper";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: { get: vi.fn() },
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: { error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }));
 

@@ -3,7 +3,7 @@
  */
 
 // src/features/notifications/api/notifications.api.js
-import axiosInstance from "@lib/axiosInstance";
+import axiosInstance from "@lib/http/axiosInstance";
 
 export const getNotifications = () => axiosInstance.get(`/notifications`);
 
@@ -16,3 +16,6 @@ export const markNotificationRead = (id) =>
   axiosInstance.patch(`/notifications/${id}/read`, {});
 
 export const deleteNotification = (id) => axiosInstance.delete(`/notifications/${id}`);
+
+export const subscribeToPush = (subscription: any) =>
+  axiosInstance.post(`/push/subscribe`, { subscription });

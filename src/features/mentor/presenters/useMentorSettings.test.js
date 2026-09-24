@@ -2,22 +2,20 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach ,afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import useMentorSettings from "./useMentorSettings";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
+import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
 import { mapMentorSettings } from "@features/profile/models/settingsMapper";
 
 // Mock dependencies
-vi.mock("@lib/axiosInstance", () => ({
-  default: {
-    get: vi.fn(),
-    put: vi.fn(),
-  },
+vi.mock("@features/mentor/models/mentor.api", () => ({
+  getMentorProfile: vi.fn(),
+  updateMentorProfile: vi.fn(),
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
   },
@@ -34,8 +32,8 @@ vi.mock("@features/profile/models/settingsMapper", () => ({
 describe("useMentorSettings", () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    axiosInstance.get.mockResolvedValue({ data: {} });
-    axiosInstance.put.mockResolvedValue({ data: {} });
+    getMentorProfile.mockResolvedValue({ data: {} });
+    updateMentorProfile.mockResolvedValue({ data: {} });
     vi.useRealTimers();
   });
 
@@ -57,7 +55,7 @@ describe("useMentorSettings", () => {
       const { result } = renderHook(() => useMentorSettings(initialProfile));
 
       expect(result.current.fetching).toBe(false);
-      expect(axiosInstance.get).not.toHaveBeenCalled();
+      expect(getMentorProfile).not.toHaveBeenCalled();
       expect(mapMentorSettings).toHaveBeenCalledWith(initialProfile);
       expect(result.current.profile).toEqual(initialProfile);
       expect(result.current.hourlyRate).toBe(50);
@@ -92,7 +90,7 @@ describe("useMentorSettings", () => {
         totalSessions: 20,
         avgRating: 4.6,
       };
-      axiosInstance.get.mockResolvedValue({ data: mockProfile });
+      getMentorProfile.mockResolvedValue({ data: mockProfile });
 
       const { result } = renderHook(() => useMentorSettings());
 
@@ -102,7 +100,7 @@ describe("useMentorSettings", () => {
         expect(result.current.fetching).toBe(false);
       });
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/mentor-profile/me");
+      expect(getMentorProfile).toHaveBeenCalledWith();
       expect(mapMentorSettings).toHaveBeenCalledWith(mockProfile);
       expect(result.current.profile).toEqual(mockProfile);
       expect(result.current.hourlyRate).toBe(75);
@@ -111,7 +109,7 @@ describe("useMentorSettings", () => {
     });
 
     it("should handle fetch error", async () => {
-      axiosInstance.get.mockRejectedValue(new Error("Network error"));
+      getMentorProfile.mockRejectedValue(new Error("Network error"));
 
       const { result } = renderHook(() => useMentorSettings());
 
@@ -134,7 +132,7 @@ describe("useMentorSettings", () => {
         totalSessions: 60,
         avgRating: 4.9,
       };
-      axiosInstance.get.mockResolvedValue({ data: mockProfile });
+      getMentorProfile.mockResolvedValue({ data: mockProfile });
 
       const { result } = renderHook(() => useMentorSettings());
 
@@ -153,7 +151,7 @@ describe("useMentorSettings", () => {
   describe("handleSave", () => {
     it("should save settings successfully", async () => {
       const initialProfile = { hourlyRate: 50 };
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorSettings(initialProfile));
 
@@ -161,7 +159,7 @@ describe("useMentorSettings", () => {
         await result.current.handleSave();
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith("/mentor-profile/me", {
+      expect(updateMentorProfile).toHaveBeenCalledWith({
         hourlyRate: 50,
         emailNotifications: true,
         isProfilePublished: true,
@@ -175,7 +173,7 @@ describe("useMentorSettings", () => {
 
     it("should convert hourlyRate to number", async () => {
       const initialProfile = { hourlyRate: "75" };
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorSettings(initialProfile));
 
@@ -187,7 +185,7 @@ describe("useMentorSettings", () => {
         await result.current.handleSave();
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith("/mentor-profile/me", {
+      expect(updateMentorProfile).toHaveBeenCalledWith({
         hourlyRate: 100,
         emailNotifications: true,
         isProfilePublished: true,
@@ -196,7 +194,7 @@ describe("useMentorSettings", () => {
 
     it("should handle empty hourlyRate as 0", async () => {
       const initialProfile = { hourlyRate: "" };
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorSettings(initialProfile));
 
@@ -204,7 +202,7 @@ describe("useMentorSettings", () => {
         await result.current.handleSave();
       });
 
-      expect(axiosInstance.put).toHaveBeenCalledWith("/mentor-profile/me", {
+      expect(updateMentorProfile).toHaveBeenCalledWith({
         hourlyRate: 0,
         emailNotifications: true,
         isProfilePublished: true,
@@ -213,7 +211,7 @@ describe("useMentorSettings", () => {
 
     it("should handle save error", async () => {
       const initialProfile = { hourlyRate: 50 };
-      axiosInstance.put.mockRejectedValue({
+      updateMentorProfile.mockRejectedValue({
         response: { data: { message: "Save failed" } },
       });
 
@@ -233,7 +231,7 @@ describe("useMentorSettings", () => {
     it("should clear success message after 3 seconds", async () => {
       vi.useFakeTimers();
       const initialProfile = { hourlyRate: 50 };
-      axiosInstance.put.mockResolvedValue({ data: {} });
+      updateMentorProfile.mockResolvedValue({ data: {} });
 
       const { result } = renderHook(() => useMentorSettings(initialProfile));
 
