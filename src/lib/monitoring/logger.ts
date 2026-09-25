@@ -220,7 +220,7 @@ const SERVICE_ENVIRONMENT = import.meta.env.MODE; // "development" | "production
  * @param {Record<string, any>} context - Already-redacted context object.
  * @returns {Record<string, any>} ECS-shaped metadata for the Logtail context param.
  */
-//returns the object meta that has ECS standard items init 
+//returns the object meta that has ECS standard items init
 function buildEcsMeta(level, context) {
   const meta: Record<string, any> = {
     "log.level": level,

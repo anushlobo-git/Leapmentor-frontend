@@ -4,7 +4,6 @@
 
 import { describe, it, expect, vi } from "vitest";
 import authReducer, {
-  redirectByRole,
   registerUser,
   loginUser,
   sendOtp,
@@ -40,45 +39,6 @@ describe("authSlice", () => {
     successMsg: null,
     verifiedRole: null,
   };
-
-  describe("redirectByRole", () => {
-    it("should navigate to mentor dashboard when targetRole is mentor and user has mentor role", () => {
-      const navigate = vi.fn();
-      redirectByRole(["mentor", "mentee"], "mentor", navigate);
-      expect(navigate).toHaveBeenCalledWith("/dashboard/mentor");
-    });
-
-    it("should navigate to mentee dashboard when targetRole is mentee and user has mentee role", () => {
-      const navigate = vi.fn();
-      redirectByRole(["mentor", "mentee"], "mentee", navigate);
-      expect(navigate).toHaveBeenCalledWith("/dashboard/mentee");
-    });
-
-    it("should navigate to mentor dashboard when user has mentor role and no targetRole specified", () => {
-      const navigate = vi.fn();
-      redirectByRole(["mentor"], null, navigate);
-      expect(navigate).toHaveBeenCalledWith("/dashboard/mentor");
-    });
-
-    it("should navigate to mentee dashboard when user has mentee role and no mentor role", () => {
-      const navigate = vi.fn();
-      redirectByRole(["mentee"], null, navigate);
-      expect(navigate).toHaveBeenCalledWith("/dashboard/mentee");
-    });
-
-    it("should navigate to home when user has no matching roles", () => {
-      const navigate = vi.fn();
-      redirectByRole([], null, navigate);
-      expect(navigate).toHaveBeenCalledWith("/");
-    });
-
-    it("should prioritize targetRole over default role selection", () => {
-      const navigate = vi.fn();
-      redirectByRole(["mentor", "mentee"], "mentee", navigate);
-      expect(navigate).toHaveBeenCalledWith("/dashboard/mentee");
-      expect(navigate).not.toHaveBeenCalledWith("/dashboard/mentor");
-    });
-  });
 
   describe("initial state", () => {
     it("should return the initial state", () => {

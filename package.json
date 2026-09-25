@@ -30,6 +30,7 @@
     "lucide-react": "^1.6.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-error-boundary": "^6.1.6",
     "react-hook-form": "^7.81.0",
     "react-phone-number-input": "^3.4.16",
     "react-redux": "^9.2.0",

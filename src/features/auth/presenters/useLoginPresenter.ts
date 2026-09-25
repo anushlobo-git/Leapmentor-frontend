@@ -14,6 +14,7 @@ import { login } from "@features/auth/models/auth.api";
 import { setUser } from "@features/auth/models/authSlice";
 import useGoogleAuth from "@features/auth/presenters/useGoogleAuth";
 import { setAuthRole } from "@lib/http/cookies";
+import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import { loginSchema } from "@lib/validation/schemas";
 import logger from "@lib/monitoring/logger";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
@@ -21,13 +22,6 @@ import type { AppDispatch } from "@store/index";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-
-//from string[] i,e role=["mentor"] or ['mentee'] gives u back the string
-const getPrimaryRole = (roles: string[]) => {
-  if (roles.includes("mentor")) return "mentor";
-  if (roles.includes("mentee")) return "mentee";
-  return null;
-};
 
 interface UseLoginPresenterArgs {
   registerPath?: string;

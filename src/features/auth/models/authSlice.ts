@@ -9,19 +9,6 @@ import { login as loginRequest } from "@features/auth/models/auth.api";
 import { mapAuthUser } from "@lib/mappers/userMapper";
 import type { RootState } from "@store/index";
 
-export const redirectByRole = (
-  roles: string[],
-  targetRole: string,
-  navigate: (path: string) => unknown,
-) => {
-  if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
-  if (targetRole === "mentee" && roles.includes("mentee")) return navigate("/dashboard/mentee");
-  if (roles.includes("mentor")) return navigate("/dashboard/mentor");
-
-  if (roles.includes("mentee")) return navigate("/dashboard/mentee");
-  navigate("/");
-};
-
 // ── Thunks ──────────────────────────────────────────────────
 //action type prefix ,
 /**
@@ -29,7 +16,6 @@ export const redirectByRole = (
  * @param {{ name: string, email: string, password: string, roles: string[], termsAccepted: boolean }} payload - Registration payload.
  * @returns {Promise<any>} Backend response payload.
  */
-
 
 //registerUser when u log has 3 properties assigned that is
 //here createAsyncThunk creates three functions that are actionCreator
@@ -289,7 +275,7 @@ const authSlice = createSlice({
       state.successMsg = null;
     },
   },
-  //builder is object that might look like {addCase: function{}}
+   //builder is object that might look like {addCase: function{}}
   extraReducers: (builder) => {
     // ── Register ──
     builder
@@ -460,8 +446,6 @@ export const selectIsAuthenticated = (state: RootState) => {
 export const selectIsVerified = (state: RootState) => state.auth.user?.isVerified === true;
 
 export const selectRole = (state: RootState) => state.auth.role;
-
-
 //this exports the action creator function such that by calling this function returns the action object such as
 //{type:'auth/logout', payload:data} this is how it might look like
 export const { logout, setUser, setAdminSession, clearMessages } = authSlice.actions;

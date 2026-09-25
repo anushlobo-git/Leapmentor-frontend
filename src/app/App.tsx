@@ -19,69 +19,19 @@ import Home from "@features/marketing/views/Home";
 import NotFound from "@app/pages/NotFound";
 import ProtectedRoute from "@features/auth/components/ProtectedRoute";
 
-// ── Auth pages ────────────────────────────────────────────────
+// Every other page — and which role/permission may open it — is declared in
+// ./routes.tsx. Nothing in this file names a specific role.
+import {
+  PUBLIC_ROUTES,
+  ROLE_GUARDED_ROUTES,
+  ADMIN_LOGIN_ROUTE,
+  ADMIN_ROUTES,
+  type RouteDef,
+  type GuardedRouteDef,
+} from "./routes";
 
-const Register = lazy(() => import("@features/auth/views/Register"));
-const LoginMentor = lazy(() => import("@features/auth/views/LoginMentor"));
-const LoginMentee = lazy(() => import("@features/auth/views/LoginMentee"));
-const VerifyEmail = lazy(() => import("@features/auth/views/VerifyEmail"));
-const ForgotPassword = lazy(
-  () => import("@features/auth/views/ForgotPassword"),
-);
-const SSOCallback = lazy(() => import("@features/auth/views/SSOCallback"));
-
-// ── Onboarding ────────────────────────────────────────────────
-const MentorOnboarding = lazy(
-  () => import("@features/mentor/views/MentorOnboarding"),
-);
-const MentorVerification = lazy(
-  () => import("@features/mentor/views/MentorVerification"),
-);
-const MenteeOnboarding = lazy(
-  () => import("@features/mentee/views/MenteeOnboarding"),
-);
-
-// ── Edit Profile ──────────────────────────────────────────────
-const MenteeEditProfileShell = lazy(
-  () => import("@features/mentee/views/profile/MenteeEditProfileShell"),
-);
-const MentorEditProfileShell = lazy(
-  () => import("@features/mentor/views/profile/MentorEditProfileShell"),
-);
-
-// ── Dashboards ────────────────────────────────────────────────
-const MentorDashboard = lazy(
-  () => import("@features/mentor/views/MentorDashboard"),
-);
-const MenteeDashboard = lazy(
-  () => import("@features/mentee/views/MenteeDashboard"),
-);
 const SharedDashboardPage = lazy(
   () => import("@features/shared-dashboard/views/SharedDashboardPage"),
-);
-
-// ── Admin ─────────────────────────────────────────────────────
-const AdminLogin = lazy(() => import("@features/admin/views/AdminLogin"));
-const AdminUserManagement = lazy(
-  () => import("@features/admin/views/AdminUserManagement"),
-);
-const AdminEngagements = lazy(
-  () => import("@features/admin/views/AdminEngagements"),
-);
-const AdminReports = lazy(() => import("@features/admin/views/AdminReports"));
-const AdminPayments = lazy(() => import("@features/admin/views/AdminPayments"));
-const AdminSettings = lazy(() => import("@features/admin/views/AdminSettings"));
-const AdminSupportMessages = lazy(
-  () => import("@features/admin/views/AdminSupportMessages"),
-);
-const AdminLayout = lazy(
-  () => import("@features/admin/views/AdminLayout"),
-);
-const AdminWalletRequests = lazy(
-  () => import("@features/admin/views/AdminWalletRequests"),
-);
-const AdminVerifications = lazy(
-  () => import("@features/admin/views/AdminVerifications"),
 );
 
 // ── Global loading spinner ────────────────────────────────────
@@ -105,6 +55,29 @@ const PageLoader = () => (
 // ── Admin session bootstrap — replaces the old AdminAuthProvider ──────
 const AdminAuthLayout = lazy(
   () => import("@features/admin/views/AdminSessionGate"),
+);
+
+// ── Route renderers ───────────────────────────────────────────
+const renderPublicRoute = ({ path, Page }: RouteDef) => (
+  <Route key={path} path={path} element={<Page />} />
+);
+
+const renderGuardedRoute = ({ path, Page, Layout, access }: GuardedRouteDef) => (
+  <Route
+    key={path}
+    path={path}
+    element={
+      <ProtectedRoute roles={access.roles} permissions={access.permissions}>
+        {Layout ? (
+          <Layout>
+            <Page />
+          </Layout>
+        ) : (
+          <Page />
+        )}
+      </ProtectedRoute>
+    }
+  />
 );
 
 // ── Inner app — needs access to Redux dispatch ────────────────
@@ -158,81 +131,14 @@ const AppRoutes = () => {
   return (
     <ErrorBoundary resetKeys={[location.pathname]}>
     <Routes>
-      {/* ── Home ──────────────────────────────────────── */}
       <Route path="/" element={<Home />} />
 
-      {/* ── Auth ──────────────────────────────────────── */}
-      {/*<Route path="/register/mentee"   element={<RegisterMentee />} />
-      <Route path="/register/mentor"   element={<RegisterMentor />} />*/}
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<LoginMentee />} />
-      <Route path="/login/mentor" element={<LoginMentor />} />
-      <Route path="/login/mentee" element={<LoginMentee />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/sso-callback" element={<SSOCallback />} />
+      {/* ── Public: register, logins, verify, SSO ─────── */}
+      {PUBLIC_ROUTES.map(renderPublicRoute)}
 
-      {/* ── Onboarding ────────────────────────────────── */}
-      <Route
-        path="/onboarding/mentor"
-        element={
-          <ProtectedRoute role="mentor">
-            <MentorOnboarding />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/verify-documents"
-        element={
-          <ProtectedRoute role="mentor">
-            <MentorVerification />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/onboarding/mentee"
-        element={
-          <ProtectedRoute role="mentee">
-            <MenteeOnboarding />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* ── Edit Profile ──────────────────────────────── */}
-      <Route
-        path="/dashboard/mentee/edit-profile"
-        element={
-          <ProtectedRoute role="mentee">
-            <MenteeEditProfileShell />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/mentor/edit-profile"
-        element={
-          <ProtectedRoute role="mentor">
-            <MentorEditProfileShell />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* ── Dashboards ────────────────────────────────── */}
-      <Route
-        path="/dashboard/mentor"
-        element={
-          <ProtectedRoute role="mentor">
-            <MentorDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/mentee"
-        element={
-          <ProtectedRoute role="mentee">
-            <MenteeDashboard />
-          </ProtectedRoute>
-        }
-      />
+      {/* ── Role-guarded: onboarding, profile, dashboards ─
+           Generated from the role registry (constants/roles.ts). */}
+      {ROLE_GUARDED_ROUTES.map(renderGuardedRoute)}
 
       {/* ── Shared Dashboard ──────────────────────────── */}
       <Route
@@ -240,77 +146,10 @@ const AppRoutes = () => {
         element={<SharedDashboardPage />}
       />
 
-      {/* ── Admin ─────────────────────────────────────── */}
+      {/* ── Admin (cookie session, gated by AdminSessionGate) ── */}
       <Route element={<AdminAuthLayout />}>
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route
-          path="/admin/users"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminUserManagement />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/engagements"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminEngagements />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/reports"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminReports />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/payments"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminPayments />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/settings"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminSettings />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/wallet-requests"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminWalletRequests />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/support"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminLayout>
-                <AdminSupportMessages />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/verifications"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminLayout>
-                <AdminVerifications />
-              </AdminLayout>
-            </ProtectedRoute>
-          }
-        />
+        {renderPublicRoute(ADMIN_LOGIN_ROUTE)}
+        {ADMIN_ROUTES.map(renderGuardedRoute)}
       </Route>
 
       {/* ── 404 ───────────────────────────────────────── */}

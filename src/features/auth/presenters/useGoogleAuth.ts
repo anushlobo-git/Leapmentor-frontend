@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import type React from "react";
 import { googleAuthRequest } from "@features/auth/models/auth.api";
 import { setAuthRole } from "@lib/http/cookies";
+import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import logger from "@lib/monitoring/logger";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -100,13 +101,11 @@ const useGoogleAuth = ({
               const roles = user?.roles || [];
 
               // ✅ Set authRole cookie so ProtectedRoute works
-              let primaryRole = null;
-
-              if (roles.includes("mentor")) {
-                primaryRole = "mentor";
-              } else if (roles.includes("mentee")) {
-                primaryRole = "mentee";
-              }
+              // Was a hand-rolled mentor > mentee if/else — now delegates
+              // to the same shared tie-break every other auth flow uses,
+              // so all of them stay in sync automatically if the priority
+              // order (or the set of roles) ever changes.
+              const primaryRole = getPrimaryRole(roles);
 
               if (primaryRole) {
                 setAuthRole(primaryRole);
