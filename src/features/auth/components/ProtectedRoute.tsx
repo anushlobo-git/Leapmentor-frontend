@@ -83,7 +83,7 @@ const ProtectedRoute = ({ children, role, roles, permissions }: ProtectedRoutePr
   // branch automatically, since it keys off ROLE_CONFIG rather than a
   // hardcoded `role === "admin"` check.
   if (routeConfig?.sessionType === "cookie") {
-    if (!allowedRoles.includes(currentRole as RouteRole)) {
+    if (currentRole == null || !allowedRoles.includes(currentRole)) {
       return <Navigate to={routeConfig.loginPath} replace />;
     }
     return children;

@@ -24,6 +24,13 @@ import type { AppDispatch, RootState } from "@store/index";
 
 const OTP_ID_PREFIX = "votp";
 
+function emailFromLocationState(state: unknown): string {
+  if (state && typeof state === "object" && "email" in state && typeof state.email === "string") {
+    return state.email;
+  }
+  return "";
+}
+
 export const useVerifyEmailPresenter = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,7 +41,7 @@ export const useVerifyEmailPresenter = () => {
     (state: RootState) => state.auth,
   );
 
-  const [email, setEmail] = useState((location.state as any)?.email || "");
+  const [email, setEmail] = useState(emailFromLocationState(location.state));
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [redirecting, setRedirecting] = useState(false);
   const [msg, setMsg] = useState<{ type: string; text: string }>({ type: "", text: "" });
@@ -51,7 +58,7 @@ export const useVerifyEmailPresenter = () => {
   );
 
   useEffect(() => {
-    if (error) setMsg({ type: "error", text: String(error) });
+    if (error) setMsg({ type: "error", text: typeof error === "string" ? error : (error as any)?.message || String(error) });
     // ✅ don't show success msg — loader handles it
   }, [error, successMsg]);
 
@@ -99,7 +106,7 @@ export const useVerifyEmailPresenter = () => {
   // ── Auto-send OTP on mount ────────────────────────────────
   useEffect(() => {
     const token = searchParams.get("token");
-    if (!token && (location.state as any)?.email && !hasSentRef.current) {
+    if (!token && emailFromLocationState(location.state) && !hasSentRef.current) {
       hasSentRef.current = true;
       handleSendOtp();
     }
@@ -141,7 +148,7 @@ export const useVerifyEmailPresenter = () => {
   };
 
   const isMagicLinkPending = Boolean(searchParams.get("token") && !msg.text);
-  const showEmailField = !(location.state as any)?.email && !searchParams.get("email");
+  const showEmailField = !emailFromLocationState(location.state) && !searchParams.get("email");
   const goToLogin = () => navigate(loginPath);
 
   return {

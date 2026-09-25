@@ -9,6 +9,16 @@ import type { FallbackProps } from "react-error-boundary";
 import * as Sentry from "@sentry/react";
 import logger from "@lib/monitoring/logger";
 
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message || error.name;
+  if (typeof error === "string") return error;
+  try {
+    return JSON.stringify(error) ?? "Unknown error";
+  } catch {
+    return "Unknown error";
+  }
+}
+
 // ── All actual UI/markup lives here, as a plain function component ──
 // react-error-boundary calls this with { error, resetErrorBoundary } —
 // resetErrorBoundary is the library's own reset function, supplied to us
@@ -51,7 +61,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
           </p>
           {error && (
             <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded-lg text-left text-xs font-mono text-rose-700 max-h-32 overflow-y-auto break-all">
-              {error.toString()}
+              {toErrorMessage(error)}
             </div>
           )}
         </div>
@@ -100,7 +110,7 @@ const ErrorBoundary = ({ children, resetKeys }: ErrorBoundaryProps) => (
     FallbackComponent={ErrorFallback}
     resetKeys={resetKeys}
     onError={(error: unknown, info) => {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = toErrorMessage(error);
       logger.error("ErrorBoundary caught an error:", {
         error: message,
         errorInfo: info,

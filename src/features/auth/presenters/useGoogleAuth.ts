@@ -15,7 +15,7 @@ const callbackRef: {
   onSuccess: ((data: any) => void) | null;
   onError: ((message: string) => void) | null;
   onLoadingChange: ((loading: boolean) => void) | null;
-  rolesRef: React.MutableRefObject<string[]> | null;
+  rolesRef: { current: string[] } | null;
   termsAcceptedRef: React.RefObject<boolean> | null | undefined;
   dispatch: any;
   setUser: any;

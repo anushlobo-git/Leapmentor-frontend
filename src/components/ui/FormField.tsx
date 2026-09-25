@@ -35,7 +35,7 @@ export default function FormField({
   style,
   focusColor = "#4f46e5",
   ...rest
-}: FormFieldProps) {
+}: Readonly<FormFieldProps>) {
   const Tag = as;
   return (
     <Tag

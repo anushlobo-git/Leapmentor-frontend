@@ -16,7 +16,7 @@ export default function RegisterDropdownItem({
   subtitle,
   iconBg,
   onClick,
-}: RegisterDropdownItemProps) {
+}: Readonly<RegisterDropdownItemProps>) {
   return (
     <button
       onClick={onClick}

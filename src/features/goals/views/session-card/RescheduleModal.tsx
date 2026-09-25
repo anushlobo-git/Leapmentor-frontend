@@ -11,7 +11,6 @@ import AvailabilityBody from "./AvailabilityBody";
 import type { AvailabilityGroup, SelectedSlot } from "./AvailabilityBody";
 
 interface RescheduleModalProps {
-  slot?: SessionSlot;
   slotIndex: number;
   connectRequestId: string;
   existingSlots: SessionSlot[];

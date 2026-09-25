@@ -6,7 +6,7 @@ interface ChevronIconProps {
   isOpen?: boolean;
 }
 
-export default function ChevronIcon({ isOpen = false }: ChevronIconProps) {
+export default function ChevronIcon({ isOpen = false }: Readonly<ChevronIconProps>) {
   return (
     <svg
       className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}

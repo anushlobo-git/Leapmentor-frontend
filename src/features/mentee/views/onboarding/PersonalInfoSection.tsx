@@ -10,7 +10,6 @@ import { validateImageFile } from "@lib/validation/schemas";
 interface PersonalInfoSectionProps {
   form: { profilePicture?: string; bio: string };
   handleChange: (e: any) => void;
-  errors?: Record<string, boolean>;
 }
 
 const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) => {

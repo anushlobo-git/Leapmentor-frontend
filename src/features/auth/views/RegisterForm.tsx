@@ -319,7 +319,6 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
         onClose={closeTermsModal}
         onAccept={handleTermsAccept}
         role={role}
-        termsAccepted={termsAccepted}
       />
     </>
   );

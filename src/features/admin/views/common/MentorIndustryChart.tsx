@@ -67,7 +67,9 @@ const getYAxisTicks = (maxVal: number): number[] => {
 // ── Custom Tooltip ────────────────────────────────────────────
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
-  const { industry, count, pct } = payload[0].payload!;
+  const datum = payload[0].payload;
+  if (!datum) return null;
+  const { industry, count, pct } = datum;
   return (
     <div
       style={{

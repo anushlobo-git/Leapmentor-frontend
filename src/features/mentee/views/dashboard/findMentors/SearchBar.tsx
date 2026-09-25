@@ -5,8 +5,6 @@
 interface SearchBarProps {
   skill: string | number;
   setSkill: (value: string) => void;
-  totalCount: number;
-  hasSearched: boolean;
 }
 
 const SearchBar = ({ skill, setSkill }: SearchBarProps) => {

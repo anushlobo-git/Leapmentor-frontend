@@ -6,7 +6,7 @@ interface StarIconProps {
   filled?: boolean;
 }
 
-export default function StarIcon({ filled = true }: StarIconProps) {
+export default function StarIcon({ filled = true }: Readonly<StarIconProps>) {
   return (
     <svg
       data-testid="star-icon"

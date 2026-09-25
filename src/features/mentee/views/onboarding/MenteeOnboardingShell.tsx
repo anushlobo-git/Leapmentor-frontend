@@ -116,7 +116,7 @@ const MenteeOnboardingShell = () => {
       <main className="max-w-2xl mx-auto px-6 py-6">
         <form onSubmit={onSubmit} noValidate className="space-y-4">
 
-          <PersonalInfoSection        form={form} handleChange={onChange} errors={errors} />
+          <PersonalInfoSection        form={form} handleChange={onChange} />
           <ProfessionalDetailsSection  form={form} handleChange={onChange} errors={errors} />
 
           {/*

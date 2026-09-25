@@ -16,7 +16,7 @@ import type { MouseEvent, ReactNode } from "react";
 type BuiltInToastType = "success" | "error" | "info" | "warning";
 
 interface ToastOptions {
-  type?: BuiltInToastType | string;
+  type?: BuiltInToastType;
   title?: string;
   message?: string;
 }
@@ -185,7 +185,7 @@ const Toast = ({
   toast: ToastNotification;
   onRemove: (id: string) => void;
 }) => {
-  const style = TOAST_STYLES[toast.type as BuiltInToastType] || TOAST_STYLES.info;
+  const style = TOAST_STYLES[toast.type] || TOAST_STYLES.info;
 
   return (
     <div

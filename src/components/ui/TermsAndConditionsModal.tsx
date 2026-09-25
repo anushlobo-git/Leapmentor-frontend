@@ -21,7 +21,6 @@ interface TermsAndConditionsModalProps {
   onAccept: () => void;
   role?: string;
   readOnly?: boolean;
-  termsAccepted?: boolean;
 }
 
 export default function TermsAndConditionsModal({
@@ -30,7 +29,7 @@ export default function TermsAndConditionsModal({
   onAccept,
   role = "mentor",
   readOnly = false,
-}: TermsAndConditionsModalProps) {
+}: Readonly<TermsAndConditionsModalProps>) {
   const [agreed, setAgreed] = useState(false);
 
   // Reset checkbox whenever modal opens

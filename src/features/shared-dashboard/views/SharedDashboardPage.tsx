@@ -35,7 +35,7 @@ const SharedDashboardPage = () => {
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
     dispatch(
-      setActiveTab(VALID_TABS.has(tabFromUrl as string) ? (tabFromUrl as string) : "overview"),
+      setActiveTab(tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : "overview"),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sync URL tab once on mount
   }, [dispatch]);

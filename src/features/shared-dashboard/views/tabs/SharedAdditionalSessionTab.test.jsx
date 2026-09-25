@@ -36,15 +36,14 @@ vi.mock("react-router-dom", async () => {
 });
 vi.mock(
   "@features/mentee/views/dashboard/history/EscrowSuccessModal",
-  () => ({
-    default: ({ onDone }) => {
+  () => {
+    const MockEscrowSuccessModal = ({ onDone }) => {
       // Immediately invoke onDone so the modal auto-dismisses in tests
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { useEffect } = require("react");
-      useEffect(() => { onDone?.(); }, []);
+      onDone?.();
       return <div data-testid="escrow-success-modal" />;
-    },
-  })
+    };
+    return { default: MockEscrowSuccessModal };
+  }
 );
 
 // ─── Import after vi.mock ────────────────────────────────────────────────────

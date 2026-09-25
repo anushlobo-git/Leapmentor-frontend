@@ -107,10 +107,9 @@ function formatConsoleArg(value) {
   if (value == null) return "";
   //sanitize is to replace the confidential string with redact string
   if (typeof value === "string") return sanitizeMessage(value);
-  if (typeof value === "number" || typeof value === "boolean")
-    return String(value);
-  if (typeof value === "bigint") return value.toString();
-  if (typeof value === "symbol") return value.toString();
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint")
+    return `${value}`;
+  if (typeof value === "symbol") return value.description || String(value);
   if (value instanceof Error)
     return sanitizeMessage(value.stack || value.message || value.name);
   try {

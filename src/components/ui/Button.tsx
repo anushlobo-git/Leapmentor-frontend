@@ -5,13 +5,13 @@
 import type { ReactNode, MouseEventHandler } from "react";
 
 interface ButtonProps {
-  children: ReactNode;
-  variant?: "primary" | "outline";
-  onClick: MouseEventHandler<HTMLButtonElement>;
-  type?: "button" | "submit" | "reset";
-  fullWidth?: boolean;
-  disabled?: boolean;
-  withIcon?: boolean;
+  readonly children: ReactNode;
+  readonly variant?: "primary" | "outline";
+  readonly onClick: MouseEventHandler<HTMLButtonElement>;
+  readonly type?: "button" | "submit" | "reset";
+  readonly fullWidth?: boolean;
+  readonly disabled?: boolean;
+  readonly withIcon?: boolean;
 }
 
 export default function Button({

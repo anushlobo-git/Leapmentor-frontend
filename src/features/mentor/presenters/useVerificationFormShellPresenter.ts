@@ -71,7 +71,7 @@ export const useVerificationFormShellPresenter = () => {
     try {
       const formData = new FormData();
       formData.append("phoneNumber", phoneNumber.trim());
-      formData.append("resume", resumeFile as File);
+      formData.append("resume", resumeFile);
       workExperienceFiles.forEach((file: File) => {
         formData.append("workExperienceDocs", file);
       });

@@ -42,7 +42,7 @@ const AVATAR_GRADIENTS = [
   "from-amber-500 to-amber-700",
 ];
 const getGradient = (name = "") =>
-  AVATAR_GRADIENTS[(name.codePointAt(0) as number) % AVATAR_GRADIENTS.length];
+  AVATAR_GRADIENTS[name.codePointAt(0) % AVATAR_GRADIENTS.length];
 
 interface HistoryTableProps {
   requests: HistoryRequest[];

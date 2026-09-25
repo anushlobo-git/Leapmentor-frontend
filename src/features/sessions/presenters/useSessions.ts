@@ -35,7 +35,11 @@ const useSessions = (connectRequestId, onAllComplete) => {
   const setSavingSlot = (index, val) =>
     setSavingSlots((prev) => {
       const next = new Set(prev);
-      val ? next.add(index) : next.delete(index);
+      if (val) {
+        next.add(index);
+      } else {
+        next.delete(index);
+      }
       return next;
     });
 

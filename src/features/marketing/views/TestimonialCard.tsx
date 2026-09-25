@@ -22,7 +22,7 @@ interface TestimonialCardProps {
   dimmed?: boolean;
 }
 
-export default function TestimonialCard({ testimonial, active, dimmed }: TestimonialCardProps) {
+export default function TestimonialCard({ testimonial, active, dimmed }: Readonly<TestimonialCardProps>) {
   let cardClassName = "";
 
   if (active) {

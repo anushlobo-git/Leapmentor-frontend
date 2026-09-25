@@ -39,10 +39,10 @@ interface SharedSidebarProps extends SidebarContentProps {
 }
 
 const getNavItems = (viewerRole?: ViewerRole): NavItem[] => [
-  { key: "overview" as DashboardTab, label: "Overview", icon: LayoutDashboard },
-  { key: "chat" as DashboardTab, label: "Chat", icon: MessageSquare },
-  { key: "goals" as DashboardTab, label: "Goals", icon: Target },
-  { key: "notes" as DashboardTab, label: "Notes", icon: Paperclip },
+  { key: "overview", label: "Overview", icon: LayoutDashboard },
+  { key: "chat", label: "Chat", icon: MessageSquare },
+  { key: "goals", label: "Goals", icon: Target },
+  { key: "notes", label: "Notes", icon: Paperclip },
   ...(viewerRole === "mentee"
     ? [{ key: "addSession" as DashboardTab, label: "Add Session", icon: CalendarPlus }]
     : []),

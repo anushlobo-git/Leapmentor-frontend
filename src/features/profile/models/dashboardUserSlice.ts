@@ -27,8 +27,8 @@ import {
 type LoadStatus = "idle" | "loading" | "succeeded" | "failed";
 
 interface DashboardUserState {
-  user: any | null;
-  profile: any | null;
+  user: unknown;
+  profile: unknown;
   status: LoadStatus;
   /** True after the first dashboard load settles (success or failure). */
   loadedOnce: boolean;

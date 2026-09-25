@@ -68,7 +68,7 @@ const OnboardingFormShell = () => {
       <main className="max-w-2xl mx-auto px-6 py-6">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
-          <PersonalInfoSection form={form} onChange={handleChange} errors={errors} />
+          <PersonalInfoSection form={form} onChange={handleChange} />
           <ProfessionalInfoSection form={form} onChange={handleChange} errors={errors} />
 
           {/* ref forwarded so scrollToFirstError can target this section */}

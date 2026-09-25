@@ -5,7 +5,6 @@
 // Single, reusable inline loading spinner — use this instead of
 // per-item skeleton placeholders anywhere inside a dashboard tab.
 // (For full-page/route-transition loading, keep using FullScreenLoader.)
-import type { CSSProperties } from "react";
 
 const SIZE_MAP = {
   sm: { box: 20, stroke: 3 },
@@ -26,7 +25,7 @@ const Loader = ({ size = "md", message, className = "", minHeight }: LoaderProps
   return (
     <div
       className={`flex flex-col items-center justify-center gap-3 ${className}`}
-      style={(minHeight ? { minHeight } : undefined) as CSSProperties | undefined}
+      style={minHeight ? { minHeight } : undefined}
     >
       <svg
         className="animate-spin"

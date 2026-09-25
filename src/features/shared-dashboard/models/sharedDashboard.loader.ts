@@ -9,7 +9,7 @@ import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashb
 import { HTTP_STATUS } from "@lib/http/httpStatus";
 
 export interface SharedDashboardLoaderData {
-  connect: any | null;
+  connect: any;
   error: string | null;
 }
 

@@ -155,7 +155,6 @@ const SessionCard = ({
 
       {showRescheduleModal && (
         <RescheduleModal
-          slot={slot}
           slotIndex={slotIndex}
           connectRequestId={connectRequestId}
           existingSlots={allSlots}

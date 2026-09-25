@@ -85,8 +85,6 @@ const FindMentorsTab = () => {
         <SearchBar
           skill={skill}
           setSkill={setSkill}
-          totalCount={totalCount}
-          hasSearched={hasSearched}
         />
         <FilterPanel
           filters={filters}
