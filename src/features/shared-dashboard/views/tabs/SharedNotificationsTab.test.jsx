@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  render,
   screen,
   fireEvent,
   waitFor,
   cleanup,
 } from "@testing-library/react";
+import { renderWithStore as render } from "@test/renderWithStore";
 import SharedNotificationsTab from "./SharedNotificationsTab";
 import {
   getNotifications,

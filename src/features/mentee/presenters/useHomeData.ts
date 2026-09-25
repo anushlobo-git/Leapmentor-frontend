@@ -2,27 +2,43 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { searchMentorsBySkill, getEscrowWallet } from "@features/mentee/models/mentee.api";
 import {
-  searchMentorsBySkill,
-  getMyConnectRequests,
-  getEscrowWallet,
-} from "@features/mentee/models/mentee.api";
+  fetchMenteeRequests,
+  selectMenteeRequestList,
+} from "@features/connects/models/connectRequestsSlice";
+import type { AppDispatch } from "@store/index";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 import logger from "@lib/monitoring/logger";
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 export const useHomeData = (profile) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [mentors, setMentors] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [homeLoading, setHomeLoading] = useState(true);
   const [balance, setBalance] = useState(0);
   const [escrow, setEscrow] = useState(0);
+
+  // Upcoming sessions are derived from the shared connect-requests slice.
+  const { items: allRequests, loadedOnce } = useSelector(selectMenteeRequestList);
+  const sessions = useMemo(
+    () =>
+      allRequests
+        .filter((r) => r.status === "accepted" || r.status === "ongoing")
+        .sort((a, b) => {
+          if (a.status === "ongoing" && b.status !== "ongoing") return -1;
+          if (a.status !== "ongoing" && b.status === "ongoing") return 1;
+          return 0;
+        }),
+    [allRequests],
+  );
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        setLoading(true);
+        setHomeLoading(true);
 
         const skillTerm =
           profile?.skills?.[0] || profile?.interestedFields?.[0] || "";
@@ -30,31 +46,23 @@ export const useHomeData = (profile) => {
         const mentorRes = await searchMentorsBySkill(skillTerm, 4);
         setMentors((mentorRes.data.mentors || []).map(mapMentorProfile));
 
-        const sessionRes = await getMyConnectRequests();
-        const allRequests = sessionRes.data.requests || [];
-        const upcoming = allRequests
-          .filter((r) => r.status === "accepted" || r.status === "ongoing")
-          .sort((a, b) => {
-            if (a.status === "ongoing" && b.status !== "ongoing") return -1;
-            if (a.status !== "ongoing" && b.status === "ongoing") return 1;
-            return 0;
-          });
-        setSessions(upcoming);
-
         const walletRes = await getEscrowWallet();
         setBalance(walletRes.data.balance ?? 0);
         setEscrow(walletRes.data.escrow ?? 0);
       } catch (err) {
         logger.error("HomeTab data fetch error:", { error: err.message });
       } finally {
-        setLoading(false);
+        setHomeLoading(false);
       }
     };
 
-    if (profile !== null) fetchAll();
-  }, [profile]);
+    if (profile !== null) {
+      dispatch(fetchMenteeRequests());
+      fetchAll();
+    }
+  }, [profile, dispatch]);
 
-  return { mentors, sessions, loading, balance, escrow };
+  return { mentors, sessions, loading: homeLoading || !loadedOnce, balance, escrow };
 };
 
 // ── Display helpers ─────────────────────────────────────────────

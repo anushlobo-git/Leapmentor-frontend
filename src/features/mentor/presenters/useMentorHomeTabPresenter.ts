@@ -2,13 +2,10 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  getIncomingRequests,
-  getMentorEarnings,
-} from "@features/mentor/models/mentor.api";
+import { getMentorEarnings } from "@features/mentor/models/mentor.api";
 import logger from "@lib/monitoring/logger";
 import {
   selectDashboardUser,
@@ -16,6 +13,10 @@ import {
   refetchMentorProfile,
 } from "@features/profile/models/dashboardUserSlice";
 import { MENTOR_BADGES } from "@features/mentor/models/mentorBadges";
+import {
+  fetchMentorRequests,
+  selectMentorRequestList,
+} from "@features/connects/models/connectRequestsSlice";
 import type { AppDispatch } from "@store/index";
 
 const BADGES = MENTOR_BADGES;
@@ -42,10 +43,22 @@ export const useMentorHomeTabPresenter = () => {
   const profile = useSelector(selectDashboardProfile);
   const firstName = user?.name?.split(" ")[0] || "there";
 
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [loadingSessions, setLoadingSessions] = useState(true);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [actualSessionCount, setActualSessionCount] = useState<number | null>(null);
+  // Sessions / pending / completed counts are derived from the shared requests slice.
+  const { items: allRequests, loadedOnce, status } = useSelector(selectMentorRequestList);
+  const loadingSessions = !loadedOnce;
+  const { sessions, pendingCount, actualSessionCount } = useMemo(() => {
+    const active = allRequests.filter(
+      (r: any) => r.status === "ongoing" || r.status === "accepted",
+    );
+    const completed = allRequests.filter((r: any) => r.status === "completed");
+    return {
+      sessions: active,
+      pendingCount: allRequests.filter((r: any) => r.status === "pending").length,
+      actualSessionCount: status === "succeeded"
+        ? completed.length + active.filter((r: any) => r.status === "ongoing").length
+        : (null as number | null),
+    };
+  }, [allRequests, status]);
 
   const [earnings, setEarnings] = useState<Record<string, number> | null>(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
@@ -67,30 +80,8 @@ export const useMentorHomeTabPresenter = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        setLoadingSessions(true);
-        const res = await getIncomingRequests();
-        const all = res.data.requests || [];
-        const active = all.filter(
-          (r: any) => r.status === "ongoing" || r.status === "accepted",
-        );
-        const pending = all.filter((r: any) => r.status === "pending");
-        const completed = all.filter((r: any) => r.status === "completed");
-        setSessions(active);
-        setPendingCount(pending.length);
-        setActualSessionCount(
-          completed.length +
-            active.filter((r: any) => r.status === "ongoing").length,
-        );
-      } catch (err: any) {
-        logger.error("MentorHomeTab sessions error:", { error: err.message });
-      } finally {
-        setLoadingSessions(false);
-      }
-    };
-    fetchSessions();
-  }, []);
+    dispatch(fetchMentorRequests());
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchEarnings = async () => {

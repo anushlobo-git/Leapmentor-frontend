@@ -3,59 +3,62 @@
  */
 
 // src/hooks/useRequestHistory.js
-import { useState, useEffect, useCallback } from "react";
-import { getMyConnectRequests, deleteConnectRequest } from "@features/mentee/models/mentee.api";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import logger from "@lib/monitoring/logger";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
+import {
+  fetchMenteeRequests,
+  deleteMenteeRequest,
+  patchMenteeRequest,
+  selectMenteeRequestList,
+} from "@features/connects/models/connectRequestsSlice";
+import type { AppDispatch } from "@store/index";
 /**
  * Custom hook for request history.
+ * Requests come from connectRequestsSlice (shared with the mentee home tab);
+ * only the tab filter and the selected row are local UI state.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
 const useRequestHistory = () => {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true); // ✅ track first load only
-  const [error, setError] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const { items, status, loadedOnce, error: fetchError } = useSelector(selectMenteeRequestList);
+  const requests = useMemo(() => items.map(mapConnectRequest), [items]);
+  const loading = status === "loading";
+  const initialLoad = !loadedOnce; // first load only — background refetches never block the UI
+  const error = fetchError ?? "";
   const [activeTab, setActiveTab] = useState("all");
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<any>(null);
 
   // ── Fetch all requests ──────────────────────────────────────
-  const fetchRequests = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await getMyConnectRequests();
-      setRequests(Array.isArray(res.data.requests) ? res.data.requests.map(mapConnectRequest) : []);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load requests.");
-    } finally {
-      setLoading(false);
-      setInitialLoad(false); // ✅ after first fetch, never block UI again
-    }
-  }, []);
+  const fetchRequests = useCallback(() => dispatch(fetchMenteeRequests()), [dispatch]);
 
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
 
   // ── Delete / cancel a request ───────────────────────────────
-  const deleteRequest = useCallback(async (id) => {
-    try {
-      await deleteConnectRequest(id);
-      setRequests((prev) => prev.filter((r) => r._id !== id));
-      setSelected((prev) => (prev?._id === id ? null : prev));
-    } catch (err) {
-      logger.error("Delete error:", { error: err?.response?.data?.message || err.message });
-    }
-  }, []);
+  const deleteRequest = useCallback(
+    async (id: string) => {
+      try {
+        await dispatch(deleteMenteeRequest(id)).unwrap();
+        setSelected((prev: any) => (prev?._id === id ? null : prev));
+      } catch (err: any) {
+        logger.error("Delete error:", { error: err?.response?.data?.message || err.message });
+      }
+    },
+    [dispatch],
+  );
 
   // ── Update a single request in place ───────────────────────
-  const updateRequest = useCallback((id, patch) => {
-    setRequests((prev) =>
-      prev.map((r) => (r._id === id ? { ...r, ...patch } : r))
-    );
-    setSelected((prev) => (prev?._id === id ? { ...prev, ...patch } : prev));
-  }, []);
+  const updateRequest = useCallback(
+    (id: string, patch: Record<string, unknown>) => {
+      dispatch(patchMenteeRequest({ id, patch }));
+      setSelected((prev: any) => (prev?._id === id ? { ...prev, ...patch } : prev));
+    },
+    [dispatch],
+  );
 
   // ── Filtered list ───────────────────────────────────────────
   const filtered = activeTab === "all"
@@ -77,7 +80,7 @@ const useRequestHistory = () => {
     requests,
     filtered,
     counts,
-    loading: loading && initialLoad, // ✅ spinner only on first load, not background refetches
+    loading: loading && initialLoad, // spinner only on first load, not background refetches
     error,
     activeTab,
     setActiveTab,

@@ -3,35 +3,33 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { getIncomingRequests } from "@features/mentor/models/mentor.api";
+import { useDispatch, useSelector } from "react-redux";
 import logger from "@lib/monitoring/logger";
 import useSocketEvent from "@lib/hooks/useSocketEvent";
+import {
+  fetchMentorRequests,
+  patchMentorRequest,
+  selectMentorRequestList,
+} from "@features/connects/models/connectRequestsSlice";
+import type { AppDispatch } from "@store/index";
 import type { RequestCardRequest } from "@features/mentor/views/dashboard/requests/RequestCard";
 
 export const useRequestsTabPresenter = () => {
-  const [requests, setRequests] = useState<RequestCardRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [error, setError] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  // Requests live in connectRequestsSlice (shared with the mentor home tab);
+  // only UI state stays local.
+  const { items, status, loadedOnce, error: fetchError } = useSelector(selectMentorRequestList);
+  const requests = items as RequestCardRequest[];
+  const loading = status === "loading";
+  const initialLoad = !loadedOnce;
+  const error = fetchError ?? "";
   const [activeTab, setActiveTab] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState<RequestCardRequest | null>(null);
 
-  const fetchRequests = useCallback(async () => {
+  const fetchRequests = useCallback(() => {
     logger.info("Fetching incoming mentor requests");
-    try {
-      setLoading(true);
-      const res = await getIncomingRequests();
-      setRequests(res.data.requests || []);
-    } catch (err: any) {
-      logger.warn("Failed to fetch incoming mentor requests", {
-        error: err?.message,
-      });
-      setError(err?.response?.data?.message || "Failed to load requests.");
-    } finally {
-      setLoading(false);
-      setInitialLoad(false);
-    }
-  }, []);
+    return dispatch(fetchMentorRequests());
+  }, [dispatch]);
 
   useSocketEvent(
     () => ({
@@ -53,12 +51,11 @@ export const useRequestsTabPresenter = () => {
   }, [fetchRequests]);
 
   const handleUpdate = (id: string, newStatus: string) => {
-    setRequests((prev) =>
-      prev.map((r: any) =>
-        r._id === id
-          ? { ...r, status: newStatus, respondedAt: new Date().toISOString() }
-          : r,
-      ),
+    dispatch(
+      patchMentorRequest({
+        id,
+        patch: { status: newStatus, respondedAt: new Date().toISOString() },
+      }),
     );
   };
 

@@ -5,7 +5,9 @@ import {
   getIncomingRequests,
   getMentorEarnings,
 } from "@features/mentor/models/mentor.api";
-import { useSelector, useDispatch } from "react-redux";
+import axiosInstance from "@lib/http/axiosInstance";
+import dashboardUserReducer from "@features/profile/models/dashboardUserSlice";
+import { makeTestStore, renderWithStore } from "@test/renderWithStore";
 import logger from "@lib/monitoring/logger";
 
 // Mock API layer
@@ -14,10 +16,10 @@ vi.mock("@features/mentor/models/mentor.api", () => ({
   getMentorEarnings: vi.fn(),
 }));
 
-// Mock Redux
-vi.mock("react-redux", () => ({
-  useSelector: vi.fn(),
-  useDispatch: vi.fn(),
+// Real Redux store (connectRequests + dashboardUser slices); only the network is mocked.
+// The profile refetch thunk hits axios — keep it pending so it never overwrites the seeded profile.
+vi.mock("@lib/http/axiosInstance", () => ({
+  default: { get: vi.fn(() => new Promise(() => {})) },
 }));
 
 // Mock React Router
@@ -29,6 +31,8 @@ vi.mock("react-router-dom", () => ({
 vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
@@ -48,7 +52,14 @@ vi.mock("@features/support/views/LeapBuddy", () => ({
 }));
 
 describe("MentorHomeTab component", () => {
-  const mockDispatch = vi.fn();
+  let dash = { user: null, profile: null };
+  const setDash = (user, profile) => { dash = { user, profile }; };
+  const renderTab = () =>
+    renderWithStore(
+      <MentorHomeTab setActiveTab={mockSetActiveTab} />,
+      makeTestStore({ dashboardUser: dashboardUserReducer }, { dashboardUser: dash }),
+    );
+  const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
   const mockSetActiveTab = vi.fn();
 
   const mockUser = { name: "Jane Smith" };
@@ -67,24 +78,18 @@ describe("MentorHomeTab component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    useDispatch.mockReturnValue(mockDispatch);
-    // Setup default select values
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === "selectDashboardUser") return mockUser;
-      if (selector.name === "selectDashboardProfile") return mockProfile;
-      return null;
-    });
+    setDash(mockUser, mockProfile);
   });
 
   it("renders loader states initially and dispatches refetch on mount", async () => {
     getIncomingRequests.mockReturnValue(new Promise(() => {})); // pending
     getMentorEarnings.mockReturnValue(new Promise(() => {})); // pending
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
     expect(screen.getByText("Loading your dashboard...")).toBeInTheDocument();
     expect(screen.getAllByTestId("loader")).toHaveLength(2); // session and earnings loaders
-    expect(mockDispatch).toHaveBeenCalled();
+    expect(axiosInstance.get).toHaveBeenCalledWith("/mentor-profile/me");
   });
 
   it("calculates profile completion and handles navigate to profile tab if clicked", async () => {
@@ -101,20 +106,14 @@ describe("MentorHomeTab component", () => {
       yearsOfExperience: 3,
     };
 
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === "selectDashboardUser") return mockUser;
-      if (selector.name === "selectDashboardProfile") return incompleteProfile;
-      return null;
-    });
+    setDash(mockUser, incompleteProfile);
 
     getIncomingRequests.mockResolvedValueOnce({ data: { requests: [] } });
     getMentorEarnings.mockResolvedValueOnce({ data: {} });
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
     // 6 / 8 = 75%
     const profileBtn = screen.getByRole("button", { name: /75% Profile/i });
@@ -125,20 +124,14 @@ describe("MentorHomeTab component", () => {
   });
 
   it("renders zero profile completion if profile is null", async () => {
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === "selectDashboardUser") return mockUser;
-      if (selector.name === "selectDashboardProfile") return null;
-      return null;
-    });
+    setDash(mockUser, null);
 
     getIncomingRequests.mockResolvedValueOnce({ data: { requests: [] } });
     getMentorEarnings.mockResolvedValueOnce({ data: {} });
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
     expect(
       screen.getByRole("button", { name: /0% Profile/i }),
@@ -166,11 +159,9 @@ describe("MentorHomeTab component", () => {
       },
     });
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
     // 2 active session cards
     expect(screen.getAllByTestId("session-card")).toHaveLength(2);
@@ -190,20 +181,14 @@ describe("MentorHomeTab component", () => {
 
   it("handles avgRating fallback when rating is 0 or less", async () => {
     const freshProfile = { ...mockProfile, avgRating: 0 };
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === "selectDashboardUser") return mockUser;
-      if (selector.name === "selectDashboardProfile") return freshProfile;
-      return null;
-    });
+    setDash(mockUser, freshProfile);
 
     getIncomingRequests.mockResolvedValueOnce({ data: { requests: [] } });
     getMentorEarnings.mockResolvedValueOnce({ data: {} });
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
     expect(screen.getByText("New")).toBeInTheDocument();
   });
@@ -214,13 +199,12 @@ describe("MentorHomeTab component", () => {
     );
     getMentorEarnings.mockRejectedValueOnce(new Error("Earnings fetch failed"));
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
-    expect(logger.error).toHaveBeenCalledWith("MentorHomeTab sessions error:", {
+    // request failures are now logged once by connectRequestsSlice's thunk
+    expect(logger.warn).toHaveBeenCalledWith("Failed to fetch incoming mentor requests", {
       error: "Requests fetch failed",
     });
     expect(logger.error).toHaveBeenCalledWith("MentorHomeTab earnings error:", {
@@ -232,11 +216,7 @@ describe("MentorHomeTab component", () => {
   });
 
   it("handles missing user name or missing user profile key fallback branches", async () => {
-    useSelector.mockImplementation((selector) => {
-      if (selector.name === "selectDashboardUser") return null;
-      if (selector.name === "selectDashboardProfile") return mockProfile;
-      return null;
-    });
+    setDash(null, mockProfile);
 
     getIncomingRequests.mockResolvedValueOnce({ data: {} }); // no requests key
     getMentorEarnings.mockResolvedValueOnce({
@@ -248,11 +228,9 @@ describe("MentorHomeTab component", () => {
       },
     });
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
     expect(screen.getByText("Welcome, there! 👋")).toBeInTheDocument();
   });
@@ -266,11 +244,9 @@ describe("MentorHomeTab component", () => {
 
     getMentorEarnings.mockResolvedValueOnce({ data: {} });
 
-    render(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+    renderTab();
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flush();
 
     expect(screen.getByText("You have 1 active session.")).toBeInTheDocument();
   });

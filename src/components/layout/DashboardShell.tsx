@@ -7,6 +7,8 @@ import { useState, useEffect, Suspense } from "react";
 import type { ComponentType, CSSProperties } from "react";
 import { useDispatch } from "react-redux";
 import { setUser, setProfile, resetDashboardUser } from "@features/profile/models/dashboardUserSlice";
+import { resetNotifications } from "@features/notifications/models/notificationsSlice";
+import { resetConnectRequests } from "@features/connects/models/connectRequestsSlice";
 import useUnreadCount from "@features/notifications/presenters/useUnreadCount";
 import useSocketToast from "@features/notifications/presenters/useSocketToast";
 import type { AppDispatch } from "@store/index";
@@ -85,7 +87,16 @@ const DashboardShell = ({
     if (profile) dispatch(setProfile(profile));
   }, [profile, dispatch]);
 
-  useEffect(() => () => { dispatch(resetDashboardUser()); }, [dispatch]);
+  // Shared slices outlive components — clear them when the dashboard shell goes
+  // away (logout / role switch) so the next user never sees stale data.
+  useEffect(
+    () => () => {
+      dispatch(resetDashboardUser());
+      dispatch(resetNotifications());
+      dispatch(resetConnectRequests());
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (!listenForTabEvent) return;
