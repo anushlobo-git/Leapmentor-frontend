@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMenteeProfile, updateMenteeProfile } from "@features/mentee/models/mentee.api";
+import { useFormDirty } from "@lib/hooks/useFormDirty";
 import logger from "@lib/monitoring/logger";
 /**
  * Custom hook for mentee edit profile.
@@ -17,6 +18,7 @@ const useMenteeEditProfile = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [saved, setSaved] = useState(false);
 
   const [form, setForm] = useState({
     currentRole: "", industry: "", company: "",
@@ -25,6 +27,8 @@ const useMenteeEditProfile = () => {
     skills: [], interestedFields: [],
     communicationPreferences: [], languages: [],
   });
+
+  const isDirty = useFormDirty(form, { ready: !fetchLoading, disabled: saved });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -100,6 +104,7 @@ const useMenteeEditProfile = () => {
         yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
       };
       await updateMenteeProfile(payload);
+      setSaved(true);
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     } catch (err) {
@@ -112,7 +117,7 @@ const useMenteeEditProfile = () => {
     }
   };
 
-  return { form, loading, fetchLoading, msg, handleChange, handleSubmit };
+  return { form, loading, fetchLoading, msg, isDirty, handleChange, handleSubmit };
 };
 
 export default useMenteeEditProfile;

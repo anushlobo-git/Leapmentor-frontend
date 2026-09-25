@@ -3,18 +3,17 @@
  */
 
 // src/pages/SharedDashboardPage.jsx
-import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashboard.api";
 import SharedDashboardLayout from "@features/shared-dashboard/views/SharedDashboardLayout";
 import {
   setConnect,
   setActiveTab,
   resetSharedDashboard,
+  selectConnect,
 } from "@features/shared-dashboard/models/sharedDashboardSlice";
-import { HTTP_STATUS } from "@lib/http/httpStatus";
-import { selectIsAuthenticated } from "@features/auth/models/authSlice";
+import type { SharedDashboardLoaderData } from "@features/shared-dashboard/models/sharedDashboard.loader";
 
 const VALID_TABS = new Set([
   "overview",
@@ -25,52 +24,32 @@ const VALID_TABS = new Set([
 ]);
 
 const SharedDashboardPage = () => {
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const { connectRequestId } = useParams();
+  // Fetched by sharedDashboardLoader (wired in app/routes.tsx) before render;
+  // auth redirects and 403s never reach this component.
+  const { connect, error } = useLoaderData() as SharedDashboardLoaderData;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const connectInStore = useSelector(selectConnect);
 
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
     dispatch(
-      setActiveTab(VALID_TABS.has(tabFromUrl) ? tabFromUrl : "overview"),
+      setActiveTab(VALID_TABS.has(tabFromUrl as string) ? (tabFromUrl as string) : "overview"),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sync URL tab once on mount
   }, [dispatch]);
 
+  // Mirror loader data into Redux (children read it from the slice) and reset
+  // on leave. Kept in one effect so StrictMode's mount→cleanup→mount re-sets it.
   useEffect(() => {
+    if (connect) dispatch(setConnect(connect));
     return () => {
       dispatch(resetSharedDashboard());
     };
-  }, [dispatch]);
+  }, [dispatch, connect]);
 
-  const fetchConnect = useCallback(async () => {
-    try {
-      if (!isAuthenticated) {
-        navigate("/login");
-        return;
-      }
-      const res = await getConnectDetail(connectRequestId);
-      dispatch(setConnect(res.data.connect));
-    } catch (err) {
-      const status = err?.response?.status;
-      if (status === HTTP_STATUS.UNAUTHORIZED) return navigate("/login");
-      if (status === HTTP_STATUS.FORBIDDEN) return navigate(-1);
-      setError(err?.response?.data?.message || "Failed to load session.");
-    } finally {
-      setLoading(false);
-    }
-  }, [connectRequestId, navigate, dispatch, isAuthenticated]);
-
-  useEffect(() => {
-    fetchConnect();
-  }, [fetchConnect]);
-
-  if (loading) {
+  if (!error && !connectInStore) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3">

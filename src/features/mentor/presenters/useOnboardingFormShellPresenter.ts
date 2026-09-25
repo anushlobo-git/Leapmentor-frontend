@@ -7,6 +7,7 @@ import type React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMentorOnboarding, clearMentorOnboardingMessages } from "@features/mentor/models/mentorOnboardingSlice";
+import { useFormDirty } from "@lib/hooks/useFormDirty";
 import type { AppDispatch, RootState } from "@store/index";
 
 export interface MentorOnboardingForm {
@@ -63,6 +64,7 @@ export const useOnboardingFormShellPresenter = () => {
   // local msg — used for validation errors + synced from Redux
   const [msg, setMsg] = useState<{ type: string; text: string }>({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
+  const isDirty = useFormDirty(form, { disabled: redirecting });
 
   // ── Refs for custom section components that can't be targeted by name= ──
   const sectionRefs: Record<string, React.RefObject<HTMLDivElement | null>> = {
@@ -190,6 +192,7 @@ export const useOnboardingFormShellPresenter = () => {
     errors,
     msg,
     redirecting,
+    isDirty,
     loading,
     sectionRefs,
     handleChange,

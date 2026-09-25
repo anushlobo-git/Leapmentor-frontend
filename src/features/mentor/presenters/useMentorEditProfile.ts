@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
+import { useFormDirty } from "@lib/hooks/useFormDirty";
 import logger from "@lib/monitoring/logger";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
@@ -21,6 +22,7 @@ const useMentorEditProfile = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [saved, setSaved] = useState(false);
 
   const [form, setForm] = useState({
     profilePicture: "",
@@ -36,6 +38,8 @@ const useMentorEditProfile = () => {
     linkedInUrl: "",
     portfolioUrl: "",
   });
+
+  const isDirty = useFormDirty(form, { ready: !fetchLoading, disabled: saved });
 
   // Pre-fill form with existing profile data
   useEffect(() => {
@@ -114,6 +118,7 @@ const useMentorEditProfile = () => {
       };
 
       await updateMentorProfile(payload);
+      setSaved(true);
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);
@@ -125,7 +130,7 @@ const useMentorEditProfile = () => {
     }
   };
 
-  return { form, loading, fetchLoading, msg, handleChange, handleSubmit };
+  return { form, loading, fetchLoading, msg, isDirty, handleChange, handleSubmit };
 };
 
 export default useMentorEditProfile;

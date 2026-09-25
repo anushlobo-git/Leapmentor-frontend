@@ -11,6 +11,8 @@ import PreferencesSection from "@features/mentor/views/onboarding/PreferencesSec
 import SocialLinksSection from "@features/mentor/views/onboarding/SocialLinksSection";
 import OnboardingProgressBar from "@components/ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "@config/onboardingFields";
+import UnsavedChangesDialog from "@components/shared/UnsavedChangesDialog";
+import { useUnsavedChangesPrompt } from "@lib/hooks/useUnsavedChangesPrompt";
 import { IMAGES } from "@constants/images";
 import { useOnboardingFormShellPresenter } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
 
@@ -20,14 +22,17 @@ const OnboardingFormShell = () => {
     errors,
     msg,
     redirecting,
+    isDirty,
     loading,
     sectionRefs,
     handleChange,
     handleSubmit,
   } = useOnboardingFormShellPresenter();
+  const blocker = useUnsavedChangesPrompt(isDirty);
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <UnsavedChangesDialog blocker={blocker} />
       {redirecting && <FullScreenLoader message="Setting up your profile..." />}
 
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>

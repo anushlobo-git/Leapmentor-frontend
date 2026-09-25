@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
+import { appRoutes } from "./routes";
 import axiosInstance from "@lib/http/axiosInstance";
 import logger from "@lib/monitoring/logger";
 import { hasSessionHint, clearAuthRole } from "@lib/http/cookies";
@@ -28,6 +30,7 @@ vi.mock("@lib/http/axiosInstance", () => ({
 vi.mock("@lib/monitoring/logger", () => ({
   default: {
     warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -82,6 +85,13 @@ vi.mock("@features/mentor/views/MentorDashboard", () => ({
 vi.mock("@features/mentee/views/MenteeDashboard", () => ({
   default: () => <div>MenteeDashboard Component</div>,
 }));
+// Phase 5: the route lazy-loads a loader alongside the page; stub it so the
+// route-matrix test doesn't hit the real store/API (loader has its own tests).
+vi.mock("@features/shared-dashboard/models/sharedDashboard.loader", () => ({
+  sharedDashboardLoader: () => ({ connect: null, error: null }),
+  shouldRevalidateSharedDashboard: () => false,
+}));
+
 vi.mock("@features/shared-dashboard/views/SharedDashboardPage", () => ({
   default: () => <div>SharedDashboardPage Component</div>,
 }));
@@ -180,6 +190,10 @@ describe("App", () => {
   });
 
   // ── Session Rehydration Logic Branches ──────────────────────────────────
+  // These still render the real <App/>: createBrowserRouter (inside
+  // createAppRouter(), built in a useMemo — see App.tsx) reads
+  // window.location the moment it's constructed, which happens on first
+  // render, after the mock above is already in place.
   it("should render target page immediately when no session hint cookie is present", async () => {
     vi.mocked(hasSessionHint).mockReturnValue(false);
     vi.mocked(useSelector).mockReturnValue(null);
@@ -255,6 +269,9 @@ describe("App", () => {
   });
 
   // ── Router Declarations & Component Matching Matrix ─────────────────────
+  // Drives `appRoutes` directly through createMemoryRouter, per the data
+  // router migration plan — this no longer depends on the window.location
+  // mock at all, and exercises exactly the route tree App.tsx renders.
   const navigationMatrix = [
     { path: "/", targetText: "Home Component" },
     { path: "/register", targetText: "Register Component" },
@@ -272,7 +289,11 @@ describe("App", () => {
     {
       path: "/verify-documents",
       targetText: "MentorVerification Component",
+      // Role is guarded once by the mentor group's layout route; the
+      // permission check is a second, inner <ProtectedRoute> — see
+      // buildRoleGroup / page() in routes.tsx.
       wrappers: ["ProtectedRoute Wrapper"],
+      wrapperCounts: { "ProtectedRoute Wrapper": 2 },
     },
     {
       path: "/onboarding/mentee",
@@ -356,17 +377,24 @@ describe("App", () => {
         "AdminLayout Component",
       ],
     },
+    // /admin itself is now an index route that redirects to /admin/users
+    // instead of 404ing (Phase 2 — see buildAdminRoute in routes.tsx).
+    {
+      path: "/admin",
+      targetText: "AdminUserManagement Component",
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
+    },
     { path: "/unknown-route-fallback-test", targetText: "NotFound Component" },
   ];
 
   it.each(navigationMatrix)(
     "should properly resolve route match mapping for path '$path'",
-    async ({ path, targetText, wrappers }) => {
+    async ({ path, targetText, wrappers, wrapperCounts }) => {
       vi.mocked(hasSessionHint).mockReturnValue(false);
       vi.mocked(useSelector).mockReturnValue("active-token");
 
-      currentPath = path;
-      render(<App />);
+      const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
+      render(<RouterProvider router={router} />);
 
       expect(
         await screen.findByText(new RegExp(targetText, "i")),
@@ -374,9 +402,10 @@ describe("App", () => {
 
       if (wrappers) {
         wrappers.forEach((wrapper) => {
+          const expectedCount = wrapperCounts?.[wrapper] ?? 1;
           expect(
-            screen.getByText(new RegExp(wrapper, "i")),
-          ).toBeInTheDocument();
+            screen.getAllByText(new RegExp(wrapper, "i")).length,
+          ).toBeGreaterThanOrEqual(expectedCount);
         });
       }
     },

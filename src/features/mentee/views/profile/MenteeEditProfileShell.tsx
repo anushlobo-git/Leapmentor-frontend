@@ -10,12 +10,15 @@ import ProfessionalDetailsSection from "@features/mentee/views/onboarding/Profes
 import InterestedFieldsSection from "@features/mentee/views/onboarding/InterestedFieldsSection";
 import MentorshipPrefsSection from "@features/mentee/views/onboarding/MentorshipPrefsSection";
 import SocialLinksSection from "@features/mentee/views/onboarding/SocialLinksSection";
+import UnsavedChangesDialog from "@components/shared/UnsavedChangesDialog";
+import { useUnsavedChangesPrompt } from "@lib/hooks/useUnsavedChangesPrompt";
 import { IMAGES } from "@constants/images";
 
 const MenteeEditProfileShell = () => {
   const navigate = useNavigate();
-  const { form, loading, fetchLoading, msg, handleChange, handleSubmit } =
+  const { form, loading, fetchLoading, msg, isDirty, handleChange, handleSubmit } =
     useMenteeEditProfile();
+  const blocker = useUnsavedChangesPrompt(isDirty);
 
   if (fetchLoading) {
     return (
@@ -27,6 +30,7 @@ const MenteeEditProfileShell = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <UnsavedChangesDialog blocker={blocker} />
       <div className="h-1 w-full bg-blue-900" />
 
       <header className="sticky top-0 z-10 bg-white border-b border-slate-100 shadow-sm">
