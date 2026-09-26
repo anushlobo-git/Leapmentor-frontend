@@ -15,11 +15,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-const VIEWER_ROLES = ["mentor", "mentee"] as const;
-const NAV_KEYS = ["overview", "chat", "goals", "notes", "addSession"] as const;
-
-type ViewerRole = (typeof VIEWER_ROLES)[number];
-type DashboardTab = (typeof NAV_KEYS)[number];
+type ViewerRole = "mentor" | "mentee";
+type DashboardTab = "overview" | "chat" | "goals" | "notes" | "addSession";
 
 interface NavItem {
   key: DashboardTab;

@@ -4,7 +4,16 @@
 
 // src/mappers/earningsMapper.js
 
-import { mapPagination } from "@features/mentor/models/mentorMapper";
+import { mapPagination, type RawPagination } from "@features/mentor/models/mentorMapper";
+
+/** Minimal shape of the raw earnings summary object from the API. */
+export interface RawEarningsSummary {
+  totalEarnings?: number;
+  sessionsThisMonth?: number;
+  avgRating?: number | string;
+  pendingPayout?: number;
+  walletBalance?: number;
+}
 
 /**
  * Normalize the earnings summary stats object from the API into the internal shape.
@@ -12,7 +21,7 @@ import { mapPagination } from "@features/mentor/models/mentorMapper";
  * @param {Object} raw - Raw earnings summary object from API
  * @returns {Object} Normalized earnings summary object with guaranteed field structure
  */
-export const mapEarningsSummary = (raw: Record<string, any> = {}) => ({
+export const mapEarningsSummary = (raw: RawEarningsSummary = {}) => ({
   totalEarnings: typeof raw.totalEarnings === "number" ? raw.totalEarnings : 0,
   sessionsThisMonth: typeof raw.sessionsThisMonth === "number" ? raw.sessionsThisMonth : 0,
   avgRating: typeof raw.avgRating === "number" ? raw.avgRating : Number(raw.avgRating) || 0,
@@ -20,17 +29,45 @@ export const mapEarningsSummary = (raw: Record<string, any> = {}) => ({
   walletBalance: typeof raw.walletBalance === "number" ? raw.walletBalance : 0,
 });
 
+/** Minimal shape of a raw chart data point from the API. */
+export interface RawChartPoint {
+  label?: string | number;
+  date?: string | number;
+  amount?: number;
+  sessions?: number;
+}
+
 /**
  * Normalize a raw chart data point from the API into the internal shape.
  * Provides defensive defaults for all fields to prevent silent failures when backend shape changes.
  * @param {Object} raw - Raw chart point object from API
  * @returns {Object} Normalized chart point object with guaranteed field structure
  */
-export const mapChartPoint = (raw: Record<string, any> = {}) => ({
+export const mapChartPoint = (raw: RawChartPoint = {}) => ({
   label: raw.label ?? raw.date ?? null,
   amount: typeof raw.amount === "number" ? raw.amount : 0,
   sessions: typeof raw.sessions === "number" ? raw.sessions : 0,
 });
+
+/** Minimal shape of a raw payout record from the API. */
+export interface RawPayout {
+  _id?: string;
+  id?: string;
+  date?: string;
+  createdAt?: string;
+  requestedAt?: string;
+  menteeName?: string;
+  mentee?: { name?: string };
+  sessionType?: string;
+  session?: { type?: string; duration?: string | number };
+  duration?: string | number;
+  amount?: number;
+  status?: string;
+  processedAt?: string;
+  transactionId?: string;
+  bankAccount?: string;
+  accountNumber?: string;
+}
 
 /**
  * Normalize a raw payout record from the API into the internal shape.
@@ -38,7 +75,7 @@ export const mapChartPoint = (raw: Record<string, any> = {}) => ({
  * @param {Object} raw - Raw payout object from API
  * @returns {Object} Normalized payout object with guaranteed field structure
  */
-export const mapPayout = (raw: Record<string, any> = {}) => ({
+export const mapPayout = (raw: RawPayout = {}) => ({
   id: raw._id ?? raw.id ?? null,
   date: raw.date ?? raw.createdAt ?? raw.requestedAt ?? null,
   menteeName: raw.menteeName ?? raw.mentee?.name ?? "",
@@ -50,6 +87,11 @@ export const mapPayout = (raw: Record<string, any> = {}) => ({
   transactionId: raw.transactionId ?? null,
   bankAccount: raw.bankAccount ?? raw.accountNumber ?? null,
 });
+/** Minimal shape of the raw paginated payouts response payload. */
+export interface RawPayoutsResponse {
+  payouts?: RawPayout[];
+  pagination?: RawPagination;
+}
 /**
  * Normalize the paginated payouts response payload (already unwrapped by axiosInstance,
  * i.e. res.data) into { payouts, pagination }. Reuses mapPagination from mentorMapper.js.
@@ -57,7 +99,7 @@ export const mapPayout = (raw: Record<string, any> = {}) => ({
  * @param {Object} raw - Raw response object from API
  * @returns {Object} Normalized response object with guaranteed field structure
  */
-export const mapPayoutsResponse = (raw: Record<string, any> = {}) => ({
+export const mapPayoutsResponse = (raw: RawPayoutsResponse = {}) => ({
   payouts: Array.isArray(raw.payouts) ? raw.payouts.map(mapPayout) : [],
   pagination: mapPagination(raw.pagination ?? {}),
 });

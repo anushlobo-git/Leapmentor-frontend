@@ -123,7 +123,7 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
   } else if (sessions.length > 0) {
     activeSessionsContent = (
       <div className="flex flex-col gap-3">
-        {sessions.map((request: any, idx: number) => (
+        {sessions.map((request, idx: number) => (
           <SessionCard
             key={request._id}
             request={request}
@@ -273,7 +273,7 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
               </span>
             </div>
             <div className="grid grid-cols-4 gap-2">
-              {badges.map((badge: any) => (
+              {badges.map((badge) => (
                 <div
                   key={badge.key}
                   title={badge.desc}

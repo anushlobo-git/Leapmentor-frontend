@@ -38,13 +38,17 @@ const RescheduleModal = ({ slotIndex, connectRequestId, existingSlots, onConfirm
       const res = await getMentorAvailabilityForConnect(connectRequestId, dur);
       setAvailability(res.data.slots || []);
       if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);
-    } catch (err: any) {
+    } catch (err) {
       setAvailError(err?.response?.data?.message || "Failed to load availability.");
     } finally {
       setAvailLoading(false);
     }
   };
 
+  // Re-fetch availability whenever the chosen duration changes.
+  // fetchAvailability is recreated each render; intentionally excluded so the
+  // effect only re-runs on `duration`, not on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchAvailability(duration); }, [duration]);
 
   return (

@@ -17,5 +17,5 @@ export const markNotificationRead = (id) =>
 
 export const deleteNotification = (id) => axiosInstance.delete(`/notifications/${id}`);
 
-export const subscribeToPush = (subscription: any) =>
+export const subscribeToPush = (subscription: PushSubscription) =>
   axiosInstance.post(`/push/subscribe`, { subscription });

@@ -4,6 +4,7 @@
 
 // src/components/shared-dashboard/tabs/FeedbackModal.jsx
 import { useState } from "react";
+import type React from "react";
 import { useSelector } from "react-redux";
 import useReport from "@features/reports/presenters/useReport";
 import {
@@ -202,7 +203,7 @@ const FeedbackModal = ({ onClose, slotIndex, onFeedbackSubmitted }: FeedbackModa
               <textarea
                 id="feedback-comment"
                 value={comment}
-                onChange={(e: any) => setComment(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
                 placeholder={`What did you think about your session with ${otherName}?`}
                 rows={3}
                 disabled={submitting}

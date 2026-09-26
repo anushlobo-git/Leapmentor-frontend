@@ -42,7 +42,7 @@ interface MentorshipPrefsSectionProps {
     communicationPreferences?: string[];
     languages?: string[];
   };
-  handleChange: (e: any) => void;
+  handleChange: (e: { target: { name: string; value: string[] } }) => void;
 }
 
 const MentorshipPrefsSection = ({ form, handleChange }: MentorshipPrefsSectionProps) => {

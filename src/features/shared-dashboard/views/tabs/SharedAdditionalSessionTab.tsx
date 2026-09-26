@@ -430,6 +430,10 @@ const SharedAdditionalSessionTab = () => {
 
   useEffect(() => {
     fetchAvailability(duration);
+    // Fetch on connect change only. `duration` changes are handled explicitly
+    // by handleDurationChange, and fetchAvailability is recreated each render,
+    // so both are intentionally excluded to avoid double-fetching.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectId]);
 
   const handleDurationChange = (dur: number) => {

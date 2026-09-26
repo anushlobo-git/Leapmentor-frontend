@@ -56,8 +56,8 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
             Something went wrong
           </h2>
           <p className="mt-3 text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
-            An unexpected error occurred. Don't worry, our team has been
-            notified. Let's get you back on track.
+            An unexpected error occurred. Don&apos;t worry, our team has been
+            notified. Let&apos;s get you back on track.
           </p>
           {error && (
             <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded-lg text-left text-xs font-mono text-rose-700 max-h-32 overflow-y-auto break-all">

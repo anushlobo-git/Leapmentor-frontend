@@ -4,6 +4,7 @@
 
 // View for RegisterForm — pure JSX. All state/logic lives in
 // presenters/useRegisterPresenter.ts.
+import type React from "react";
 import { useRegisterPresenter } from "@features/auth/presenters/useRegisterPresenter";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
 import AuthSSOButtons from "@features/auth/views/AuthSSOButtons";
@@ -249,7 +250,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
             id="termsAccepted"
             name="termsAccepted"
             checked={termsAccepted}
-            onChange={(e: any) => handleTermsCheckboxChange(e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTermsCheckboxChange(e.target.checked)}
             className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer"
           />
           <label

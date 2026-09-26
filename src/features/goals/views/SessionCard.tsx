@@ -29,7 +29,7 @@ interface SessionCardProps {
   onMarkComplete: (slotIndex: number) => Promise<{ success?: boolean } | undefined>;
   onSessionComplete?: () => void;
   onCancelSlot: (slotIndex: number, reason: string) => Promise<{ success?: boolean } | undefined>;
-  onRescheduleSlot: (slotIndex: number, newSlot: any) => Promise<{ success?: boolean } | undefined>;
+  onRescheduleSlot: (slotIndex: number, newSlot: { day?: string; date?: string; startTime?: string; endTime?: string }) => Promise<{ success?: boolean } | undefined>;
   allSlots: SessionSlot[];
   connectRequestId: string;
 }
@@ -68,7 +68,7 @@ const SessionCard = ({
     if (result?.success) setShowCancelModal(false);
   };
 
-  const handleReschedule = async (idx: number, newSlot: any) => {
+  const handleReschedule = async (idx: number, newSlot: { day?: string; date?: string; startTime?: string; endTime?: string }) => {
     const result = await onRescheduleSlot(idx, newSlot);
     if (result?.success) setShowRescheduleModal(false);
   };

@@ -5,6 +5,15 @@
 // src/features/goals/models/goals.api.ts
 import axiosInstance from "@lib/http/axiosInstance";
 
+/** Editable goal fields sent as a PATCH body — all optional (partial update). */
+interface GoalUpdateFields {
+  title?: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
 export const fetchGoalRequest = (connectRequestId: string) =>
   axiosInstance.get(`/goals/${connectRequestId}`);
 
@@ -29,7 +38,7 @@ export const createGoalRequest = ({
     endDate,
   });
 
-export const updateGoalRequest = (goalId: string, fields: any) =>
+export const updateGoalRequest = (goalId: string, fields: GoalUpdateFields) =>
   axiosInstance.patch(`/goals/${goalId}`, fields);
 
 export const addMilestoneRequest = (

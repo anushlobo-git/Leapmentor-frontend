@@ -8,7 +8,33 @@
  * @param {Object} raw - Raw feedback object from API
  * @returns {Object} Normalized feedback object with guaranteed field structure
  */
-export const mapFeedback = (raw: Record<string, any> = {}) => {
+interface RawUserRef {
+  _id?: string | null;
+  id?: string | null;
+  name?: string | null;
+  email?: string | null;
+}
+
+interface RawFeedback {
+  _id?: string | null;
+  id?: string | null;
+  rating?: number | string | null;
+  comment?: string | null;
+  fromUser?: RawUserRef | null;
+  from?: RawUserRef | null;
+  toUser?: RawUserRef | null;
+  to?: RawUserRef | null;
+  fromUserId?: string | null;
+  toUserId?: string | null;
+  connectRequestId?: string | null;
+  connectRequest?: { _id?: string | null } | null;
+  slotIndex?: number | null;
+  fromRole?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export const mapFeedback = (raw: RawFeedback = {}) => {
   const fromUser = raw.fromUser ?? raw.from ?? null;
   const toUser = raw.toUser ?? raw.to ?? null;
 

@@ -61,7 +61,7 @@ const PrivateFilesSection = () => {
           No private files yet
         </p>
         <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">
-          Upload files that only you can access — your session partner won't see
+          Upload files that only you can access — your session partner won&apos;t see
           these.
         </p>
         {!isCompleted && (

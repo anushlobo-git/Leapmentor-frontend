@@ -24,6 +24,11 @@ const NotepadSection = ({ connectId, isCompleted }: NotepadSectionProps) => {
     if (!loading && notes.length > 0 && !activeNoteId) {
       setActiveNoteId(notes[0]._id);
     }
+    // Auto-selects the first note only on initial load / when the notes list
+    // changes. `activeNoteId` is intentionally excluded: adding it would
+    // re-select notes[0] the moment a note is closed, defeating the empty
+    // "no note selected" state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, notes]);
 
   const activeNote = notes.find((n) => n._id === activeNoteId) || null;

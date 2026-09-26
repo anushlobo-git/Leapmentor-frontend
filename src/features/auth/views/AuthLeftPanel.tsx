@@ -15,7 +15,7 @@
  *  - subtext      : JSX or string for the description below heading
  *  - stats        : array of { num, label } objects for the stat pills
  */
-import type { ReactNode } from "react";
+import type { ReactNode, SyntheticEvent } from "react";
 
 interface Stat {
   num: string | number;
@@ -39,7 +39,7 @@ const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = []
         src={imageSrc}
         alt={imageAlt}
         className="absolute inset-0 w-full h-full object-cover object-top"
-        onError={(e: any) => { e.target.style.display = "none"; }}
+        onError={(e: SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = "none"; }}
       />
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-slate-900/10" />

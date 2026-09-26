@@ -4,6 +4,7 @@
 
 // src/features/goals/components/session-card/CancelModal.jsx
 import { useState } from "react";
+import type React from "react";
 import { formatSlotDate, formatTime } from "@features/goals/presenters/sessionCardUtils";
 import type { SessionSlot } from "@features/goals/presenters/sessionCardUtils";
 
@@ -52,7 +53,7 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }: CancelModa
             id={reasonFieldId}
             rows={2}
             value={reason}
-            onChange={(e: any) => setReason(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setReason(e.target.value)}
             placeholder="e.g. Schedule conflict, emergency..."
             className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-700
               bg-white outline-none focus:border-red-300 transition-colors placeholder:text-slate-400

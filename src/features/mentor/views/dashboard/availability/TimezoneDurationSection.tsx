@@ -3,6 +3,7 @@
  */
 
 // components/mentor/dashboard/availability/TimezoneDurationSection.jsx
+import type React from "react";
 
 const TIMEZONES = [
   "Asia/Kolkata",
@@ -78,7 +79,7 @@ const TimezoneDurationSection = ({
         <select
           id={timezoneSelectId}
           value={timezone}
-          onChange={(e: any) => updateTimezone(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateTimezone(e.target.value)}
           className="w-full text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
         >
           {TIMEZONES.map((tz: string) => (

@@ -4,6 +4,7 @@
 
 // src/features/shared-dashboard/components/tabs/private-notes/PrivateUploadModal.jsx
 import { useState, useRef } from "react";
+import type React from "react";
 import { validateDocumentFile } from "@lib/validation/schemas";
 import { formatFileSize } from "@features/notes/presenters/notesHelpers";
 
@@ -71,12 +72,12 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }: PrivateUploadModal
     setTitle(file.name.replace(/\.[^/.]+$/, ""));
   };
 
-  const handleDrop = (e: any) => {
+  const handleDrop = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setDragOver(false);
     validateAndSet(e.dataTransfer.files?.[0]);
   };
-  const handleFileInput = (e: any) => validateAndSet(e.target.files?.[0]);
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => validateAndSet(e.target.files?.[0]);
   const handleUpload = async () => {
     if (!selectedFile) return;
     const result = await onUpload(selectedFile, title);
@@ -87,7 +88,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }: PrivateUploadModal
     if (!selectedFile) fileInputRef.current?.click();
   };
 
-  const handleDropzoneKeyDown = (e: any) => {
+  const handleDropzoneKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       openFilePicker();
@@ -148,7 +149,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }: PrivateUploadModal
               type="button"
               onClick={openFilePicker}
               onKeyDown={handleDropzoneKeyDown}
-              onDragOver={(e: any) => {
+              onDragOver={(e: React.DragEvent<HTMLButtonElement>) => {
                 e.preventDefault();
                 setDragOver(true);
               }}
@@ -208,7 +209,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }: PrivateUploadModal
             {selectedFile && (
               <button
                 type="button"
-                onClick={(e: any) => {
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   e.stopPropagation();
                   setSelectedFile(null);
                   setTitle("");
@@ -247,7 +248,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }: PrivateUploadModal
               <input
                 id="privateFileTitle"
                 value={title}
-                onChange={(e: any) => setTitle(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                 placeholder="e.g. Week 2 Notes"
                 className="w-full text-sm border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all bg-slate-50 text-slate-800 font-medium"
               />

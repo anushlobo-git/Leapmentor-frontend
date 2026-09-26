@@ -243,48 +243,6 @@ const SubmitBtn = ({
   </button>
 );
 
-const OverviewCard = ({
-  label,
-  value,
-  icon,
-  accent,
-  sub,
-}: {
-  label: string;
-  value?: number;
-  icon: ReactNode;
-  accent: string;
-  sub?: string;
-}) => (
-  <div
-    className="rounded-2xl p-5 flex flex-col gap-2 relative overflow-hidden"
-    style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}
-  >
-    <div
-      className="absolute top-0 right-0 w-20 h-20 rounded-full pointer-events-none"
-      style={{
-        background: `radial-gradient(circle at top right, ${accent}15, transparent 70%)`,
-      }}
-    />
-    <div
-      className="w-9 h-9 rounded-xl flex items-center justify-center"
-      style={{ background: `${accent}14` }}
-    >
-      <span style={{ color: accent }}>{icon}</span>
-    </div>
-    <div>
-      <p
-        className="text-2xl font-700 text-slate-900"
-        style={{ fontWeight: 700, fontFamily: FONT }}
-      >
-        {value?.toLocaleString() ?? "—"}
-      </p>
-      <p className="text-xs text-slate-600 mt-0.5">{label}</p>
-      {sub && <p className="text-[10px] text-slate-600 mt-0.5">{sub}</p>}
-    </div>
-  </div>
-);
-
 const AdminSettings = () => {
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [tempPw, setTempPw] = useState("");

@@ -10,7 +10,28 @@
  * @param {Object} raw - Raw slot object from API
  * @returns {Object} Normalized slot object with guaranteed field structure
  */
-export const mapSlot = (raw: Record<string, any> = {}) => ({
+interface RawSlot {
+  _id?: string | null;
+  id?: string | null;
+  day?: string;
+  date?: string | null;
+  startTime?: string;
+  endTime?: string;
+  meetingLink?: string | null;
+  status?: string;
+  isCompleted?: boolean;
+  isCancelled?: boolean;
+  menteeMarked?: boolean;
+  mentorMarked?: boolean;
+  isRescheduled?: boolean;
+  cancelledBy?: string | null;
+  cancellationReason?: string | null;
+  cancelReason?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export const mapSlot = (raw: RawSlot = {}) => ({
   _id: raw._id ?? raw.id ?? null,
   day: raw.day ?? "",
   date: raw.date ?? null,
@@ -36,7 +57,15 @@ export const mapSlot = (raw: Record<string, any> = {}) => ({
  * @param {Object} raw - Raw response object from API
  * @returns {Object} Normalized response object with guaranteed field structure
  */
-export const mapSessionSlotsResponse = (raw: Record<string, any> = {}) => ({
+interface RawSessionSlotsResponse {
+  slots?: RawSlot[];
+  completedSlots?: number;
+  totalSlots?: number;
+  progress?: number;
+  allComplete?: boolean;
+}
+
+export const mapSessionSlotsResponse = (raw: RawSessionSlotsResponse = {}) => ({
   slots: Array.isArray(raw.slots) ? raw.slots.map(mapSlot) : [],
   completedSlots: typeof raw.completedSlots === "number" ? raw.completedSlots : 0,
   totalSlots: typeof raw.totalSlots === "number" ? raw.totalSlots : 0,

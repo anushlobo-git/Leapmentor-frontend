@@ -24,7 +24,7 @@ interface AvailabilityBodyProps {
   duration: number;
   selectedSlot?: SelectedSlot;
   onSelect: (slot: { day: string; date: string; startTime: string; endTime: string }) => void;
-  bookedSlots: any[];
+  bookedSlots: { date?: string; startTime?: string; endTime?: string }[];
 }
 
 // Extracted so the loading/error/empty/list branching isn't a nested
@@ -60,7 +60,7 @@ const AvailabilityBody = ({ availLoading, availError, availability, duration, se
         </svg>
         <p className="text-sm font-semibold text-slate-600">No slots available</p>
         <p className="text-xs text-slate-400 max-w-xs">
-          Your mentor hasn't set availability for {duration}-min sessions yet.
+          Your mentor hasn&apos;t set availability for {duration}-min sessions yet.
         </p>
       </div>
     );

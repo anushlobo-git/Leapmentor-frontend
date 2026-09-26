@@ -12,7 +12,7 @@ import connectRequestsReducer from "@features/connects/models/connectRequestsSli
 import walletReducer from "@features/mentee/models/walletSlice";
 
 /** Real reducers, fresh state per call — tests mock the API modules, not Redux. */
-export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedState?: any) =>
+export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedState?: Record<string, unknown>) =>
   configureStore({
     reducer: combineReducers({
       notifications: notificationsReducer,
@@ -20,7 +20,7 @@ export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedStat
       dashboardUser: dashboardUserReducer,
       wallet: walletReducer,
       ...extra,
-    }) as Reducer<any>,
+    }) as Reducer<Record<string, unknown>>,
     preloadedState,
   });
 

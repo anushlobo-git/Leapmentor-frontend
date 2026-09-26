@@ -7,6 +7,7 @@
 // navigation. The view (views/VerifyEmail.tsx) only renders JSX using what
 // this hook returns.
 import { useEffect, useRef, useState } from "react";
+import type React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -58,7 +59,7 @@ export const useVerifyEmailPresenter = () => {
   );
 
   useEffect(() => {
-    if (error) setMsg({ type: "error", text: typeof error === "string" ? error : (error as any)?.message || String(error) });
+    if (error) setMsg({ type: "error", text: typeof error === "string" ? error : (error as unknown as { message?: string })?.message || String(error) });
     // ✅ don't show success msg — loader handles it
   }, [error, successMsg]);
 
@@ -73,7 +74,7 @@ export const useVerifyEmailPresenter = () => {
       dispatch(clearMessages());
       setMsg({ type: "", text: "" });
 
-      dispatch(verifyMagicLink({ token, email: emailParam })).then((action: any) => {
+      dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
         if (verifyMagicLink.fulfilled.match(action)) {
           setRedirecting(true);
           setTimeout(() => navigate(loginPath), 1500);
@@ -85,6 +86,9 @@ export const useVerifyEmailPresenter = () => {
         }
       });
     }
+    // Mount-only magic-link auto-verify, guarded by hasVerifiedRef; reads
+    // searchParams/dispatch/navigate once on mount and must not re-run.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Send OTP ──────────────────────────────────────────────
@@ -110,14 +114,17 @@ export const useVerifyEmailPresenter = () => {
       hasSentRef.current = true;
       handleSendOtp();
     }
+    // Mount-only auto-send, guarded by hasSentRef; reads location.state and
+    // searchParams once on mount and must not re-fire on their changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── OTP box helpers ─ delegated to shared lib/auth/otpUtils ─
   const handleOtpChange = (val: string, idx: number) =>
     sharedHandleOtpChange(val, idx, otp, setOtp, OTP_ID_PREFIX);
-  const handleOtpKeyDown = (e: any, idx: number) =>
+  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) =>
     sharedHandleOtpKeyDown(e, idx, otp, OTP_ID_PREFIX);
-  const handleOtpPaste = (e: any) =>
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLDivElement>) =>
     sharedHandleOtpPaste(e, otp, setOtp, OTP_ID_PREFIX);
 
   // ── Verify OTP ────────────────────────────────────────────

@@ -3,6 +3,7 @@
  */
 
 // src/components/mentor/dashboard/DashboardLayout.jsx
+import type React from "react";
 import { lazy } from "react";
 import useMentorDashboard from "@features/mentor/presenters/useMentorDashboard";
 import DashboardShell from "@components/layout/DashboardShell";
@@ -10,7 +11,9 @@ import DashboardSidebar from "@components/layout/DashboardSidebar";
 import { MENTOR_NAV_ITEMS } from "@features/mentor/models/mentorNavItems";
 import DashboardTopbar from "@components/layout/DashboardTopbar";
 
-const Topbar = (props: any) => <DashboardTopbar {...props} logoutRedirectPath="/login/mentor" />;
+const Topbar = (props: Omit<React.ComponentProps<typeof DashboardTopbar>, "logoutRedirectPath">) => (
+  <DashboardTopbar {...props} logoutRedirectPath="/login/mentor" />
+);
 const MentorHomeTab = lazy(() => import("@features/mentor/views/dashboard/MentorHomeTab"));
 const ProfileTab = lazy(() => import("@features/mentor/views/dashboard/ProfileTab"));
 const AvailabilityTab = lazy(() => import("@features/mentor/views/dashboard/availability/AvailabilityTab"));
@@ -22,7 +25,7 @@ const ConnectsTab = lazy(() => import("@features/connects/views/ConnectsTab"));
 
 // DashboardShell doesn't know about navItems (it's shared with mentee), so this
 // wrapper "pre-fills" navItems before DashboardShell renders <Sidebar ... /> internally.
-const MentorSidebar = (props: any) => (
+const MentorSidebar = (props: Omit<React.ComponentProps<typeof DashboardSidebar>, "navItems">) => (
   <DashboardSidebar {...props} navItems={MENTOR_NAV_ITEMS} />
 );
 

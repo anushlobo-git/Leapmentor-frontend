@@ -3,6 +3,7 @@
  */
 
 // src/features/support/components/HelpCenter.jsx
+import type React from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { sendSupportMessage } from "@features/support/models/support.api";
@@ -49,7 +50,7 @@ export default function HelpCenter() {
     .filter((g) => g.items.length > 0);
 
   // handleSubmit becomes:
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmitError("");
@@ -133,7 +134,7 @@ export default function HelpCenter() {
         </span>
         <FormField
           value={search}
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setSearch(e.target.value);
             setActiveCategory("All");
           }}
@@ -200,7 +201,7 @@ export default function HelpCenter() {
           >
             <div style={{ fontSize: 32 }}>🔍</div>
             <p style={{ marginTop: 10 }}>
-              No results for "{search}". Try different keywords.
+              No results for &quot;{search}&quot;. Try different keywords.
             </p>
           </div>
         ) : (
@@ -265,7 +266,7 @@ export default function HelpCenter() {
           Still need help?
         </h2>
         <p style={{ color: "#64748b", fontSize: 14, marginBottom: 20 }}>
-          Send us a message and we'll get back to you within 24 hours.
+          Send us a message and we&apos;ll get back to you within 24 hours.
         </p>
 
         {submitted ? (
@@ -275,7 +276,7 @@ export default function HelpCenter() {
               Message sent!
             </p>
             <p style={{ color: "#64748b", fontSize: 14 }}>
-              We'll reply to your email within 24 hours.
+              We&apos;ll reply to your email within 24 hours.
             </p>
             <button
               onClick={() => setSubmitted(false)}
@@ -303,20 +304,20 @@ export default function HelpCenter() {
               required
               type="email"
               value={form.email}
-              onChange={(e: any) => setForm({ ...form, email: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, email: e.target.value })}
               placeholder="Your email address"
             />
             <FormField
               required
               value={form.subject}
-              onChange={(e: any) => setForm({ ...form, subject: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, subject: e.target.value })}
               placeholder="Subject"
             />
             <FormField
               as="textarea"
               required
               value={form.message}
-              onChange={(e: any) => setForm({ ...form, message: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, message: e.target.value })}
               placeholder="Describe your issue..."
               rows={4}
               style={{ resize: "vertical" }}
@@ -341,10 +342,10 @@ export default function HelpCenter() {
                 alignSelf: "flex-start",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e: any) => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 if (!submitting) e.currentTarget.style.background = INDIGO_DARK;
               }}
-              onMouseLeave={(e: any) => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 if (!submitting) e.currentTarget.style.background = INDIGO;
               }}
             >

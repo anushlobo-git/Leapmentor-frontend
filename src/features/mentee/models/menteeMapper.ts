@@ -8,7 +8,41 @@
  * Normalize a raw mentee profile object from the API into the internal shape
  * used across the app.
  */
-export const mapMenteeProfile = (raw: Record<string, any> = {}) => ({
+interface RawMenteeProfile {
+  _id?: string;
+  id?: string;
+  user?: {
+    _id?: string;
+    id?: string;
+    name?: string;
+    email?: string;
+    isEmailVerified?: boolean;
+  };
+  isEmailVerified?: boolean;
+  profilePicture?: string;
+  avatar?: string;
+  profilePictureFileName?: string;
+  bio?: string;
+  currentRole?: string;
+  company?: string;
+  industry?: string;
+  yearsOfExperience?: number | string;
+  skills?: string[];
+  interestedFields?: string[];
+  communicationPreferences?: string[];
+  languages?: string[];
+  linkedInUrl?: string;
+  portfolioUrl?: string;
+  phoneNumber?: string;
+  isProfilePublished?: boolean;
+  emailNotifications?: boolean;
+  marketingPreferences?: boolean;
+  isProfileComplete?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const mapMenteeProfile = (raw: RawMenteeProfile = {}) => ({
   _id: raw._id ?? raw.id ?? null,
 
   user: {

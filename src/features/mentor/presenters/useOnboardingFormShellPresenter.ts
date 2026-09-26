@@ -24,7 +24,17 @@ export interface MentorOnboardingForm {
   languages: string | string[];
   linkedInUrl: string;
   portfolioUrl: string;
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+/**
+ * Change payload accepted by the onboarding form's universal onChange handler.
+ * Satisfied both by real DOM change events and by the synthetic
+ * `{ target: { name, value } }` objects the section components dispatch
+ * (where `value` may be an array, e.g. skills / languages).
+ */
+export interface FormChangeEvent {
+  target: { name: string; value: string | string[] };
 }
 
 const DEFAULT_FORM: MentorOnboardingForm = {
@@ -80,11 +90,11 @@ export const useOnboardingFormShellPresenter = () => {
       setRedirecting(true);
       setTimeout(() => navigate("/verify-documents"), 1500);
     }
-  }, [error, successMsg]);
+  }, [error, successMsg, dispatch, navigate]);
 
   useEffect(() => {
     return () => { dispatch(clearMentorOnboardingMessages()); };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
@@ -117,7 +127,7 @@ export const useOnboardingFormShellPresenter = () => {
   };
 
   // ── Universal onChange — clears error + enforces numeric range limits ──
-  const handleChange = (e: any) => {
+  const handleChange = (e: FormChangeEvent) => {
     const { name, value } = e.target;
 
     // ── hourlyRate: only block values clearly over the max as you type.

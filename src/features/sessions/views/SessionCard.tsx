@@ -21,7 +21,7 @@ export interface SessionCardRequest {
   selectedSlots?: SessionCardSlot[];
   mentor?: { name?: string } | null;
   mentee?: { name?: string } | null;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface StatusPillProps {

@@ -15,7 +15,7 @@ const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useSocketToast = (onRequestChanged: ((data: any) => void) | undefined, incrementBadge: (() => void) | undefined) => {
+const useSocketToast = (onRequestChanged: ((data: unknown) => void) | undefined, incrementBadge: (() => void) | undefined) => {
   // ✅ incrementBadge as param
   const { showToast } = useToast();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken); // ✅ from Redux

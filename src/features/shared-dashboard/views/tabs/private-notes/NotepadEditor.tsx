@@ -4,6 +4,7 @@
 
 // src/features/shared-dashboard/components/tabs/private-notes/NotepadEditor.jsx
 import { useState, useEffect, useRef } from "react";
+import type React from "react";
 import type { PrivateNote } from "@features/shared-dashboard/views/tabs/private-notes/NoteListItem";
 
 interface NotepadEditorProps {
@@ -26,6 +27,10 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: NotepadEdito
     setContent(note?.content || "");
     setDirty(false);
     setTimeout(() => textareaRef.current?.focus(), 50);
+    // Intentionally sync from `note` only when the selected note's identity
+    // (_id) changes. Reacting to note.title/note.content would clobber the
+    // user's in-progress local edits, so they are excluded.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note?._id]);
 
   const handleSave = async () => {
@@ -79,7 +84,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: NotepadEdito
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
         <input
           value={title}
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setTitle(e.target.value);
             setDirty(true);
           }}
@@ -212,7 +217,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: NotepadEdito
       <textarea
         ref={textareaRef}
         value={content}
-        onChange={(e: any) => {
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
           setContent(e.target.value);
           setDirty(true);
         }}

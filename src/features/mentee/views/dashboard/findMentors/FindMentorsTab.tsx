@@ -36,7 +36,7 @@ const FindMentorsTab = () => {
 
   useEffect(() => {
     getPlatformCommissionRate()
-      .then((data: any) => setCommissionRate(data.commissionRate))
+      .then((data: { commissionRate: number }) => setCommissionRate(data.commissionRate))
       .catch(() => setCommissionRate(null))
       .finally(() => setFeeLoading(false));
   }, []);

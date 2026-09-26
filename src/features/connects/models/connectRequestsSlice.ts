@@ -25,7 +25,7 @@ type LoadStatus = "idle" | "loading" | "succeeded" | "failed";
 export interface ConnectRequest {
   _id: string;
   status: string;
-  [field: string]: any;
+  [field: string]: unknown;
 }
 
 type RequestPatch = Partial<Omit<ConnectRequest, "_id">>;
@@ -61,7 +61,7 @@ export const fetchMentorRequests: FetchThunk = createAsyncThunk<
     try {
       const res = await getIncomingRequests();
       return (res.data.requests || []) as ConnectRequest[];
-    } catch (err: any) {
+    } catch (err) {
       logger.warn("Failed to fetch incoming mentor requests", { error: err?.message });
       return rejectWithValue(err?.response?.data?.message || "Failed to load requests.");
     }
@@ -78,7 +78,7 @@ export const fetchMenteeRequests: FetchThunk = createAsyncThunk<
     try {
       const res = await getMyConnectRequests();
       return (Array.isArray(res.data.requests) ? res.data.requests : []) as ConnectRequest[];
-    } catch (err: any) {
+    } catch (err) {
       return rejectWithValue(err?.response?.data?.message || "Failed to load requests.");
     }
   },

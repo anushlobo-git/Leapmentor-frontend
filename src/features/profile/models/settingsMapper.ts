@@ -19,13 +19,39 @@
 //   - guaranteed defaults, so components never do `profile?.emailNotifications` or `wallet?.balance`
 //   - a single, testable function instead of re-derived assumptions in multiple files
 
+// Raw shapes below only list the fields each mapper reads. Values are typed
+// `unknown` because the backend may send them in any form; every field is
+// defensively coerced (Boolean/Number/typeof) before use.
+interface RawMenteeSettings {
+  emailNotifications?: unknown;
+  marketingPreferences?: unknown;
+}
+
+interface RawMentorSettings {
+  hourlyRate?: unknown;
+  emailNotifications?: unknown;
+  isProfilePublished?: boolean;
+  publicProfile?: boolean;
+  totalSessions?: unknown;
+  avgRating?: unknown;
+}
+
+interface RawWallet {
+  balance?: unknown;
+  escrow?: unknown;
+}
+
+interface RawUserPasswordInfo {
+  passwordChangedAt?: string | null;
+}
+
 /**
  * Normalize a raw mentee profile object from the API into the internal shape used across the app.
  * Provides defensive defaults for all fields to prevent silent failures when backend shape changes.
  * @param {Object} raw - Raw mentee profile object from API
  * @returns {Object} Normalized mentee profile object with guaranteed field structure
  */
-export const mapMenteeSettings = (raw: Record<string, any> = {}) => ({
+export const mapMenteeSettings = (raw: RawMenteeSettings = {}) => ({
   emailNotifications: Boolean(raw.emailNotifications),
   marketingPreferences: Boolean(raw.marketingPreferences),
 });
@@ -36,7 +62,7 @@ export const mapMenteeSettings = (raw: Record<string, any> = {}) => ({
  * @param {Object} raw - Raw mentor profile object from API
  * @returns {Object} Normalized mentor profile object with guaranteed field structure
  */
-export const mapMentorSettings = (raw: Record<string, any> = {}) => ({
+export const mapMentorSettings = (raw: RawMentorSettings = {}) => ({
   hourlyRate: typeof raw.hourlyRate === "number" ? raw.hourlyRate : Number(raw.hourlyRate) || 0,
   emailNotifications: Boolean(raw.emailNotifications),
   isProfilePublished: raw.isProfilePublished ?? raw.publicProfile ?? true,
@@ -50,7 +76,7 @@ export const mapMentorSettings = (raw: Record<string, any> = {}) => ({
  * @param {Object} raw - Raw wallet object from API
  * @returns {Object} Normalized wallet object with guaranteed field structure
  */
-export const mapWallet = (raw: Record<string, any> = {}) => ({
+export const mapWallet = (raw: RawWallet = {}) => ({
   balance: typeof raw.balance === "number" ? raw.balance : 0,
   escrow: typeof raw.escrow === "number" ? raw.escrow : 0,
 });
@@ -61,6 +87,6 @@ export const mapWallet = (raw: Record<string, any> = {}) => ({
  * @param {Object} raw - Raw user object from API
  * @returns {Object} Normalized user object with guaranteed field structure
  */
-export const mapUserPasswordInfo = (raw: Record<string, any> = {}) => ({
+export const mapUserPasswordInfo = (raw: RawUserPasswordInfo = {}) => ({
   passwordChangedAt: raw.passwordChangedAt ?? null,
 });

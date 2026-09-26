@@ -117,6 +117,9 @@ export const useCalendarAvailabilityPresenter = ({
 
   useEffect(() => {
     onValidationChange?.(!hasInvalidSlots);
+    // onValidationChange is a parent-supplied callback with an unstable
+    // identity; we only want to report up when validity actually changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasInvalidSlots, minDuration]);
 
   const updateBusySlots = (slots: BusySlot[]) => {
@@ -135,18 +138,22 @@ export const useCalendarAvailabilityPresenter = ({
     const params = { startDate: firstDay, endDate: lastDay };
 
     getGoogleCalendarBusySlots(params)
-      .then(({ data }: any) => updateBusySlots(data.busy || []))
-      .catch((err: any) =>
+      .then(({ data }: { data: { busy?: BusySlot[] } }) => updateBusySlots(data.busy || []))
+      .catch((err) =>
         logger.error("Failed to fetch busy slots:", {
           error: err.message || err,
         }),
       );
 
     getGoogleCalendarEvents(params)
-      .then(({ data }: any) => setCalendarEvents(data.events || []))
-      .catch((err: any) =>
+      .then(({ data }: { data: { events?: CalendarEvent[] } }) => setCalendarEvents(data.events || []))
+      .catch((err) =>
         logger.error("Failed to fetch events:", { error: err.message || err }),
       );
+    // updateBusySlots is recreated each render; the calendar data is
+    // intentionally fetched only when the connection state or viewed month
+    // changes, so it is excluded from the dep list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [googleCalendarConnected, calYear, calMonth]);
 
   const handleToggleDate = (dateStr: string) => {

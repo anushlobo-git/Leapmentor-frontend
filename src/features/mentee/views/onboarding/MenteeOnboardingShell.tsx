@@ -55,7 +55,7 @@ const MenteeOnboardingShell = () => {
   };
 
   // Clears the error for a field as soon as the user starts filling it
-  const onChange = (e: any) => {
+  const onChange = (e: { target: { name: string; value: string | string[] } }) => {
     const { name } = e.target;
     if (errors[name]) {
       setErrors((prev) => {

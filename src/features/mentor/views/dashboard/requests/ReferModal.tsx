@@ -227,9 +227,9 @@ const ReferModal = ({ request, onClose, onReferred }: ReferModalProps) => {
             Request Referred!
           </h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-2">
-            You've referred{" "}
+            You&apos;ve referred{" "}
             <span className="font-semibold text-slate-700">
-              {mentee?.name}'s
+              {mentee?.name}&apos;s
             </span>{" "}
             request to{" "}
             <span className="font-semibold text-slate-700">
@@ -238,7 +238,7 @@ const ReferModal = ({ request, onClose, onReferred }: ReferModalProps) => {
           </p>
           <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-6 mt-1">
             <p className="text-xs text-blue-900 font-medium leading-relaxed">
-              📨 The request now appears in {selected?.user?.name}'s incoming
+              📨 The request now appears in {selected?.user?.name}&apos;s incoming
               requests tab.
             </p>
           </div>

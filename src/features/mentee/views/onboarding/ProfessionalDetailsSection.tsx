@@ -10,7 +10,7 @@ interface ProfessionalDetailsSectionProps {
     yearsOfExperience?: string;
     industry?: string;
   };
-  handleChange: (e: any) => void;
+  handleChange: (e: { target: { name: string; value: string } }) => void;
   errors?: {
     currentRole?: boolean;
     yearsOfExperience?: boolean;

@@ -9,6 +9,7 @@ import useAvailability from "@features/mentor/presenters/useAvailability";
 import CalendarAvailabilitySection from "@features/mentor/views/dashboard/availability/CalendarAvailabilitySection";
 import TimezoneDurationSection from "@features/mentor/views/dashboard/availability/TimezoneDurationSection";
 import IntegrationsSection from "@features/mentor/views/dashboard/availability/IntegrationsSection";
+import type { DateEntry, BusySlot } from "@features/mentor/presenters/useCalendarAvailabilityPresenter";
 
 // ─── Helper: convert "HH:MM" 24h to "h:MM AM/PM" ─────────────────────────────
 const formatSlotTime = (timeStr: string) => {
@@ -113,7 +114,7 @@ const BusyConflictModal = ({ conflicts, onConfirm, onCancel }: BusyConflictModal
 
 
 // ─── Helper: collect all busy conflicts across all specificDates ──────────────
-const collectBusyConflicts = (specificDates: any[], busySlots: any[]): Conflict[] => {
+const collectBusyConflicts = (specificDates: DateEntry[], busySlots: BusySlot[]): Conflict[] => {
   if (!busySlots?.length || !specificDates?.length) return [];
 
   const conflicts: Conflict[] = [];
@@ -175,14 +176,14 @@ const AvailabilityTab = () => {
   } = useAvailability();
 
   // busySlots are lifted up from CalendarAvailabilitySection via callback
-  const [busySlots, setBusySlots] = useState<any[]>([]);
+  const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [pendingConflicts, setPendingConflicts] = useState<Conflict[]>([]);
   // ── NEW: track whether all calendar slots pass validation ──────────────────
   const [isAvailabilityValid, setIsAvailabilityValid] = useState(true);
 
   const handleConnectionChange = (connected: boolean) => {
-    setAvailability((prev: any) => ({
+    setAvailability((prev) => ({
       ...prev,
       googleCalendarConnected: connected,
     }));
@@ -195,7 +196,7 @@ const AvailabilityTab = () => {
 
     const today = new Date().toISOString().split("T")[0];
     const futureDates = (availability.specificDates || []).filter(
-      (d: any) => d.date >= today,
+      (d: DateEntry) => d.date >= today,
     );
     const conflicts = collectBusyConflicts(futureDates, busySlots);
 

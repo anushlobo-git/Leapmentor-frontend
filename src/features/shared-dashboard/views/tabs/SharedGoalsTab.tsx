@@ -306,7 +306,7 @@ const OverallProgress = ({
           </div>
           {showMessage && (
             <div className="px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium">
-              You've already submitted feedback for this session
+              You&apos;ve already submitted feedback for this session
             </div>
           )}
         </div>

@@ -269,7 +269,7 @@ const VerificationInstructionsModal = ({ onClose }: { onClose: () => void }) => 
                 onClick={onClose}
                 className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-900 hover:bg-blue-800 transition-all shadow-md shadow-blue-900/20"
               >
-                Got it, let's go →
+                Got it, let&apos;s go →
               </button>
             ) : (
               <button

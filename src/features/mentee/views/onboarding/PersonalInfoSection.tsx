@@ -4,12 +4,13 @@
 
 // components/mentee/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
+import type React from "react";
 import { uploadProfilePicture } from "@features/mentee/models/mentee.api";
 import { validateImageFile } from "@lib/validation/schemas";
 
 interface PersonalInfoSectionProps {
   form: { profilePicture?: string; bio: string };
-  handleChange: (e: any) => void;
+  handleChange: (e: { target: { name: string; value: string } }) => void;
 }
 
 const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) => {
@@ -19,7 +20,7 @@ const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) =
   const [progress, setProgress] = useState(0);
   const [imgError, setImgError] = useState(false);
 
-  const handleFileChange = async (e: any) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -37,7 +38,7 @@ const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) =
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const res = await uploadProfilePicture(formData, (e: any) => {
+      const res = await uploadProfilePicture(formData, (e: { loaded: number; total?: number }) => {
         if (e.total) setProgress(Math.round((e.loaded * 100) / e.total));
       });
 
@@ -53,7 +54,7 @@ const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) =
           value: res.data.fileName,
         },
       });
-    } catch (err: any) {
+    } catch (err) {
       setUploadErr(
         err?.response?.data?.message ||
           "Failed to upload image. Please try again.",

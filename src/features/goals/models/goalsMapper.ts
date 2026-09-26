@@ -32,7 +32,30 @@ export const mapGoal = (raw) => {
  * @param {Object} raw - Raw milestone object from API
  * @returns {Object} Normalized milestone object with guaranteed field structure
  */
-export const mapMilestone = (raw: Record<string, any> = {}) => {
+/**
+ * Raw milestone DTO from the API — only the fields mapMilestone reads are
+ * named. `goal` may arrive as a populated object or as a bare id.
+ */
+interface RawMilestone {
+  _id?: string;
+  id?: string;
+  title?: string;
+  description?: string;
+  dueDate?: string;
+  isCompleted?: boolean;
+  completedAt?: string;
+  completedBy?: string;
+  goalId?: string;
+  goal?: { _id?: string; id?: string };
+  connectRequestId?: string;
+  connectRequest?: string;
+  order?: number;
+  slotIndex?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const mapMilestone = (raw: RawMilestone = {}) => {
   if (!raw) return null;
   return {
     _id: raw._id ?? raw.id ?? null,

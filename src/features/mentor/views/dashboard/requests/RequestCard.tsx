@@ -155,7 +155,7 @@ const SlotsModal = ({ request, onClose }: { request: RequestCardRequest; onClose
                 Message
               </p>
               <p className="text-sm text-slate-600 leading-relaxed">
-                "{message}"
+                &quot;{message}&quot;
               </p>
             </div>
           )}
@@ -461,7 +461,7 @@ const RequestCard = ({ request, onViewProfile }: { request: RequestCardRequest; 
           {message && (
             <div className="border-l-2 border-slate-200 pl-3">
               <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed">
-                "{message}"
+                &quot;{message}&quot;
               </p>
             </div>
           )}

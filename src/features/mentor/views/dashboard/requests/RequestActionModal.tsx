@@ -44,8 +44,8 @@ const RequestActionModal = ({ type, menteeName, onBack }: RequestActionModalProp
         {/* Subtitle */}
         <p className="text-sm text-slate-500 leading-relaxed mb-2">
           {isAccepted
-            ? <>You have accepted <span className="font-semibold text-slate-700">{menteeName}'s</span> mentorship request.</>
-            : <>You have rejected <span className="font-semibold text-slate-700">{menteeName}'s</span> mentorship request.</>
+            ? <>You have accepted <span className="font-semibold text-slate-700">{menteeName}&apos;s</span> mentorship request.</>
+            : <>You have rejected <span className="font-semibold text-slate-700">{menteeName}&apos;s</span> mentorship request.</>
           }
         </p>
 

@@ -3,6 +3,7 @@
  */
 
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
+import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -263,7 +264,7 @@ const TimePicker = ({ value, onChange, hasError = false }: { value?: string; onC
     setIsEditing(true);
     setOpen(false);
   };
-  const handleInputChange = (e: any) => setInputVal(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInputVal(e.target.value);
   const handleInputBlur = () => {
     setIsEditing(false);
     const parsed = parseTyped(inputVal);
@@ -276,7 +277,7 @@ const TimePicker = ({ value, onChange, hasError = false }: { value?: string; onC
       );
     }
   };
-  const handleInputKeyDown = (e: any) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       inputRef.current?.blur();
@@ -388,7 +389,7 @@ const TimePicker = ({ value, onChange, hasError = false }: { value?: string; onC
         />
         <button
           type="button"
-          onMouseDown={(e: any) => e.preventDefault()}
+          onMouseDown={(e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault()}
           onClick={() => {
             setOpen((v) => !v);
             setIsEditing(false);

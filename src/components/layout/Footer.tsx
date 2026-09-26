@@ -3,6 +3,7 @@
  */
 
 import { useState } from "react";
+import type React from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@components/ui/Logo";
 import ContactModal from "@components/ui/ContactModal";
@@ -51,7 +52,7 @@ export default function Footer() {
                 <Logo variant="light" />
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                The world's leading mentorship platform for professional career growth and leadership development.
+                The world&apos;s leading mentorship platform for professional career growth and leadership development.
               </p>
             </div>
 
@@ -67,8 +68,8 @@ export default function Footer() {
                       <button
                         onClick={() => handleLinkClick(link)}
                         style={{ background: "none", border: "none", padding: 0, fontSize: "14px", color: "#9ca3af", cursor: "pointer", transition: "color 0.2s ease" }}
-                        onMouseEnter={(e: any) => { e.currentTarget.style.color = "#fff"; }}
-                        onMouseLeave={(e: any) => { e.currentTarget.style.color = "#9ca3af"; }}
+                        onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#fff"; }}
+                        onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.color = "#9ca3af"; }}
                       >
                         {link}
                       </button>

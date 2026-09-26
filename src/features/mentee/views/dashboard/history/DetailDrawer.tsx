@@ -23,20 +23,55 @@ import {
 } from "@features/mentee/views/dashboard/history/OngoingReferredContent";
 
 // ── Main Drawer ─────────────────────────────────────────────
+interface HistorySlot {
+  day?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
+interface HistoryPerson {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+interface HistoryMentorProfile {
+  currentRole?: string;
+  company?: string;
+  industry?: string;
+  bio?: string;
+  hourlyRate?: number | null;
+  avgRating?: number;
+  yearsOfExperience?: number | null;
+  profilePicture?: string | null;
+  skills?: string[];
+}
+
 interface HistoryRequest {
   _id: string;
-  mentor?: { name?: string; email?: string };
   status: string;
+  mentor?: HistoryPerson | null;
+  mentorProfile?: HistoryMentorProfile | null;
   requestedAt?: string;
   respondedAt?: string;
-  [key: string]: any;
+  message?: string;
+  selectedSlots?: HistorySlot[];
+  confirmedSlot?: HistorySlot | null;
+  sessionRate?: number | null;
+  sessionCount?: number | null;
+  totalAmount?: number | null;
+  paidAt?: string | null;
+  completedAt?: string | null;
+  referredTo?: HistoryPerson | null;
+  referredToProfile?: HistoryMentorProfile | null;
 }
 
 interface DetailDrawerProps {
   request: HistoryRequest | null;
   onClose: () => void;
   onDelete: (id: string) => void;
-  onUpdateRequest: (id: string, patch: Record<string, any>) => void;
+  onUpdateRequest: (id: string, patch: Record<string, unknown>) => void;
 }
 
 const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }: DetailDrawerProps) => {
@@ -47,7 +82,7 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }: DetailDra
   const { mentor, status, requestedAt, respondedAt } = request;
   const initials = getInitials(mentor?.name);
 
-  const handlePaymentSuccess = (patch: Record<string, any>) => {
+  const handlePaymentSuccess = (patch: Record<string, unknown>) => {
     onUpdateRequest(request._id, patch);
   };
 

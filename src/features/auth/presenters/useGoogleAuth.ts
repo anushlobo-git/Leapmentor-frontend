@@ -5,20 +5,30 @@
 import { useEffect, useRef } from "react";
 import type React from "react";
 import { googleAuthRequest } from "@features/auth/models/auth.api";
+import { setUser as setUserAction } from "@features/auth/models/authSlice";
 import { setAuthRole } from "@lib/http/cookies";
 import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import logger from "@lib/monitoring/logger";
+import type { AppDispatch } from "@store/index";
+import type { RawAuthUser } from "@lib/mappers/userMapper";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+/** Payload handed to the SSO success callback from the backend auth response. */
+interface SSOAuthResult {
+  user?: RawAuthUser;
+  accessToken?: string;
+  isNewUser?: boolean;
+}
+
 const callbackRef: {
-  onSuccess: ((data: any) => void) | null;
+  onSuccess: ((data: SSOAuthResult) => void) | null;
   onError: ((message: string) => void) | null;
   onLoadingChange: ((loading: boolean) => void) | null;
   rolesRef: { current: string[] } | null;
   termsAcceptedRef: React.RefObject<boolean> | null | undefined;
-  dispatch: any;
-  setUser: any;
+  dispatch: AppDispatch | null;
+  setUser: typeof setUserAction | null;
 } = {
   onSuccess: null,
   onError: null,
@@ -46,11 +56,11 @@ const useGoogleAuth = ({
   btnRef: React.RefObject<HTMLDivElement | null>;
   roles: string[];
   termsAcceptedRef?: React.RefObject<boolean> | null;
-  onSuccess: (data: any) => void;
+  onSuccess: (data: SSOAuthResult) => void;
   onError: (message: string) => void;
   onLoadingChange?: (loading: boolean) => void;
-  dispatch: any;
-  setUser: any;
+  dispatch: AppDispatch;
+  setUser: typeof setUserAction;
 }) => {
   const rolesRef = useRef(roles);
 

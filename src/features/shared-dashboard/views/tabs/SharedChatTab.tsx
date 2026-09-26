@@ -4,6 +4,7 @@
 
 // src/components/shared-dashboard/tabs/SharedChatTab.tsx
 import { useState, useEffect, useRef, useCallback, memo } from "react";
+import type React from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@store/index";
 import useChat from "@features/shared-dashboard/presenters/useChat";
@@ -49,7 +50,7 @@ interface AvatarProps {
   size?: number;
 }
 
-const Avatar = memo(({ name, picture, size = 32 }: AvatarProps) => {
+const Avatar = memo(function Avatar({ name, picture, size = 32 }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
 
   if (picture && !imgError) {
@@ -129,6 +130,7 @@ const DateSeparator = memo(({ dateStr }: DateSeparatorProps) => (
     <div style={{ flex: 1, height: "1px", backgroundColor: "#f1f5f9" }} />
   </div>
 ));
+DateSeparator.displayName = "DateSeparator";
 
 // ── Read Receipt ──────────────────────────────────────────────
 interface ReadReceiptProps {
@@ -156,7 +158,17 @@ interface Message {
   content?: string;
   createdAt?: string;
   readAt?: string;
-  sender?: any;
+  sender?: { _id?: string };
+}
+
+// Connect fields this tab reads off the shared-dashboard slice. The slice is
+// plain JS (state.connect is typed `null`), so reads are asserted to this shape.
+interface ChatConnect {
+  viewerRole?: "mentee" | "mentor";
+  mentor?: { _id?: string; name?: string };
+  mentee?: { _id?: string; name?: string };
+  mentorProfile?: { profilePicture?: string };
+  menteeProfile?: { profilePicture?: string };
 }
 
 interface MessageBubbleProps {
@@ -195,6 +207,7 @@ const MessageBubble = memo(({ message, isOwn, otherName, otherPicture }: Message
     </div>
   </div>
 ));
+MessageBubble.displayName = "MessageBubble";
 
 // ── Typing Indicator ──────────────────────────────────────────
 interface TypingIndicatorProps {
@@ -225,10 +238,11 @@ const TypingIndicator = memo(({ name }: TypingIndicatorProps) => (
     `}</style>
   </div>
 ));
+TypingIndicator.displayName = "TypingIndicator";
 
 // ── Load More ─────────────────────────────────────────────────
 interface LoadMoreButtonProps {
-  onClick: (event: any) => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   loading: boolean;
 }
 
@@ -292,14 +306,14 @@ const ChatInput = ({ onSend, onTyping, disabled }: ChatInputProps) => {
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
-  const handleKeyDown = (e: any) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
     onTyping();
     const ta = textareaRef.current;
@@ -331,8 +345,8 @@ const ChatInput = ({ onSend, onTyping, disabled }: ChatInputProps) => {
           lineHeight: "1.5", maxHeight: "120px",
           fontFamily: "inherit", overflow: "hidden",
         }}
-        onFocus={(e: any) => e.target.style.borderColor = "#93c5fd"}
-        onBlur={(e: any) => e.target.style.borderColor = "#e2e8f0"}
+        onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => e.target.style.borderColor = "#93c5fd"}
+        onBlur={(e: React.FocusEvent<HTMLTextAreaElement>) => e.target.style.borderColor = "#e2e8f0"}
       />
       <button
         onClick={handleSend}
@@ -360,21 +374,21 @@ const ChatInput = ({ onSend, onTyping, disabled }: ChatInputProps) => {
 const SharedChatTab = () => {
   const connectId = useSelector((state: RootState) => selectConnectId(state));
   const otherName = useSelector((state: RootState) => {
-    const c = (state as any).sharedDashboard.connect;
+    const c = state.sharedDashboard.connect as ChatConnect | null;
     if (!c) return "Partner";
     return c.viewerRole === "mentee"
       ? c.mentor?.name || "Mentor"
       : c.mentee?.name || "Mentee";
   });
   const otherPicture = useSelector((state: RootState) => {
-    const c = (state as any).sharedDashboard.connect;
+    const c = state.sharedDashboard.connect as ChatConnect | null;
     if (!c) return "";
     return c.viewerRole === "mentee"
       ? c.mentorProfile?.profilePicture || ""
       : c.menteeProfile?.profilePicture || "";
   });
   const myId = useSelector((state: RootState) => {
-    const c = (state as any).sharedDashboard.connect;
+    const c = state.sharedDashboard.connect as ChatConnect | null;
     if (!c) return "";
     return c.viewerRole === "mentee"
       ? c.mentee?._id?.toString()

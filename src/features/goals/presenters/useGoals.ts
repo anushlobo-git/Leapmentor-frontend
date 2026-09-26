@@ -25,6 +25,17 @@ const removeMilestoneFromList = (milestoneId) => (prev) =>
   prev.filter((m) => m._id !== milestoneId);
 
 /**
+ * The fetch-style response shape the delete-milestone branch below expects.
+ * (See the NOTE in deleteMilestone: the real call returns a raw Axios
+ * response, so `ok`/`json` are absent at runtime — kept optional here to
+ * type the pre-existing, intentionally-unchanged branch.)
+ */
+interface FetchLikeResponse {
+  ok?: boolean;
+  json?: () => Promise<{ message?: string }>;
+}
+
+/**
  * Custom hook for goals.
  * @returns {Object} Hook state and handlers for the caller.
  */
@@ -275,9 +286,9 @@ const useGoals = (connectRequestId) => {
       // which never has `.ok`/`.json()` (those are fetch-API members). This branch
       // is effectively always truthy today, so failures are misreported.
       // Flagging for a follow-up fix rather than changing behavior here.
-      const res: any = await deleteMilestoneRequest(milestoneId);
+      const res: FetchLikeResponse = await deleteMilestoneRequest(milestoneId);
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        const data: { message?: string } = await res.json().catch(() => ({}));
         throw new Error(data.message || "Failed to delete milestone");
       }
       return { success: true };
