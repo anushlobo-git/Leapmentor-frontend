@@ -16,13 +16,13 @@ Create a `.env` file in the frontend root.
 
 | Variable                    | Used by                                                                                        | Notes                                                                                                                                                        |
 | --------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `VITE_API_BASE_URL`         | `src/lib/axiosInstance.ts`, `src/lib/adminAxiosInstance.ts`, most feature `api/*.api.ts` files | Base URL for the backend API. Not documented in the repo beyond the default localhost fallback, so the real value needs input from whoever runs the backend. |
-| `VITE_ADMIN_API_BASE_URL`   | `src/lib/axiosInstance.ts`, admin `api/*.api.ts` files | Optional override for cookie-authenticated admin API traffic. It must include the version prefix when applicable (for example `http://localhost:5000/api/v1`). Defaults to `VITE_API_BASE_URL`. |
+| `VITE_API_BASE_URL`         | `src/lib/http/axiosInstance.ts`, most feature `api/*.api.ts` files | Base URL for the backend API. Not documented in the repo beyond the default localhost fallback, so the real value needs input from whoever runs the backend. |
+| `VITE_ADMIN_API_BASE_URL`   | `src/lib/http/axiosInstance.ts` (single shared client handles mentor, mentee, and admin traffic), admin `api/*.api.ts` files | Optional override for cookie-authenticated admin API traffic. It must include the version prefix when applicable (for example `http://localhost:5000/api/v1`). Defaults to `VITE_API_BASE_URL`. |
 | `VITE_SOCKET_URL`           | Mentioned in the README and app setup docs                                                     | Socket endpoint expected by the app documentation.                                                                                                           |
 | `VITE_API_SOCKET_URL`       | `src/features/notifications/hooks/useSocketToast.ts`                                           | The code currently reads this name, so it should be kept in sync with `VITE_SOCKET_URL` or normalized in a later code pass.                                  |
 | `VITE_GOOGLE_CLIENT_ID`     | `src/features/auth/hooks/useGoogleAuth.ts`                                                     | Google OAuth client ID. Needs input from the identity-provider owner.                                                                                        |
 | `VITE_VAPID_PUBLIC_KEY`     | `src/features/notifications/hooks/usePushNotification.ts`                                      | Push notification public key. Needs input from whoever manages web push.                                                                                     |
-| `VITE_LOGTAIL_SOURCE_TOKEN` | `src/lib/logger.ts`                                                                            | Logtail browser source token. Needs input from the logging owner.                                                                                            |
+| `VITE_LOGTAIL_SOURCE_TOKEN` | `src/lib/monitoring/logger.ts`                                                                 | Logtail browser source token. Needs input from the logging owner.                                                                                            |
 
 ## Run
 
@@ -82,5 +82,9 @@ Admin auth state lives in React context (`src/features/admin/context/AdminAuthCo
 - `src/app/App.tsx` for route wiring and refresh-on-load behavior
 - `src/features/auth/components/ProtectedRoute.tsx` for mentor/mentee access checks
 - `src/features/admin/components/AdminRoute.tsx` for admin access checks
-- `src/lib/axiosInstance.ts` for refresh-token retry logic
+- `src/lib/http/axiosInstance.ts` for refresh-token retry logic
 - `docs/PROJECT_STRUCTURE.md` for the full feature-by-feature folder breakdown
+
+## More Documentation
+
+See the [project README](../README.md) for the full guide list, including [DEBUGGING.md](DEBUGGING.md), [TESTING.md](TESTING.md), [BRANCHING.md](BRANCHING.md), and [SETUP.md](SETUP.md).
