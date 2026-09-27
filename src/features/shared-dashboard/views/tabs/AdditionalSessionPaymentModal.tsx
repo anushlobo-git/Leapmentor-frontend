@@ -4,6 +4,7 @@
 
 // src/features/shared-dashboard/components/tabs/AdditionalSessionPaymentModal.jsx
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { payAdditionalEscrow } from "@features/connects/models/escrow.api";
 import EscrowSuccessModal from "@features/mentee/views/dashboard/history/EscrowSuccessModal";
 import { TokenIcon, LockIcon } from "@components/shared/icons/PaymentIcons";
@@ -13,6 +14,8 @@ import {
   BalanceRow,
 } from "@components/shared/payment/EscrowPaymentUI";
 import { useEscrowPayment } from "@lib/hooks/useEscrowPayment";
+import { fetchWallet } from "@features/mentee/models/walletSlice";
+import type { AppDispatch } from "@store/index";
 import {
   formatTimeString as formatTime,
   formatSlotDate,
@@ -46,6 +49,7 @@ const AdditionalSessionPaymentModal = ({
   onClose,
   onSuccess,
 }: AdditionalSessionPaymentModalProps) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [showSuccess, setShowSuccess] = useState(false);
   const defaultSessionRate = connect?.mentorProfile?.hourlyRate ?? 0;
 
@@ -82,6 +86,7 @@ const AdditionalSessionPaymentModal = ({
         sessionRate,
         slotId,
       });
+      dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setShowSuccess(true);
     } catch (err: any) {
       setError(

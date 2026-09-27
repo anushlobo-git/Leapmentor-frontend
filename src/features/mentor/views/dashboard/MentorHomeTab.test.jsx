@@ -4,8 +4,8 @@ import MentorHomeTab from "./MentorHomeTab";
 import {
   getIncomingRequests,
   getMentorEarnings,
+  getMentorProfile,
 } from "@features/mentor/models/mentor.api";
-import axiosInstance from "@lib/http/axiosInstance";
 import dashboardUserReducer from "@features/profile/models/dashboardUserSlice";
 import { makeTestStore, renderWithStore } from "@test/renderWithStore";
 import logger from "@lib/monitoring/logger";
@@ -14,13 +14,10 @@ import logger from "@lib/monitoring/logger";
 vi.mock("@features/mentor/models/mentor.api", () => ({
   getIncomingRequests: vi.fn(),
   getMentorEarnings: vi.fn(),
+  getMentorProfile: vi.fn(() => new Promise(() => {})), // refetchMentorProfile — keep pending
 }));
 
 // Real Redux store (connectRequests + dashboardUser slices); only the network is mocked.
-// The profile refetch thunk hits axios — keep it pending so it never overwrites the seeded profile.
-vi.mock("@lib/http/axiosInstance", () => ({
-  default: { get: vi.fn(() => new Promise(() => {})) },
-}));
 
 // Mock React Router
 vi.mock("react-router-dom", () => ({
@@ -89,7 +86,7 @@ describe("MentorHomeTab component", () => {
 
     expect(screen.getByText("Loading your dashboard...")).toBeInTheDocument();
     expect(screen.getAllByTestId("loader")).toHaveLength(2); // session and earnings loaders
-    expect(axiosInstance.get).toHaveBeenCalledWith("/mentor-profile/me");
+    expect(getMentorProfile).toHaveBeenCalled();
   });
 
   it("calculates profile completion and handles navigate to profile tab if clicked", async () => {

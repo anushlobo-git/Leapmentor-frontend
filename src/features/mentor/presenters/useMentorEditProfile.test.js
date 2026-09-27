@@ -28,8 +28,10 @@ vi.mock("react-router-dom", () => ({
 
 // Mock redux
 const mockUseSelector = vi.fn();
+const mockDispatch = vi.fn();
 vi.mock("react-redux", () => ({
   useSelector: (selectorFn) => mockUseSelector(selectorFn),
+  useDispatch: () => mockDispatch,
 }));
 
 vi.mock("@features/auth/models/authSlice", () => ({
@@ -403,6 +405,8 @@ describe("useMentorEditProfile", () => {
         text: "Profile updated! Redirecting to dashboard…",
       });
       expect(result.current.loading).toBe(false);
+      // dashboardUserSlice is refreshed so Home/Profile tabs show the edit
+      expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
     it("should handle submit error", async () => {

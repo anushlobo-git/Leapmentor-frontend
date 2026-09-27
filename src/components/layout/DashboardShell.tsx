@@ -6,9 +6,10 @@
 import { useState, useEffect, Suspense } from "react";
 import type { ComponentType, CSSProperties } from "react";
 import { useDispatch } from "react-redux";
-import { setUser, setProfile, resetDashboardUser } from "@features/profile/models/dashboardUserSlice";
+import { resetDashboardUser } from "@features/profile/models/dashboardUserSlice";
 import { resetNotifications } from "@features/notifications/models/notificationsSlice";
 import { resetConnectRequests } from "@features/connects/models/connectRequestsSlice";
+import { resetWallet } from "@features/mentee/models/walletSlice";
 import useUnreadCount from "@features/notifications/presenters/useUnreadCount";
 import useSocketToast from "@features/notifications/presenters/useSocketToast";
 import type { AppDispatch } from "@store/index";
@@ -70,7 +71,7 @@ const DashboardShell = ({
   loadingConfig,
 }: DashboardShellProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, profile, loading, error, refetch } = useDashboardData();
+  const { user, loading, error, refetch } = useDashboardData();
   const { unreadCount, clearBadge, incrementBadge } = useUnreadCount();
 
   const onRequestChanged = refetch ? () => refetch() : undefined;
@@ -79,13 +80,7 @@ const DashboardShell = ({
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    if (user) dispatch(setUser(user));
-  }, [user, dispatch]);
-
-  useEffect(() => {
-    if (profile) dispatch(setProfile(profile));
-  }, [profile, dispatch]);
+  // user/profile are already in dashboardUserSlice — the dashboard hooks load them there.
 
   // Shared slices outlive components — clear them when the dashboard shell goes
   // away (logout / role switch) so the next user never sees stale data.
@@ -94,6 +89,7 @@ const DashboardShell = ({
       dispatch(resetDashboardUser());
       dispatch(resetNotifications());
       dispatch(resetConnectRequests());
+      dispatch(resetWallet());
     },
     [dispatch],
   );

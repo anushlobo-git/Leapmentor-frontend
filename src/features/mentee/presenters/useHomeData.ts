@@ -4,7 +4,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { searchMentorsBySkill, getEscrowWallet } from "@features/mentee/models/mentee.api";
+import { searchMentorsBySkill } from "@features/mentee/models/mentee.api";
+import {
+  fetchWallet,
+  selectWalletBalance,
+  selectWalletEscrow,
+} from "@features/mentee/models/walletSlice";
 import {
   fetchMenteeRequests,
   selectMenteeRequestList,
@@ -13,13 +18,15 @@ import type { AppDispatch } from "@store/index";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 import logger from "@lib/monitoring/logger";
 
-// ── Internal hook — fetches recommended mentors + upcoming sessions ──
+// ── Internal hook — fetches recommended mentors; sessions + wallet come from shared slices ──
 export const useHomeData = (profile) => {
   const dispatch = useDispatch<AppDispatch>();
   const [mentors, setMentors] = useState([]);
   const [homeLoading, setHomeLoading] = useState(true);
-  const [balance, setBalance] = useState(0);
-  const [escrow, setEscrow] = useState(0);
+
+  // Wallet lives in walletSlice (shared with Settings + the payment modals).
+  const balance = useSelector(selectWalletBalance);
+  const escrow = useSelector(selectWalletEscrow);
 
   // Upcoming sessions are derived from the shared connect-requests slice.
   const { items: allRequests, loadedOnce } = useSelector(selectMenteeRequestList);
@@ -40,15 +47,17 @@ export const useHomeData = (profile) => {
       try {
         setHomeLoading(true);
 
+        // Fetched into walletSlice; started alongside the mentor search and awaited below
+        // so `loading` still covers it. The thunk never rejects — failures land in the slice.
+        const walletRequest = dispatch(fetchWallet());
+
         const skillTerm =
           profile?.skills?.[0] || profile?.interestedFields?.[0] || "";
 
         const mentorRes = await searchMentorsBySkill(skillTerm, 4);
         setMentors((mentorRes.data.mentors || []).map(mapMentorProfile));
 
-        const walletRes = await getEscrowWallet();
-        setBalance(walletRes.data.balance ?? 0);
-        setEscrow(walletRes.data.escrow ?? 0);
+        await walletRequest;
       } catch (err) {
         logger.error("HomeTab data fetch error:", { error: err.message });
       } finally {

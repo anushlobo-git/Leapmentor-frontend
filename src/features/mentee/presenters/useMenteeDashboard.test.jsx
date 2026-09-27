@@ -1,8 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
+import { renderHookWithStore as renderHook } from "@test/renderWithStore";
+import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 import useMenteeDashboard from "./useMenteeDashboard";
 import { getCurrentUser, getMenteeProfile } from "@features/mentee/models/mentee.api";
-import { useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
 import { mapMenteeProfile } from "@features/mentee/models/menteeMapper";
 
 // Mock dependencies
@@ -22,8 +22,9 @@ vi.mock("react-router-dom", () => ({
   useLocation: () => ({ pathname: mockPathname }),
 }));
 
-vi.mock("react-redux", () => ({
-  useSelector: vi.fn(),
+// Real store (dashboardUser slice); only auth and the network are mocked.
+vi.mock("@features/auth/models/authSlice", () => ({
+  selectIsAuthenticated: vi.fn(),
 }));
 
 describe("useMenteeDashboard", () => {
@@ -40,13 +41,13 @@ describe("useMenteeDashboard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockPathname = "/dashboard/mentee";
-    useSelector.mockReturnValue(true); // isAuthenticated = true
+    selectIsAuthenticated.mockReturnValue(true); // isAuthenticated = true
     getCurrentUser.mockResolvedValue({ data: mockUser });
     getMenteeProfile.mockResolvedValue({ data: mockProfile });
   });
 
   it("redirects to login when user is not authenticated", async () => {
-    useSelector.mockReturnValueOnce(false); // isAuthenticated = false
+    selectIsAuthenticated.mockReturnValue(false); // isAuthenticated = false
 
     renderHook(() => useMenteeDashboard());
 
@@ -135,7 +136,7 @@ describe("useMenteeDashboard", () => {
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
-      expect(result.current.user).toEqual(mockUser);
+      expect(result.current.user).toMatchObject({ name: "John Doe", roles: ["mentee"] }); // mapped by mapAuthUser
       expect(result.current.profile).toEqual(mockProfile);
       expect(result.current.error).toBe("");
     });
@@ -153,5 +154,20 @@ describe("useMenteeDashboard", () => {
     result.current.refetch();
 
     expect(getCurrentUser).toHaveBeenCalledWith();
+  });
+
+  it("stores user + profile in dashboardUserSlice with exactly one fetch each (no local copy)", async () => {
+    mapMenteeProfile.mockReturnValue(mockProfile);
+    const { result, store } = renderHook(() => useMenteeDashboard());
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const slice = store.getState().dashboardUser;
+    expect(slice).toMatchObject({ status: "succeeded", loadedOnce: true });
+    expect(slice.profile).toEqual(mockProfile);
+    expect(result.current.user).toBe(slice.user);
+    expect(result.current.profile).toBe(slice.profile);
+    expect(getCurrentUser).toHaveBeenCalledTimes(1);
+    expect(getMenteeProfile).toHaveBeenCalledTimes(1);
   });
 });

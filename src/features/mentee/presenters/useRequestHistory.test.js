@@ -1,10 +1,7 @@
 import { act } from "@testing-library/react";
 import { renderHookWithStore as renderHook } from "@test/renderWithStore";
 import useRequestHistory from "./useRequestHistory";
-import {
-  getMyConnectRequests,
-  deleteConnectRequest,
-} from "@features/mentee/models/mentee.api";
+import { getMyConnectRequests, deleteConnectRequest } from "@features/mentee/models/mentee.api";
 import logger from "@lib/monitoring/logger";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -36,9 +33,7 @@ describe("useRequestHistory hook", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    getMyConnectRequests.mockResolvedValue({
-      data: { requests: mockRequests },
-    });
+    getMyConnectRequests.mockResolvedValue({ data: { requests: mockRequests } });
     deleteConnectRequest.mockResolvedValue({ data: { success: true } });
   });
 

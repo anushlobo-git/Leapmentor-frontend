@@ -4,10 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, waitFor } from "@testing-library/react";
-import {
-  renderHookWithStore as renderHook,
-  makeTestStore,
-} from "@test/renderWithStore";
+import { renderHookWithStore as renderHook, makeTestStore } from "@test/renderWithStore";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 import useUnreadCount from "./useUnreadCount";
 import { getNotifications } from "@features/notifications/models/notifications.api";
@@ -170,16 +167,13 @@ describe("useUnreadCount", () => {
     getNotifications.mockResolvedValue({
       data: { notifications: [{ id: 1, read: false }] },
     });
-    const flag = (state = false, action) =>
-      action.type === "setAuth" ? action.payload : state;
+    const flag = (state = false, action) => (action.type === "setAuth" ? action.payload : state);
     const store = makeTestStore({ flag });
 
     renderHook(() => useUnreadCount(), store);
     expect(getNotifications).not.toHaveBeenCalled();
 
-    act(() => {
-      store.dispatch({ type: "setAuth", payload: true });
-    });
+    act(() => { store.dispatch({ type: "setAuth", payload: true }); });
 
     await waitFor(() => {
       expect(getNotifications).toHaveBeenCalledTimes(1);
@@ -189,52 +183,37 @@ describe("useUnreadCount", () => {
 
 describe("useUnreadCount — shared slice", () => {
   it("keeps the badge in sync when the list is marked read elsewhere", async () => {
-    const { markNotificationAsRead } =
-      await import("@features/notifications/models/notificationsSlice");
-    const { markNotificationRead } =
-      await import("@features/notifications/models/notifications.api");
+    const { markNotificationAsRead } = await import(
+      "@features/notifications/models/notificationsSlice"
+    );
+    const { markNotificationRead } = await import(
+      "@features/notifications/models/notifications.api"
+    );
     selectIsAuthenticated.mockReturnValue(true);
     getNotifications.mockResolvedValue({
-      data: {
-        notifications: [
-          { id: 1, read: false },
-          { id: 2, read: false },
-        ],
-      },
+      data: { notifications: [{ id: 1, read: false }, { id: 2, read: false }] },
     });
     const { result, store } = renderHook(() => useUnreadCount());
     await waitFor(() => expect(result.current.unreadCount).toBe(2));
 
     // what the notifications tab does when a card is clicked
-    await act(async () => {
-      await store.dispatch(markNotificationAsRead(1));
-    });
+    await act(async () => { await store.dispatch(markNotificationAsRead(1)); });
 
     expect(markNotificationRead).toHaveBeenCalledWith(1);
     expect(result.current.unreadCount).toBe(1);
   });
 
   it("badge stays 0 when the tab's own fetch lands after clearBadge (regression)", async () => {
-    const { fetchNotifications } =
-      await import("@features/notifications/models/notificationsSlice");
+    const { fetchNotifications } = await import("@features/notifications/models/notificationsSlice");
     selectIsAuthenticated.mockReturnValue(true);
     getNotifications.mockResolvedValue({
-      data: {
-        notifications: [
-          { id: 1, read: false },
-          { id: 2, read: false },
-        ],
-      },
+      data: { notifications: [{ id: 1, read: false }, { id: 2, read: false }] },
     });
     const { result, store } = renderHook(() => useUnreadCount());
     await waitFor(() => expect(result.current.unreadCount).toBe(2));
 
-    act(() => {
-      result.current.clearBadge();
-    }); // shell: activeTab === "notifications"
-    await act(async () => {
-      await store.dispatch(fetchNotifications());
-    }); // SharedNotificationsTab mount
+    act(() => { result.current.clearBadge(); });          // shell: activeTab === "notifications"
+    await act(async () => { await store.dispatch(fetchNotifications()); }); // SharedNotificationsTab mount
 
     expect(result.current.unreadCount).toBe(0);
   });

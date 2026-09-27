@@ -5,24 +5,33 @@
 // src/hooks/useMentorDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getCurrentUser, getMentorProfile } from "@features/mentor/models/mentor.api";
+import { useDispatch, useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
+import {
+  loadMentorDashboard,
+  selectDashboardUser,
+  selectDashboardProfile,
+  type DashboardLoadError,
+} from "@features/profile/models/dashboardUserSlice";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
-import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
+import type { AppDispatch } from "@store/index";
 /**
  * Custom hook for mentor dashboard.
+ * The fetch lives in dashboardUserSlice (`loadMentorDashboard`); user/profile are read
+ * from there. Only the redirect/loading decisions stay here, because they depend on
+ * the current route.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
 const useMentorDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
   const isEditPage = location.pathname.includes("/edit-profile");
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const user = useSelector(selectDashboardUser);
+  const profile = useSelector(selectDashboardProfile);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -33,64 +42,46 @@ const useMentorDashboard = () => {
     }
 
     const fetchData = async () => {
+      let loaded;
       try {
-        // 1) Fetch user
-        const userRes = await getCurrentUser();
-        const userData = userRes.data;
-
-        // 2) Role guard
-        if (!userData.roles?.includes("mentor")) {
+        loaded = await dispatch(loadMentorDashboard()).unwrap();
+      } catch (e) {
+        const err = e as DashboardLoadError;
+        // Role guard
+        if (err?.stage === "role") {
           navigate("/dashboard/mentee");
           return;
         }
-
-        setUser(userData);
-
-        // 3) Fetch mentor profile
-        let profileData = null;
-        try {
-          const profileRes = await getMentorProfile();
-          profileData = profileRes.data;
-        } catch (profileErr) {
-          if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
-            // New mentor — no profile yet
-            if (!isEditPage) {
-              setLoading(false);
-              navigate("/onboarding/mentor");
-            }
-            return;
+        // New mentor — no profile yet
+        if (err?.stage === "profile" && err.status === HTTP_STATUS.NOT_FOUND) {
+          if (!isEditPage) {
+            setLoading(false);
+            navigate("/onboarding/mentor");
           }
-          if (profileErr?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
-            navigate("/login");
-            return;
-          }
-          throw profileErr; // re-throw unexpected errors
-        }
-
-        const mappedProfile = mapMentorProfile(profileData);
-        setProfile(mappedProfile);
-
-        // 4) Onboarding incomplete → redirect
-        if (!mappedProfile.isProfileComplete && !isEditPage) {
-          setLoading(false);
-          navigate("/onboarding/mentor");
           return;
         }
-
-        // 5) All good — show dashboard
-        setLoading(false);
-      } catch (err) {
-        if (err?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+        if (err?.status === HTTP_STATUS.UNAUTHORIZED) {
           navigate("/login");
           return;
         }
         setError("Something went wrong. Please try again.");
         setLoading(false);
+        return;
       }
+
+      // Onboarding incomplete → redirect
+      if (!loaded.profile.isProfileComplete && !isEditPage) {
+        setLoading(false);
+        navigate("/onboarding/mentor");
+        return;
+      }
+
+      // All good — show dashboard
+      setLoading(false);
     };
 
     fetchData();
-  }, [isEditPage, navigate, isAuthenticated]);
+  }, [isEditPage, navigate, isAuthenticated, dispatch]);
 
   return { user, profile, loading, error };
 };

@@ -5,76 +5,73 @@
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getCurrentUser, getMenteeProfile } from "@features/mentee/models/mentee.api";
-import { HTTP_STATUS } from "@lib/http/httpStatus";
-import { mapMenteeProfile } from "@features/mentee/models/menteeMapper";
+import { useDispatch, useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
-import { useSelector } from "react-redux";
+import {
+  loadMenteeDashboard,
+  selectDashboardUser,
+  selectDashboardProfile,
+  type DashboardLoadError,
+} from "@features/profile/models/dashboardUserSlice";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
+import type { AppDispatch } from "@store/index";
 
 /**
  * Custom hook for mentee dashboard.
+ * The fetch lives in dashboardUserSlice (`loadMenteeDashboard`); user/profile are read
+ * from there. Only the redirect/loading decisions stay here, because they depend on
+ * the current route.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
   const isEditPage = location.pathname.includes("/edit-profile");
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-
-  const [user, setUser]       = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const user = useSelector(selectDashboardUser);
+  const profile = useSelector(selectDashboardProfile);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   const fetchData = async () => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-    try {
-      const userRes  = await getCurrentUser();
-      const userData = userRes.data;
 
-      if (!userData.roles?.includes("mentee")) {
+    let loaded;
+    try {
+      loaded = await dispatch(loadMenteeDashboard()).unwrap();
+    } catch (e) {
+      const err = e as DashboardLoadError;
+      if (err?.stage === "role") {
         navigate("/dashboard/mentor");
         return;
       }
-      setUser(userData);
-
-      let profileData = null;
-      try {
-        const profileRes = await getMenteeProfile();
-        profileData = profileRes.data;
-      } catch (profileErr: any) {
-        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
-          if (!isEditPage) {
-            setLoading(false);
-            navigate("/onboarding/mentee");
-          }
-          return;
+      if (err?.stage === "profile" && err.status === HTTP_STATUS.NOT_FOUND) {
+        if (!isEditPage) {
+          setLoading(false);
+          navigate("/onboarding/mentee");
         }
-        throw profileErr;
-      }
-
-      const mappedProfile = mapMenteeProfile(profileData);
-       setProfile(mappedProfile);
-
-      if (!mappedProfile.isProfileComplete && !isEditPage) {
-        setLoading(false);
-        navigate("/onboarding/mentee");
         return;
       }
-
-      setLoading(false);
-
-    } catch (err: any) {
-      if (err?.response?.status !== HTTP_STATUS.UNAUTHORIZED) {
+      if (err?.status !== HTTP_STATUS.UNAUTHORIZED) {
         setError("Something went wrong. Please try again.");
         setLoading(false);
       }
+      return;
     }
+
+    if (!loaded.profile.isProfileComplete && !isEditPage) {
+      setLoading(false);
+      navigate("/onboarding/mentee");
+      return;
+    }
+
+    setLoading(false);
   };
 
   useEffect(() => {

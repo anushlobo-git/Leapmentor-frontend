@@ -3,12 +3,19 @@
  */
 
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getEscrowStatus } from "@features/connects/models/escrow.api";
+import {
+  walletSynced,
+  selectWalletBalanceOrNull,
+} from "@features/mentee/models/walletSlice";
+import type { AppDispatch } from "@store/index";
 import logger from "@lib/monitoring/logger";
 
 /**
  * Shared hook for escrow payment logic
- * Handles wallet balance fetching, commission rates, and payment calculations
+ * Handles commission rates and payment calculations. The wallet balance itself lives in
+ * walletSlice: the escrow-status response carries a fresh one, so it is synced there and read back.
  */
 export const useEscrowPayment = (
   connectId: string | undefined,
@@ -18,7 +25,9 @@ export const useEscrowPayment = (
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  // `null` until a balance is known (rendered as "—" by the payment UIs).
+  const walletBalance = useSelector(selectWalletBalanceOrNull);
   const [commissionRate, setCommissionRate] = useState(defaultCommissionRate);
   const [remoteSessionRate, setRemoteSessionRate] = useState<number | null>(null);
   const [remoteSessionCount, setRemoteSessionCount] = useState<number | null>(null);
@@ -30,7 +39,8 @@ export const useEscrowPayment = (
       try {
         setFetching(true);
         const data = await getEscrowStatus(connectId);
-        setWalletBalance(data?.wallet?.balance ?? null);
+        if (typeof data?.wallet?.balance === "number")
+          dispatch(walletSynced({ balance: data.wallet.balance }));
         if (data?.commissionRate != null)
           setCommissionRate(data.commissionRate);
         if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
@@ -46,7 +56,7 @@ export const useEscrowPayment = (
     };
 
     if (connectId) fetchStatus();
-  }, [connectId]);
+  }, [connectId, dispatch]);
 
   return {
     loading,

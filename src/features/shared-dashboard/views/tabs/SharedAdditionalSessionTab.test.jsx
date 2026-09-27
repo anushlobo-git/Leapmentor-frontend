@@ -6,6 +6,9 @@ import { vi, describe, it, beforeEach, expect } from "vitest";
 vi.mock("@features/sessions/presenters/useSessions");
 vi.mock("@features/sessions/models/sessions.api");
 vi.mock("@features/connects/models/escrow.api");
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getEscrowWallet: vi.fn(),
+}));
 vi.mock("@lib/monitoring/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
@@ -45,10 +48,12 @@ vi.mock(
 );
 
 // ─── Import after vi.mock ────────────────────────────────────────────────────
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { makeTestStore } from "@test/renderWithStore";
 import useSessions from "@features/sessions/presenters/useSessions";
 import * as sessionsApi from "@features/sessions/models/sessions.api";
 import * as escrowApi from "@features/connects/models/escrow.api";
+import * as menteeApi from "@features/mentee/models/mentee.api";
 import SharedAdditionalSessionTab from "./SharedAdditionalSessionTab.jsx";
 
 // ─── jsdom polyfills ─────────────────────────────────────────────────────────
@@ -56,6 +61,7 @@ window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
 // ─── Fake Redux state ─────────────────────────────────────────────────────────
 const makeFakeState = (overrides = {}) => ({
+  wallet: { balance: 200, escrow: 0, loadedOnce: true },
   sharedDashboard: {
     connectId: "conn-123",
     connectStatus: "active",
@@ -94,6 +100,7 @@ describe("SharedAdditionalSessionTab", () => {
       selector(makeFakeState())
     );
 
+    vi.mocked(useDispatch).mockImplementation(() => vi.fn());
     vi.mocked(useSessions).mockReturnValue({ ...defaultSessions });
 
     vi.mocked(sessionsApi.getMentorAvailabilityForConnect).mockResolvedValue({
@@ -216,5 +223,110 @@ describe("SharedAdditionalSessionTab", () => {
     await waitFor(() => expect(screen.queryByText(/animate-pulse/)).not.toBeInTheDocument());
     // Component should still mount without crashing for mentor role
     expect(document.body).toBeTruthy();
+  });
+  // ── Payment modal ↔ shared wallet slice ───────────────────────────────────
+  describe("payment modal and the shared wallet", () => {
+    // Real wallet reducer: selectors read the real store, dispatch goes to it.
+    const useRealWalletStore = (viewerRole = "mentee") => {
+      const store = makeTestStore({
+        sharedDashboard: (state = makeFakeState({ viewerRole }).sharedDashboard) => state,
+      });
+      vi.mocked(useSelector).mockImplementation((selector) => selector(store.getState()));
+      vi.mocked(useDispatch).mockReturnValue(store.dispatch);
+      return store;
+    };
+
+    const openPaymentModal = async () => {
+      vi.mocked(sessionsApi.getMentorAvailabilityForConnect).mockResolvedValueOnce({
+        data: { slots: [mockSlot], sessionDurations: [60] },
+      });
+      render(<SharedAdditionalSessionTab />);
+      fireEvent.click(await screen.findByRole("button", { name: /10:00/i }));
+      fireEvent.click(await screen.findByRole("button", { name: /confirm/i }));
+      await screen.findByText("Pay for Additional Session");
+    };
+
+    it("syncs the balance from the escrow-status response into the wallet slice and shows it", async () => {
+      const store = useRealWalletStore();
+      expect(store.getState().wallet.loadedOnce).toBe(false);
+
+      await openPaymentModal();
+
+      await waitFor(() => expect(store.getState().wallet.balance).toBe(200));
+      expect(store.getState().wallet.loadedOnce).toBe(true);
+      expect(await screen.findByText("200 tokens")).toBeInTheDocument();
+    });
+
+    it("also reads a status payload that is not wrapped in a data envelope", async () => {
+      // getEscrowStatus() already returns axios' `.data`, i.e. `{ wallet, commissionRate }`
+      vi.mocked(escrowApi.getEscrowStatus).mockResolvedValue({
+        wallet: { balance: 150 },
+        commissionRate: 10,
+      });
+      const store = useRealWalletStore();
+
+      await openPaymentModal();
+
+      await waitFor(() => expect(store.getState().wallet.balance).toBe(150));
+      expect(await screen.findByText("150 tokens")).toBeInTheDocument();
+      expect(screen.getByText("(10%)")).toBeInTheDocument();
+    });
+
+    it("falls back to a balance another screen already loaded when the status has none", async () => {
+      vi.mocked(escrowApi.getEscrowStatus).mockResolvedValue({ commissionRate: 20 }); // no wallet
+      const store = useRealWalletStore();
+      store.dispatch({ type: "wallet/walletSynced", payload: { balance: 320 } });
+
+      await openPaymentModal();
+
+      expect(await screen.findByText("320 tokens")).toBeInTheDocument();
+    });
+
+    it("refreshes the shared wallet after a successful payment", async () => {
+      vi.mocked(menteeApi.getEscrowWallet).mockResolvedValue({ data: { balance: 140, escrow: 60 } });
+      const store = useRealWalletStore();
+      await openPaymentModal();
+      await screen.findByText("200 tokens");
+      expect(menteeApi.getEscrowWallet).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole("button", { name: /confirm & pay/i }));
+
+      await waitFor(() => expect(store.getState().wallet.balance).toBe(140));
+      expect(escrowApi.payAdditionalEscrow).toHaveBeenCalledWith({
+        connectRequestId: "conn-123",
+        sessionRate: 50,
+        slotId: "slot-1",
+      });
+      expect(menteeApi.getEscrowWallet).toHaveBeenCalledTimes(1);
+      expect(store.getState().wallet.escrow).toBe(60);
+    });
+
+    it("does not refresh the wallet when the payment fails", async () => {
+      vi.mocked(escrowApi.payAdditionalEscrow).mockRejectedValue(new Error("nope"));
+      const store = useRealWalletStore();
+      await openPaymentModal();
+      await screen.findByText("200 tokens");
+
+      fireEvent.click(screen.getByRole("button", { name: /confirm & pay/i }));
+
+      expect(await screen.findByText("Payment failed. Please try again.")).toBeInTheDocument();
+      expect(menteeApi.getEscrowWallet).not.toHaveBeenCalled();
+      expect(store.getState().wallet.balance).toBe(200);
+    });
+
+    it("never touches the wallet for a mentor (no payment step)", async () => {
+      const store = useRealWalletStore("mentor");
+      vi.mocked(sessionsApi.getMentorAvailabilityForConnect).mockResolvedValueOnce({
+        data: { slots: [mockSlot], sessionDurations: [60] },
+      });
+      render(<SharedAdditionalSessionTab />);
+      fireEvent.click(await screen.findByRole("button", { name: /10:00/i }));
+      fireEvent.click(await screen.findByRole("button", { name: /confirm/i }));
+
+      expect(await screen.findByText("Session Added!")).toBeInTheDocument();
+      expect(escrowApi.getEscrowStatus).not.toHaveBeenCalled();
+      expect(menteeApi.getEscrowWallet).not.toHaveBeenCalled();
+      expect(store.getState().wallet.loadedOnce).toBe(false);
+    });
   });
 });

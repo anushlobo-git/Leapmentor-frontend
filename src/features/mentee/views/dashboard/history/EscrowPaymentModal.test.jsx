@@ -1,8 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import { useEscrowPayment } from "@lib/hooks/useEscrowPayment";
 import { payEscrow } from "@features/connects/models/escrow.api";
+import { getEscrowWallet } from "@features/mentee/models/mentee.api";
+import { renderWithStore } from "@test/renderWithStore";
 
 // Mock external systems
 vi.mock("@lib/hooks/useEscrowPayment", () => ({
@@ -11,6 +13,10 @@ vi.mock("@lib/hooks/useEscrowPayment", () => ({
 
 vi.mock("@features/connects/models/escrow.api", () => ({
   payEscrow: vi.fn(),
+}));
+
+vi.mock("@features/mentee/models/mentee.api", () => ({
+  getEscrowWallet: vi.fn(),
 }));
 
 vi.mock(
@@ -92,10 +98,11 @@ describe("EscrowPaymentModal", () => {
       remoteSessionCount: 2,
     });
     payEscrow.mockResolvedValue({ success: true });
+    getEscrowWallet.mockResolvedValue({ data: { balance: 780, escrow: 220 } });
   });
 
   it("renders payment details and details card correctly", () => {
-    render(
+    renderWithStore(
       <EscrowPaymentModal
         request={baseRequest}
         onClose={mockOnClose}
@@ -116,7 +123,7 @@ describe("EscrowPaymentModal", () => {
 
   it("handles successful escrow payment flow", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithStore(
       <EscrowPaymentModal
         request={baseRequest}
         onClose={mockOnClose}
@@ -151,6 +158,40 @@ describe("EscrowPaymentModal", () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
+  it("refreshes the shared wallet after a successful payment", async () => {
+    const user = userEvent.setup();
+    const { store } = renderWithStore(
+      <EscrowPaymentModal
+        request={baseRequest}
+        onClose={mockOnClose}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+    expect(getEscrowWallet).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Pay Shell" }));
+
+    await waitFor(() => expect(store.getState().wallet.balance).toBe(780));
+    expect(getEscrowWallet).toHaveBeenCalledTimes(1);
+    expect(store.getState().wallet.escrow).toBe(220);
+  });
+
+  it("does not refresh the wallet when the payment fails", async () => {
+    payEscrow.mockRejectedValueOnce(new Error("Generic Network Crash"));
+    const user = userEvent.setup();
+    renderWithStore(
+      <EscrowPaymentModal
+        request={baseRequest}
+        onClose={mockOnClose}
+        onSuccess={mockOnSuccess}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Pay Shell" }));
+
+    expect(getEscrowWallet).not.toHaveBeenCalled();
+  });
+
   it("handles payment API error during pay", async () => {
     payEscrow.mockRejectedValueOnce({
       response: { data: { message: "Server operational failure" } },
@@ -170,7 +211,7 @@ describe("EscrowPaymentModal", () => {
       remoteSessionCount: 2,
     });
 
-    render(
+    renderWithStore(
       <EscrowPaymentModal
         request={baseRequest}
         onClose={mockOnClose}
@@ -200,7 +241,7 @@ describe("EscrowPaymentModal", () => {
       remoteSessionCount: 2,
     });
 
-    render(
+    renderWithStore(
       <EscrowPaymentModal
         request={baseRequest}
         onClose={mockOnClose}
@@ -230,7 +271,7 @@ describe("EscrowPaymentModal", () => {
       remoteSessionCount: 2,
     });
 
-    render(
+    renderWithStore(
       <EscrowPaymentModal
         request={baseRequest}
         onClose={mockOnClose}
@@ -263,7 +304,7 @@ describe("EscrowPaymentModal", () => {
       remoteSessionCount: 2,
     });
 
-    render(
+    renderWithStore(
       <EscrowPaymentModal
         request={baseRequest}
         onClose={mockOnClose}

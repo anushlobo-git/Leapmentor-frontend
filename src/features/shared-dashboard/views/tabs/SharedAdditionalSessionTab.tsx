@@ -16,6 +16,11 @@ import {
 import EscrowSuccessModal from "@features/mentee/views/dashboard/history/EscrowSuccessModal";
 import logger from "@lib/monitoring/logger";
 import {
+  fetchWallet,
+  walletSynced,
+  selectWalletBalanceOrNull,
+} from "@features/mentee/models/walletSlice";
+import {
   selectConnect,
   selectConnectId,
   selectConnectStatus,
@@ -228,10 +233,12 @@ const LockIcon = ({ size = 13 }: { size?: number }) => (
 const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: AdditionalSessionPaymentModalProps) => {
   const connect = useSelector((state: RootState) => selectConnect(state));
   const connectId = useSelector((state: RootState) => selectConnectId(state));
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  // Wallet lives in walletSlice (`null` until a balance is known).
+  const walletBalance = useSelector(selectWalletBalanceOrNull);
   const [commissionRate, setCommissionRate] = useState(20);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -258,20 +265,24 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
   })();
 
   useEffect(() => {
-    const fetchWallet = async () => {
+    const loadEscrowStatus = async () => {
       try {
         setFetching(true);
         const res = await getEscrowStatus(connectId);
-        setWalletBalance(res.data?.wallet?.balance ?? null);
-        if (res.data?.commissionRate != null) setCommissionRate(res.data.commissionRate);
+        // getEscrowStatus already unwraps axios' `.data`; also accept a nested `data` envelope.
+        const status = res?.data ?? res;
+        if (typeof status?.wallet?.balance === "number") {
+          dispatch(walletSynced({ balance: status.wallet.balance }));
+        }
+        if (status?.commissionRate != null) setCommissionRate(status.commissionRate);
       } catch (err) {
         logger.warn("Could not fetch escrow status:", { error: err.message });
       } finally {
         setFetching(false);
       }
     };
-    if (connectId) fetchWallet();
-  }, [connectId]);
+    if (connectId) loadEscrowStatus();
+  }, [connectId, dispatch]);
 
   const handlePay = async () => {
     setError("");
@@ -280,6 +291,7 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
     try {
       setLoading(true);
       await payAdditionalEscrow({ connectRequestId: connectId, sessionRate, slotId });
+      dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setShowSuccess(true);
     } catch (err) {
       setError(err?.response?.data?.message || "Payment failed. Please try again.");

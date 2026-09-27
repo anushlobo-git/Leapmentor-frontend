@@ -1,4 +1,4 @@
-import { waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { renderHookWithStore as renderHook } from "@test/renderWithStore";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
@@ -13,7 +13,9 @@ import {
   getEscrowWallet,
 } from "@features/mentee/models/mentee.api";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
+import { walletSynced, resetWallet } from "@features/mentee/models/walletSlice";
 import logger from "@lib/monitoring/logger";
+
 
 // Mock API layer
 vi.mock("@features/mentee/models/mentee.api", () => ({
@@ -29,6 +31,7 @@ vi.mock("@features/mentor/models/mentorMapper", () => ({
 vi.mock("@lib/monitoring/logger", () => ({
   default: {
     error: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -88,6 +91,101 @@ describe("useHomeData & helpers", () => {
 
       expect(result.current.balance).toBe(250);
       expect(result.current.escrow).toBe(120);
+    });
+
+    it("loads the wallet into the shared slice with a single request", async () => {
+      searchMentorsBySkill.mockResolvedValueOnce({ data: { mentors: [] } });
+      getMyConnectRequests.mockResolvedValueOnce({ data: { requests: [] } });
+      getEscrowWallet.mockResolvedValueOnce({ data: { balance: 250, escrow: 120 } });
+
+      const { result, store } = renderHook(() => useHomeData(mockProfile));
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      expect(getEscrowWallet).toHaveBeenCalledTimes(1);
+      expect(store.getState().wallet).toMatchObject({
+        balance: 250,
+        escrow: 120,
+        status: "succeeded",
+        loadedOnce: true,
+      });
+      expect(result.current.balance).toBe(250);
+      expect(result.current.escrow).toBe(120);
+    });
+
+    it("follows wallet updates made elsewhere (e.g. after paying escrow)", async () => {
+      searchMentorsBySkill.mockResolvedValueOnce({ data: { mentors: [] } });
+      getMyConnectRequests.mockResolvedValueOnce({ data: { requests: [] } });
+      getEscrowWallet.mockResolvedValueOnce({ data: { balance: 250, escrow: 120 } });
+
+      const { result, store } = renderHook(() => useHomeData(mockProfile));
+      await waitFor(() => {
+        expect(result.current.balance).toBe(250);
+      });
+
+      act(() => {
+        store.dispatch(walletSynced({ balance: 130, escrow: 240 }));
+      });
+
+      expect(result.current.balance).toBe(130);
+      expect(result.current.escrow).toBe(240);
+
+      act(() => {
+        store.dispatch(resetWallet());
+      });
+
+      expect(result.current.balance).toBe(0);
+    });
+
+    it("still shows mentors and finishes loading when only the wallet request fails", async () => {
+      searchMentorsBySkill.mockResolvedValueOnce({
+        data: { mentors: [{ id: "m1", name: "Alice" }] },
+      });
+      getMyConnectRequests.mockResolvedValueOnce({ data: { requests: [] } });
+      getEscrowWallet.mockRejectedValueOnce(new Error("wallet down"));
+
+      const { result, store } = renderHook(() => useHomeData(mockProfile));
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      expect(result.current.mentors).toEqual([{ id: "m1", name: "Alice" }]);
+      expect(result.current.balance).toBe(0);
+      expect(store.getState().wallet.status).toBe("failed");
+    });
+
+    it("waits for the wallet before reporting loading: false", async () => {
+      searchMentorsBySkill.mockResolvedValueOnce({ data: { mentors: [] } });
+      getMyConnectRequests.mockResolvedValueOnce({ data: { requests: [] } });
+      let resolveWallet;
+      getEscrowWallet.mockReturnValueOnce(
+        new Promise((res) => {
+          resolveWallet = res;
+        }),
+      );
+
+      const { result } = renderHook(() => useHomeData(mockProfile));
+
+      // mentors + requests are in, wallet still pending
+      await waitFor(() => {
+        expect(searchMentorsBySkill).toHaveBeenCalled();
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(result.current.loading).toBe(true);
+
+      await act(async () => {
+        resolveWallet({ data: { balance: 10, escrow: 0 } });
+      });
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+      expect(result.current.balance).toBe(10);
     });
 
     it("handles fallback to interestedFields when skills array is missing", async () => {

@@ -4,6 +4,7 @@
 
 // src/features/mentee/components/dashboard/history/EscrowPaymentModal.jsx
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { payEscrow } from "@features/connects/models/escrow.api";
 import {
   formatTimeString as formatTime,
@@ -17,6 +18,8 @@ import {
   BalanceRow,
 } from "@components/shared/payment/EscrowPaymentUI";
 import { useEscrowPayment } from "@lib/hooks/useEscrowPayment";
+import { fetchWallet } from "@features/mentee/models/walletSlice";
+import type { AppDispatch } from "@store/index";
 import type { HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
 
 interface EscrowPaymentModalProps {
@@ -26,6 +29,7 @@ interface EscrowPaymentModalProps {
 }
 
 const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalProps) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [successPatch, setSuccessPatch] = useState<Record<string, any> | null>(null);
   const defaultSessionRate = request?.mentorProfile?.hourlyRate ?? 0;
 
@@ -67,6 +71,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
         sessionRate,
         sessionCount,
       });
+      dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setSuccessPatch({
         status: "ongoing",
         paymentStatus: "paid",

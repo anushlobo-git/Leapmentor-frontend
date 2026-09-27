@@ -3,7 +3,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
+import { renderHookWithStore as renderHook, makeTestStore } from "@test/renderWithStore";
+import { walletSynced } from "@features/mentee/models/walletSlice";
 import { useEscrowPayment } from "./useEscrowPayment";
 
 // Mock dependencies
@@ -133,10 +135,8 @@ describe("useEscrowPayment", () => {
   it("should refetch when connectId changes", async () => {
     getEscrowStatus.mockResolvedValue({ wallet: { balance: 500 } });
 
-    const { result, rerender } = renderHook(
-      ({ connectId }) => useEscrowPayment(connectId),
-      { initialProps: { connectId: "connect-1" } }
-    );
+    let connectId = "connect-1";
+    const { result, rerender } = renderHook(() => useEscrowPayment(connectId));
 
     await waitFor(() => {
       expect(result.current.fetching).toBe(false);
@@ -144,7 +144,8 @@ describe("useEscrowPayment", () => {
 
     expect(getEscrowStatus).toHaveBeenCalledTimes(1);
 
-    rerender({ connectId: "connect-2" });
+    connectId = "connect-2";
+    rerender();
 
     await waitFor(() => {
       expect(result.current.fetching).toBe(false);
@@ -152,5 +153,61 @@ describe("useEscrowPayment", () => {
 
     expect(getEscrowStatus).toHaveBeenCalledTimes(2);
     expect(getEscrowStatus).toHaveBeenLastCalledWith("connect-2");
+  });
+
+  describe("shared wallet slice", () => {
+    it("syncs the fetched balance into the wallet slice", async () => {
+      getEscrowStatus.mockResolvedValue({ wallet: { balance: 500 } });
+
+      const { result, store } = renderHook(() => useEscrowPayment("connect-123"));
+
+      await waitFor(() => {
+        expect(result.current.fetching).toBe(false);
+      });
+
+      expect(store.getState().wallet.balance).toBe(500);
+      expect(store.getState().wallet.loadedOnce).toBe(true);
+      // the escrow-status response only carries the balance — escrow is left alone
+      expect(store.getState().wallet.escrow).toBe(0);
+    });
+
+    it("returns a balance another screen already loaded, without waiting for the status call", () => {
+      getEscrowStatus.mockReturnValue(new Promise(() => {})); // never resolves
+      const store = makeTestStore();
+      store.dispatch(walletSynced({ balance: 320 }));
+
+      const { result } = renderHook(() => useEscrowPayment("connect-123"), store);
+
+      expect(result.current.fetching).toBe(true);
+      expect(result.current.walletBalance).toBe(320);
+    });
+
+    it("keeps walletBalance null when the status response has no numeric balance", async () => {
+      getEscrowStatus.mockResolvedValue({ wallet: { balance: "500" } });
+
+      const { result, store } = renderHook(() => useEscrowPayment("connect-123"));
+
+      await waitFor(() => {
+        expect(result.current.fetching).toBe(false);
+      });
+
+      expect(result.current.walletBalance).toBe(null);
+      expect(store.getState().wallet.loadedOnce).toBe(false);
+    });
+
+    it("reflects a balance that changes elsewhere (e.g. after another payment)", async () => {
+      getEscrowStatus.mockResolvedValue({ wallet: { balance: 500 } });
+
+      const { result, store } = renderHook(() => useEscrowPayment("connect-123"));
+      await waitFor(() => {
+        expect(result.current.walletBalance).toBe(500);
+      });
+
+      act(() => {
+        store.dispatch(walletSynced({ balance: 380 }));
+      });
+
+      expect(result.current.walletBalance).toBe(380);
+    });
   });
 });

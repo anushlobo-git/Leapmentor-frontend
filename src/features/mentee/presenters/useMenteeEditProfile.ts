@@ -5,7 +5,10 @@
 // src/hooks/useMenteeEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { getMenteeProfile, updateMenteeProfile } from "@features/mentee/models/mentee.api";
+import { refetchMenteeProfile } from "@features/profile/models/dashboardUserSlice";
+import type { AppDispatch } from "@store/index";
 import { useFormDirty } from "@lib/hooks/useFormDirty";
 import logger from "@lib/monitoring/logger";
 /**
@@ -15,6 +18,7 @@ import logger from "@lib/monitoring/logger";
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
@@ -105,6 +109,8 @@ const useMenteeEditProfile = () => {
       };
       await updateMenteeProfile(payload);
       setSaved(true);
+      // Keep dashboardUserSlice in sync so Home/Profile tabs show the edit without a reload.
+      dispatch(refetchMenteeProfile());
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     } catch (err) {

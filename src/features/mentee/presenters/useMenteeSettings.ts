@@ -4,33 +4,40 @@
 
 // src/hooks/useMenteeSettings.js
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getMenteeProfile,
   getCurrentUser,
-  getEscrowWallet,
   updateMenteeProfile,
   changePasswordRequest,
 } from "@features/mentee/models/mentee.api";
 import logger from "@lib/monitoring/logger";
 import {
   mapMenteeSettings,
-  mapWallet,
   mapUserPasswordInfo,
 } from "@features/profile/models/settingsMapper";
+import {
+  fetchWallet,
+  selectWalletBalance,
+  selectWalletEscrow,
+} from "@features/mentee/models/walletSlice";
+import type { AppDispatch } from "@store/index";
 
 /**
  * Custom hook for mentee settings.
  * @returns {Object} Hook state and handlers for the caller.
  */
 const useMenteeSettings = (initialProfile) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [fetching, setFetching] = useState(!initialProfile);
   const [saving, setSaving] = useState(false);
   const [changingPw, setChangingPw] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [pwMsg, setPwMsg] = useState({ type: "", text: "" });
 
-  const [balance, setBalance] = useState(0);
-  const [escrow, setEscrow] = useState(0);
+  // Wallet lives in walletSlice (shared with Home + the payment modals).
+  const balance = useSelector(selectWalletBalance);
+  const escrow = useSelector(selectWalletEscrow);
 
   // ── Preferences state ─────────────────────────────────────
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -85,21 +92,10 @@ const useMenteeSettings = (initialProfile) => {
     fetchUser();
   }, []);
 
-  // ── Fetch Wallet Balance ──────────────────────────────────
+  // ── Load wallet into the shared slice ─────────────────────
   useEffect(() => {
-    const fetchWallet = async () => {
-      try {
-        const res = await getEscrowWallet();
-        const mapped = mapWallet(res.data);
-        setBalance(mapped.balance);
-        setEscrow(mapped.escrow);
-      } catch (err) {
-        logger.error("Error fetching wallet data", { error: err });
-        // silent fail
-      }
-    };
-    fetchWallet();
-  }, []);
+    dispatch(fetchWallet());
+  }, [dispatch]);
 
   // ── Save preferences ──────────────────────────────────────
   const handleSave = async () => {

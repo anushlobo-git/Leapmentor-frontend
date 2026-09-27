@@ -5,7 +5,10 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
+import { refetchMentorProfile } from "@features/profile/models/dashboardUserSlice";
+import type { AppDispatch } from "@store/index";
 import { useFormDirty } from "@lib/hooks/useFormDirty";
 import logger from "@lib/monitoring/logger";
 import { useSelector } from "react-redux";
@@ -19,6 +22,7 @@ import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 const useMentorEditProfile = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
@@ -119,6 +123,8 @@ const useMentorEditProfile = () => {
 
       await updateMentorProfile(payload);
       setSaved(true);
+      // Keep dashboardUserSlice in sync so Home/Profile tabs show the edit without a reload.
+      dispatch(refetchMentorProfile());
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);

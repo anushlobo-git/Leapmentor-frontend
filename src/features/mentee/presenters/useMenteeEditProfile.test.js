@@ -1,4 +1,5 @@
-import { renderHook, act } from "@testing-library/react";
+import { act } from "@testing-library/react";
+import { renderHookWithStore as renderHook } from "@test/renderWithStore";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import useMenteeEditProfile from "./useMenteeEditProfile";
 import { getMenteeProfile, updateMenteeProfile } from "@features/mentee/models/mentee.api";
@@ -354,5 +355,31 @@ describe("useMenteeEditProfile hook", () => {
     });
 
     expect(updateMenteeProfile).toHaveBeenCalled();
+  });
+
+  it("refreshes dashboardUser.profile after a successful save (no reload needed)", async () => {
+    const { result, store } = renderHook(() => useMenteeEditProfile());
+    await act(async () => { await Promise.resolve(); });
+    expect(store.getState().dashboardUser.profile).toBeNull();
+    getMenteeProfile.mockClear();
+
+    act(() => { result.current.handleSubmit({ preventDefault: vi.fn() }); });
+    await act(async () => { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); });
+
+    expect(getMenteeProfile).toHaveBeenCalledTimes(1); // the post-save refetch
+    expect(store.getState().dashboardUser.profile).toMatchObject({ currentRole: mockProfileData.currentRole });
+  });
+
+  it("does not refetch the dashboard profile when saving fails", async () => {
+    updateMenteeProfile.mockRejectedValueOnce({ response: { data: { message: "nope" } } });
+    const { result, store } = renderHook(() => useMenteeEditProfile());
+    await act(async () => { await Promise.resolve(); });
+    getMenteeProfile.mockClear();
+
+    act(() => { result.current.handleSubmit({ preventDefault: vi.fn() }); });
+    await act(async () => { await Promise.resolve(); await Promise.resolve(); });
+
+    expect(getMenteeProfile).not.toHaveBeenCalled();
+    expect(store.getState().dashboardUser.profile).toBeNull();
   });
 });
