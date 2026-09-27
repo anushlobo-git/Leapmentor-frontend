@@ -316,10 +316,9 @@ describe("AdminVerifications", () => {
     getMentorVerifications.mockResolvedValueOnce({
       data: { mentors: [mockMentorsList[0]] },
     });
-    verifyMentorProfile.mock詐欺Keyed ||
-      verifyMentorProfile.mockRejectedValueOnce(
-        new Error("Verification Failed Exception"),
-      );
+    verifyMentorProfile.mockRejectedValueOnce(
+      new Error("Verification Failed Exception"),
+    );
 
     render(<AdminVerifications />);
     await act(async () => {

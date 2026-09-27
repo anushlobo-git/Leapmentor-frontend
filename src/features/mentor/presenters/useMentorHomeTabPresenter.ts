@@ -56,7 +56,7 @@ export const useMentorHomeTabPresenter = () => {
       pendingCount: allRequests.filter((r: any) => r.status === "pending").length,
       actualSessionCount: status === "succeeded"
         ? completed.length + active.filter((r: any) => r.status === "ongoing").length
-        : (null as number | null),
+        : null,
     };
   }, [allRequests, status]);
 

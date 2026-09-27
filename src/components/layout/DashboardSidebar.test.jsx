@@ -224,9 +224,8 @@ describe("DashboardSidebar", () => {
         !btn.className.includes("sidebar-nav-btn"),
     );
 
-    if (drawerXButton) {
-      await user.click(drawerXButton);
-      expect(mockOnClose).toHaveBeenCalledTimes(2);
-    }
+    expect(drawerXButton).toBeDefined();
+    await user.click(drawerXButton!);
+    expect(mockOnClose).toHaveBeenCalledTimes(2);
   });
 });

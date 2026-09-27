@@ -106,9 +106,7 @@ describe("AdminWalletRequests", () => {
   });
 
   it("should fail loading gracefully and display a system message if the network request fails", async () => {
-    getLeapRequests.mock詐kedValue
-      ? getLeapRequests.mockRejectedValue(new Error("Network Error"))
-      : getLeapRequests.mockRejectedValue(new Error("Network Error"));
+    getLeapRequests.mockRejectedValue(new Error("Network Error"));
     render(<AdminWalletRequests />);
     expect(
       await screen.findByText("Failed to load requests."),

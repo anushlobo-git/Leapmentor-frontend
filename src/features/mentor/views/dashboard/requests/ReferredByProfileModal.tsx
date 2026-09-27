@@ -129,7 +129,7 @@ const ReferredByProfileModal = ({ mentor, onClose }: ReferredByProfileModalProps
               { label: "Experience",   value: yearsOfExperience ? `${yearsOfExperience} Years` : "—" },
               { label: "Current Role", value: currentRole },
               { label: "Company",      value: company },
-            ].map(({ label, value }: { label: string; value: any }) => (
+            ].map(({ label, value }) => (
               <div key={label}>
                 <p className="text-xs text-slate-400 font-medium">{label}</p>
                 <p className="text-sm font-semibold text-slate-700 mt-0.5">{value || "—"}</p>

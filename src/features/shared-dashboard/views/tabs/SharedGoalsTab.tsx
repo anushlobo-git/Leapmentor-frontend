@@ -509,7 +509,7 @@ const SharedGoalsTab = () => {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
-          slotIndex={feedbackSlotIndex as number | undefined}
+          slotIndex={feedbackSlotIndex}
           onClose={() => setShowFeedbackModal(false)}
           onFeedbackSubmitted={handleFeedbackSubmitted} // ← passed down
         />

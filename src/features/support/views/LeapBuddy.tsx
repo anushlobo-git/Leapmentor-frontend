@@ -161,7 +161,7 @@ export default function LeapBuddy({
   role = "mentee",
   user = null,
   profile = null,
-}: LeapBuddyProps) {
+}: Readonly<LeapBuddyProps>) {
   // Merge user + profile into one context object for the AI
   const userContext = {
     name: user?.name || null,

@@ -28,7 +28,18 @@ const RouteErrorBoundary = () => {
 
   useEffect(() => {
     if (isHttpError) return; // 404/expected — not a bug, don't report it
-    const message = error instanceof Error ? error.message : String(error);
+    let message: string;
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === "string") {
+      message = error;
+    } else {
+      try {
+        message = JSON.stringify(error) ?? "Unknown error";
+      } catch {
+        message = "Unknown error";
+      }
+    }
     logger.error("Route error boundary caught an error:", { error: message });
     Sentry.captureException(error);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- report once per error instance
@@ -42,7 +53,7 @@ const RouteErrorBoundary = () => {
 
   return (
     <ErrorFallback
-      error={isHttpError ? new Error(`${error.status} ${error.statusText}`) : (error as Error)}
+      error={isHttpError ? new Error(`${error.status} ${error.statusText}`) : error}
       resetErrorBoundary={() => navigate("/")}
     />
   );

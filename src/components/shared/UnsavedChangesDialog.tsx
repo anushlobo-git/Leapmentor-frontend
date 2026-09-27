@@ -11,7 +11,7 @@ interface BlockerLike {
 }
 
 interface UnsavedChangesDialogProps {
-  blocker: BlockerLike;
+  readonly blocker: BlockerLike;
 }
 
 export default function UnsavedChangesDialog({ blocker }: UnsavedChangesDialogProps) {

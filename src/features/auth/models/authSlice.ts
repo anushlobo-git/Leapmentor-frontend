@@ -188,7 +188,7 @@ interface AuthState {
   adminBootstrapping: boolean;
   loading: boolean;
   sending: boolean;
-  error: string | null | unknown;
+  error: string | null;
   successMsg: string | null;
   verifiedRole: string | null;
 }
@@ -206,7 +206,7 @@ export const bootstrapAdminSession = createAsyncThunk(
     try {
       const res = await axiosInstance.get("/admin/auth/me", {
         _skipAuthRedirect: true,
-      } as any);
+      });
       return res.data?.admin ?? null;
     } catch {
       return rejectWithValue(null);
@@ -215,9 +215,7 @@ export const bootstrapAdminSession = createAsyncThunk(
 );
 
 // ── Slice ───────────────────────────────────────────────────
-const authSlice = createSlice({
-  name: "auth",
-  initialState: {
+const initialState: AuthState = {
     user:       null,
     accessToken:null,
     role:       null,
@@ -227,7 +225,11 @@ const authSlice = createSlice({
     error:      null,
     successMsg: null,
     verifiedRole: null,
-  } as AuthState,
+};
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
   reducers: {
     /**
      * Clears client-side auth state without calling the backend.

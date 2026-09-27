@@ -194,7 +194,7 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }: TimelineTracker
       return;
     }
     setErr("");
-    await onUpdate(goal?._id as string, { startDate, endDate });
+    await onUpdate(goal?._id, { startDate, endDate });
     setEditing(false);
   };
 

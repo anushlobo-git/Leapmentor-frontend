@@ -290,8 +290,8 @@ const MilestoneList = ({
     if (result?.success) setShowForm(false);
   };
 
-  const handleDeleteConfirm = async () => {
-    await onDelete((milestoneToDelete as Milestone)._id);
+  const handleDeleteConfirm = () => {
+    onDelete(milestoneToDelete._id);
     setMilestoneToDelete(null);
   };
 

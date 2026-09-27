@@ -18,7 +18,7 @@ interface FaqItemProps {
 const INDIGO = "#4f46e5";
 const INDIGO_BORDER = "#c7d2fe";
 
-export default function FaqItem({ item, isOpen, onToggle }: FaqItemProps) {
+export default function FaqItem({ item, isOpen, onToggle }: Readonly<FaqItemProps>) {
   return (
     <div
       style={{

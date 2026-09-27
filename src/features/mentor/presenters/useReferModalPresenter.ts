@@ -69,7 +69,7 @@ export const useReferModalPresenter = (
     try {
       setReferring(true);
       setError("");
-      await referRequest(request._id, selected?.user?._id as string);
+      await referRequest(request._id, selected?.user?._id);
       setSuccess(true);
       onReferred(request._id, "referred");
     } catch (err: any) {

@@ -97,7 +97,7 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }: MeetingLink
         </a>
         {isMentor && (
           <button
-            onClick={() => { setLinkVal(slot.meetingLink as string); setEditing(true); }}
+            onClick={() => { setLinkVal(slot.meetingLink); setEditing(true); }}
             className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
               text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
           >

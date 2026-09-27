@@ -61,7 +61,7 @@ const testimonials = [
   },
 ];
 
-function StarRating({ count }: { count: number }) {
+function StarRating({ count }: Readonly<{ count: number }>) {
   const starIds = useMemo(
     () =>
       Array.from(
@@ -296,7 +296,7 @@ interface WidgetTestimonial {
   text: string;
 }
 
-function TestimonialCard({ testimonial, active, dimmed }: { testimonial: WidgetTestimonial; active?: boolean; dimmed?: boolean }) {
+function TestimonialCard({ testimonial, active, dimmed }: Readonly<{ testimonial: WidgetTestimonial; active?: boolean; dimmed?: boolean }>) {
   return (
     <div
       className={`rounded-2xl p-6 border transition-all duration-300 ${getCardStateClassName(active, dimmed)}`}

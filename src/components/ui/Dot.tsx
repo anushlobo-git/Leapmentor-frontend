@@ -7,7 +7,7 @@ interface DotProps {
   onClick: () => void;
 }
 
-export default function Dot({ isActive, onClick }: DotProps) {
+export default function Dot({ isActive, onClick }: Readonly<DotProps>) {
   return (
     <button
       onClick={onClick}

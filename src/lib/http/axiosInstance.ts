@@ -156,6 +156,158 @@ const isRefreshableRequest = (domain, status, originalRequest) =>
   originalRequest?.url !== domain.refreshUrl &&
   originalRequest?.url !== domain.loginUrl;
 
+// The error branch below used to be one long arrow function (Sonar cognitive
+// complexity 35). It's now a thin dispatcher that hands each error class to a
+// dedicated helper, so no single function nests more than a couple of levels.
+const buildErrorContext = (error) => {
+  //u get the config of the request that was sent which got an error
+  const originalRequest = error?.config;
+  const domain = resolveDomain(originalRequest);
+  //status code is it 500 or 401 etc
+  const status = error?.response?.status;
+  const url = error?.config?.url;
+  const { correlationId } = error?.config?.metadata || {};
+  const message = error?.response?.data?.message || error.message;
+  const isSkipped = originalRequest?._skipAuthRedirect;
+  const logPrefix = domain.name === "admin" ? "Admin " : "";
+  return { originalRequest, domain, status, url, correlationId, message, isSkipped, logPrefix };
+};
+
+// 1. Network error / timeout
+const handleNetworkError = (error, { url, correlationId, message, domain, logPrefix }) => {
+  const isTimeout = error.code === "ECONNABORTED";
+  logger.error(
+    isTimeout
+      ? `${logPrefix}API Request Timeout`
+      : `${logPrefix}API Network Failure — Server unreachable or CORS rejection`,
+    { url, correlationId, message, stack: error.stack },
+  );
+  // NOTE: preserves each domain's original toast behavior exactly.
+  // Mentor/mentee only ever toasted on a genuine timeout; admin toasted
+  // on any network failure. Unifying these into one shared "always
+  // toast" behavior would be a real UX change, not just a refactor, so
+  // it's kept domain-specific here rather than homogenized.
+  if (isTimeout) {
+    toast.error("This is taking longer than expected. Please try again.");
+  } else if (domain.name === "admin") {
+    toast.error("Network error. Please check your connection.");
+  }
+  throw error;
+};
+
+// A refresh is already in flight for this domain, so this request parks its
+// resolve/reject in the queue instead of firing a second refresh.
+const queueRefreshRetry = (domain, originalRequest) =>
+  //if a request already is refreshing then the next if is true so this pending promise goes and sits
+  //in the failedQueue for next call so that multiple request doesn't call the refresh together
+  //one refresh calls can be used for getting the token and then give the token to all the promise
+  //pending request and check if it works
+  new Promise<string>((resolve, reject) => {
+    failedQueue[domain.name].push({ resolve, reject });
+  })
+    //here the requests are paused and then stored in failedQueue this runs after the refresh is run
+    //and it gets the token for the first request in the failedQueue and for the rest request this function is called
+    .then((token) => {
+      if (domain.usesBearer && token) {
+        originalRequest.headers["Authorization"] = `Bearer ${token}`;
+      }
+      return axiosInstance(originalRequest);
+    })
+    .catch((err) => {
+      throw err;
+    });
+
+// No refresh in flight yet — this request becomes the one that performs the
+// silent refresh, then replays itself and drains the queue.
+const performRefresh = async (domain, originalRequest, ctx) => {
+  const { correlationId, isSkipped, logPrefix } = ctx;
+  originalRequest._retry = true;
+  isRefreshing[domain.name] = true;
+  //refresh calls in here
+  try {
+    if (domain.usesBearer) {
+      // FIX: lazy-import authSlice actions here to avoid circular dependency
+      const { setUser } = await import("@features/auth/models/authSlice");
+
+      const { data } = await axiosInstance.post(domain.refreshUrl);
+      const newAccessToken = data?.accessToken;
+
+      _store.dispatch(
+        setUser({
+          user: _store.getState().auth.user,
+          accessToken: newAccessToken,
+        }),
+      );
+      //this runs all the waiting and pending request with the new token received
+      processQueue(domain.name, null, newAccessToken);
+      originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+    } else {
+      // Admin: refresh endpoint just extends the HttpOnly cookie — no
+      // token comes back to the client, and nothing to store.
+      await axiosInstance.post(domain.refreshUrl, null, {
+        _skipAuthRedirect: true,
+      });
+      processQueue(domain.name, null);
+    }
+
+    return axiosInstance(originalRequest);
+  } catch (refreshError) {
+    processQueue(domain.name, refreshError, null);
+
+    logger.warn(`${logPrefix}Refresh token expired — redirecting to login`, {
+      correlationId,
+    });
+
+    if (domain.usesBearer) {
+      const { logout } = await import("@features/auth/models/authSlice");
+      _store.dispatch(logout());
+      clearAuthRole();
+    } else {
+      const { setAdminSession } = await import("@features/auth/models/authSlice");
+      _store?.dispatch(setAdminSession(null));
+    }
+
+    if (!isSkipped) {
+      globalThis.location.href = domain.redirectUrl;
+    }
+    throw refreshError;
+  } finally {
+    isRefreshing[domain.name] = false;
+  }
+};
+
+// 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
+// isRefreshAbleRequest(domain, 401, requestA) returns true
+// (it's a 401, not retried yet, not the login/refresh URL).
+const handleUnauthorized = (domain, originalRequest, ctx) =>
+  isRefreshing[domain.name]
+    ? queueRefreshRetry(domain, originalRequest)
+    : performRefresh(domain, originalRequest, ctx);
+
+// 3. FORBIDDEN / still-unauthorized after the checks above — blocked or expired session
+const handleForbidden = async (error, domain, { url, correlationId, isSkipped, logPrefix }) => {
+  logger.warn(`${logPrefix}Blocked or unauthorized session terminated`, {
+    url,
+    correlationId,
+  });
+
+  if (domain.usesBearer) {
+    const { logout } = await import("@features/auth/models/authSlice");
+    _store.dispatch(logout());
+    clearAuthRole();
+    if (!isSkipped) {
+      globalThis.location.href = `${domain.redirectUrl}?reason=blocked`;
+    }
+  } else {
+    const { setAdminSession } = await import("@features/auth/models/authSlice");
+    _store?.dispatch(setAdminSession(null));
+    if (!isSkipped) {
+      globalThis.location.href = domain.redirectUrl;
+    }
+  }
+  throw error;
+};
+
 axiosInstance.interceptors.response.use(
   //interceptors get response object if the server call is successful
   //else the object is error i have the information is in
@@ -185,118 +337,19 @@ axiosInstance.interceptors.response.use(
   },
 
   async (error) => {
-        //u get the config of the request that was sent which got an error
-    const originalRequest = error?.config;
-        //is it admin or default
-    const domain = resolveDomain(originalRequest);
-        //status code is it 500 or 401 etc
-    const status = error?.response?.status;
-    const url = error?.config?.url;
-    const { correlationId } = error?.config?.metadata || {};
-    const message = error?.response?.data?.message || error.message;
-    const isSkipped = originalRequest?._skipAuthRedirect;
-    const logPrefix = domain.name === "admin" ? "Admin " : "";
+    const ctx = buildErrorContext(error);
+    const { originalRequest, domain, status, url, correlationId, message, logPrefix } = ctx;
 
     // 1. Network error / timeout
     if (!error.response) {
-      const isTimeout = error.code === "ECONNABORTED";
-      logger.error(
-        isTimeout
-          ? `${logPrefix}API Request Timeout`
-          : `${logPrefix}API Network Failure — Server unreachable or CORS rejection`,
-        { url, correlationId, message, stack: error.stack },
-      );
-      // NOTE: preserves each domain's original toast behavior exactly.
-      // Mentor/mentee only ever toasted on a genuine timeout; admin toasted
-      // on any network failure. Unifying these into one shared "always
-      // toast" behavior would be a real UX change, not just a refactor, so
-      // it's kept domain-specific here rather than homogenized.
-      if (isTimeout) {
-        toast.error("This is taking longer than expected. Please try again.");
-      } else if (domain.name === "admin") {
-        toast.error("Network error. Please check your connection.");
-      }
-      throw error;
+      return handleNetworkError(error, ctx);
     }
 
     // 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
     // isRefreshAbleRequest(domain, 401, requestA) returns true
     // (it's a 401, not retried yet, not the login/refresh URL).
     if (isRefreshableRequest(domain, status, originalRequest)) {
-      //if a request already is refreshing then the next if is true so this pending promise goes and sits
-      //in the failedQueue for next call so that multiple request doesn't call the refresh together
-      //one refresh calls can be used for getting the token and then give the token to all the promise
-      //pending request and check if it works
-      if (isRefreshing[domain.name]) {
-        return new Promise((resolve, reject) => {
-          failedQueue[domain.name].push({ resolve, reject });
-        })
-        //here the requests are paused and then stored in failedQueue this runs after the refresh is run
-          //and it gets the token for the first request in the failedQueue and for the rest request this function is called
-          .then((token) => {
-            if (domain.usesBearer && token) {
-              originalRequest.headers["Authorization"] = `Bearer ${token}`;
-            }
-            return axiosInstance(originalRequest);
-          })
-          .catch((err) => {
-            throw err;
-          });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing[domain.name] = true;
-      //refresh calls in here
-      try {
-        if (domain.usesBearer) {
-          // FIX: lazy-import authSlice actions here to avoid circular dependency
-          const { setUser } = await import("@features/auth/models/authSlice");
-
-          const { data } = await axiosInstance.post(domain.refreshUrl);
-          const newAccessToken = data?.accessToken;
-
-          _store.dispatch(
-            setUser({
-              user: _store.getState().auth.user,
-              accessToken: newAccessToken,
-            }),
-          );
-          //this runs all the waiting and pending request with the new token received
-          processQueue(domain.name, null, newAccessToken);
-          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        } else {
-          // Admin: refresh endpoint just extends the HttpOnly cookie — no
-          // token comes back to the client, and nothing to store.
-          await axiosInstance.post(domain.refreshUrl, null, {
-            _skipAuthRedirect: true,
-          });
-          processQueue(domain.name, null);
-        }
-
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        processQueue(domain.name, refreshError, null);
-
-        logger.warn(`${logPrefix}Refresh token expired — redirecting to login`, {
-          correlationId,
-        });
-
-        if (domain.usesBearer) {
-          const { logout } = await import("@features/auth/models/authSlice");
-          _store.dispatch(logout());
-          clearAuthRole();
-        } else {
-          const { setAdminSession } = await import("@features/auth/models/authSlice");
-          _store?.dispatch(setAdminSession(null));
-        }
-
-        if (!isSkipped) {
-          globalThis.location.href = domain.redirectUrl;
-        }
-        throw refreshError;
-      } finally {
-        isRefreshing[domain.name] = false;
-      }
+      return handleUnauthorized(domain, originalRequest, ctx);
     }
 
     // 3. FORBIDDEN / still-unauthorized after the checks above — blocked or expired session
@@ -304,26 +357,7 @@ axiosInstance.interceptors.response.use(
       status === HTTP_STATUS.FORBIDDEN &&
       (message?.includes("blocked") || domain.name === "admin")
     ) {
-      logger.warn(`${logPrefix}Blocked or unauthorized session terminated`, {
-        url,
-        correlationId,
-      });
-
-      if (domain.usesBearer) {
-        const { logout } = await import("@features/auth/models/authSlice");
-        _store.dispatch(logout());
-        clearAuthRole();
-        if (!isSkipped) {
-          globalThis.location.href = `${domain.redirectUrl}?reason=blocked`;
-        }
-      } else {
-        const { setAdminSession } = await import("@features/auth/models/authSlice");
-        _store?.dispatch(setAdminSession(null));
-        if (!isSkipped) {
-          globalThis.location.href = domain.redirectUrl;
-        }
-      }
-      throw error;
+      return handleForbidden(error, domain, ctx);
     }
 
     // 3.5 — Rate limited

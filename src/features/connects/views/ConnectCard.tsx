@@ -22,7 +22,7 @@ const AVATAR_GRADIENTS = [
 ];
 
 const getGradient = (name = "") => {
-  const index = (name.codePointAt(0) as number) % AVATAR_GRADIENTS.length;
+  const index = (name.codePointAt(0) ?? 0) % AVATAR_GRADIENTS.length;
   return AVATAR_GRADIENTS[index];
 };
 

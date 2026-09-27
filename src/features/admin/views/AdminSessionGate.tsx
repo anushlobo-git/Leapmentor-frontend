@@ -26,7 +26,7 @@ const AdminSessionGate = () => {
   useEffect(() => {
     if (role === "admin") return; // e.g. just logged in this session — no need to re-probe
     dispatch(bootstrapAdminSession());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps — runs once on mount
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (adminBootstrapping) return <div>Authenticating...</div>;
 

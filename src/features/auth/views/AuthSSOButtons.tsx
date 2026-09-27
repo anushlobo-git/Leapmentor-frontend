@@ -18,7 +18,7 @@ const AuthSSOButtons = ({ googleBtnRef, loading, disabled = false, onLinkedIn }:
         <div ref={googleBtnRef} className="hidden" />
         <button
           type="button"
-          onClick={() => (googleBtnRef.current?.querySelector("div[role=button]") as HTMLElement | null)?.click()}
+          onClick={() => googleBtnRef.current?.querySelector<HTMLElement>("div[role=button]")?.click()}
           disabled={isDisabled}
           className="w-full flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >

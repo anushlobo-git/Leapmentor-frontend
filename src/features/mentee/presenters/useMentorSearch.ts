@@ -95,7 +95,11 @@ const useMentorSearch = () => {
   const fetchMentors = useCallback(
     async (currentSkill, currentFilters, currentPage, append = false) => {
       try {
-        append ? setLoadingMore(true) : setLoading(true);
+        if (append) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
         setError("");
 
         const queryString = buildSearchQueryParams(

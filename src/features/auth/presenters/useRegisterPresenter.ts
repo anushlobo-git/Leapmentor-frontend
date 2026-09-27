@@ -68,7 +68,7 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
-    if (error) setLocalMsg({ type: "error", text: String(error) });
+    if (error) setLocalMsg({ type: "error", text: typeof error === "string" ? error : (error as any)?.message || String(error) });
   }, [error]);
 
   useEffect(() => {

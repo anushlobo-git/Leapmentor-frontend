@@ -11,7 +11,7 @@ interface FeatureCardProps {
   description: string;
 }
 
-export default function FeatureCard({ icon, title, description }: FeatureCardProps) {
+export default function FeatureCard({ icon, title, description }: Readonly<FeatureCardProps>) {
   return (
     <Card className="p-8">
       <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-blue-100 transition-colors duration-200">
