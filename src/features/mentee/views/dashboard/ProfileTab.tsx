@@ -4,7 +4,7 @@
 
 // components/mentee/dashboard/ProfileTab.jsx
 // Thin wrapper so existing imports of this path keep working unchanged.
-import ProfileTab from "@features/profile/views/ProfileTab";
+import ProfileTab from "@features/profile/views/components/ProfileTab";
 import { menteeProfileConfig } from "@features/profile/views/profileConfig";
 
 function MenteeProfileTab() {

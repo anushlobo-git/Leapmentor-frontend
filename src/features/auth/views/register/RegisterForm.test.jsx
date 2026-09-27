@@ -51,7 +51,7 @@ vi.mock("@features/auth/presenters/useGoogleAuth", () => ({
   },
 }));
 
-vi.mock("@features/auth/views/AuthSSOButtons", () => ({
+vi.mock("@features/auth/views/shared/AuthSSOButtons", () => ({
   default: ({ onLinkedIn, loading, disabled }) => (
     <button
       type="button"

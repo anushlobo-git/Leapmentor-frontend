@@ -3,7 +3,7 @@
  */
 
 import LetterBall from "@components/ui/LetterBall";
-import HeroSlider from "@features/marketing/views/HeroSlider"; 
+import HeroSlider from "@features/marketing/views/sections/HeroSlider"; 
 
 const socialProof = [
   { letter: "A", color: "bg-pink-400" },

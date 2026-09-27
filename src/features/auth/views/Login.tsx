@@ -11,8 +11,8 @@
 // dashboard. The role is passed to LoginForm → useLoginPresenter, which only
 // honors it when the authenticated account actually holds that role.
 import { useState } from "react";
-import LoginLeftPanel from "@features/auth/views/LoginLeftPanel";
-import LoginForm from "@features/auth/views/LoginForm";
+import LoginLeftPanel from "@features/auth/views/login/LoginLeftPanel";
+import LoginForm from "@features/auth/views/login/LoginForm";
 
 const Login = () => {
   const [role, setRole] = useState("mentee");

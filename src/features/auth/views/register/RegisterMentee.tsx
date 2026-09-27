@@ -3,8 +3,8 @@
  */
 
 // src/pages/RegisterMentee.jsx
-import AuthLeftPanel from "@features/auth/views/AuthLeftPanel";
-import RegisterForm from "@features/auth/views/RegisterForm";
+import AuthLeftPanel from "@features/auth/views/shared/AuthLeftPanel";
+import RegisterForm from "@features/auth/views/register/RegisterForm";
 
 const MENTEE_STATS = [
   { num: "50K+", label: "Mentees" },

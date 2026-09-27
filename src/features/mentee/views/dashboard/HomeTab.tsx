@@ -6,10 +6,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import SessionCard from "@features/sessions/views/SessionCard";
+import SessionCard from "@features/sessions/views/components/SessionCard";
 import Loader from "@components/shared/Loader";
 import MentorProfileModal from "@features/mentee/views/dashboard/findMentors/MentorProfileModal";
-import LeapBuddy from "@features/support/views/LeapBuddy";
+import LeapBuddy from "@features/support/views/components/LeapBuddy";
 import {
   selectDashboardUser,
   selectDashboardProfile,
@@ -27,8 +27,8 @@ const MENTEE_ACCENT_COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f97316"];
 // ── Main HomeTab ──────────────────────────────────────────────
 const HomeTab = () => {
   const navigate = useNavigate();
-  const user = useSelector(selectDashboardUser);
-  const profile = useSelector(selectDashboardProfile);
+  const user = useSelector(selectDashboardUser) as { name?: string; isFirstLogin?: boolean } | null;
+  const profile = useSelector(selectDashboardProfile) as { skills?: string[] } | null;
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
   const completionPct = calculateProfileCompletion(profile);

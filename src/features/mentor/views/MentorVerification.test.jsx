@@ -10,7 +10,7 @@ import MentorVerification from "./MentorVerification";
 
 // Mock the child component so this test stays focused on MentorVerification
 // itself (a pure composition/wrapper component).
-vi.mock("@features/mentor/views/VerificationFormShell", () => ({
+vi.mock("@features/mentor/views/verification/VerificationFormShell", () => ({
   default: (props) => <div data-testid="verification-form-shell" {...props} />,
 }));
 

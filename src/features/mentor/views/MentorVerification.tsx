@@ -3,7 +3,7 @@
  */
 
 // src/pages/MentorVerification.jsx
-import VerificationFormShell from "@features/mentor/views/VerificationFormShell";
+import VerificationFormShell from "@features/mentor/views/verification/VerificationFormShell";
 
 const MentorVerification = () => {
   return <VerificationFormShell/>;

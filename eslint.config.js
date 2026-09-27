@@ -8,7 +8,17 @@ import tseslint from "typescript-eslint";
 export default tseslint.config(
   // Files ESLint never looks at (build output, deps, coverage, service worker).
   {
-    ignores: ["dist/**", "node_modules/**", "coverage/**", "public/sw.js"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "coverage/**",
+      // SonarQube scanner cache: ~35 MB of bundled TS lib .d.ts files. ESLint 9
+      // flat config ignores neither dot-folders nor .gitignore, so without this
+      // `eslint .` crawls the whole bundle and OOMs (JS heap out of memory).
+      ".scannerwork/**",
+      "study/**",
+      "public/sw.js",
+    ],
   },
 
   // Baseline rule sets — turned ON (this is the "strict" part).

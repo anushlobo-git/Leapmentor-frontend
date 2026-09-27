@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import RegisterMentee from "./RegisterMentee";
-import AuthLeftPanel from "@features/auth/views/AuthLeftPanel";
-import RegisterForm from "@features/auth/views/RegisterForm";
+import AuthLeftPanel from "@features/auth/views/shared/AuthLeftPanel";
+import RegisterForm from "@features/auth/views/register/RegisterForm";
 
 // Mock child components to perfectly isolate testing the prop passing and structure composition of RegisterMentee
-vi.mock("@features/auth/views/AuthLeftPanel", () => ({
+vi.mock("@features/auth/views/shared/AuthLeftPanel", () => ({
   default: vi.fn(({ imageSrc, imageAlt, badge, heading, subtext, stats }) => (
     <div data-testid="mock-auth-left-panel">
       <span data-testid="panel-image-src">{imageSrc}</span>
@@ -18,7 +18,7 @@ vi.mock("@features/auth/views/AuthLeftPanel", () => ({
   )),
 }));
 
-vi.mock("@features/auth/views/RegisterForm", () => ({
+vi.mock("@features/auth/views/register/RegisterForm", () => ({
   default: vi.fn(({ role }) => (
     <div data-testid="mock-register-form" data-role={role} />
   )),

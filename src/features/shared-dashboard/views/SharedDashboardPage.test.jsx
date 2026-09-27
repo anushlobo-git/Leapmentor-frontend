@@ -26,7 +26,7 @@ vi.mock("@features/shared-dashboard/models/sharedDashboardSlice", () => ({
   resetSharedDashboard: vi.fn(() => ({ type: "dashboard/resetSharedDashboard" })),
   selectConnect: vi.fn(),
 }));
-vi.mock("@features/shared-dashboard/views/SharedDashboardLayout", () => ({
+vi.mock("@features/shared-dashboard/views/layout/SharedDashboardLayout", () => ({
   default: () => <div data-testid="mock-dashboard-layout">Layout</div>,
 }));
 

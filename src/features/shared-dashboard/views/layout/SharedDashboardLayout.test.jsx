@@ -50,7 +50,7 @@ vi.mock("@features/notifications/presenters/useSocketToast", () => ({
 }));
 
 // ── Mocks: child components ─────────────────────────────────────
-vi.mock("@features/shared-dashboard/views/SharedTopbar", () => ({
+vi.mock("@features/shared-dashboard/views/layout/SharedTopbar", () => ({
   default: ({ viewerRole, onMenuToggle, onLogoClick }) => (
     <div data-testid="shared-topbar">
       <span data-testid="topbar-viewer-role">{viewerRole}</span>
@@ -60,7 +60,7 @@ vi.mock("@features/shared-dashboard/views/SharedTopbar", () => ({
   ),
 }));
 
-vi.mock("@features/shared-dashboard/views/SharedSidebar", () => ({
+vi.mock("@features/shared-dashboard/views/layout/SharedSidebar", () => ({
   default: ({
     activeTab,
     setActiveTab: setTab,

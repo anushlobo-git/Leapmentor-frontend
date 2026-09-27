@@ -6,8 +6,8 @@
 import { useNavigate } from "react-router-dom";
 import useOngoingConnects from "@features/connects/presenters/useOngoingConnects";
 import type { MappedConnectRequest } from "@features/connects/models/connectsMapper";
-import ConnectsLayout from "@features/connects/views/ConnectsLayout";
-import ConnectCard from "@features/connects/views/ConnectCard";
+import ConnectsLayout from "@features/connects/views/components/ConnectsLayout";
+import ConnectCard from "@features/connects/views/components/ConnectCard";
 
 interface RoleConfig {
   subtitle: string;

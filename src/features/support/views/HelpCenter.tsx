@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { sendSupportMessage } from "@features/support/models/support.api";
 import { mentorFaqs, menteeFaqs } from "@features/support/models/faqs";
-import FaqItem from "@features/support/views/FaqItem";
+import FaqItem from "@features/support/views/components/FaqItem";
 import FormField from "@components/ui/FormField";
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────

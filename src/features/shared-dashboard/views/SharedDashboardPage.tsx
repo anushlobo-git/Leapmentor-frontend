@@ -6,7 +6,7 @@
 import { useEffect } from "react";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import SharedDashboardLayout from "@features/shared-dashboard/views/SharedDashboardLayout";
+import SharedDashboardLayout from "@features/shared-dashboard/views/layout/SharedDashboardLayout";
 import {
   setConnect,
   setActiveTab,

@@ -21,7 +21,7 @@ vi.mock("@components/shared/FullScreenLoader", () => ({
 }));
 
 // Mock sub-components
-vi.mock("@features/mentor/views/PhoneNumberField", () => ({
+vi.mock("@features/mentor/views/verification/PhoneNumberField", () => ({
   default: ({ value, onChange, error }) => (
     <div>
       <input data-testid="phone-input" value={value} onChange={onChange} />
@@ -30,7 +30,7 @@ vi.mock("@features/mentor/views/PhoneNumberField", () => ({
   ),
 }));
 
-vi.mock("@features/mentor/views/ResumeUpload", () => ({
+vi.mock("@features/mentor/views/verification/ResumeUpload", () => ({
   default: ({ file, onChange, error }) => (
     <div>
       <button
@@ -53,7 +53,7 @@ vi.mock("@features/mentor/views/ResumeUpload", () => ({
   ),
 }));
 
-vi.mock("@features/mentor/views/WorkExperienceUpload", () => ({
+vi.mock("@features/mentor/views/verification/WorkExperienceUpload", () => ({
   default: ({ files, onChange, error }) => (
     <div>
       <button
@@ -78,7 +78,7 @@ vi.mock("@features/mentor/views/WorkExperienceUpload", () => ({
   ),
 }));
 
-vi.mock("@features/mentor/views/VerificationInstructionsModal", () => ({
+vi.mock("@features/mentor/views/verification/VerificationInstructionsModal", () => ({
   default: ({ onClose }) => (
     <div data-testid="instructions-modal">
       <button type="button" data-testid="close-modal" onClick={onClose}>

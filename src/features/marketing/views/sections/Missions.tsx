@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import FeatureCard from "@features/marketing/views/FeatureCard";
+import FeatureCard from "@features/marketing/views/sections/FeatureCard";
 
 const features = [
   {

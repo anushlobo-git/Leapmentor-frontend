@@ -19,7 +19,7 @@ export const useRequestsTabPresenter = () => {
   // Requests live in connectRequestsSlice (shared with the mentor home tab);
   // only UI state stays local.
   const { items, status, loadedOnce, error: fetchError } = useSelector(selectMentorRequestList);
-  const requests = items as RequestCardRequest[];
+  const requests = items as unknown as RequestCardRequest[];
   const loading = status === "loading";
   const initialLoad = !loadedOnce;
   const error = fetchError ?? "";

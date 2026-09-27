@@ -41,7 +41,7 @@ vi.mock("@features/mentee/presenters/useHomeData", () => ({
 }));
 
 // Mock external companion components using exact path aliases
-vi.mock("@features/sessions/views/SessionCard", () => ({
+vi.mock("@features/sessions/views/components/SessionCard", () => ({
   default: ({ request, size }) => (
     <div data-testid="mock-session-card" data-size={size}>
       Session: {request._id}
@@ -69,7 +69,7 @@ vi.mock(
   }),
 );
 
-vi.mock("@features/support/views/LeapBuddy", () => ({
+vi.mock("@features/support/views/components/LeapBuddy", () => ({
   default: () => <div data-testid="mock-leap-buddy">Leap Buddy Assistant</div>,
 }));
 

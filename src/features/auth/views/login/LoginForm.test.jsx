@@ -29,7 +29,7 @@ vi.mock("@features/auth/presenters/useGoogleAuth", () => ({
   __esModule: true,
   default: (...args) => mockUseGoogleAuth(...args),
 }));
-vi.mock("@features/auth/views/AuthSSOButtons", () => ({
+vi.mock("@features/auth/views/shared/AuthSSOButtons", () => ({
   __esModule: true,
   default: ({ onLinkedIn }) => (
     <button type="button" onClick={onLinkedIn}>
@@ -37,11 +37,11 @@ vi.mock("@features/auth/views/AuthSSOButtons", () => ({
     </button>
   ),
 }));
-vi.mock("@features/auth/views/AuthUI", () => ({
+vi.mock("@features/auth/views/shared/AuthUI", () => ({
   __esModule: true,
   AuthBrand: ({ logo }) => <div data-testid="auth-brand">{logo}</div>,
 }));
-vi.mock("@features/auth/views/AuthIcons", () => ({
+vi.mock("@features/auth/views/shared/AuthIcons", () => ({
   LeapMentorLogo: () => <div data-testid="logo" />,
 }));
 vi.mock("@components/shared/FullScreenLoader", () => ({

@@ -69,7 +69,7 @@ export const useMentorHomeTabPresenter = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector(selectDashboardUser);
   const profile = useSelector(selectDashboardProfile);
-  const firstName = user?.name?.split(" ")[0] || "there";
+  const firstName = (user as { name?: string } | null)?.name?.split(" ")[0] || "there";
 
   // Sessions / pending / completed counts are derived from the shared requests slice.
   const { items: allRequests, loadedOnce, status } = useSelector(selectMentorRequestList);
@@ -93,9 +93,10 @@ export const useMentorHomeTabPresenter = () => {
 
   const completionPct = getProfileCompletion(profile);
 
-  const badgeProfile = {
-    ...profile,
-    totalSessions: actualSessionCount ?? profile?.totalSessions ?? 0,
+  const bp = (profile ?? {}) as BadgeProfile;
+  const badgeProfile: BadgeProfile = {
+    ...bp,
+    totalSessions: actualSessionCount ?? bp.totalSessions ?? 0,
   };
   const badges = BADGES.map((b: MentorBadge) => ({
     ...b,

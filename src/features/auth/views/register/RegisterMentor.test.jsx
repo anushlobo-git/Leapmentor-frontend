@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import RegisterMentor from "./RegisterMentor";
 
 // Mock external building blocks to verify prop allocation and isolate execution paths
-vi.mock("@features/auth/views/AuthLeftPanel", () => ({
+vi.mock("@features/auth/views/shared/AuthLeftPanel", () => ({
   default: ({ imageSrc, imageAlt, badge, heading, subtext, stats }) => (
     <div data-testid="auth-left-panel">
       <span data-testid="panel-src">{imageSrc}</span>
@@ -18,7 +18,7 @@ vi.mock("@features/auth/views/AuthLeftPanel", () => ({
   ),
 }));
 
-vi.mock("@features/auth/views/RegisterForm", () => ({
+vi.mock("@features/auth/views/register/RegisterForm", () => ({
   default: ({ role }) => (
     <div data-testid="register-form" data-role={role}>
       Register Form Container

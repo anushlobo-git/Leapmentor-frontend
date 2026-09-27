@@ -11,7 +11,7 @@ import useSocketEvent from "@lib/hooks/useSocketEvent";
 import useRequestHistory from "@features/mentee/presenters/useRequestHistory";
 import { TABS } from "@features/mentee/views/dashboard/history/constants";
 import HistoryTable from "@features/mentee/views/dashboard/history/HistoryTable";
-import DetailDrawer from "@features/mentee/views/dashboard/history/DetailDrawer";
+import DetailDrawer, { type HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
 
 const RequestHistoryTab = () => {
   const {
@@ -72,7 +72,7 @@ const RequestHistoryTab = () => {
       <HistoryTable
         requests={filtered}
         selected={selected}
-        onSelect={setSelected}
+        onSelect={setSelected as unknown as (request: HistoryRequest | null) => void}
         onDelete={deleteRequest}
       />
 

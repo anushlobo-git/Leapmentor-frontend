@@ -1,4 +1,4 @@
-import { GoogleIcon, LinkedInIcon } from "@features/auth/views/AuthIcons";
+import { GoogleIcon, LinkedInIcon } from "@features/auth/views/shared/AuthIcons";
 import type { RefObject } from "react";
 
 interface AuthSSOButtonsProps {

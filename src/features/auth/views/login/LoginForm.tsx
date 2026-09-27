@@ -5,9 +5,9 @@
 // View for LoginForm — pure JSX. All state/logic lives in
 // presenters/useLoginPresenter.ts.
 import { useLoginPresenter } from "@features/auth/presenters/useLoginPresenter";
-import AuthSSOButtons from "@features/auth/views/AuthSSOButtons";
-import { AuthBrand } from "@features/auth/views/AuthUI";
-import { LeapMentorLogo } from "@features/auth/views/AuthIcons";
+import AuthSSOButtons from "@features/auth/views/shared/AuthSSOButtons";
+import { AuthBrand } from "@features/auth/views/shared/AuthUI";
+import { LeapMentorLogo } from "@features/auth/views/shared/AuthIcons";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 
