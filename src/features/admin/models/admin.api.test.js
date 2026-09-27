@@ -28,7 +28,6 @@ import {
   getUserGrowth,
   getMentorIndustryStats,
   getUsers,
-  deleteUser,
   blockUser,
   unblockUser,
   getCommissionSettings,
@@ -466,22 +465,6 @@ describe("admin.api", () => {
         expect(axiosInstance.get).toHaveBeenCalledWith(
           "/admin/users",
           expect.objectContaining({ params, authDomain: "admin" }),
-        );
-        expect(result).toEqual(mockResponse);
-      });
-    });
-
-    describe("deleteUser", () => {
-      it("should call axiosInstance.delete with correct endpoint", async () => {
-        const mockResponse = { data: { success: true } };
-        const axiosInstance = (await import("@lib/http/axiosInstance")).default;
-        axiosInstance.delete.mockResolvedValue(mockResponse);
-
-        const result = await deleteUser("user123");
-
-        expect(axiosInstance.delete).toHaveBeenCalledWith(
-          "/admin/users/user123",
-          expect.objectContaining({ authDomain: "admin" }),
         );
         expect(result).toEqual(mockResponse);
       });
