@@ -64,12 +64,16 @@ import NotFound from "@app/pages/NotFound";
 
 /** A page/layout's code, as a dynamic import — this is what makes each
  * route's `lazy` property (Phase 3) able to code-split it. */
+//const loadLogin: Importer = () => import("./Login");
+//So anything assigned to Importer must be a function that takes no arguments.
 type Importer = () => Promise<{ default: ComponentType<any> }>;
 
 export interface RouteAccess {
   /** The user must hold at least one of these roles. */
+  //roles=[type "mentor"|"mentee"|"admin"...]
   roles?: RouteRole[];
   /** The user's roles must grant at least one of these permissions. */
+  //permission=[type entire permission | ]
   permissions?: Permission[];
 }
 
@@ -124,6 +128,9 @@ const AdminVerifications: Importer = () => import("@features/admin/views/AdminVe
  * The only place that maps a role to its concrete components. URLs come
  * from ROLE_CONFIG; this just says which component renders at each one.
  */
+
+//Importer are the function that takes nothing as an argument but returns the react component inside the promise
+//for the variable that as import page then its Importer
 interface RolePages {
   Login: Importer;
   Onboarding: Importer;
@@ -133,6 +140,7 @@ interface RolePages {
   extra?: Array<{ path: string; Page: Importer; permissions?: Permission[] }>;
 }
 
+//it has the pages based on the roles
 const ROLE_PAGES: Record<Role, RolePages> = {
   [ROLES.MENTOR]: {
     Login: LoginMentor,
@@ -173,10 +181,13 @@ export const PUBLIC_ROUTES: RouteDef[] = [
 
 // ── Role-guarded routes, generated from the registry ──────────
 const roleRoutes = (role: Role): GuardedRouteDef[] => {
+  //it gives the 3 variable that as the dedicated path url like onboarding/mentor
   const { onboardingPath, dashboardPath, editProfilePath } = ROLE_CONFIG[role];
+
   const pages = ROLE_PAGES[role];
   const access: RouteAccess = { roles: [role] };
 
+  //based on role this gives u all the routes for the role as an {path,page,access:{roles,permissions}}
   const candidates: Array<GuardedRouteDef | null> = [
     onboardingPath ? { path: onboardingPath, Page: pages.Onboarding, access } : null,
     editProfilePath ? { path: editProfilePath, Page: pages.EditProfile, access } : null,
@@ -222,6 +233,7 @@ export const ADMIN_ROUTES: GuardedRouteDef[] = [
  * they sit under — react-router throws otherwise. All our groups nest
  * directly under the pathless root, so stripping the leading slash is
  * always correct here. */
+//it removes / from all the child path 
 const relative = (path: string) => path.replace(/^\//, "");
 
 /**
@@ -307,6 +319,8 @@ const buildAdminRoute = (): RouteObject => ({
  * top progress bar driven by `useNavigation()` while a lazy route's code
  * (or, later, a loader) is still resolving.
  */
+//outlet is where u put the child in and navigation is if the page is loading
+//this is the wrapper function which is wrapping the home page
 const RootLayout = () => {
   const navigation = useNavigation();
   return (

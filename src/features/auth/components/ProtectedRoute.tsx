@@ -45,17 +45,26 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, role, roles, permissions }: ProtectedRouteProps) => {
   const location = useLocation();
+  //does the slice has user state filled with the user
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  //his he verified the email verification part
   const isVerified       = useSelector(selectIsVerified);
+  //current role from the cookies authRole
   const currentRole      = useSelector(selectRole);
+  //user details from the slice
   const user             = useSelector((state: RootState) => state.auth.user);
 
+  // if its a false value then choose the right one ||
+  //if its a null or undefined only in these case choose the right one
   const allowedRoles: RouteRole[] = roles ?? (role ? [role] : []);
 
   // The first allowed role decides the session domain (bearer vs cookie)
   // and which login page an unauthenticated visitor is sent to. A single
   // route should not mix session domains (e.g. admin + mentor).
   const guardRole = allowedRoles[0];
+  //lets say the first role is mentor or selected role is mentor
+  //this gives u the entire ROLE_CONFIG that is
+  // { LoginPath:"/mentor/login",...,sessionType etc }
   const routeConfig = guardRole ? ROLE_CONFIG[guardRole] : undefined;
 
   // Where THIS user's own account would actually land, derived from their
