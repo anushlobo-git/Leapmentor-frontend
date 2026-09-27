@@ -30,10 +30,11 @@ describe("route registry", () => {
     expect(new Set(paths).size).toBe(paths.length);
   });
 
-  it("generates login, onboarding, edit-profile and dashboard routes for every account role from ROLE_CONFIG", () => {
+  it("exposes the login, onboarding, edit-profile and dashboard route for every account role from ROLE_CONFIG", () => {
     const paths = allPaths();
     for (const role of ALL_ROLES) {
       const cfg = ROLE_CONFIG[role];
+      // Every bearer role shares the one /login toggle, so loginPath is /login.
       expect(paths).toContain(cfg.loginPath);
       expect(paths).toContain(cfg.onboardingPath);
       expect(paths).toContain(cfg.editProfilePath);

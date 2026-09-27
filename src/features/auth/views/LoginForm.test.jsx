@@ -15,6 +15,9 @@ vi.mock("react-redux", () => ({
 //useNaviget comes under the react-router-dom package
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockUseNavigate,
+  // The login presenter reads useLocation() to prefill the email + show the
+  // "you already have an account" notice pushed by the register redirect.
+  useLocation: () => ({ pathname: "/login", state: {} }),
 }));
 vi.mock("@features/auth/models/auth.api", () => ({
   login: (...args) => mockLogin(...args),
@@ -159,6 +162,84 @@ describe("LoginForm", () => {
       ),
     );
     expect(mockSetAuthRole).toHaveBeenCalledWith("mentor");
+    await waitFor(
+      () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentor"),
+      { timeout: 2000 },
+    );
+  });
+
+  it("honors the toggled role when the account holds it", async () => {
+    // A dual-role account toggled to "mentee" must land on the mentee
+    // dashboard even though mentor is the higher-priority primary role.
+    mockLogin.mockResolvedValue({
+      data: { user: { roles: ["mentor", "mentee"] }, accessToken: "abc" },
+    });
+
+    render(
+      <LoginForm
+        placeholder="you@example.com"
+        registerPath="/register"
+        role="mentee"
+      />,
+    );
+    fireEvent.input(screen.getByPlaceholderText(/you@example.com/i), {
+      target: { value: "dual@example.com" },
+    });
+    fireEvent.input(screen.getByLabelText(/Password/i, { selector: "input" }), {
+      target: { value: "Password1!" },
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: /Login to Dashboard/i }),
+      ).toBeEnabled(),
+    );
+    fireEvent.submit(
+      screen
+        .getByRole("button", { name: /Login to Dashboard/i })
+        .closest("form"),
+    );
+
+    await waitFor(() => expect(mockSetAuthRole).toHaveBeenCalledWith("mentee"));
+    await waitFor(
+      () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentee"),
+      { timeout: 2000 },
+    );
+  });
+
+  it("falls back to the primary role when the toggled role is not held", async () => {
+    // A mentor-only account toggled to "mentee" must still log in and land on
+    // the dashboard it actually has, rather than being blocked.
+    mockLogin.mockResolvedValue({
+      data: { user: { roles: ["mentor"] }, accessToken: "abc" },
+    });
+
+    render(
+      <LoginForm
+        placeholder="you@example.com"
+        registerPath="/register"
+        role="mentee"
+      />,
+    );
+    fireEvent.input(screen.getByPlaceholderText(/you@example.com/i), {
+      target: { value: "mentor@example.com" },
+    });
+    fireEvent.input(screen.getByLabelText(/Password/i, { selector: "input" }), {
+      target: { value: "Password1!" },
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: /Login to Dashboard/i }),
+      ).toBeEnabled(),
+    );
+    fireEvent.submit(
+      screen
+        .getByRole("button", { name: /Login to Dashboard/i })
+        .closest("form"),
+    );
+
+    await waitFor(() => expect(mockSetAuthRole).toHaveBeenCalledWith("mentor"));
     await waitFor(
       () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentor"),
       { timeout: 2000 },

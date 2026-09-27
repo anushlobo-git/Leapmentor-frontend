@@ -373,9 +373,28 @@ describe("authSlice", () => {
         const state = authReducer({ ...initialState, loading: true }, action);
 
         expect(state.loading).toBe(false);
-        expect(state.successMsg).toBe(
-          "Email verified! Redirecting to login...",
+        expect(state.successMsg).toBe("Email verified!");
+      });
+
+      it("should mark an in-session user verified so the route guard admits them", () => {
+        const action = { type: verifyEmail.fulfilled.type };
+        const state = authReducer(
+          {
+            ...initialState,
+            loading: true,
+            user: { email: "me@example.com", isVerified: false },
+          },
+          action,
         );
+
+        expect(state.user.isVerified).toBe(true);
+      });
+
+      it("should be a no-op on the user when there is no session (magic-link cold visit)", () => {
+        const action = { type: verifyEmail.fulfilled.type };
+        const state = authReducer({ ...initialState, loading: true }, action);
+
+        expect(state.user).toBeNull();
       });
     });
 
@@ -414,9 +433,7 @@ describe("authSlice", () => {
         const state = authReducer({ ...initialState, loading: true }, action);
 
         expect(state.loading).toBe(false);
-        expect(state.successMsg).toBe(
-          "Email verified! Redirecting to login...",
-        );
+        expect(state.successMsg).toBe("Email verified!");
         expect(state.verifiedRole).toBe("mentor");
       });
 

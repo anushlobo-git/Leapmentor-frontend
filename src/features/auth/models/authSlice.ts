@@ -288,9 +288,19 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading    = false;
-        state.accessToken  = action.payload.accessToken || null;
-        state.user       = action.payload.user ? mapAuthUser(action.payload.user) : null;
-        state.successMsg = "Account created! Please verify your email.";
+        // A register submission now resolves to one of several outcomes
+        // (created | role_added | already_registered | login_required). Only
+        // the ones that actually start a session carry an accessToken/user,
+        // so we store a session only when one is present — the "go log in"
+        // outcomes must NOT leave a half-populated auth state behind.
+        if (action.payload.accessToken) {
+          state.accessToken = action.payload.accessToken;
+          state.user = action.payload.user ? mapAuthUser(action.payload.user) : null;
+        }
+        state.successMsg =
+          action.payload.outcome === "role_added"
+            ? "Role added to your account."
+            : "Account created! Please verify your email.";
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -340,7 +350,15 @@ const authSlice = createSlice({
       })
       .addCase(verifyEmail.fulfilled, (state) => {
         state.loading    = false;
-        state.successMsg = "Email verified! Redirecting to login...";
+        // The account this session registered under is now verified. Flip the
+        // stored user's flag so the onboarding/dashboard route guard
+        // (selectIsVerified) lets them straight in instead of bouncing them
+        // back to /verify-email. No-op when there's no in-Redux session (e.g. a
+        // fresh magic-link visit), which correctly routes to login instead.
+        if (state.user) {
+          state.user = { ...state.user, isVerified: true };
+        }
+        state.successMsg = "Email verified!";
       })
       .addCase(verifyEmail.rejected, (state, action) => {
         state.loading = false;
@@ -356,7 +374,13 @@ const authSlice = createSlice({
       })
       .addCase(verifyMagicLink.fulfilled, (state, action) => {
   state.loading        = false;
-  state.successMsg     = "Email verified! Redirecting to login...";
+  // Same as the OTP path: mark an in-Redux session's user verified so the
+  // route guard admits them. A cold magic-link visit has no session/user, so
+  // this is a no-op there and the presenter routes to login.
+  if (state.user) {
+    state.user = { ...state.user, isVerified: true };
+  }
+  state.successMsg     = "Email verified!";
   state.verifiedRole   = action.payload?.role || null;
 })
       .addCase(verifyMagicLink.rejected, (state, action) => {

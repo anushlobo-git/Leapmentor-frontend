@@ -32,8 +32,7 @@ const renderProtected = (authState, role) => {
               </ProtectedRoute>
             }
           />
-          <Route path="/login/mentor" element={<div>Mentor Login Page</div>} />
-          <Route path="/login/mentee" element={<div>Mentee Login Page</div>} />
+          <Route path="/login" element={<div>Login Toggle Page</div>} />
           <Route path="/admin/login" element={<div>Admin Login Page</div>} />
           <Route path="/dashboard/mentor" element={<div>Mentor Dashboard</div>} />
           <Route path="/dashboard/mentee" element={<div>Mentee Dashboard</div>} />
@@ -62,14 +61,14 @@ describe("ProtectedRoute", () => {
     vi.clearAllMocks();
   });
 
-  it("redirects to the role-specific login page when not authenticated", () => {
+  it("redirects to the shared login toggle when a mentor route is unauthenticated", () => {
     renderProtected({ ...baseState }, "mentor");
-    expect(screen.getByText("Mentor Login Page")).toBeInTheDocument();
+    expect(screen.getByText("Login Toggle Page")).toBeInTheDocument();
   });
 
-  it("redirects to the mentee login page for an unauthenticated mentee route", () => {
+  it("redirects to the shared login toggle when a mentee route is unauthenticated", () => {
     renderProtected({ ...baseState }, "mentee");
-    expect(screen.getByText("Mentee Login Page")).toBeInTheDocument();
+    expect(screen.getByText("Login Toggle Page")).toBeInTheDocument();
   });
 
   it("renders the protected content for a verified user with the matching role", () => {
@@ -168,7 +167,6 @@ const renderWithProps = (authState, guardProps, path = "/protected") => {
             }
           />
           <Route path="/login" element={<div>Generic Login Page</div>} />
-          <Route path="/login/mentor" element={<div>Mentor Login Page</div>} />
           <Route path="/dashboard/mentor" element={<div>Mentor Dashboard</div>} />
           <Route path="/dashboard/mentee" element={<div>Mentee Dashboard</div>} />
           <Route path="/verify-email" element={<div>Verify Email Page</div>} />
@@ -196,9 +194,9 @@ describe("ProtectedRoute — roles[] and permissions", () => {
     expect(screen.getByText("Mentee Dashboard")).toBeInTheDocument();
   });
 
-  it("uses the first listed role's login page for anonymous visitors", () => {
+  it("sends anonymous visitors of any bearer role to the shared /login toggle", () => {
     renderWithProps({ ...baseState }, { roles: ["mentor", "mentee"] });
-    expect(screen.getByText("Mentor Login Page")).toBeInTheDocument();
+    expect(screen.getByText("Generic Login Page")).toBeInTheDocument();
   });
 
   it("admits a user whose roles grant the required permission", () => {

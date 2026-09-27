@@ -7,9 +7,10 @@
 // renders JSX using what this hook returns.
 import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { login } from "@features/auth/models/auth.api";
 import { setUser } from "@features/auth/models/authSlice";
 import useGoogleAuth from "@features/auth/presenters/useGoogleAuth";
@@ -26,12 +27,26 @@ const API_BASE =
 
 interface UseLoginPresenterArgs {
   registerPath?: string;
+  /**
+   * Which dashboard this login page targets — set by the mentee/mentor toggle
+   * (or a role-specific login page). It only decides WHERE a successful login
+   * lands: if the account actually holds this role we enter its dashboard,
+   * otherwise we fall back to the account's primary role. It is never sent to
+   * the backend — email + password identify the account, not the role.
+   */
+  role?: string;
 }
 
-export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
+export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const googleBtnRef = useRef<HTMLDivElement>(null);
+
+  // The register page routes an existing user here (they already have the
+  // role, or the password didn't match) with their email + a short notice,
+  // so we prefill the email and surface the reason as a toast.
+  const navState = (location.state ?? {}) as { email?: string; notice?: string };
   //this is from react-hook form ,it is basically to manage the entire form
   const {
     //function that connects HTML input to React Hook Form <input {...register("email")} />
@@ -43,7 +58,7 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
     resolver: zodResolver(loginSchema),
     mode: "onTouched",
     defaultValues: {
-      email: "",
+      email: navState.email ?? "",
       password: "",
     },
   });
@@ -57,24 +72,39 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
     return () => setLoading(false);
   }, []);
 
+  // Show the "you already have an account" notice once when arriving from the
+  // register redirect, then clear it from history so a refresh won't repeat it.
+  useEffect(() => {
+    if (navState.notice) {
+      toast.info(navState.notice);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handlePostAuth = (user: RawAuthUser, accessToken: string) => {
     //saves in the redux
     dispatch(setUser({ accessToken, user }));
 
     const roles = user?.roles || [];
-    //u get the string ("mentee" or "mentor" ) from ["mentor"] string[]
-    const primaryRole = getPrimaryRole(roles);
+    // The toggle / login-page role decides which dashboard to enter, but only
+    // when the account actually holds it — a mentee-only account that toggled
+    // "Mentor" falls back to its real primary role rather than being sent to a
+    // dashboard it can't use. getPrimaryRole is the fallback (and the answer
+    // for a plain /login with no role selected).
+    const chosenRole =
+      role && roles.includes(role) ? role : getPrimaryRole(roles);
 
     //it sets the role in the cookie in this pattern `authRole=${role};path=/;SameSite=Lax`
-    if (primaryRole) {
-      setAuthRole(primaryRole);
+    if (chosenRole) {
+      setAuthRole(chosenRole);
     } else {
       setMsg({ type: "error", text: "No role found. Please register first." });
       return;
     }
 
     setRedirecting(true);
-    setTimeout(() => navigate(`/dashboard/${primaryRole}`), 800);
+    setTimeout(() => navigate(`/dashboard/${chosenRole}`), 800);
   };
 
   useGoogleAuth({

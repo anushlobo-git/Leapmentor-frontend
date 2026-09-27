@@ -232,9 +232,9 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
           icon={<IconStar />}
         />
         <StatCard
-          label="Wallet Balance"
-          value={loadingEarnings ? "—" : `${fmt(earnings?.walletBalance)} LP`}
-          sub="available to withdraw"
+          label="Total Earnings"
+          value={loadingEarnings ? "—" : `${fmt(earnings?.totalEarnings)} LP`}
+          sub="lifetime income"
           icon={<IconMoney />}
         />
         <StatCard
@@ -345,7 +345,7 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between py-2.5 border-b border-slate-50 border-l-4 border-l-indigo-400 pl-3">
+                <div className="flex items-center justify-between py-2.5 border-l-4 border-l-indigo-400 pl-3">
                   <div>
                     <p className="text-xs text-blue-900 font-semibold">
                       This Month
@@ -358,23 +358,6 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
                     {earnings.sessionsThisMonth ?? 0}
                     <span className="text-xs font-semibold text-blue-800 ml-1">
                       sessions
-                    </span>
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between py-2.5 border-l-4 border-l-emerald-400 pl-3">
-                  <div>
-                    <p className="text-xs text-blue-900 font-semibold">
-                      Available Balance
-                    </p>
-                    <p className="text-[10px] text-slate-700 font-semibold mt-0.5">
-                      ready to withdraw
-                    </p>
-                  </div>
-                  <p className="text-sm font-extrabold text-emerald-800">
-                    {fmt(earnings.walletBalance)}
-                    <span className="text-xs font-bold text-emerald-700 ml-1">
-                      LP
                     </span>
                   </p>
                 </div>

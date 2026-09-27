@@ -61,8 +61,11 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
           : "Create your mentee account to start growing."}
       </p>
 
-      {localMsg.type === "error" && (
-        <AuthMessageBanner type="error" text={localMsg.text} />
+      {localMsg.text && (
+        <AuthMessageBanner
+          type={localMsg.type as "success" | "info" | "error"}
+          text={localMsg.text}
+        />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
