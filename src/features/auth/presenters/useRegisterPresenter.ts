@@ -17,6 +17,8 @@ import {
   clearMessages,
   setUser,
 } from "@features/auth/models/authSlice";
+import { setAuthRole } from "@lib/http/cookies";
+import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import { registerSchema } from "@lib/validation/schemas";
 import {
   getPasswordValidation,
@@ -154,23 +156,67 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
       }),
     );
 
-    if (registerUser.fulfilled.match(result)) {
-      const { isNewUser } = result.payload;
-      if (!isNewUser) {
-        return setLocalMsg({
-          type: "error",
-          text: "This email is already registered. Please login instead.",
-        });
-      }
+    if (!registerUser.fulfilled.match(result)) return;
+
+    // One email can now hold multiple roles, so the backend answers with an
+    // `outcome` telling us where to send the user rather than a flat error:
+    //   created            → brand-new account → verify email → onboarding.
+    //   role_added          → this role was added to an existing account.
+    //   already_registered  → they already have this role (password matched).
+    //   login_required      → email exists but password didn't match → login.
+    //
+    // For role_added / already_registered the backend auto-logs-in when the
+    // email is already verified (loggedIn=true + a session), so we route on
+    // `loggedIn` rather than the specific outcome:
+    //   • loggedIn      → drop them straight on the dashboard.
+    //   • login_required → send to login (can't prove ownership).
+    //   • otherwise      → email still needs verifying → verify email page.
+    const { outcome, loggedIn, user, accessToken } = result.payload;
+    const submittedEmail = data.email.trim();
+
+    // Owner of a verified account (adding a role, or one they already had) →
+    // we're logged straight in, so go to the dashboard.
+    if (loggedIn && accessToken) {
+      const primaryRole = getPrimaryRole(user?.roles) || role;
+      dispatch(setUser({ accessToken, user }));
+      setAuthRole(primaryRole);
       setRedirecting(true);
+      setTimeout(() => navigate(`/dashboard/${primaryRole}`), 800);
+      return;
+    }
+
+    // Email exists but the password didn't match — we can't prove ownership,
+    // so hand them off to login with their email prefilled.
+    if (outcome === "login_required") {
+      setLocalMsg({
+        type: "success",
+        text: "You already have an account — taking you to login…",
+      });
       setTimeout(
         () =>
-          navigate("/verify-email", {
-            state: { email: data.email.trim(), role },
+          navigate("/login", {
+            state: {
+              email: submittedEmail,
+              notice:
+                "You already have an account for this email. Please log in.",
+            },
           }),
-        800,
+        900,
       );
+      return;
     }
+
+    // "created", or a role added to / already held on an account that still
+    // needs to verify its email → send them through email verification, which
+    // then lands them on onboarding (see useVerifyEmailPresenter).
+    setRedirecting(true);
+    setTimeout(
+      () =>
+        navigate("/verify-email", {
+          state: { email: submittedEmail, role },
+        }),
+      800,
+    );
   };
 
   const togglePasswordVisibility = () => setShowPassword((p) => !p);

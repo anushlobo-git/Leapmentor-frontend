@@ -6,13 +6,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { ComponentType, FocusEvent, MouseEvent, ReactNode } from "react";
 import logger from "@lib/monitoring/logger";
-import { getUserStats, getUserGrowth, getMentorIndustryStats, getUsers, deleteUser, blockUser, unblockUser } from "@features/admin/models/admin.api";
+import { getUserStats, getUserGrowth, getMentorIndustryStats, getUsers, blockUser, unblockUser } from "@features/admin/models/admin.api";
 import AdminLayout          from "@features/admin/views/AdminLayout";
 import StatCard             from "@features/admin/views/common/StatCard";
 import UserGrowthChart      from "@features/admin/views/common/UserGrowthChart";
 import MentorIndustryChart  from "@features/admin/views/common/MentorIndustryChart";
 
-type ActionMode = "delete" | "block" | "unblock";
+type ActionMode = "block" | "unblock";
 type ToastType = "success" | "error";
 
 interface AdminUser {
@@ -99,7 +99,7 @@ const IndustryChart = MentorIndustryChart as ComponentType<{ data: IndustryDatum
 const SKELETON_ROW_KEYS = ["sk-row-1", "sk-row-2", "sk-row-3", "sk-row-4", "sk-row-5"];
 const SKELETON_COL_KEYS = ["sk-col-1", "sk-col-2", "sk-col-3", "sk-col-4", "sk-col-5"];
 
-// ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
+// ── Unified Action Modal (Handles Block, Unblock) ─────
 const ConfirmActionModal = ({
   user,
   mode,
@@ -114,13 +114,6 @@ const ConfirmActionModal = ({
   loading: boolean;
 }) => {
   const config: Record<ActionMode, ActionConfig> = {
-    delete: {
-      color: "#ef4444", bg: "#fef2f2", border: "#fecaca",
-      title: "Delete User Account",
-      desc: `You're about to permanently delete ${user?.name}. This will remove their profile and all associated sessions. This cannot be undone.`,
-      btnText: "Yes, Delete", loadingText: "Deleting...",
-      icon: <><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></>
-    },
     block: {
       color: "#d97706", bg: "#fffbeb", border: "#fde68a",
       title: "Block User Account",
@@ -311,11 +304,7 @@ const AdminUserManagement = () => {
     setActionLoading(true);
 
     try {
-      if (mode === "delete") {
-        await deleteUser(user._id);
-        showToast(`${user.name} has been permanently deleted.`);
-      }
-      else if (mode === "block") {
+      if (mode === "block") {
         await blockUser(user._id);
         showToast(`${user.name} has been blocked.`);
       }
@@ -327,7 +316,6 @@ const AdminUserManagement = () => {
       setActionModal(null);
       fetchStats();
       fetchUsers(pagination.page);
-      if (mode === "delete") fetchIndustryData();
     } catch (error: unknown) {
       showToast((error as ApiError).response?.data?.message || "Action failed.", "error");
     } finally {
@@ -481,33 +469,6 @@ const AdminUserManagement = () => {
                  Block
                </button>
              )}
-
-             <button
-               onClick={() => setActionModal({ user, mode: "delete" })}
-               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-red-100"
-               style={{
-                 background: "#fef2f2",
-                 color: "#dc2626",
-                 fontWeight: 600,
-                 border: "1px solid #fecaca",
-               }}
-             >
-               <svg
-                 width="10"
-                 height="14"
-                 viewBox="0 0 24 24"
-                 fill="none"
-                 stroke="currentColor"
-                 strokeWidth="3"
-                 strokeLinecap="round"
-               >
-                 <polyline points="3 6 5 6 21 6" />
-                 <path d="M19 6l-1 14H6L5 6" />
-                 <path d="M10 11v6" />
-                 <path d="M14 11v6" />
-               </svg>
-               Delete
-             </button>
            </div>
          </td>
        </tr>

@@ -84,8 +84,6 @@ export const getMentorIndustryStats = () =>
 
 export const getUsers = (params) => axiosInstance.get(`/admin/users`, { ...adminConfig, params });
 
-export const deleteUser = (userId) => axiosInstance.delete(`/admin/users/${userId}`, adminConfig);
-
 export const blockUser = (userId) =>
   axiosInstance.patch(`/admin/users/${userId}/block`, {}, adminConfig);
 

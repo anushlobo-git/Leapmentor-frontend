@@ -168,12 +168,11 @@ describe("MentorHomeTab component", () => {
     expect(screen.getByText("3")).toBeInTheDocument(); // total completed (1) + active ongoing (2) sessions = 3
     expect(screen.getByText("4.8")).toBeInTheDocument(); // avgRating 4.8
     expect(screen.getByText("1")).toBeInTheDocument(); // pending count
-    expect(screen.getByText("850.00 LP")).toBeInTheDocument(); // wallet balance
+    expect(screen.getByText("1,200.00 LP")).toBeInTheDocument(); // total earnings stat card
 
     // Earnings check
     expect(screen.getByText("1,200.00")).toBeInTheDocument();
     expect(screen.getByText("150.00")).toBeInTheDocument();
-    expect(screen.getByText("850.00")).toBeInTheDocument();
   });
 
   it("handles avgRating fallback when rating is 0 or less", async () => {
@@ -209,7 +208,7 @@ describe("MentorHomeTab component", () => {
     });
 
     expect(screen.getByText("No active sessions")).toBeInTheDocument();
-    expect(screen.getByText("0.00 LP")).toBeInTheDocument(); // wallet balance fallback 0 LP is unique
+    expect(screen.getByText("0.00 LP")).toBeInTheDocument(); // total earnings fallback 0 LP is unique
   });
 
   it("handles missing user name or missing user profile key fallback branches", async () => {

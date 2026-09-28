@@ -7,7 +7,6 @@ import {
   getUserGrowth,
   getMentorIndustryStats,
   getUsers,
-  deleteUser,
   blockUser,
   unblockUser,
 } from "@features/admin/models/admin.api";
@@ -19,7 +18,6 @@ vi.mock("@features/admin/models/admin.api", () => ({
   getUserGrowth: vi.fn(),
   getMentorIndustryStats: vi.fn(),
   getUsers: vi.fn(),
-  deleteUser: vi.fn(),
   blockUser: vi.fn(),
   unblockUser: vi.fn(),
 }));
@@ -289,43 +287,23 @@ describe("AdminUserManagement", () => {
     expect(unblockUser).toHaveBeenCalledWith("user-1");
   });
 
-  it("should process structural deletion requests securely and clear operational modals when complete", async () => {
-    const user = userEvent.setup();
-    deleteUser.mockResolvedValueOnce({});
-    render(<AdminUserManagement />);
-
-    const aliceRow = await screen.findByText("Alice Stark");
-    const deleteBtn = within(aliceRow.closest("tr")).getByRole("button", {
-      name: /Delete/i,
-    });
-    await user.click(deleteBtn);
-
-    expect(screen.getByText("Delete User Account")).toBeInTheDocument();
-
-    const confirmBtn = screen.getByRole("button", { name: "Yes, Delete" });
-    await user.click(confirmBtn);
-
-    expect(deleteUser).toHaveBeenCalledWith("user-1");
-    expect(screen.queryByText("Delete User Account")).not.toBeInTheDocument();
-  });
-
   it("should capture and render fallback failure message toast streams when operational actions reject", async () => {
     const user = userEvent.setup();
     const customApiErrorMsg = "Privilege validation failure token mismatch";
 
-    deleteUser.mockSideEffects = true;
-    deleteUser.mockRejectedValueOnce({
+    blockUser.mockRejectedValueOnce({
       response: { data: { message: customApiErrorMsg } },
     });
 
     render(<AdminUserManagement />);
 
-    const deleteBtn = (
-      await screen.findAllByRole("button", { name: /Delete/i })
-    )[0];
-    await user.click(deleteBtn);
+    const aliceRow = await screen.findByText("Alice Stark");
+    const blockBtn = within(aliceRow.closest("tr")).getByRole("button", {
+      name: /Block/i,
+    });
+    await user.click(blockBtn);
 
-    const confirmBtn = screen.getByRole("button", { name: "Yes, Delete" });
+    const confirmBtn = screen.getByRole("button", { name: "Yes, Block" });
     await user.click(confirmBtn);
 
     expect(await screen.findByText(customApiErrorMsg)).toBeInTheDocument();
@@ -343,15 +321,16 @@ describe("AdminUserManagement", () => {
     const user = userEvent.setup();
     render(<AdminUserManagement />);
 
-    const deleteBtn = (
-      await screen.findAllByRole("button", { name: /Delete/i })
-    )[0];
-    await user.click(deleteBtn);
+    const aliceRow = await screen.findByText("Alice Stark");
+    const blockBtn = within(aliceRow.closest("tr")).getByRole("button", {
+      name: /Block/i,
+    });
+    await user.click(blockBtn);
 
     const cancelBtn = screen.getByRole("button", { name: "Cancel" });
     await user.click(cancelBtn);
 
-    expect(screen.queryByText("Delete User Account")).not.toBeInTheDocument();
+    expect(screen.queryByText("Block User Account")).not.toBeInTheDocument();
   });
 
   it("should transition list pages seamlessly when pagination controls are engaged across multi-page boundaries", async () => {

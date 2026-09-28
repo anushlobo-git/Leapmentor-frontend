@@ -14,9 +14,11 @@ import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 interface LoginFormProps {
   placeholder?: string;
   registerPath?: string;
+  /** Which dashboard a successful login targets (set by the mentee/mentor toggle). */
+  role?: string;
 }
 
-const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
+const LoginForm = ({ placeholder, registerPath, role }: LoginFormProps) => {
   const {
     register,
     handleSubmit,
@@ -33,7 +35,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
     handleLinkedIn,
     goToForgotPassword,
     goToRegister,
-  } = useLoginPresenter({ registerPath });
+  } = useLoginPresenter({ registerPath, role });
 
   return (
     <div className="w-full max-w-sm mx-auto px-4">

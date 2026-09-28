@@ -95,7 +95,7 @@ describe("DashboardLayout component", () => {
 
     // Topbar check
     expect(screen.getByTestId("topbar-mock")).toHaveTextContent(
-      "topbar-data - /login/mentor",
+      "topbar-data - /login",
     );
 
     // Sidebar check

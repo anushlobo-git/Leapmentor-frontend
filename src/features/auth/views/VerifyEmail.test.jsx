@@ -281,6 +281,24 @@ describe("VerifyEmail", () => {
     );
   });
 
+  it("verifies OTP and redirects to onboarding when a role is in location state", async () => {
+    routerState.location = { state: { email: "new@example.com", role: "mentor" } };
+    render(<VerifyEmail />);
+    await fillOtp("123456");
+    fireEvent.submit(screen.getByRole("button", { name: /Verify Email/i }).closest("form"));
+
+    await waitFor(() =>
+      expect(mockVerifyEmail).toHaveBeenCalledWith({
+        email: "new@example.com",
+        otp: "123456",
+      }),
+    );
+    await waitFor(
+      () => expect(mockNavigate).toHaveBeenCalledWith("/onboarding/mentor"),
+      { timeout: 2000 },
+    );
+  });
+
   it("shows verify failure from payload or the fallback message", async () => {
     mockVerifyEmail.mockImplementation(() => ({
       type: "verifyEmail/rejected",

@@ -49,11 +49,8 @@ vi.mock("@app/pages/NotFound", () => ({
 vi.mock("@features/auth/views/Register", () => ({
   default: () => <div>Register Component</div>,
 }));
-vi.mock("@features/auth/views/LoginMentor", () => ({
-  default: () => <div>LoginMentor Component</div>,
-}));
-vi.mock("@features/auth/views/LoginMentee", () => ({
-  default: () => <div>LoginMentee Component</div>,
+vi.mock("@features/auth/views/Login", () => ({
+  default: () => <div>Login Toggle Component</div>,
 }));
 vi.mock("@features/auth/views/VerifyEmail", () => ({
   default: () => <div>VerifyEmail Component</div>,
@@ -213,7 +210,7 @@ describe("App", () => {
     render(<App />);
 
     expect(
-      await screen.findByText("LoginMentee Component"),
+      await screen.findByText("Login Toggle Component"),
     ).toBeInTheDocument();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
   });
@@ -275,9 +272,7 @@ describe("App", () => {
   const navigationMatrix = [
     { path: "/", targetText: "Home Component" },
     { path: "/register", targetText: "Register Component" },
-    { path: "/login", targetText: "LoginMentee Component" },
-    { path: "/login/mentor", targetText: "LoginMentor Component" },
-    { path: "/login/mentee", targetText: "LoginMentee Component" },
+    { path: "/login", targetText: "Login Toggle Component" },
     { path: "/verify-email", targetText: "VerifyEmail Component" },
     { path: "/forgot-password", targetText: "ForgotPassword Component" },
     { path: "/sso-callback", targetText: "SSOCallback Component" },

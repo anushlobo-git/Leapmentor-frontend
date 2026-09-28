@@ -32,9 +32,10 @@
  *      ROLE_PERMISSIONS (mirror the backend).
  *   2. Below — add ONE entry to ROLE_PAGES with that role's components.
  *      ROLE_PAGES is typed Record<Role, …>, so TypeScript refuses to
- *      compile until you do; the login, onboarding, dashboard and
- *      edit-profile routes (and their guards) are then generated for you,
- *      including their own layout route in `appRoutes`.
+ *      compile until you do; the onboarding, dashboard and edit-profile
+ *      routes (and their guards) are then generated for you, including
+ *      their own layout route in `appRoutes`. All roles share the one
+ *      `/login` toggle page, so there is no per-role login to add.
  *   3. App.tsx does not change.
  *
  * Route access lives on each route as `access: { roles?, permissions? }`
@@ -53,7 +54,6 @@ import {
 import {
   ADMIN_ROLE,
   ALL_ROLES,
-  DEFAULT_LOGIN_ROLE,
   PERMISSIONS,
   ROLES,
   ROLE_CONFIG,
@@ -102,8 +102,7 @@ const ForgotPassword: Importer = () => import("@features/auth/views/ForgotPasswo
 const SSOCallback: Importer = () => import("@features/auth/views/SSOCallback");
 
 // ── Per-role pages ────────────────────────────────────────────
-const LoginMentor: Importer = () => import("@features/auth/views/LoginMentor");
-const LoginMentee: Importer = () => import("@features/auth/views/LoginMentee");
+const Login: Importer = () => import("@features/auth/views/Login");
 const MentorOnboarding: Importer = () => import("@features/mentor/views/MentorOnboarding");
 const MentorVerification: Importer = () => import("@features/mentor/views/MentorVerification");
 const MenteeOnboarding: Importer = () => import("@features/mentee/views/MenteeOnboarding");
@@ -139,7 +138,6 @@ const AdminVerifications: Importer = () => import("@features/admin/views/AdminVe
 //Importer are the function that takes nothing as an argument but returns the react component inside the promise
 //for the variable that as import page then its Importer
 interface RolePages {
-  Login: Importer;
   Onboarding: Importer;
   Dashboard: Importer;
   EditProfile: Importer;
@@ -150,7 +148,6 @@ interface RolePages {
 //it has the pages based on the roles
 const ROLE_PAGES: Record<Role, RolePages> = {
   [ROLES.MENTOR]: {
-    Login: LoginMentor,
     Onboarding: MentorOnboarding,
     Dashboard: MentorDashboard,
     EditProfile: MentorEditProfileShell,
@@ -164,7 +161,6 @@ const ROLE_PAGES: Record<Role, RolePages> = {
     ],
   },
   [ROLES.MENTEE]: {
-    Login: LoginMentee,
     Onboarding: MenteeOnboarding,
     Dashboard: MenteeDashboard,
     EditProfile: MenteeEditProfileShell,
@@ -174,13 +170,10 @@ const ROLE_PAGES: Record<Role, RolePages> = {
 // ── Public routes (no guard) ──────────────────────────────────
 export const PUBLIC_ROUTES: RouteDef[] = [
   { path: "/register", Page: Register },
-  // Bare /login shows the default role's login page.
-  //DEFAULT_LOGIN_ROLE--"mentee"
-  { path: "/login", Page: ROLE_PAGES[DEFAULT_LOGIN_ROLE].Login },
-  ...ALL_ROLES.map((role) => ({
-    path: ROLE_CONFIG[role].loginPath,
-    Page: ROLE_PAGES[role].Login,
-  })),
+  // The single login page: a mentee/mentor toggle (Login.tsx) so a dual-role
+  // account can choose which dashboard to enter. There are no role-specific
+  // login URLs — mentor/mentee both resolve here via ROLE_CONFIG.loginPath.
+  { path: "/login", Page: Login },
   { path: "/verify-email", Page: VerifyEmail },
   { path: "/forgot-password", Page: ForgotPassword },
   { path: "/sso-callback", Page: SSOCallback },

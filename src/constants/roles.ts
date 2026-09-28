@@ -95,14 +95,14 @@ interface RoleRouteConfig {
 //Record is used for defining the object where Record<K,V> where k is the key type and v is value type
 export const ROLE_CONFIG: Record<RouteRole, RoleRouteConfig> = Object.freeze({
   [ROLES.MENTOR]: {
-    loginPath: "/login/mentor",
+    loginPath: "/login",
     dashboardPath: "/dashboard/mentor",
     onboardingPath: "/onboarding/mentor",
     editProfilePath: "/dashboard/mentor/edit-profile",
     sessionType: "bearer",
   },
   [ROLES.MENTEE]: {
-    loginPath: "/login/mentee",
+    loginPath: "/login",
     dashboardPath: "/dashboard/mentee",
     onboardingPath: "/onboarding/mentee",
     editProfilePath: "/dashboard/mentee/edit-profile",
@@ -115,8 +115,10 @@ export const ROLE_CONFIG: Record<RouteRole, RoleRouteConfig> = Object.freeze({
 });
 
 /**
- * Which role's login page the bare `/login` URL shows. Kept here (not
- * hardcoded in the router) so changing the default is a one-line edit.
+ * The role a fresh visit to the bare `/login` toggle starts on. There is no
+ * longer a role-specific login URL (mentor/mentee both resolve to `/login`,
+ * whose toggle lets a dual-role account pick a side); this is just the
+ * toggle's default selection.
  */
 //"mentee"
 export const DEFAULT_LOGIN_ROLE: Role = ROLES.MENTEE;

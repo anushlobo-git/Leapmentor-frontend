@@ -32,6 +32,19 @@ function emailFromLocationState(state: unknown): string {
   return "";
 }
 
+// A role is present in location.state only when we arrived here straight from
+// the register form (register passes `{ email, role }`). That means the account
+// was just created AND register already issued its session (accessToken/refresh
+// cookie), so once the email is verified we can drop the user straight on
+// onboarding. A magic-link visit — a fresh page load from an emailed link — has
+// no router state and no session, so there's no role and we fall back to login.
+function roleFromLocationState(state: unknown): string {
+  if (state && typeof state === "object" && "role" in state && typeof state.role === "string") {
+    return state.role;
+  }
+  return "";
+}
+
 export const useVerifyEmailPresenter = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,6 +61,13 @@ export const useVerifyEmailPresenter = () => {
   const [msg, setMsg] = useState<{ type: string; text: string }>({ type: "", text: "" });
 
   const loginPath = "/login";
+
+  // Set when the user arrives from register (new account, already has a session)
+  // → verify then land on onboarding; empty for a magic-link visit → login.
+  const onboardingRole = roleFromLocationState(location.state);
+  const postVerifyPath = onboardingRole
+    ? `/onboarding/${onboardingRole}`
+    : loginPath;
 
   const hasSentRef = useRef(false);
   const hasVerifiedRef = useRef(false);
@@ -77,7 +97,7 @@ export const useVerifyEmailPresenter = () => {
       dispatch(verifyMagicLink({ token, email: emailParam })).then((action) => {
         if (verifyMagicLink.fulfilled.match(action)) {
           setRedirecting(true);
-          setTimeout(() => navigate(loginPath), 1500);
+          setTimeout(() => navigate(postVerifyPath), 1500);
         } else {
           setMsg({
             type: "error",
@@ -145,7 +165,9 @@ export const useVerifyEmailPresenter = () => {
     const action = await dispatch(verifyEmail({ email, otp: otpStr }));
     if (verifyEmail.fulfilled.match(action)) {
       setRedirecting(true);
-      setTimeout(() => navigate(loginPath), 900); // ✅ fixed: was using undefined redirectPath
+      // New account (arrived from register, session already issued) → onboarding;
+      // otherwise (no role in state) → login.
+      setTimeout(() => navigate(postVerifyPath), 900);
     } else {
       setMsg({
         type: "error",

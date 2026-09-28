@@ -12,7 +12,7 @@ import { MENTOR_NAV_ITEMS } from "@features/mentor/models/mentorNavItems";
 import DashboardTopbar from "@components/layout/DashboardTopbar";
 
 const Topbar = (props: Omit<React.ComponentProps<typeof DashboardTopbar>, "logoutRedirectPath">) => (
-  <DashboardTopbar {...props} logoutRedirectPath="/login/mentor" />
+  <DashboardTopbar {...props} logoutRedirectPath="/login" />
 );
 const MentorHomeTab = lazy(() => import("@features/mentor/views/dashboard/MentorHomeTab"));
 const ProfileTab = lazy(() => import("@features/mentor/views/dashboard/ProfileTab"));

@@ -328,12 +328,17 @@ describe("RegisterForm", () => {
     );
   });
 
-  it("shows an already-registered error when isNewUser is false", async () => {
+  it("routes login_required to login (email exists, password didn't match)", async () => {
     mockDispatch.mockImplementation((action) => {
       if (action?.type === "auth/registerUser") {
         return Promise.resolve({
           type: "auth/registerUser/fulfilled",
-          payload: { isNewUser: false },
+          payload: {
+            outcome: "login_required",
+            isNewUser: false,
+            loggedIn: false,
+            email: VALID.email,
+          },
         });
       }
       return action;
@@ -346,12 +351,111 @@ describe("RegisterForm", () => {
     await user.click(screen.getByRole("button", { name: "Create Account" }));
 
     expect(
-      await screen.findByText(
-        "This email is already registered. Please login instead.",
-      ),
+      await screen.findByText(/taking you to login/i),
     ).toBeInTheDocument();
-    expect(screen.queryByTestId("fullscreen-loader")).not.toBeInTheDocument();
-    expect(mockNavigate).not.toHaveBeenCalled();
+    await waitFor(
+      () =>
+        expect(mockNavigate).toHaveBeenCalledWith("/login", {
+          state: {
+            email: VALID.email,
+            notice:
+              "You already have an account for this email. Please log in.",
+          },
+        }),
+      { timeout: 2000 },
+    );
+  });
+
+  it("auto-logs-in a verified account that already holds the role (already_registered + loggedIn)", async () => {
+    mockDispatch.mockImplementation((action) => {
+      if (action?.type === "auth/registerUser") {
+        return Promise.resolve({
+          type: "auth/registerUser/fulfilled",
+          payload: {
+            outcome: "already_registered",
+            isNewUser: false,
+            loggedIn: true,
+            accessToken: "abc",
+            user: { roles: ["mentee"] },
+          },
+        });
+      }
+      return action;
+    });
+
+    const user = userEvent.setup();
+    render(<RegisterForm role="mentee" />);
+    await fillValidFields(user);
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: "Create Account" }));
+
+    await waitFor(() => expect(mockSetUser).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockNavigate).toHaveBeenCalledWith("/dashboard/mentee"),
+      { timeout: 2000 },
+    );
+  });
+
+  it("routes an unverified existing account to verify-email (already_registered, not logged in)", async () => {
+    mockDispatch.mockImplementation((action) => {
+      if (action?.type === "auth/registerUser") {
+        return Promise.resolve({
+          type: "auth/registerUser/fulfilled",
+          payload: {
+            outcome: "already_registered",
+            isNewUser: false,
+            loggedIn: false,
+            email: VALID.email,
+            user: { roles: ["mentee"] },
+          },
+        });
+      }
+      return action;
+    });
+
+    const user = userEvent.setup();
+    render(<RegisterForm role="mentee" />);
+    await fillValidFields(user);
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: "Create Account" }));
+
+    await waitFor(
+      () =>
+        expect(mockNavigate).toHaveBeenCalledWith("/verify-email", {
+          state: { email: VALID.email, role: "mentee" },
+        }),
+      { timeout: 2000 },
+    );
+  });
+
+  it("auto-logs-in when a role is added to a verified account (role_added + loggedIn)", async () => {
+    mockDispatch.mockImplementation((action) => {
+      if (action?.type === "auth/registerUser") {
+        return Promise.resolve({
+          type: "auth/registerUser/fulfilled",
+          payload: {
+            outcome: "role_added",
+            isNewUser: false,
+            loggedIn: true,
+            accessToken: "abc",
+            user: { roles: ["mentee", "mentor"] },
+          },
+        });
+      }
+      return action;
+    });
+
+    const user = userEvent.setup();
+    render(<RegisterForm role="mentor" />);
+    await fillValidFields(user);
+    await user.click(screen.getByRole("checkbox"));
+    await user.click(screen.getByRole("button", { name: "Create Account" }));
+
+    await waitFor(() => expect(mockSetUser).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockNavigate).toHaveBeenCalledWith("/dashboard/mentor"),
+      { timeout: 2000 },
+    );
   });
 
   it("does not show the new-user flow when registerUser is rejected", async () => {
