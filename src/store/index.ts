@@ -26,7 +26,12 @@ const store = configureStore({
   },
 });
 
+//ReturnType is used in order to specify the store.getState what it returns is the type for the
+//variable
 export type RootState = ReturnType<typeof store.getState>;
+
+//this is used while u are importing the dispatch and using it for like
+//const dispatch=useDispatch<AppDispatch>()
 export type AppDispatch = typeof store.dispatch;
 
 export default store;

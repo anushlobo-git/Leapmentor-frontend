@@ -34,7 +34,7 @@ vi.mock("@lib/monitoring/logger", () => ({
 }));
 
 // Mock sub-components
-vi.mock("@features/sessions/views/SessionCard", () => ({
+vi.mock("@features/sessions/views/components/SessionCard", () => ({
   default: ({ request }) => (
     <div data-testid="session-card">{request.status}</div>
   ),
@@ -44,7 +44,7 @@ vi.mock("@components/shared/Loader", () => ({
   default: () => <div data-testid="loader">Loading...</div>,
 }));
 
-vi.mock("@features/support/views/LeapBuddy", () => ({
+vi.mock("@features/support/views/components/LeapBuddy", () => ({
   default: ({ role }) => <div data-testid="leap-buddy">Buddy for {role}</div>,
 }));
 

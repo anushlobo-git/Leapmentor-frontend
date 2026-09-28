@@ -49,7 +49,7 @@ vi.mock("@components/ui/FormField", () => ({
   default: ({ as: Component = "input", ...props }) => <Component {...props} />,
 }));
 
-vi.mock("@features/support/views/FaqItem", () => ({
+vi.mock("@features/support/views/components/FaqItem", () => ({
   default: ({ item, isOpen, onToggle }) => (
     <div data-testid="faq-wrapper">
       <button onClick={onToggle}>{item.q}</button>

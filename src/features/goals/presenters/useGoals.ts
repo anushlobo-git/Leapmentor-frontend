@@ -286,7 +286,7 @@ const useGoals = (connectRequestId) => {
       // which never has `.ok`/`.json()` (those are fetch-API members). This branch
       // is effectively always truthy today, so failures are misreported.
       // Flagging for a follow-up fix rather than changing behavior here.
-      const res: FetchLikeResponse = await deleteMilestoneRequest(milestoneId);
+      const res = (await deleteMilestoneRequest(milestoneId)) as unknown as FetchLikeResponse;
       if (!res.ok) {
         const data: { message?: string } = await res.json().catch(() => ({}));
         throw new Error(data.message || "Failed to delete milestone");

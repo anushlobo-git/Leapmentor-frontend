@@ -48,7 +48,7 @@ vi.mock("@features/reports/presenters/useReport", () => ({
 }));
 
 // Mock child elements to cleanly verify prop forwarding contracts
-vi.mock("@features/goals/views/GoalForm", () => ({
+vi.mock("@features/goals/views/components/GoalForm", () => ({
   default: ({ initial, onSave, onCancel }) => (
     <div data-testid="mock-goal-form">
       <button onClick={() => onSave({ title: "Form Title Action" })}>
@@ -59,11 +59,11 @@ vi.mock("@features/goals/views/GoalForm", () => ({
   ),
 }));
 
-vi.mock("@features/goals/views/TimelineTracker", () => ({
+vi.mock("@features/goals/views/components/TimelineTracker", () => ({
   default: () => <div data-testid="mock-timeline-tracker" />,
 }));
 
-vi.mock("@features/goals/views/MilestoneList", () => ({
+vi.mock("@features/goals/views/components/MilestoneList", () => ({
   default: ({ onAdd, onToggle, onDelete }) => (
     <div data-testid="mock-milestone-list">
       <button onClick={onAdd}>Add Milestone</button>

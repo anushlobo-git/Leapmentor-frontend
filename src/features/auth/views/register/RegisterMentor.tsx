@@ -3,8 +3,8 @@
  */
 
 // src/pages/RegisterMentor.jsx
-import AuthLeftPanel from "@features/auth/views/AuthLeftPanel";
-import RegisterForm from "@features/auth/views/RegisterForm";
+import AuthLeftPanel from "@features/auth/views/shared/AuthLeftPanel";
+import RegisterForm from "@features/auth/views/register/RegisterForm";
 
 const MENTOR_STATS = [
   { num: "10K+", label: "Mentors" },

@@ -6,7 +6,7 @@
 import { lazy } from "react";
 import type { ComponentProps } from "react";
 import useMenteeDashboard from "@features/mentee/presenters/useMenteeDashboard";
-import DashboardShell from "@components/layout/DashboardShell";
+import DashboardShell, { type DashboardTab } from "@components/layout/DashboardShell";
 import DashboardSidebar from "@components/layout/DashboardSidebar";
 import { MENTEE_NAV_ITEMS } from "@features/mentee/models/menteeNavItems";
 import DashboardTopbar from "@components/layout/DashboardTopbar";
@@ -74,7 +74,10 @@ const DashboardLayout = () => (
     useDashboardData={useMenteeDashboard}
     Topbar={Topbar}
     Sidebar={MenteeSidebar}
-    tabs={TABS}
+    // Each tab supplies its component's required props at runtime via getProps;
+    // the shell types Component as ComponentType<Record<string, unknown>>, which
+    // can't express that, so assert the array against the shell's tab shape.
+    tabs={TABS as unknown as DashboardTab[]}
     listenForTabEvent
     loadingConfig={LOADING_CONFIG}
   />

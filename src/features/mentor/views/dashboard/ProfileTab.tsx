@@ -5,7 +5,7 @@
 // components/mentor/dashboard/ProfileTab.jsx
 // Thin wrapper so existing imports of this path keep working unchanged.
 import type React from "react";
-import ProfileTab from "@features/profile/views/ProfileTab";
+import ProfileTab from "@features/profile/views/components/ProfileTab";
 import { mentorProfileConfig } from "@features/profile/views/profileConfig";
 
 // Only `config` is meaningful here; it is forwarded to the shared ProfileTab.

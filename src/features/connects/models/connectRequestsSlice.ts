@@ -26,6 +26,8 @@ export interface ConnectRequest {
   _id: string;
   status: string;
   [field: string]: unknown;
+  //index signature 
+   //(3) "…and any number of OTHER fields, of unknown type"
 }
 
 type RequestPatch = Partial<Omit<ConnectRequest, "_id">>;

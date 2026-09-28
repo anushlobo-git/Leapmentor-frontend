@@ -16,7 +16,7 @@ vi.mock("@features/connects/presenters/useOngoingConnects", () => ({
 }));
 
 // Mock ConnectsLayout subcomponent to inspect arguments cleanly
-vi.mock("@features/connects/views/ConnectsLayout", () => ({
+vi.mock("@features/connects/views/components/ConnectsLayout", () => ({
   default: ({
     title,
     subtitle,
@@ -53,7 +53,7 @@ vi.mock("@features/connects/views/ConnectsLayout", () => ({
 }));
 
 // Mock ConnectCard subcomponent to evaluate mapping structures
-vi.mock("@features/connects/views/ConnectCard", () => ({
+vi.mock("@features/connects/views/components/ConnectCard", () => ({
   default: ({ name, tokenLabel, isCompleted, onDashboardClick }) => (
     <div
       data-testid="connect-card"

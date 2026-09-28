@@ -102,7 +102,7 @@ export const OngoingContent = ({ request, onClose }: { request: HistoryRequest; 
         </div>
       )}
 
-      {(sessionRate || sessionCount) && (
+      {(Boolean(sessionRate) || Boolean(sessionCount)) && (
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 space-y-1.5">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">
             Payment Summary

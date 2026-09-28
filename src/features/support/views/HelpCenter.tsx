@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { sendSupportMessage } from "@features/support/models/support.api";
 import { mentorFaqs, menteeFaqs } from "@features/support/models/faqs";
-import FaqItem from "@features/support/views/FaqItem";
+import FaqItem from "@features/support/views/components/FaqItem";
 import FormField from "@components/ui/FormField";
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ export default function HelpCenter() {
     .filter((g) => g.items.length > 0);
 
   // handleSubmit becomes:
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmitError("");

@@ -17,7 +17,7 @@ vi.mock("@components/ui/LetterBall", () => ({
   ),
 }));
 
-vi.mock("@features/marketing/views/HeroSlider", () => ({
+vi.mock("@features/marketing/views/sections/HeroSlider", () => ({
   default: () => (
     <div data-testid="mock-hero-slider">Hero Slider Component</div>
   ),

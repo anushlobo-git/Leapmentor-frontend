@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import MenteeProfileTab from "./ProfileTab";
-import ProfileTab from "@features/profile/views/ProfileTab";
+import ProfileTab from "@features/profile/views/components/ProfileTab";
 import { menteeProfileConfig } from "@features/profile/views/profileConfig";
 
 // Mock the external shared ProfileTab component and its specific configuration structure
-vi.mock("@features/profile/views/ProfileTab", () => ({
+vi.mock("@features/profile/views/components/ProfileTab", () => ({
   default: vi.fn(({ config }) => (
     <div data-testid="mock-shared-profile-tab">
       <span>Shared Profile Tab View</span>

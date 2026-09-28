@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import AuthSSOButtons from "./AuthSSOButtons";
 
 // Mock the presentation-only icon assets
-vi.mock("@features/auth/views/AuthIcons", () => ({
+vi.mock("@features/auth/views/shared/AuthIcons", () => ({
   GoogleIcon: () => <div data-testid="google-icon" />,
   LinkedInIcon: () => <div data-testid="linkedin-icon" />,
 }));

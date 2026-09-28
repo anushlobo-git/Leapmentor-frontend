@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import TestimonialCard from "@features/marketing/views/TestimonialCard";
+import TestimonialCard from "@features/marketing/views/sections/TestimonialCard";
 import StatCard from "@components/ui/StatCard";
 import SideArrow from "@components/ui/SideArrow";
 

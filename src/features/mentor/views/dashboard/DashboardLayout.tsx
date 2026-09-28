@@ -6,7 +6,7 @@
 import type React from "react";
 import { lazy } from "react";
 import useMentorDashboard from "@features/mentor/presenters/useMentorDashboard";
-import DashboardShell from "@components/layout/DashboardShell";
+import DashboardShell, { type DashboardTab } from "@components/layout/DashboardShell";
 import DashboardSidebar from "@components/layout/DashboardSidebar";
 import { MENTOR_NAV_ITEMS } from "@features/mentor/models/mentorNavItems";
 import DashboardTopbar from "@components/layout/DashboardTopbar";
@@ -52,7 +52,10 @@ const DashboardLayout = () => (
     useDashboardData={useMentorDashboard}
     Topbar={Topbar}
     Sidebar={MentorSidebar}
-    tabs={TABS}
+    // Each tab supplies its component's required props at runtime via getProps;
+    // the shell types Component as ComponentType<Record<string, unknown>>, which
+    // can't express that, so assert the array against the shell's tab shape.
+    tabs={TABS as unknown as DashboardTab[]}
     loadingConfig={LOADING_CONFIG}
   />
 );

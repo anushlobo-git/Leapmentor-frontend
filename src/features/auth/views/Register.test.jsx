@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import Register from "./Register";
 
 // ── Mock External Components ───────────────────────────────────────────────
-vi.mock("@features/auth/views/AuthLeftPanel", () => ({
+vi.mock("@features/auth/views/shared/AuthLeftPanel", () => ({
   default: vi.fn(({ badge, heading, subtext, stats }) => (
     <div data-testid="auth-left-panel">
       <span>Badge: {badge}</span>
@@ -17,19 +17,19 @@ vi.mock("@features/auth/views/AuthLeftPanel", () => ({
   )),
 }));
 
-vi.mock("@features/auth/views/RegisterForm", () => ({
+vi.mock("@features/auth/views/register/RegisterForm", () => ({
   default: vi.fn(({ role }) => (
     <div data-testid="register-form">Form Role: {role}</div>
   )),
 }));
 
-vi.mock("@features/auth/views/AuthIcons", () => ({
+vi.mock("@features/auth/views/shared/AuthIcons", () => ({
   LeapMentorLogo: vi.fn(() => (
     <span data-testid="mock-logo">LeapMentorLogo</span>
   )),
 }));
 
-vi.mock("@features/auth/views/AuthUI", () => ({
+vi.mock("@features/auth/views/shared/AuthUI", () => ({
   AuthBrand: vi.fn(({ logo }) => <div data-testid="auth-brand">{logo}</div>),
 }));
 

@@ -29,7 +29,7 @@ const TabSkeleton = () => (
   </div>
 );
 
-interface DashboardTab {
+export interface DashboardTab {
   key: string;
   Component: ComponentType<Record<string, unknown>>;
   getProps?: (handleSetTab: (tab: string) => void) => Record<string, unknown>;

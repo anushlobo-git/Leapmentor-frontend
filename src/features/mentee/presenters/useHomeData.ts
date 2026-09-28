@@ -47,8 +47,14 @@ export const useHomeData = (profile) => {
       try {
         setHomeLoading(true);
 
-        // Fetched into walletSlice; started alongside the mentor search and awaited below
-        // so `loading` still covers it. The thunk never rejects — failures land in the slice.
+        //thunk is the middleware that handles this dispatch function so what happens is
+        //fist the fetchWallet() gives back the function instead of the action object that is
+        //where the thunk comes as the middleware what happens is then first the thunk calls the
+        //fetchWallet.pending which is the action creator function that creates the object
+        //for the case reducer called wallet/fetchWallet/pending and then the corresponding reducers
+        //run and then the payload async creator function that u had return in the createAsyncThunk
+        //starts to run now if the payload is success and it returns the object then the fulfilled
+        //is called and then if there is the error then  the rejected reducer is called 
         const walletRequest = dispatch(fetchWallet());
 
         const skillTerm =

@@ -225,7 +225,7 @@ describe("DashboardSidebar", () => {
     );
 
     expect(drawerXButton).toBeDefined();
-    await user.click(drawerXButton!);
+    await user.click(drawerXButton);
     expect(mockOnClose).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Missions from "./Missions";
-import FeatureCard from "@features/marketing/views/FeatureCard";
+import FeatureCard from "@features/marketing/views/sections/FeatureCard";
 
 // Mock the child FeatureCard component to isolate testing of prop-mapping and grid mapping logic
-vi.mock("@features/marketing/views/FeatureCard", () => ({
+vi.mock("@features/marketing/views/sections/FeatureCard", () => ({
   default: vi.fn(({ icon, title, description }) => (
     <div data-testid="mock-feature-card">
       <span data-testid="card-title">{title}</span>

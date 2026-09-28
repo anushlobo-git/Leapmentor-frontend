@@ -87,11 +87,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
     dispatch(setUser({ accessToken, user }));
 
     const roles = user?.roles || [];
-    // The toggle / login-page role decides which dashboard to enter, but only
-    // when the account actually holds it — a mentee-only account that toggled
-    // "Mentor" falls back to its real primary role rather than being sent to a
-    // dashboard it can't use. getPrimaryRole is the fallback (and the answer
-    // for a plain /login with no role selected).
+    
     const chosenRole =
       role && roles.includes(role) ? role : getPrimaryRole(roles);
 

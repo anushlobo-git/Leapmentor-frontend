@@ -4,9 +4,9 @@
 
 // src/features/mentor/components/dashboard/MentorHomeTab.jsx
 import type React from "react";
-import SessionCard from "@features/sessions/views/SessionCard";
+import SessionCard from "@features/sessions/views/components/SessionCard";
 import Loader from "@components/shared/Loader";
-import LeapBuddy from "@features/support/views/LeapBuddy";
+import LeapBuddy from "@features/support/views/components/LeapBuddy";
 import { useMentorHomeTabPresenter } from "@features/mentor/presenters/useMentorHomeTabPresenter";
 import { formatDecimal } from "@lib/formatters/number";
 
@@ -115,6 +115,10 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
     sessionStatusText,
     welcomeMessage,
   } = useMentorHomeTabPresenter();
+
+  // `profile` comes out of the shared dashboard slice loosely typed (unknown);
+  // only avgRating is read here, so narrow just that one field.
+  const avgRating = (profile as { avgRating?: number } | null)?.avgRating ?? 0;
 
   // ── FIX FOR S3358 & S3776: Extracted Session Grid Container template blocks ──
   let activeSessionsContent: React.ReactNode;
@@ -227,8 +231,8 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
         />
         <StatCard
           label="Avg Rating"
-          value={profile?.avgRating > 0 ? profile.avgRating.toFixed(1) : "New"}
-          sub={profile?.avgRating > 0 ? "out of 5.0" : "no reviews yet"}
+          value={avgRating > 0 ? avgRating.toFixed(1) : "New"}
+          sub={avgRating > 0 ? "out of 5.0" : "no reviews yet"}
           icon={<IconStar />}
         />
         <StatCard

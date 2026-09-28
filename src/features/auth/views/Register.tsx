@@ -4,10 +4,10 @@
 
 // src/pages/Register.jsx
 import { useState } from "react";
-import AuthLeftPanel from "@features/auth/views/AuthLeftPanel";
-import RegisterForm from "@features/auth/views/RegisterForm";
-import { LeapMentorLogo } from "@features/auth/views/AuthIcons";
-import { AuthBrand } from "@features/auth/views/AuthUI";
+import AuthLeftPanel from "@features/auth/views/shared/AuthLeftPanel";
+import RegisterForm from "@features/auth/views/register/RegisterForm";
+import { LeapMentorLogo } from "@features/auth/views/shared/AuthIcons";
+import { AuthBrand } from "@features/auth/views/shared/AuthUI";
 
 const MENTEE_PANEL = {
   imageSrc: "/images/mentor-bg.jpg",

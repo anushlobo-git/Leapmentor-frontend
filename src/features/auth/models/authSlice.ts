@@ -304,7 +304,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Login ──
@@ -322,7 +322,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Send OTP ──
@@ -338,7 +338,7 @@ const authSlice = createSlice({
       })
       .addCase(sendOtp.rejected, (state, action) => {
         state.sending = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Verify Email (OTP) ──
@@ -362,7 +362,7 @@ const authSlice = createSlice({
       })
       .addCase(verifyEmail.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Verify Magic Link ──
@@ -385,7 +385,7 @@ const authSlice = createSlice({
 })
       .addCase(verifyMagicLink.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Forgot Password ──
@@ -401,7 +401,7 @@ const authSlice = createSlice({
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Verify Reset OTP ──
@@ -417,7 +417,7 @@ const authSlice = createSlice({
       })
       .addCase(verifyResetOtp.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Reset Password ──
@@ -433,7 +433,7 @@ const authSlice = createSlice({
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload;
+        state.error   = action.payload as string;
       });
 
     // ── Bootstrap Admin Session ──

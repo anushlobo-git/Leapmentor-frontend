@@ -3,7 +3,7 @@ import { render, screen, act, fireEvent } from "@testing-library/react";
 import Testimonials from "./Testimonials";
 
 // ── Mock Presentational Child Layouts ────────────────────
-vi.mock("@features/marketing/views/TestimonialCard", () => ({
+vi.mock("@features/marketing/views/sections/TestimonialCard", () => ({
   default: vi.fn(({ testimonial, active, dimmed }) => (
     <div
       data-testid="testimonial-card"

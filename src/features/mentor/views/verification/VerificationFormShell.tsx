@@ -4,10 +4,10 @@
 
 // components/mentor/verification/VerificationFormShell.jsx
 import FullScreenLoader from "@components/shared/FullScreenLoader";
-import PhoneNumberField     from "@features/mentor/views/PhoneNumberField";
-import ResumeUpload         from "@features/mentor/views/ResumeUpload";
-import WorkExperienceUpload from "@features/mentor/views/WorkExperienceUpload";
-import VerificationInstructionsModal from "@features/mentor/views/VerificationInstructionsModal";
+import PhoneNumberField     from "@features/mentor/views/verification/PhoneNumberField";
+import ResumeUpload         from "@features/mentor/views/verification/ResumeUpload";
+import WorkExperienceUpload from "@features/mentor/views/verification/WorkExperienceUpload";
+import VerificationInstructionsModal from "@features/mentor/views/verification/VerificationInstructionsModal";
 import { IMAGES } from "@constants/images";
 import { useVerificationFormShellPresenter } from "@features/mentor/presenters/useVerificationFormShellPresenter";
 

@@ -7,12 +7,12 @@
 import type React from "react";
 import { useRegisterPresenter } from "@features/auth/presenters/useRegisterPresenter";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
-import AuthSSOButtons from "@features/auth/views/AuthSSOButtons";
+import AuthSSOButtons from "@features/auth/views/shared/AuthSSOButtons";
 import {
   AuthMessageBanner,
   AuthDivider,
   AuthField,
-} from "@features/auth/views/AuthUI";
+} from "@features/auth/views/shared/AuthUI";
 import TermsAndConditionsModal from "@components/ui/TermsAndConditionsModal";
 import { getPasswordToggleIcon } from "@lib/auth/passwordIconUtils";
 

@@ -5,15 +5,15 @@ vi.mock("@components/layout/PublicLayout", () => ({
   __esModule: true,
   default: ({ children }) => <div data-testid="public-layout">{children}</div>,
 }));
-vi.mock("@features/marketing/views/Hero", () => ({
+vi.mock("@features/marketing/views/sections/Hero", () => ({
   __esModule: true,
   default: () => <div>Hero</div>,
 }));
-vi.mock("@features/marketing/views/Missions", () => ({
+vi.mock("@features/marketing/views/sections/Missions", () => ({
   __esModule: true,
   default: () => <div>Missions</div>,
 }));
-vi.mock("@features/marketing/views/Testimonials", () => ({
+vi.mock("@features/marketing/views/sections/Testimonials", () => ({
   __esModule: true,
   default: () => <div>Testimonials</div>,
 }));

@@ -9,9 +9,9 @@ import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashb
 import useGoals from "@features/goals/presenters/useGoals";
 import useSessions from "@features/sessions/presenters/useSessions";
 import useReport from "@features/reports/presenters/useReport";
-import GoalForm from "@features/goals/views/GoalForm";
-import TimelineTracker from "@features/goals/views/TimelineTracker";
-import MilestoneList from "@features/goals/views/MilestoneList";
+import GoalForm from "@features/goals/views/components/GoalForm";
+import TimelineTracker from "@features/goals/views/components/TimelineTracker";
+import MilestoneList from "@features/goals/views/components/MilestoneList";
 import SessionCard from "@features/goals/views/SessionCard";
 import FeedbackModal from "@features/shared-dashboard/views/tabs/FeedbackModal";
 import {
@@ -433,7 +433,6 @@ const SharedGoalsTab = () => {
       {goal && (
         <TimelineTracker
           goal={goal}
-          viewerRole={viewerRole}
           onUpdate={async (goalId, dates) => {
             await updateGoal(goalId, dates);
           }}
