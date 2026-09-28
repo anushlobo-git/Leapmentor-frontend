@@ -44,7 +44,7 @@ export const OngoingContent = ({ request, onClose }: { request: HistoryRequest; 
       link.remove();
       globalThis.URL.revokeObjectURL(url);
       logger.info("Invoice downloaded", { requestId: request._id });
-    } catch (err: any) {
+    } catch (err) {
       logger.warn("Failed to download invoice", {
         requestId: request._id,
         error: err?.message || err,
@@ -282,7 +282,7 @@ export const ReferredContent = ({ request, onDelete }: { request: HistoryRequest
             Proposed Times
           </p>
           <div className="space-y-1.5">
-            {selectedSlots.map((slot: any) => (
+            {selectedSlots.map((slot) => (
               <SlotRow
                 key={`${slot.date}-${slot.startTime}`}
                 slot={slot}
@@ -297,7 +297,7 @@ export const ReferredContent = ({ request, onDelete }: { request: HistoryRequest
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
               Your Message
             </p>
-            <p className="text-xs text-slate-600 italic">"{message}"</p>
+            <p className="text-xs text-slate-600 italic">&quot;{message}&quot;</p>
           </div>
         )}
 

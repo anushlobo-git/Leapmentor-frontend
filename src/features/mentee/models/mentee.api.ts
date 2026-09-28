@@ -37,7 +37,7 @@ export const getCurrentUser = () => axiosInstance.get("/users/me");
 
 export const getMenteeProfile = () => axiosInstance.get("/mentee-profile/me");
 
-export const updateMenteeProfile = (payload: any) =>
+export const updateMenteeProfile = (payload: unknown) =>
   axiosInstance.put("/mentee-profile/me", payload);
 
 export const changePasswordRequest = ({

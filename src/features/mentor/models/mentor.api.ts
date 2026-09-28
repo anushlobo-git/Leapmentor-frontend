@@ -39,10 +39,15 @@ export const withdrawMentorEarnings = () =>
 // --- availability ---
 export const getMyAvailability = () => axiosInstance.get(`/availability/me`);
 
+interface AvailabilityDate {
+  date: string;
+  slots: { startTime: string; endTime: string }[];
+}
+
 export const updateMyAvailability = (payload: {
   timezone: string;
   sessionDurations: number[];
-  specificDates: any[];
+  specificDates: AvailabilityDate[];
 }) => axiosInstance.patch(`/availability/me`, payload);
 
 // --- current user / mentor profile ---
@@ -50,7 +55,7 @@ export const getCurrentUser = () => axiosInstance.get("/users/me");
 
 export const getMentorProfile = () => axiosInstance.get("/mentor-profile/me");
 
-export const updateMentorProfile = (payload: any) =>
+export const updateMentorProfile = (payload: unknown) =>
   axiosInstance.put("/mentor-profile/me", payload);
 
 // --- google calendar integration ---

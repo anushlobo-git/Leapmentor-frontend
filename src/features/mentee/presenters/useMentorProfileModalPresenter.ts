@@ -106,7 +106,7 @@ export function useMentorProfileModalPresenter(
           setSelectedDuration(res.data.sessionDurations[0]);
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       setSlotsError(
         err?.response?.status === HTTP_STATUS.NOT_FOUND
           ? "This mentor hasn't set their availability yet."

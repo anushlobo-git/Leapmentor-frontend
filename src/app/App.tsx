@@ -5,7 +5,7 @@
 // src/App.jsx
 import { Toaster } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@store/index";
 import { setUser, logout } from "@features/auth/models/authSlice";
@@ -13,13 +13,7 @@ import { refreshTokenRequest } from "@features/auth/models/auth.api";
 import logger from "@lib/monitoring/logger";
 import { hasSessionHint, clearAuthRole } from "@lib/http/cookies";
 import PageLoader from "./PageLoader";
-import { appRoutes } from "./routes";
-
-// Built inside a function, not at module scope: createBrowserRouter reads
-// window.location the moment it's created, and tests (App.test.jsx) change
-// the path per test via createMemoryRouter instead — this keeps the two
-// from fighting over when the router snapshots the URL.
-export const createAppRouter = () => createBrowserRouter(appRoutes);
+import { createAppRouter } from "./createAppRouter";
 
 // FIX: Silent refresh on page load.
 // When the page is hard-refreshed, Redux is wiped but the httpOnly

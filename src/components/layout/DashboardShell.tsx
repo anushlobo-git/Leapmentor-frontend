@@ -31,8 +31,8 @@ const TabSkeleton = () => (
 
 interface DashboardTab {
   key: string;
-  Component: ComponentType<any>;
-  getProps?: (handleSetTab: (tab: string) => void) => Record<string, any>;
+  Component: ComponentType<Record<string, unknown>>;
+  getProps?: (handleSetTab: (tab: string) => void) => Record<string, unknown>;
 }
 
 interface LoadingConfig {
@@ -44,14 +44,14 @@ interface LoadingConfig {
 
 interface DashboardShellProps {
   useDashboardData: () => {
-    user: any;
-    profile: any;
+    user: unknown;
+    profile: unknown;
     loading: boolean;
     error: string | null;
     refetch?: () => void;
   };
-  Topbar: ComponentType<any>;
-  Sidebar: ComponentType<any>;
+  Topbar: ComponentType<Record<string, unknown>>;
+  Sidebar: ComponentType<Record<string, unknown>>;
   tabs: DashboardTab[];
   listenForTabEvent?: boolean;
   loadingConfig: LoadingConfig;
@@ -96,7 +96,7 @@ const DashboardShell = ({
 
   useEffect(() => {
     if (!listenForTabEvent) return;
-    const handler = (e: any) => setActiveTab(e.detail);
+    const handler = (e: CustomEvent) => setActiveTab(e.detail);
     globalThis.addEventListener("setDashboardTab", handler);
     return () => globalThis.removeEventListener("setDashboardTab", handler);
   }, [listenForTabEvent]);

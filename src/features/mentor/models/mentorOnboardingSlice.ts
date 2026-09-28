@@ -8,7 +8,7 @@ import axiosInstance from "@lib/http/axiosInstance";
 
 export const submitMentorOnboarding = createAsyncThunk(
   "mentorOnboarding/submit",
-  async (payload: Record<string, any>, { rejectWithValue }: any) => {
+  async (payload: Record<string, unknown>, { rejectWithValue }) => {
     try {
       const payloadToSend = {
         ...payload,

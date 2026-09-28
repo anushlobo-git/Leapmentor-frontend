@@ -2,6 +2,7 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
+import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadVerificationDocuments } from "@features/mentor/models/mentor.api";
@@ -29,19 +30,19 @@ export const useVerificationFormShellPresenter = () => {
   const [msg,     setMsg]     = useState<{ type: string; text: string }>({ type: "", text: "" });
 
   // ── Handlers ──
-  const handlePhoneChange = (e: any) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoneNumber(e.target.value);
-    if (errors.phoneNumber) setErrors((prev: any) => ({ ...prev, phoneNumber: "" }));
+    if (errors.phoneNumber) setErrors((prev) => ({ ...prev, phoneNumber: "" }));
   };
 
   const handleResumeChange = (file: File | null, error: string | null) => {
     setResumeFile(file);
-    setErrors((prev: any) => ({ ...prev, resumeFile: error || "" }));
+    setErrors((prev) => ({ ...prev, resumeFile: error || "" }));
   };
 
   const handleWorkExpChange = (files: File[], error: string | null) => {
     setWorkExperienceFiles(files);
-    setErrors((prev: any) => ({ ...prev, workExperienceFiles: error || "" }));
+    setErrors((prev) => ({ ...prev, workExperienceFiles: error || "" }));
   };
 
   const closeModal = () => setShowModal(false);
@@ -61,7 +62,7 @@ export const useVerificationFormShellPresenter = () => {
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
-      setErrors((prev: any) => ({ ...prev, ...validationErrors }));
+      setErrors((prev) => ({ ...prev, ...validationErrors }));
       return;
     }
 
@@ -76,13 +77,13 @@ export const useVerificationFormShellPresenter = () => {
         formData.append("workExperienceDocs", file);
       });
 
-      await uploadVerificationDocuments(formData, (e: any) => {
+      await uploadVerificationDocuments(formData, (e: { loaded: number; total?: number }) => {
         if (e.total) setProgress(Math.round((e.loaded * 100) / e.total));
       });
 
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentor"), 1500);
-    } catch (err: any) {
+    } catch (err) {
       setMsg({
         type: "error",
         text: err?.response?.data?.message || "Failed to submit documents. Please try again.",

@@ -2,6 +2,13 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
+/* eslint-disable react-refresh/only-export-components */
+// This is the route-configuration module: it deliberately exports route
+// definition arrays/objects (PUBLIC_ROUTES, ROLE_GUARDED_ROUTES, appRoutes,
+// ...) alongside the small layout/error components used in the route tree.
+// That mix is inherent to a data-router config file, so fast refresh's
+// component-only rule is disabled here.
+
 /**
  * @fileoverview Route registry (data router)
  * @description
@@ -35,7 +42,7 @@
  * what to *show* — the backend (authenticate + requireRole /
  * requirePermission) is the real enforcement.
  */
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import {
   Outlet,
   ScrollRestoration,
@@ -66,7 +73,7 @@ import NotFound from "@app/pages/NotFound";
  * route's `lazy` property (Phase 3) able to code-split it. */
 //const loadLogin: Importer = () => import("./Login");
 //So anything assigned to Importer must be a function that takes no arguments.
-type Importer = () => Promise<{ default: ComponentType<any> }>;
+type Importer = () => Promise<{ default: ComponentType<{ children?: ReactNode }> }>;
 
 export interface RouteAccess {
   /** The user must hold at least one of these roles. */

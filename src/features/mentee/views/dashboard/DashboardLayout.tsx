@@ -4,6 +4,7 @@
 
 // src/components/mentee/dashboard/DashboardLayout.jsx
 import { lazy } from "react";
+import type { ComponentProps } from "react";
 import useMenteeDashboard from "@features/mentee/presenters/useMenteeDashboard";
 import DashboardShell from "@components/layout/DashboardShell";
 import DashboardSidebar from "@components/layout/DashboardSidebar";
@@ -34,11 +35,13 @@ const HelpCenter = lazy(
 const ConnectsTab = lazy(
   () => import("@features/connects/views/ConnectsTab"),
 );
-const Topbar = (props: any) => <DashboardTopbar {...props} logoutRedirectPath="/" />;
+const Topbar = (props: Omit<ComponentProps<typeof DashboardTopbar>, "logoutRedirectPath">) => (
+  <DashboardTopbar {...props} logoutRedirectPath="/" />
+);
 
 // DashboardShell doesn't know about navItems (it's shared with mentor), so this
 // wrapper "pre-fills" navItems before DashboardShell renders <Sidebar ... /> internally.
-const MenteeSidebar = (props: any) => (
+const MenteeSidebar = (props: Omit<ComponentProps<typeof DashboardSidebar>, "navItems">) => (
   <DashboardSidebar {...props} navItems={MENTEE_NAV_ITEMS} />
 );
 

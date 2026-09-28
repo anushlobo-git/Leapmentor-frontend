@@ -8,7 +8,7 @@ const inputClass =
 
 interface SocialLinksSectionProps {
   form: { linkedInUrl?: string; portfolioUrl?: string };
-  handleChange: (e: any) => void;
+  handleChange: (e: { target: { name: string; value: string } }) => void;
 }
 
 const SocialLinksSection = ({ form, handleChange }: SocialLinksSectionProps) => {

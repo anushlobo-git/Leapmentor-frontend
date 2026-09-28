@@ -123,6 +123,10 @@ function formatConsoleArg(value) {
 //and then catches the logs and replaces it with redact if it consist sensitive info
 //with the help of formatConsoleArg
 function patchConsoleMethod(methodName) {
+  // This module IS the console wrapper: it swaps console[method] for a
+  // redacting version, so referencing console directly here is intentional
+  // (not stray debug logging the no-console rule is meant to catch).
+  // eslint-disable-next-line no-console
   const original = console[methodName];
   if (!original || original.__leapmentorPatched) return;
 
@@ -144,6 +148,7 @@ function patchConsoleMethod(methodName) {
   };
 
   patched.__leapmentorPatched = true;
+  // eslint-disable-next-line no-console
   console[methodName] = patched;
 }
 
@@ -220,8 +225,22 @@ const SERVICE_ENVIRONMENT = import.meta.env.MODE; // "development" | "production
  * @returns {Record<string, any>} ECS-shaped metadata for the Logtail context param.
  */
 //returns the object meta that has ECS standard items init
+interface EcsMeta {
+  "log.level": string;
+  "ecs.version": string;
+  service: { name: string; environment: string };
+  trace?: { id: unknown };
+  url?: { path: unknown };
+  http?: {
+    request?: { method: unknown };
+    response?: { status_code: unknown };
+  };
+  error?: { stack_trace?: unknown; type?: unknown };
+  labels?: Record<string, unknown>;
+}
+
 function buildEcsMeta(level, context) {
-  const meta: Record<string, any> = {
+  const meta: EcsMeta = {
     "log.level": level,
     "ecs.version": ECS_VERSION,
     service: {
@@ -264,7 +283,7 @@ const logger = {
   // redirects, invoice downloads, etc.) don't need to change; they simply
   // stop producing output. This is a one-line revert if info logging is
   // ever needed again — flip the body back to what warn/error do below.
-  info: (..._args: any[]) => {},
+  info: (..._args: unknown[]) => {},
   warn: (message, context = {}) => {
     const safeMessage = sanitizeMessage(message);
     const safeContext = redactObject(context);

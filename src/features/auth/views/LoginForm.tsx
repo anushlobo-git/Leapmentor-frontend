@@ -184,7 +184,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
       />
 
       <p className="text-sm text-slate-500 text-center mt-8">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <button
           type="button"
           className="text-blue-900 font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0"

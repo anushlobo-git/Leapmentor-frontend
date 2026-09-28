@@ -8,6 +8,13 @@
 // files render near-identical file lists (loading skeletons, day separators,
 // file-type badges) and duplicate the same day-grouping and download logic.
 // Extracted here so both files stay in sync without copy-pasting.
+//
+// This module intentionally co-locates small data utils (groupNotesByDay,
+// downloadNoteFile) with the tiny presentational rows that consume the same
+// note data. The utils are imported and mocked by module path across several
+// tests, so splitting them out purely to satisfy fast refresh would churn
+// every consumer for no runtime gain — the rule is disabled for this file.
+/* eslint-disable react-refresh/only-export-components */
 import logger from "@lib/monitoring/logger";
 import { formatDateSeparator, isSameDay } from "@lib/formatters/dateTime";
 

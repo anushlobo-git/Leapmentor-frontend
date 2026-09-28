@@ -34,7 +34,7 @@ export const useRequestsTabPresenter = () => {
   useSocketEvent(
     () => ({
       events: {
-        request_status_changed: (data: any) => {
+        request_status_changed: (data: unknown) => {
           logger.info("Request status changed socket event received", {
             data,
           });
@@ -62,16 +62,16 @@ export const useRequestsTabPresenter = () => {
   const filtered =
     activeTab === "all"
       ? requests
-      : requests.filter((r: any) => r.status === activeTab);
+      : requests.filter((r) => r.status === activeTab);
 
   const counts = {
     all: requests.length,
-    pending: requests.filter((r: any) => r.status === "pending").length,
-    accepted: requests.filter((r: any) => r.status === "accepted").length,
-    rejected: requests.filter((r: any) => r.status === "rejected").length,
-    referred: requests.filter((r: any) => r.status === "referred").length,
-    ongoing: requests.filter((r: any) => r.status === "ongoing").length,
-    completed: requests.filter((r: any) => r.status === "completed").length,
+    pending: requests.filter((r) => r.status === "pending").length,
+    accepted: requests.filter((r) => r.status === "accepted").length,
+    rejected: requests.filter((r) => r.status === "rejected").length,
+    referred: requests.filter((r) => r.status === "referred").length,
+    ongoing: requests.filter((r) => r.status === "ongoing").length,
+    completed: requests.filter((r) => r.status === "completed").length,
   };
 
   const selectRequest = (r: RequestCardRequest) => setSelectedRequest(r);

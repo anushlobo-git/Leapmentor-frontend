@@ -26,7 +26,7 @@ export interface PrivateFileNote {
 
 interface PrivateFileCardProps {
   note: PrivateFileNote;
-  onDelete: (noteId: string) => void | Promise<any>;
+  onDelete: (noteId: string) => void | Promise<unknown>;
 }
 
 // ── Private File Card ─────────────────────────────────────────

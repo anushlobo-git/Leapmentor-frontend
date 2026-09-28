@@ -3,6 +3,7 @@
  */
 
 // src/features/mentee/components/dashboard/findMentors/MentorProfileModal.jsx
+import type React from "react";
 import ConnectSuccessModal from "@features/mentee/views/dashboard/findMentors/ConnectSucessModal";
 import { formatTimeOfDay } from "@lib/formatters/dateTime";
 import useMentorProfileModalPresenter, {
@@ -299,7 +300,7 @@ const MentorProfileModal = ({ mentor, onClose }: { mentor: MentorProfile; onClos
                 Badges
               </p>
               <div className="flex gap-3 flex-wrap">
-                {badges.map((badge: any) => (
+                {badges.map((badge) => (
                   <div
                     key={badge.key}
                     title={badge.desc}
@@ -583,7 +584,7 @@ const MentorProfileModal = ({ mentor, onClose }: { mentor: MentorProfile; onClos
               </p>
               <textarea
                 value={message}
-                onChange={(e: any) => setMessage(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
                 maxLength={500}
                 rows={3}
                 placeholder={`Hi ${user?.name?.split(" ")[0] || "there"}, I'm looking for guidance on...`}

@@ -25,12 +25,12 @@ import type { HistoryRequest } from "@features/mentee/views/dashboard/history/De
 interface EscrowPaymentModalProps {
   request: HistoryRequest;
   onClose: () => void;
-  onSuccess: (patch: Record<string, any>) => void;
+  onSuccess: (patch: Record<string, unknown>) => void;
 }
 
 const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [successPatch, setSuccessPatch] = useState<Record<string, any> | null>(null);
+  const [successPatch, setSuccessPatch] = useState<Record<string, unknown> | null>(null);
   const defaultSessionRate = request?.mentorProfile?.hourlyRate ?? 0;
 
   const {
@@ -82,7 +82,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
         commissionAmount: platformFee,
         mentorPayout: mentorAmount,
       });
-    } catch (err: any) {
+    } catch (err) {
       setError(
         err?.response?.data?.message || "Payment failed. Please try again.",
       );

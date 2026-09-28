@@ -4,6 +4,7 @@
 
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
 import { useState, useEffect, useRef } from "react";
+import type React from "react";
 
 interface FindMentorsFilters {
   industry: string;
@@ -154,7 +155,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
             <select
               id="filter-industry"
               value={filters.industry}
-              onChange={(e: any) => updateFilter("industry", e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilter("industry", e.target.value)}
               className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
             >
               <option value="">All Industries</option>
@@ -179,7 +180,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
                 placeholder="Min"
                 aria-label="Minimum price per hour"
                 value={localMin}
-                onChange={(e: any) => handleMinPrice(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMinPrice(e.target.value)}
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
               />
               <span className="text-slate-300 font-bold shrink-0">—</span>
@@ -189,7 +190,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
                 placeholder="Max"
                 aria-label="Maximum price per hour"
                 value={localMax}
-                onChange={(e: any) => handleMaxPrice(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMaxPrice(e.target.value)}
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
               />
             </div>

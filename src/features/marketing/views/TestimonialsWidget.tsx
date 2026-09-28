@@ -89,6 +89,9 @@ export default function Testimonials() {
   useEffect(() => {
     const timer = setInterval(() => go(1), 4000);
     return () => clearInterval(timer);
+    // `go` is recreated each render; the interval is intentionally reset only
+    // when `active` changes, so it is excluded from the dep list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   const go = (dir: number) => {
@@ -129,7 +132,7 @@ export default function Testimonials() {
           </h2>
           <p className="text-gray-500 mt-4 text-lg max-w-xl mx-auto">
             Thousands of professionals have transformed their careers with
-            LeapMentor. Here's what they say.
+            LeapMentor. Here&apos;s what they say.
           </p>
         </div>
 
@@ -337,5 +340,8 @@ function TestimonialCard({ testimonial, active, dimmed }: Readonly<{ testimonial
   );
 }
 
-// Named exports for testing internal helpers and card rendering branches
+// Named exports for testing internal helpers and card rendering branches.
+// Consumed only by this widget's co-located test, so they intentionally live
+// alongside the default component export.
+// eslint-disable-next-line react-refresh/only-export-components
 export { getCardStateClassName, TestimonialCard };

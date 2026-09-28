@@ -70,7 +70,7 @@ const HomeTab = () => {
   // Extracted so the sessions list only needs a single (non-nested) ternary.
   const sessionsContent =
     sessions.length > 0 ? (
-      sessions.map((request: any, idx: number) => (
+      sessions.map((request, idx: number) => (
         <SessionCard
           key={request._id}
           request={request}

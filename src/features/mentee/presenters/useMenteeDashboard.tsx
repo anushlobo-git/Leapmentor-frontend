@@ -76,6 +76,9 @@ const useMenteeDashboard = () => {
 
   useEffect(() => {
     fetchData();
+    // fetchData is recreated each render; the dashboard load is intentionally
+    // (re)run only when authentication status changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   return { user, profile, loading, error, refetch: fetchData }; // ✅ exposed

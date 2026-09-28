@@ -5,8 +5,8 @@
 // src/features/support/components/FaqItem.jsx
 
 export interface FaqItemData {
-  q: any;
-  a: any;
+  q: string;
+  a: string;
 }
 
 interface FaqItemProps {

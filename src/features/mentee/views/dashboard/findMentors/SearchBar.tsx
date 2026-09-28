@@ -2,13 +2,15 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
+import type React from "react";
+
 interface SearchBarProps {
   skill: string | number;
   setSkill: (value: string) => void;
 }
 
 const SearchBar = ({ skill, setSkill }: SearchBarProps) => {
-const handleChange = (e: any) => {
+const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 setSkill(e.target.value);
 };
 const handleClear = () => {

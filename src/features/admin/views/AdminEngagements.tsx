@@ -343,6 +343,10 @@ const AdminEngagements = () => {
   useEffect(() => {
     fetchStats();
     fetchEngagements();
+    // Initial load only. fetchEngagements changes identity with the filter
+    // state, but filter changes already trigger their own fetches via the
+    // handlers, so it is intentionally excluded to avoid double-fetching.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (value: string) => {

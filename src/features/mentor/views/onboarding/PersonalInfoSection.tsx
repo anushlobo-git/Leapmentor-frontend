@@ -3,13 +3,15 @@
  */
 
 // src/features/mentor/components/onboarding/PersonalInfoSection.jsx
+import type React from "react";
 import { useRef, useState } from "react";
 import { uploadMentorProfilePicture } from "@features/mentor/models/mentor.api";
 import { validateImageFile } from "@lib/validation/schemas";
+import type { FormChangeEvent } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
 
 interface PersonalInfoSectionProps {
   form: { profilePicture?: string; profilePictureFileName?: string; bio?: string };
-  onChange: (e: any) => void;
+  onChange: (e: FormChangeEvent) => void;
 }
 
 const PersonalInfoSection = ({ form, onChange }: PersonalInfoSectionProps) => {
@@ -22,7 +24,7 @@ const PersonalInfoSection = ({ form, onChange }: PersonalInfoSectionProps) => {
     if (!uploading) fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (e: any) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -41,7 +43,7 @@ const PersonalInfoSection = ({ form, onChange }: PersonalInfoSectionProps) => {
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const res = await uploadMentorProfilePicture(formData, (e: any) => {
+      const res = await uploadMentorProfilePicture(formData, (e: { loaded: number; total?: number }) => {
         if (e.total) setProgress(Math.round((e.loaded * 100) / e.total));
       });
 
@@ -55,7 +57,7 @@ const PersonalInfoSection = ({ form, onChange }: PersonalInfoSectionProps) => {
       onChange({
         target: { name: "profilePictureFileName", value: res.data.fileName },
       });
-    } catch (err: any) {
+    } catch (err) {
       setUploadErr(
         err?.response?.data?.message ||
           "Failed to upload image. Please try again.",

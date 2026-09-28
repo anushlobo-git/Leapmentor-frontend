@@ -6,14 +6,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { getOngoingConnects } from "@features/connects/models/connects.api";
 import { mapConnectRequest } from "@features/connects/models/connectsMapper";
+import type { MappedConnectRequest } from "@features/connects/models/connectsMapper";
 /**
  * Custom hook for ongoing connects.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
 const useOngoingConnects = () => {
-  const [ongoing,   setOngoing]   = useState<any[]>([]);
-  const [completed, setCompleted] = useState<any[]>([]);
+  const [ongoing,   setOngoing]   = useState<MappedConnectRequest[]>([]);
+  const [completed, setCompleted] = useState<MappedConnectRequest[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState<string | null>(null);
 
@@ -27,7 +28,7 @@ const useOngoingConnects = () => {
       // ✅ Split into ongoing and completed
       setOngoing(all.filter((c) => c.status === "ongoing"));
       setCompleted(all.filter((c) => c.status === "completed"));
-    } catch (err: any) {
+    } catch (err) {
       setError(err?.response?.data?.message || "Failed to load connects.");
     } finally {
       setLoading(false);

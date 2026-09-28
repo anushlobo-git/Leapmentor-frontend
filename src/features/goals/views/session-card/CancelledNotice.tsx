@@ -24,7 +24,7 @@ const CancelledNotice = ({ slot, viewerRole, otherName }: CancelledNoticeProps) 
           Cancelled by {slot?.cancelledBy === viewerRole ? "you" : otherName}
         </p>
         {slot?.cancellationReason && slot.cancellationReason !== "rescheduled" && (
-          <p className="text-xs text-red-500 mt-0.5 italic">"{slot.cancellationReason}"</p>
+          <p className="text-xs text-red-500 mt-0.5 italic">&quot;{slot.cancellationReason}&quot;</p>
         )}
         {slot?.isRescheduled && (
           <p className="text-xs text-blue-500 mt-0.5 font-medium">↳ Rescheduled to a new slot</p>

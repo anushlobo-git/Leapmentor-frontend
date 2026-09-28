@@ -12,7 +12,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import logger from "@lib/monitoring/logger";
-import { mapAuthUser } from "@lib/mappers/userMapper";
+import { mapAuthUser, type RawAuthUser } from "@lib/mappers/userMapper";
 import { mapMentorProfile } from "@features/mentor/models/mentorMapper";
 import { mapMenteeProfile } from "@features/mentee/models/menteeMapper";
 import {
@@ -60,7 +60,7 @@ export interface DashboardLoadError {
 
 export interface DashboardLoadResult {
   user: ReturnType<typeof mapAuthUser>;
-  profile: any;
+  profile: ReturnType<typeof mapMenteeProfile> | ReturnType<typeof mapMentorProfile>;
 }
 
 type Role = "mentee" | "mentor";
@@ -70,12 +70,12 @@ const ROLE_API = {
   mentee: {
     getUser: () => getMenteeCurrentUser(),
     getProfile: () => getMenteeProfile(),
-    mapProfile: (raw: any) => mapMenteeProfile(raw),
+    mapProfile: (raw: Parameters<typeof mapMenteeProfile>[0]) => mapMenteeProfile(raw),
   },
   mentor: {
     getUser: () => getMentorCurrentUser(),
     getProfile: () => getMentorProfile(),
-    mapProfile: (raw: any) => mapMentorProfile(raw),
+    mapProfile: (raw: Parameters<typeof mapMentorProfile>[0]) => mapMentorProfile(raw),
   },
 } as const;
 
@@ -85,10 +85,10 @@ const buildLoader = (role: Role) =>
     async (_, { rejectWithValue }) => {
       const api = ROLE_API[role];
 
-      let userData: any;
+      let userData: RawAuthUser;
       try {
         userData = (await api.getUser()).data;
-      } catch (err: any) {
+      } catch (err) {
         return rejectWithValue({
           status: err?.response?.status,
           message: err?.message ?? "Failed to load user.",
@@ -103,7 +103,7 @@ const buildLoader = (role: Role) =>
       try {
         const profileData = (await api.getProfile()).data;
         return { user: mapAuthUser(userData), profile: api.mapProfile(profileData) };
-      } catch (err: any) {
+      } catch (err) {
         return rejectWithValue({
           status: err?.response?.status,
           message: err?.message ?? "Failed to load profile.",
@@ -125,7 +125,7 @@ const buildProfileRefetch = (role: Role) =>
       try {
         const res = await ROLE_API[role].getProfile();
         return ROLE_API[role].mapProfile(res.data);
-      } catch (err: any) {
+      } catch (err) {
         logger.error("Profile refetch failed", { error: err.message });
         return rejectWithValue(err.message);
       }
@@ -184,7 +184,7 @@ const dashboardUserSlice = createSlice({
      * @param state - Slice state.
      * @param action - Auth user payload.
      */
-    setUser: (state, action: PayloadAction<any>) => {
+    setUser: (state, action: PayloadAction<RawAuthUser | null>) => {
       state.user = action.payload ? mapAuthUser(action.payload) : null;
     },
     /**
@@ -192,7 +192,7 @@ const dashboardUserSlice = createSlice({
      * @param state - Slice state.
      * @param action - Profile payload (already mapped).
      */
-    setProfile: (state, action: PayloadAction<any>) => {
+    setProfile: (state, action: PayloadAction<DashboardLoadResult["profile"] | null>) => {
       state.profile = action.payload ?? null;
     },
     /** Resets dashboard user state back to the initial empty state. */

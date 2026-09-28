@@ -73,7 +73,7 @@ export const useSSOCallbackPresenter = () => {
           isNewUser ? getOnboardingPath(resolvedRole) : getDashboardPath(resolvedRole),
           { replace: true }
         );
-      } catch (err: any) {
+      } catch (err) {
         sessionStorage.removeItem("linkedin_code_used");
         const msg = err?.response?.data?.message || err.message || "LinkedIn sign-in failed.";
         setError(msg);
@@ -81,7 +81,7 @@ export const useSSOCallbackPresenter = () => {
     };
 
     exchange();
-  }, []);
+  }, [dispatch, navigate]);
 
   const goToLogin = () => navigate("/login");
 

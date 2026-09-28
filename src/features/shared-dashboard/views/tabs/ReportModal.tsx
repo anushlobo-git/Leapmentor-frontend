@@ -4,6 +4,7 @@
 
 // src/components/shared-dashboard/tabs/ReportModal.jsx
 import { useState, useRef, useEffect } from "react";
+import type React from "react";
 import { useSelector } from "react-redux";
 import useReportComplaint from "@features/reports/presenters/useReportComplaint";
 import {
@@ -67,12 +68,12 @@ const ReportModal = ({ onClose, onSuccess }: ReportModalProps) => {
   const { submitReport, submitting, error, setError } = useReportComplaint(connectId);
 
   useEffect(() => {
-    const handler = (e: any) => { if (e.key === "Escape") onClose(); };
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     globalThis.addEventListener("keydown", handler);
     return () => globalThis.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const handleFileChange = (e: any) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const validation = validateScreenshotFile(file);
@@ -201,7 +202,7 @@ const ReportModal = ({ onClose, onSuccess }: ReportModalProps) => {
             <textarea
               id="report-description"
               value={description}
-              onChange={(e: any) => setDescription(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
               placeholder="Please describe what happened in detail..."
               rows={4}
               maxLength={1000}

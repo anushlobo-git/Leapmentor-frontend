@@ -5,6 +5,7 @@
 // src/hooks/useConnectRequest.js
 import { useState, useRef } from "react";
 import { sendConnectRequest } from "@features/connects/models/connects.api";
+import type { ConnectSlotInput } from "@features/connects/models/connects.api";
 /**
  * Custom hook for connect request.
  * @returns {Object} Hook state and handlers for the caller.
@@ -19,7 +20,7 @@ const useConnectRequest = () => {
   const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sessionCount }: {
     mentorId: string;
     message?: string;
-    selectedSlots: any[];
+    selectedSlots: ConnectSlotInput[];
     sessionRate?: number;
     sessionCount?: number;
   }) => {
@@ -45,7 +46,7 @@ const useConnectRequest = () => {
       });
       setSuccess(true);
       return true;
-    } catch (err: any) {
+    } catch (err) {
       const apiMsg = err?.response?.data?.message || err?.message || "Failed to send request.";
       setError(apiMsg);
       return false;

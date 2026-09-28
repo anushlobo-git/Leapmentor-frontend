@@ -3,6 +3,7 @@
  */
 
 import { useState } from "react";
+import type React from "react";
 
 interface GoalFormInitial {
   title?: string;
@@ -60,7 +61,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: GoalFormProps) => 
         <input
           id="goal-title"
           value={title}
-          onChange={(e: any) => setTitle(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
           placeholder="e.g. Land a frontend role at a product startup"
           className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 bg-white outline-none focus:border-blue-300 transition-colors placeholder:text-slate-400"
         />
@@ -80,7 +81,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: GoalFormProps) => 
         <textarea
           id="goal-description"
           value={description}
-          onChange={(e: any) => setDescription(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
           placeholder="Describe what success looks like..."
           rows={3}
           className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 bg-white outline-none focus:border-blue-300 transition-colors resize-vertical leading-relaxed placeholder:text-slate-400"
@@ -100,7 +101,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: GoalFormProps) => 
             id="goal-start-date"
             type="date"
             value={startDate}
-            onChange={(e: any) => setStartDate(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white outline-none focus:border-blue-300 transition-colors"
           />
         </div>
@@ -115,7 +116,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: GoalFormProps) => 
             id="goal-end-date"
             type="date"
             value={endDate}
-            onChange={(e: any) => setEndDate(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white outline-none focus:border-blue-300 transition-colors"
           />
         </div>

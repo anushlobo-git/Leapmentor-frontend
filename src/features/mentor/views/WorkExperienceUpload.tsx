@@ -3,6 +3,7 @@
  */
 
 // src/features/mentor/components/verification/WorkExperienceUpload.jsx
+import type React from "react";
 import { validateWorkExperienceFiles } from "@lib/validation/schemas";
 
 const MAX_FILES = 3;
@@ -19,7 +20,7 @@ interface WorkExperienceUploadProps {
 }
 
 const WorkExperienceUpload = ({ files, onChange, error }: WorkExperienceUploadProps) => {
-  const handleFileChange = (e: any) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files) as File[];
     const combined = [...files, ...selected];
 
@@ -34,7 +35,7 @@ const WorkExperienceUpload = ({ files, onChange, error }: WorkExperienceUploadPr
     e.target.value = "";
   };
 
-  const handleDrop = (e: any) => {
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     const dropped = Array.from(e.dataTransfer.files) as File[];
     const combined = [...files, ...dropped];
@@ -147,7 +148,7 @@ const WorkExperienceUpload = ({ files, onChange, error }: WorkExperienceUploadPr
         {files.length < MAX_FILES && (
           <label
             onDrop={handleDrop}
-            onDragOver={(e: any) => e.preventDefault()}
+            onDragOver={(e: React.DragEvent<HTMLLabelElement>) => e.preventDefault()}
             className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl px-6 py-6 cursor-pointer transition-all duration-150
               ${
                 error

@@ -6,7 +6,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@lib/http/axiosInstance";
 import { login as loginRequest } from "@features/auth/models/auth.api";
-import { mapAuthUser } from "@lib/mappers/userMapper";
+import { mapAuthUser, type RawAuthUser } from "@lib/mappers/userMapper";
 import type { RootState } from "@store/index";
 
 // ── Thunks ──────────────────────────────────────────────────
@@ -34,7 +34,7 @@ export const registerUser = createAsyncThunk(
     { name, email, password, roles, termsAccepted }: {
       name: string; email: string; password: string; roles: string[]; termsAccepted: boolean;
     },
-    { rejectWithValue }: any,
+    { rejectWithValue },
   ) => {
     try {
       const res = await axiosInstance.post(`/auth/register`, {
@@ -54,7 +54,7 @@ export const registerUser = createAsyncThunk(
  */
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ email, password }: { email: string; password: string }, { rejectWithValue }: any) => {
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const res = await loginRequest(email, password);
       return res.data;
@@ -71,7 +71,7 @@ export const loginUser = createAsyncThunk(
  */
 export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
-  async ({ email }: { email: string }, { rejectWithValue }: any) => {
+  async ({ email }: { email: string }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(`/verification/send`, { email: email.trim() });
       return res.data;
@@ -88,7 +88,7 @@ export const sendOtp = createAsyncThunk(
  */
 export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
-  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }: any) => {
+  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(`/verification/verify-otp`, {
         email: email.trim(),
@@ -108,7 +108,7 @@ export const verifyEmail = createAsyncThunk(
  */
 export const verifyMagicLink = createAsyncThunk(
   "auth/verifyMagicLink",
-  async ({ token, email }: { token: string; email: string }, { rejectWithValue }: any) => {
+  async ({ token, email }: { token: string; email: string }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
         `/verification/verify/${token}?email=${encodeURIComponent(email)}`
@@ -127,7 +127,7 @@ export const verifyMagicLink = createAsyncThunk(
  */
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
-  async ({ email }: { email: string }, { rejectWithValue }: any) => {
+  async ({ email }: { email: string }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(`/auth/forgot-password`, { email: email.trim() });
       return res.data;
@@ -144,7 +144,7 @@ export const forgotPassword = createAsyncThunk(
  */
 export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
-  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }: any) => {
+  async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(`/auth/verify-reset-otp`, {
         email: email.trim(),
@@ -166,7 +166,7 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async (
     { email, otp, newPassword }: { email: string; otp: string; newPassword: string },
-    { rejectWithValue }: any,
+    { rejectWithValue },
   ) => {
     try {
       const res = await axiosInstance.post(`/auth/reset-password`, {
@@ -182,7 +182,7 @@ export const resetPassword = createAsyncThunk(
 );
 
 interface AuthState {
-  user: ReturnType<typeof mapAuthUser> | Record<string, any> | null;
+  user: ReturnType<typeof mapAuthUser> | RawAuthUser | null;
   accessToken: string | null;
   role: "admin" | null;
   adminBootstrapping: boolean;
@@ -202,7 +202,7 @@ interface AuthState {
  */
 export const bootstrapAdminSession = createAsyncThunk(
   "auth/bootstrapAdminSession",
-  async (_: void, { rejectWithValue }: any) => {
+  async (_: void, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get("/admin/auth/me", {
         _skipAuthRedirect: true,
@@ -250,7 +250,7 @@ const authSlice = createSlice({
      * @param {{ payload: { user?: Object, accessToken?: string } }} action - Login payload.
      * @returns {void}
      */
-    setUser(state, action: { payload: { user?: Record<string, any>; accessToken?: string } }) {
+    setUser(state, action: { payload: { user?: RawAuthUser; accessToken?: string } }) {
       state.user  = action.payload.user ? mapAuthUser(action.payload.user) : null;
       state.accessToken = action.payload.accessToken;
     },
@@ -262,7 +262,7 @@ const authSlice = createSlice({
      * @param {{ payload: Record<string, any> | null }} action - Admin payload.
      * @returns {void}
      */
-    setAdminSession(state, action: { payload: Record<string, any> | null }) {
+    setAdminSession(state, action: { payload: RawAuthUser | null }) {
       state.user  = action.payload;
       state.role  = action.payload ? "admin" : null;
       state.adminBootstrapping = false;

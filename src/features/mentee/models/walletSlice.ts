@@ -45,7 +45,7 @@ export const fetchWallet = createAsyncThunk<
   try {
     const res = await getEscrowWallet();
     return mapWallet(res.data);
-  } catch (err: any) {
+  } catch (err) {
     logger.warn("Failed to fetch wallet", { error: err?.message });
     return rejectWithValue(err?.response?.data?.message || "Failed to load wallet.");
   }

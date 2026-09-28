@@ -4,6 +4,7 @@
 
 // View for the VerifyEmail page — pure JSX. All state/logic lives in
 // presenters/useVerifyEmailPresenter.ts.
+import type React from "react";
 import { useVerifyEmailPresenter } from "@features/auth/presenters/useVerifyEmailPresenter";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { IMAGES } from "@constants/images";
@@ -43,8 +44,8 @@ const VerifyEmail = () => {
           fetchPriority="high"
           loading="eager"
           decoding="sync"
-          onError={(e: any) => {
-            e.target.style.display = "none";
+          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+            (e.target as HTMLImageElement).style.display = "none";
           }}
         />
         <div className="absolute bottom-0 left-0 right-0 p-10 text-white z-10">
@@ -127,7 +128,7 @@ const VerifyEmail = () => {
                     id="verify-email-input"
                     type="email"
                     value={email}
-                    onChange={(e: any) => setEmail(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     required
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all"
@@ -151,8 +152,8 @@ const VerifyEmail = () => {
                       inputMode="numeric"
                       maxLength={1}
                       value={digit}
-                      onChange={(e: any) => handleOtpChange(e.target.value, idx)}
-                      onKeyDown={(e: any) => handleOtpKeyDown(e, idx)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOtpChange(e.target.value, idx)}
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleOtpKeyDown(e, idx)}
                       aria-label={`OTP digit ${idx + 1} of 6`}
                       autoComplete={idx === 0 ? "one-time-code" : "off"}
                       className="w-12 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all text-slate-800"

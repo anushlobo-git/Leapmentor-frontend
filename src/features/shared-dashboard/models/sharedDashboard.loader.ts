@@ -8,8 +8,20 @@ import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashboard.api";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
 
+/**
+ * Connect/session detail returned by GET /connect-requests/:id/detail.
+ * The backend DTO is broad; only the fields the dashboard actually reads are
+ * modelled here (the loader is a pass-through, other fields stay untyped).
+ */
+export interface ConnectDetail {
+  _id?: string;
+  status?: string;
+  viewerRole?: "mentee" | "mentor";
+  [key: string]: unknown;
+}
+
 export interface SharedDashboardLoaderData {
-  connect: any;
+  connect: ConnectDetail | null;
   error: string | null;
 }
 
@@ -31,7 +43,7 @@ export const sharedDashboardLoader = async ({
   try {
     const res = await getConnectDetail(params.connectRequestId);
     return { connect: res.data.connect, error: null };
-  } catch (err: any) {
+  } catch (err) {
     const status = err?.response?.status;
     if (status === HTTP_STATUS.UNAUTHORIZED) throw redirect("/login");
     if (status === HTTP_STATUS.FORBIDDEN) {

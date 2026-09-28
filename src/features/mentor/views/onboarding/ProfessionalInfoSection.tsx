@@ -4,6 +4,7 @@
 
 // src/features/mentor/components/onboarding/ProfessionalInfoSection.jsx
 import { forwardRef } from "react";
+import type { FormChangeEvent } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
 const INDUSTRY_OPTIONS = [
   "Technology",
   "Finance",
@@ -53,7 +54,7 @@ interface ProfessionalInfoErrors {
 
 interface ProfessionalInfoSectionProps {
   form: ProfessionalInfoForm;
-  onChange: (e: any) => void;
+  onChange: (e: FormChangeEvent) => void;
   errors?: ProfessionalInfoErrors;
 }
 

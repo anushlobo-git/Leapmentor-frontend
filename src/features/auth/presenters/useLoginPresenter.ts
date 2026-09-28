@@ -19,6 +19,7 @@ import { loginSchema } from "@lib/validation/schemas";
 import logger from "@lib/monitoring/logger";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
 import type { AppDispatch } from "@store/index";
+import type { RawAuthUser } from "@lib/mappers/userMapper";
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
@@ -56,7 +57,7 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
     return () => setLoading(false);
   }, []);
 
-  const handlePostAuth = (user: any, accessToken: string) => {
+  const handlePostAuth = (user: RawAuthUser, accessToken: string) => {
     //saves in the redux
     dispatch(setUser({ accessToken, user }));
 
@@ -81,7 +82,7 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
     roles: [],
     dispatch,
     setUser,
-    onSuccess: (data: any) => handlePostAuth(data?.user, data?.accessToken),
+    onSuccess: (data) => handlePostAuth(data?.user, data?.accessToken),
     onError: (text: string) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
   });
@@ -105,7 +106,7 @@ export const useLoginPresenter = ({ registerPath }: UseLoginPresenterArgs) => {
       const res = await login(data.email.trim(), data.password);
 
       handlePostAuth(res.data?.user, res.data?.accessToken);
-    } catch (err: any) {
+    } catch (err) {
       const status = err?.response?.status;
       const errData = err?.response?.data;
       const apiMsg = errData?.message || err?.message || "Invalid credentials";

@@ -19,7 +19,53 @@ const mapPerson = (raw) => {
   };
 };
 
-export const mapConnectRequest = (raw: Record<string, any> = {}) => ({
+/** A person sub-object (mentor/mentee/referredTo) as returned by the API. */
+interface RawPerson {
+  _id?: string;
+  id?: string;
+  name?: string;
+  email?: string;
+  profilePicture?: string;
+}
+
+/**
+ * Raw connect-request DTO from the API — only the fields mapConnectRequest
+ * reads are named. Pass-through objects whose inner shape the mapper never
+ * inspects are typed `unknown`.
+ */
+interface RawConnectRequest {
+  _id?: string;
+  id?: string;
+  status?: string;
+  mentor?: RawPerson;
+  mentee?: RawPerson;
+  mentorProfile?: unknown;
+  menteeProfile?: unknown;
+  message?: string;
+  referredBy?: unknown;
+  referredByProfile?: unknown;
+  referredTo?: RawPerson;
+  referredToProfile?: unknown;
+  referredRequestId?: string;
+  requestedAt?: string;
+  respondedAt?: string;
+  selectedSlots?: unknown;
+  confirmedSlot?: { day?: string; date?: string; startTime: string; endTime: string };
+  additionalSlots?: unknown;
+  sessionRate?: number;
+  sessionCount?: number;
+  totalAmount?: number;
+  paymentStatus?: string;
+  paidAt?: string;
+  completedAt?: string;
+  commissionRate?: number;
+  commissionAmount?: number;
+  mentorPayout?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const mapConnectRequest = (raw: RawConnectRequest = {}) => ({
   _id: raw._id ?? raw.id ?? null,
   status: raw.status ?? "pending",
 
@@ -56,3 +102,6 @@ export const mapConnectRequest = (raw: Record<string, any> = {}) => ({
   createdAt: raw.createdAt ?? null,
   updatedAt: raw.updatedAt ?? null,
 });
+
+/** The normalized connect-request shape returned by mapConnectRequest. */
+export type MappedConnectRequest = ReturnType<typeof mapConnectRequest>;

@@ -48,7 +48,7 @@ const UserMessageCard = ({ message }: { message?: string }) => {
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
         Your Message
       </p>
-      <p className="text-xs text-slate-600 italic">"{message}"</p>
+      <p className="text-xs text-slate-600 italic">&quot;{message}&quot;</p>
     </div>
   );
 };

@@ -25,11 +25,6 @@ import type { AppDispatch } from "@store/index";
 
 type ViewerRole = "mentee" | "mentor";
 
-interface NotificationAction {
-  label: string;
-  primary: boolean;
-}
-
 interface StatCardProps {
   icon?: ReactNode;
   label: string;

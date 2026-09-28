@@ -282,6 +282,10 @@ const AdminUserManagement = () => {
     fetchUsers();
     fetchGrowthData();
     fetchIndustryData();
+    // Initial load only. fetchUsers changes identity with the filter state,
+    // but filter changes already trigger their own fetches via the handlers,
+    // so these are intentionally excluded to avoid double-fetching.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Handlers ──────────────────────────────────────────────

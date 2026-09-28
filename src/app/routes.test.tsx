@@ -14,6 +14,7 @@ import {
   ADMIN_ROUTES,
   PUBLIC_ROUTES,
   ROLE_GUARDED_ROUTES,
+  type GuardedRouteDef,
 } from "./routes";
 
 const allPaths = () => [
@@ -59,7 +60,7 @@ describe("route registry", () => {
   it("serves the bare /login with a login page and never guards login routes", () => {
     expect(PUBLIC_ROUTES.map((r) => r.path)).toContain("/login");
     for (const route of PUBLIC_ROUTES) {
-      expect((route as any).access).toBeUndefined();
+      expect((route as Partial<GuardedRouteDef>).access).toBeUndefined();
     }
   });
 

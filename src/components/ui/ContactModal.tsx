@@ -3,6 +3,7 @@
  */
 
 import { useEffect } from "react";
+import type React from "react";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -87,7 +88,7 @@ export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalP
           Contact Us
         </h2>
         <p style={{ fontSize: "13px", color: "#94a3b8", marginBottom: "20px" }}>
-          Have questions? We'd love to hear from you.
+          Have questions? We&apos;d love to hear from you.
         </p>
 
         <a
@@ -108,11 +109,11 @@ export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalP
             textDecoration: "none",
             transition: "all 0.2s",
           }}
-          onMouseEnter={(e: any) => {
+          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
             e.currentTarget.style.background = "#ede9fe";
             e.currentTarget.style.borderColor = "#a5b4fc";
           }}
-          onMouseLeave={(e: any) => {
+          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
             e.currentTarget.style.background = "#f1f5f9";
             e.currentTarget.style.borderColor = "#e2e8f0";
           }}
@@ -146,10 +147,10 @@ export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalP
               cursor: "pointer",
               transition: "all 0.2s",
             }}
-            onMouseEnter={(e: any) => {
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.style.background = "#f8fafc";
             }}
-            onMouseLeave={(e: any) => {
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.style.background = "none";
             }}
           >

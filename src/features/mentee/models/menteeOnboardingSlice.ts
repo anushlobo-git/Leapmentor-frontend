@@ -8,7 +8,10 @@ import axiosInstance from "@lib/http/axiosInstance";
 
 export const submitMenteeOnboarding = createAsyncThunk(
   "menteeOnboarding/submit",
-  async (payload: Record<string, any>, { rejectWithValue }: any) => {
+  async (
+    payload: Record<string, unknown>,
+    { rejectWithValue }: { rejectWithValue: (value: unknown) => unknown },
+  ) => {
     try {
       const payloadToSend = {
         ...payload,

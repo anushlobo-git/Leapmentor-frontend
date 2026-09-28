@@ -4,6 +4,7 @@
 
 //not used u can delete after verifying everything
 // src/pages/MentorMatchmaking.jsx
+import type React from "react";
 import { useState } from "react";
 
 interface MatchmakingMentor {
@@ -34,7 +35,7 @@ const MentorMatchmaking = () => {
   const [selectedMentor, setSelectedMentor] = useState<MatchmakingMentor | null>(null);
   const [discussion, setDiscussion] = useState("");
 
-  const handleFilterChange = (e: any) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
@@ -151,7 +152,7 @@ const MentorMatchmaking = () => {
             <p className="text-sm text-gray-600 mb-4"><strong>Industry:</strong> {selectedMentor.industry}</p>
             <textarea
               value={discussion}
-              onChange={(e: any) => setDiscussion(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDiscussion(e.target.value)}
               placeholder="What do you want to ask or discuss?"
               className="w-full border rounded-lg p-2 mb-4 focus:ring-2 focus:ring-blue-400"
               rows={3}

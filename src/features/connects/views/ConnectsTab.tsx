@@ -5,6 +5,7 @@
 // src/components/shared/ConnectsTab.jsx
 import { useNavigate } from "react-router-dom";
 import useOngoingConnects from "@features/connects/presenters/useOngoingConnects";
+import type { MappedConnectRequest } from "@features/connects/models/connectsMapper";
 import ConnectsLayout from "@features/connects/views/ConnectsLayout";
 import ConnectCard from "@features/connects/views/ConnectCard";
 
@@ -64,7 +65,7 @@ const ConnectsTab = ({ role }: ConnectsTabProps) => {
   const navigate = useNavigate();
   const cfg = ROLE_CONFIG[role];
 
-  const renderCard = (c: any, isCompleted: boolean) => (
+  const renderCard = (c: MappedConnectRequest, isCompleted: boolean) => (
     <ConnectCard
       key={c._id}
       name={c[cfg.counterpartKey]?.name || cfg.counterpartLabel}
@@ -87,9 +88,9 @@ const ConnectsTab = ({ role }: ConnectsTabProps) => {
       error={error}
       completedCount={completed.length}
       emptyState={cfg.emptyState}
-      completedChildren={completed.map((c: any) => renderCard(c, true))}
+      completedChildren={completed.map((c: MappedConnectRequest) => renderCard(c, true))}
     >
-      {ongoing.map((c: any) => renderCard(c, false))}
+      {ongoing.map((c: MappedConnectRequest) => renderCard(c, false))}
     </ConnectsLayout>
   );
 };

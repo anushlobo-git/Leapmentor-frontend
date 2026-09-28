@@ -53,7 +53,7 @@ export const useReferModalPresenter = (
         const res = await getSimilarMentors(request._id);
         setMentors(res.data.mentors || []);
         setMySkills(res.data.mySkills || []);
-      } catch (err: any) {
+      } catch (err) {
         setError(
           err?.response?.data?.message || "Failed to load similar mentors.",
         );
@@ -72,7 +72,7 @@ export const useReferModalPresenter = (
       await referRequest(request._id, selected?.user?._id);
       setSuccess(true);
       onReferred(request._id, "referred");
-    } catch (err: any) {
+    } catch (err) {
       setError(err?.response?.data?.message || "Failed to refer request.");
     } finally {
       setReferring(false);

@@ -100,7 +100,7 @@ const FeedbackCard = ({ feedback, label, isOwn }: FeedbackCardProps) => (
     </div>
     {feedback.comment && (
       <p className="text-sm text-slate-600 leading-relaxed italic">
-        "{feedback.comment}"
+        &quot;{feedback.comment}&quot;
       </p>
     )}
     <p className="text-[10px] text-blue-900">

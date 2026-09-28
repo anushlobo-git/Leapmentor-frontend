@@ -4,6 +4,7 @@
 
 // src/features/goals/components/MilestoneList.jsx
 import { useState } from "react";
+import type React from "react";
 
 interface Milestone {
   _id: string;
@@ -99,8 +100,8 @@ const AddMilestoneForm = ({ onAdd, onCancel, saving }: AddMilestoneFormProps) =>
         <input
           autoFocus
           value={title}
-          onChange={(e: any) => setTitle(e.target.value)}
-          onKeyDown={(e: any) => e.key === "Enter" && handleAdd()}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleAdd()}
           placeholder="Milestone title..."
           className="flex-1 px-3 py-2 border border-violet-200 rounded-lg text-sm text-slate-800
             bg-white outline-none focus:border-violet-500 transition-colors placeholder:text-slate-400"
@@ -152,7 +153,7 @@ const DeleteMilestoneModal = ({ milestone, onConfirm, onCancel }: DeleteMileston
       </h3>
       <p className="text-sm text-slate-500 mb-5">
         <span className="font-semibold text-slate-700">
-          "{milestone.title}"
+          &quot;{milestone.title}&quot;
         </span>{" "}
         will be permanently removed from this goal.
       </p>

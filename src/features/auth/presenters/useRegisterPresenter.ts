@@ -68,7 +68,7 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
-    if (error) setLocalMsg({ type: "error", text: typeof error === "string" ? error : (error as any)?.message || String(error) });
+    if (error) setLocalMsg({ type: "error", text: typeof error === "string" ? error : (error as unknown as { message?: string })?.message || String(error) });
   }, [error]);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
     ) {
       setLocalMsg({ type: "", text: "" });
     }
-  }, [termsAccepted]);
+  }, [termsAccepted, localMsg.text]);
 
   useGoogleAuth({
     btnRef: googleBtnRef,
@@ -90,7 +90,7 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
     roles: [role],
     dispatch,
     setUser,
-    onSuccess: (data: any) => {
+    onSuccess: (data) => {
       setLocalMsg({
         type: "success",
         text: "Google signup successful! Redirecting…",

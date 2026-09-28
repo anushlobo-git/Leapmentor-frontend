@@ -4,7 +4,7 @@
 
 // src/features/goals/components/session-card/MeetingLinkSection.jsx
 import { useState } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, ChangeEvent, KeyboardEvent } from "react";
 import { isValidMeetingLink } from "@features/goals/presenters/sessionCardUtils";
 import type { SessionSlot } from "@features/goals/presenters/sessionCardUtils";
 
@@ -42,8 +42,8 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }: MeetingLink
         <input
           autoFocus
           value={linkVal}
-          onChange={(e: any) => { setLinkVal(e.target.value); setLinkErr(""); }}
-          onKeyDown={(e: any) => e.key === "Enter" && handleSave()}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => { setLinkVal(e.target.value); setLinkErr(""); }}
+          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSave()}
           placeholder="https://meet.google.com/..."
           className={`w-full px-3 py-2 border rounded-xl text-sm text-slate-700
             bg-white outline-none transition-colors placeholder:text-slate-400

@@ -4,6 +4,7 @@
 
 // src/features/mentor/components/onboarding/PreferencesSection.jsx
 import MentorshipPreferencesCard from "../../../../components/shared/form/MentorshipPreferencesCard";
+import type { FormChangeEvent } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
 
 const COMMUNICATION_OPTIONS = [
   { value: "Video Call", label: "Video Meetings", icon: "🎥" },
@@ -48,7 +49,7 @@ const parseLanguages = (value: string | string[] | undefined): string[] => {
 
 interface PreferencesSectionProps {
   form: { communicationPreferences?: string[]; languages?: string | string[] };
-  onChange: (e: any) => void;
+  onChange: (e: FormChangeEvent) => void;
 }
 
 const PreferencesSection = ({ form, onChange }: PreferencesSectionProps) => {

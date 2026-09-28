@@ -74,7 +74,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }: MenteeProfileModalPr
       await respondToRequest(request._id, body);
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
-    } catch (err: any) {
+    } catch (err) {
       logger.error("Respond error:", { error: err.message || err});
     } finally {
       setLoading(null);
@@ -147,7 +147,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }: MenteeProfileModalPr
                 </svg>
                 <p className="text-xs font-bold text-blue-900 uppercase tracking-wide">Mentorship Request Message</p>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed italic">"{request.message}"</p>
+              <p className="text-sm text-slate-600 leading-relaxed italic">&quot;{request.message}&quot;</p>
             </div>
           )}
 

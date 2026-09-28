@@ -4,6 +4,7 @@
 
 // components/mentee/onboarding/InterestedFieldsSection.jsx
 import { useState, forwardRef } from "react";
+import type React from "react";
 
 const errorClass =
   "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
@@ -55,8 +56,8 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error, inputId }: TagInp
         id={inputId}
         type="text"
         value={input}
-        onChange={(e: any) => setInput(e.target.value)}
-        onKeyDown={(e: any) => {
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
           if (e.key === "Enter") {
             e.preventDefault();
             add();

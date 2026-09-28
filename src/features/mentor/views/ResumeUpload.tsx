@@ -3,6 +3,7 @@
  */
 
 // components/mentor/verification/ResumeUpload.jsx
+import type React from "react";
 import { validateResumeFile } from "@lib/validation/schemas";
 
 const ACCEPTED_LABEL = "PDF, JPG, PNG, WEBP";
@@ -19,7 +20,7 @@ interface ResumeUploadProps {
 }
 
 const ResumeUpload = ({ file, onChange, error }: ResumeUploadProps) => {
-  const handleFileChange = (e: any) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files[0];
     if (!selected) return;
 
@@ -31,7 +32,7 @@ const ResumeUpload = ({ file, onChange, error }: ResumeUploadProps) => {
     onChange(selected, null);
   };
 
-  const handleDrop = (e: any) => {
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     const dropped = e.dataTransfer.files[0];
     if (!dropped) return;
@@ -130,7 +131,7 @@ const ResumeUpload = ({ file, onChange, error }: ResumeUploadProps) => {
             htmlFor="resume-file-input"
             aria-label="Upload resume or CV"
             onDrop={handleDrop}
-            onDragOver={(e: any) => e.preventDefault()}
+            onDragOver={(e: React.DragEvent<HTMLLabelElement>) => e.preventDefault()}
             className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl px-6 py-8 cursor-pointer transition-all duration-150
               ${
                 error

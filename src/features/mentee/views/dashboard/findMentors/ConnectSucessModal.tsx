@@ -27,7 +27,7 @@ const ConnectSuccessModal = ({ mentorName, onBackToDashboard }: ConnectSuccessMo
           <p className="text-sm text-slate-500 mt-1.5 leading-relaxed">
             Your connect request has been sent to{" "}
             <span className="font-semibold text-slate-700">{mentorName || "the mentor"}</span>.
-            You'll be notified once they respond.
+            You&apos;ll be notified once they respond.
           </p>
         </div>
 

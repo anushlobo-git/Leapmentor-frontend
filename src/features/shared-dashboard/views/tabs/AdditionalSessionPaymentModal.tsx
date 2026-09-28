@@ -88,7 +88,7 @@ const AdditionalSessionPaymentModal = ({
       });
       dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setShowSuccess(true);
-    } catch (err: any) {
+    } catch (err) {
       setError(
         err?.response?.data?.message || "Payment failed. Please try again.",
       );

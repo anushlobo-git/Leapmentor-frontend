@@ -4,6 +4,7 @@
 
 // View for the ForgotPassword page — pure JSX. All state/logic lives in
 // presenters/useForgotPasswordPresenter.ts.
+import type React from "react";
 import { useForgotPasswordPresenter } from "@features/auth/presenters/useForgotPasswordPresenter";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
 import { IMAGES } from "@constants/images";
@@ -107,7 +108,7 @@ const ForgotPassword = () => {
                   id="forgot-password-email"
                   type="email"
                   value={email}
-                  onChange={(e: any) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
@@ -145,8 +146,8 @@ const ForgotPassword = () => {
                     inputMode="numeric"
                     maxLength={1}
                     value={digit}
-                    onChange={(e: any) => handleOtpChange(e.target.value, idx)}
-                    onKeyDown={(e: any) => handleOtpKeyDown(e, idx)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOtpChange(e.target.value, idx)}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleOtpKeyDown(e, idx)}
                     className="w-11 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150 text-slate-800"
                   />
                 ))}
@@ -166,7 +167,7 @@ const ForgotPassword = () => {
                 )}
               </button>
               <p className="text-xs text-slate-500 text-center">
-                Didn't get it?{" "}
+                Didn&apos;t get it?{" "}
                 <button
                   type="button"
                   className="text-blue-900 font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0 align-baseline"
@@ -194,7 +195,7 @@ const ForgotPassword = () => {
                     id="forgot-password-new"
                     type={showPw ? "text" : "password"}
                     value={newPassword}
-                    onChange={(e: any) => handleNewPasswordChange(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNewPasswordChange(e.target.value)}
                     onBlur={handleNewPasswordBlur}
                     placeholder="Min. 8 characters"
                     required
@@ -289,7 +290,7 @@ const ForgotPassword = () => {
                     id="forgot-password-confirm"
                     type={showConfirmPw ? "text" : "password"}
                     value={confirmPassword}
-                    onChange={(e: any) => setConfirmPassword(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter your password"
                     required
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-150"

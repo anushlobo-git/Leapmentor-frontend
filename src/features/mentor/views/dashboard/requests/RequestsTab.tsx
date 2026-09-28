@@ -101,7 +101,7 @@ const RequestsTab = () => {
         ) : (
           // ✅ 1 col mobile → 2 col md+ with min card width enforced
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {filtered.map((request: any) => (
+            {filtered.map((request) => (
               <RequestCard
                 key={request._id}
                 request={request}

@@ -31,7 +31,7 @@ const RequestHistoryTab = () => {
   useSocketEvent(
     () => ({
       events: {
-        request_status_changed: (data: any) => {
+        request_status_changed: (data: unknown) => {
           logger.info("Request history socket event received", { data });
           fetchRequests();
         },

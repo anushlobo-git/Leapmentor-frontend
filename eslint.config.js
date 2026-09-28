@@ -6,17 +6,20 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  // Ignored directories and files
+  // Files ESLint never looks at (build output, deps, coverage, service worker).
   {
     ignores: ["dist/**", "node_modules/**", "coverage/**", "public/sw.js"],
   },
-  // Recommended JS & TS configurations
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+
+  // Baseline rule sets — turned ON (this is the "strict" part).
+  js.configs.recommended, // core JS best-practice rules
+  ...tseslint.configs.recommended, // TypeScript best-practice rules
+  react.configs.flat.recommended, // React rules incl. jsx-key, no-unescaped-entities, etc.
+  react.configs.flat["jsx-runtime"], // modern JSX transform (no need to import React)
+
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
-      react,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
@@ -25,45 +28,54 @@ export default tseslint.config(
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
-        ecmaFeatures: {
-          jsx: true,
-        },
+        ecmaFeatures: { jsx: true },
       },
     },
     settings: {
-      react: {
-        version: "detect",
-      },
+      react: { version: "detect" },
     },
     rules: {
+      // Unused variables/args/errors are now hard errors (opt out with a `_` prefix).
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
         },
       ],
-      "@typescript-eslint/no-explicit-any": "off",
+
+      // Explicit `any` is now flagged — the main thing that hides type bugs.
+      "@typescript-eslint/no-explicit-any": "error",
+
+      // TypeScript checks undefined names better than ESLint, so leave this off.
       "no-undef": "off",
+
+      // Stray console.log warns; console.error/warn are allowed.
       "no-console": ["warn", { allow: ["error", "warn"] }],
-      "react/jsx-uses-react": "off",
-      "react/jsx-uses-vars": "warn",
+
+      // prop-types is redundant in a TypeScript project (types do this job).
+      "react/prop-types": "off",
+
+      // Hooks correctness — breaking these genuinely breaks React.
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "react-refresh/only-export-components": "warn",
+
+      // Vite fast-refresh health; allow exporting constants alongside components.
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },
   },
-  // Specific override for unit test files to avoid noise from mock utilities and test setups
+
+  // Tests: relax the noisy rules (mocks/fixtures, console output, etc.).
   {
-    files: ["**/*.test.{js,jsx,ts,tsx}", "src/test/**"],
+    files: ["**/*.test.{js,jsx,ts,tsx}", "src/test/**/*"],
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
       "no-console": "off",
       "react-refresh/only-export-components": "off",
       "react-hooks/rules-of-hooks": "off",
+      "react/display-name": "off",
     },
   }
 );
-

@@ -29,7 +29,7 @@ const useRequestHistory = () => {
   const initialLoad = !loadedOnce; // first load only — background refetches never block the UI
   const error = fetchError ?? "";
   const [activeTab, setActiveTab] = useState("all");
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<ReturnType<typeof mapConnectRequest> | null>(null);
 
   // ── Fetch all requests ──────────────────────────────────────
   const fetchRequests = useCallback(() => dispatch(fetchMenteeRequests()), [dispatch]);
@@ -43,8 +43,8 @@ const useRequestHistory = () => {
     async (id: string) => {
       try {
         await dispatch(deleteMenteeRequest(id)).unwrap();
-        setSelected((prev: any) => (prev?._id === id ? null : prev));
-      } catch (err: any) {
+        setSelected((prev) => (prev?._id === id ? null : prev));
+      } catch (err) {
         logger.error("Delete error:", { error: err?.response?.data?.message || err.message });
       }
     },
@@ -55,7 +55,7 @@ const useRequestHistory = () => {
   const updateRequest = useCallback(
     (id: string, patch: Record<string, unknown>) => {
       dispatch(patchMenteeRequest({ id, patch }));
-      setSelected((prev: any) => (prev?._id === id ? { ...prev, ...patch } : prev));
+      setSelected((prev) => (prev?._id === id ? { ...prev, ...patch } : prev));
     },
     [dispatch],
   );

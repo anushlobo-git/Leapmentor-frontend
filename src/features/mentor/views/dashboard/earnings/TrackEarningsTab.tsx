@@ -14,8 +14,20 @@ import {
 } from "recharts";
 import useTrackEarnings from "@features/mentor/presenters/useTrackEarnings";
 import Loader from "@components/shared/Loader";
+import type React from "react";
 import type { ReactNode } from "react";
 import { formatDecimal as fmt } from "@lib/formatters/number";
+
+// Normalized payout row shape produced by mapPayout (earningsMapper).
+interface PayoutRow {
+  id: string | number | null;
+  date: string | null;
+  menteeName: string;
+  sessionType: string;
+  duration: string | number;
+  amount: number;
+  status: string;
+}
 
 // ── Stat Card ─────────────────────────────────────────────────
 interface StatCardProps {
@@ -140,7 +152,7 @@ const TrackEarningsTab = () => {
       </tr>
     );
   } else {
-    payoutsTableBody = payouts.map((row: any) => (
+    payoutsTableBody = payouts.map((row: PayoutRow) => (
       <tr
         key={row.id}
         className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
@@ -375,7 +387,7 @@ const TrackEarningsTab = () => {
             <input
               type="text"
               value={search}
-              onChange={(e: any) => setSearch(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
               placeholder="Search mentee..."
               className="pl-8 pr-4 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all w-full sm:w-52"
             />

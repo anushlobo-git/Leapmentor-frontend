@@ -5,6 +5,7 @@
 // src/components/LeapBuddy.jsx
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 
+import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import {
   sendAiChatMessage,
@@ -14,15 +15,15 @@ import { mentorFaqs, menteeFaqs } from "@features/support/models/faqs";
 import FormField from "@components/ui/FormField";
 
 interface LeapBuddyUser {
-  email?: any;
-  name?: any;
+  email?: string;
+  name?: string;
 }
 
 interface LeapBuddyProfile {
-  company?: any;
-  currentRole?: any;
-  interestedFields?: any;
-  skills?: any;
+  company?: string;
+  currentRole?: string;
+  interestedFields?: string[];
+  skills?: string[];
 }
 
 interface LeapBuddyProps {
@@ -34,8 +35,8 @@ interface LeapBuddyProps {
 interface UserContext {
   name: string | null;
   email: string | null;
-  skills: any[];
-  interestedFields: any[];
+  skills: string[];
+  interestedFields: string[];
   currentRole: string | null;
   company: string | null;
 }
@@ -315,7 +316,7 @@ export default function LeapBuddy({
               lineHeight: 1.5,
             }}
           >
-            👋 {firstName ? `Hi ${firstName}!` : "Hi there!"} I'm{" "}
+            👋 {firstName ? `Hi ${firstName}!` : "Hi there!"} I&apos;m{" "}
             <strong>LeapBuddy</strong>!<br />
             Got a question? Ask me instantly!
           </div>
@@ -360,10 +361,10 @@ export default function LeapBuddy({
           animation: open ? "none" : "lb-pulse 2.5s infinite",
           transition: "transform 0.2s",
         }}
-        onMouseEnter={(e: any) => {
+        onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.currentTarget.style.transform = "scale(1.1)";
         }}
-        onMouseLeave={(e: any) => {
+        onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.currentTarget.style.transform = "scale(1)";
         }}
       >
@@ -509,10 +510,10 @@ export default function LeapBuddy({
                       fontWeight: 500,
                       transition: "background 0.15s",
                     }}
-                    onMouseEnter={(e: any) => {
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.currentTarget.style.background = "#e0e7ff";
                     }}
-                    onMouseLeave={(e: any) => {
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.currentTarget.style.background = INDIGO_LIGHT;
                     }}
                   >
@@ -570,7 +571,7 @@ export default function LeapBuddy({
                     >
                       {tStatus === "sent" ? (
                         <div style={{ color: "#16a34a", fontWeight: 600 }}>
-                          ✅ Ticket submitted! We'll reply within 24 hours.
+                          ✅ Ticket submitted! We&apos;ll reply within 24 hours.
                         </div>
                       ) : (
                         <>
@@ -590,7 +591,7 @@ export default function LeapBuddy({
                               fontSize: 11,
                             }}
                           >
-                            This needs a human review. We'll get back to you
+                            This needs a human review. We&apos;ll get back to you
                             soon.
                           </div>
                           <div
@@ -604,7 +605,7 @@ export default function LeapBuddy({
                               type="email"
                               placeholder="Your email"
                               value={ticketForms[msg.msgIdx]?.email || ""}
-                              onChange={(e: any) =>
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setTicketForms((p) => ({
                                   ...p,
                                   [msg.msgIdx]: {
@@ -623,7 +624,7 @@ export default function LeapBuddy({
                             <FormField
                               placeholder="Subject"
                               value={ticketForms[msg.msgIdx]?.subject || ""}
-                              onChange={(e: any) =>
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setTicketForms((p) => ({
                                   ...p,
                                   [msg.msgIdx]: {
@@ -644,7 +645,7 @@ export default function LeapBuddy({
                               rows={2}
                               placeholder="Describe your issue..."
                               value={ticketForms[msg.msgIdx]?.message || ""}
-                              onChange={(e: any) =>
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                                 setTicketForms((p) => ({
                                   ...p,
                                   [msg.msgIdx]: {
@@ -737,13 +738,13 @@ export default function LeapBuddy({
             <FormField
               as="textarea"
               value={input}
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 setInput(e.target.value);
                 e.target.style.height = "auto";
                 e.target.style.height =
                   Math.min(e.target.scrollHeight, 80) + "px";
               }}
-              onKeyDown={(e: any) => {
+              onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   sendMessage(input);

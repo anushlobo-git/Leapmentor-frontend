@@ -21,17 +21,45 @@ import type { AppDispatch } from "@store/index";
 
 const BADGES = MENTOR_BADGES;
 
-export const getProfileCompletion = (profile: any) => {
+/** Minimal profile shape the badge conditions read from. */
+interface BadgeProfile {
+  totalSessions?: number;
+  avgRating?: number;
+}
+
+/** Shape of a badge definition used when computing unlocked badges. */
+interface MentorBadge {
+  key: string;
+  label: string;
+  icon: string;
+  desc: string;
+  condition: (profile?: BadgeProfile) => boolean;
+}
+
+/** Minimal profile shape used to compute profile-completion percentage. */
+interface ProfileCompletion {
+  currentRole?: string;
+  bio?: string;
+  company?: string;
+  industry?: string;
+  profilePicture?: string;
+  skills?: unknown[];
+  linkedInUrl?: string;
+  yearsOfExperience?: number;
+}
+
+export const getProfileCompletion = (profile: unknown) => {
   if (!profile) return 0;
+  const p = profile as ProfileCompletion;
   const fields = [
-    profile.currentRole,
-    profile.bio,
-    profile.company,
-    profile.industry,
-    profile.profilePicture,
-    profile.skills?.length > 0,
-    profile.linkedInUrl,
-    profile.yearsOfExperience > 0,
+    p.currentRole,
+    p.bio,
+    p.company,
+    p.industry,
+    p.profilePicture,
+    p.skills?.length > 0,
+    p.linkedInUrl,
+    p.yearsOfExperience > 0,
   ];
   return Math.round((fields.filter(Boolean).length / fields.length) * 100);
 };
@@ -48,14 +76,14 @@ export const useMentorHomeTabPresenter = () => {
   const loadingSessions = !loadedOnce;
   const { sessions, pendingCount, actualSessionCount } = useMemo(() => {
     const active = allRequests.filter(
-      (r: any) => r.status === "ongoing" || r.status === "accepted",
+      (r) => r.status === "ongoing" || r.status === "accepted",
     );
-    const completed = allRequests.filter((r: any) => r.status === "completed");
+    const completed = allRequests.filter((r) => r.status === "completed");
     return {
       sessions: active,
-      pendingCount: allRequests.filter((r: any) => r.status === "pending").length,
+      pendingCount: allRequests.filter((r) => r.status === "pending").length,
       actualSessionCount: status === "succeeded"
-        ? completed.length + active.filter((r: any) => r.status === "ongoing").length
+        ? completed.length + active.filter((r) => r.status === "ongoing").length
         : null,
     };
   }, [allRequests, status]);
@@ -69,11 +97,11 @@ export const useMentorHomeTabPresenter = () => {
     ...profile,
     totalSessions: actualSessionCount ?? profile?.totalSessions ?? 0,
   };
-  const badges = BADGES.map((b: any) => ({
+  const badges = BADGES.map((b: MentorBadge) => ({
     ...b,
     unlocked: b.condition(badgeProfile),
   }));
-  const unlockedCount = badges.filter((b: any) => b.unlocked).length;
+  const unlockedCount = badges.filter((b) => b.unlocked).length;
 
   useEffect(() => {
     dispatch(refetchMentorProfile());
@@ -94,7 +122,7 @@ export const useMentorHomeTabPresenter = () => {
           pendingPayout: res.data.pendingPayout || 0,
           walletBalance: res.data.walletBalance || 0,
         });
-      } catch (err: any) {
+      } catch (err) {
         logger.error("MentorHomeTab earnings error:", { error: err.message });
         setEarnings({
           totalEarnings: 0,

@@ -9,17 +9,8 @@
 // and several admin pages) — centralizing it here means one change updates
 // every consumer instead of N near-identical inline style objects.
 
-import type { ElementType, CSSProperties } from "react";
-
-export const FIELD_BASE_STYLE: CSSProperties = {
-  padding: "11px 14px",
-  borderRadius: 10,
-  border: "1.5px solid #e2e8f0",
-  fontSize: 14,
-  outline: "none",
-  color: "#0f172a",
-  fontFamily: "inherit",
-};
+import type { ElementType, CSSProperties, FocusEvent } from "react";
+import { FIELD_BASE_STYLE } from "./fieldStyles";
 
 const DEFAULT_BORDER_COLOR = "#e2e8f0";
 
@@ -27,7 +18,7 @@ interface FormFieldProps {
   as?: ElementType;
   style?: CSSProperties;
   focusColor?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export default function FormField({
@@ -41,10 +32,10 @@ export default function FormField({
     <Tag
       {...rest}
       style={{ ...FIELD_BASE_STYLE, ...style }}
-      onFocus={(e: any) => {
+      onFocus={(e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         e.target.style.borderColor = focusColor;
       }}
-      onBlur={(e: any) => {
+      onBlur={(e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         e.target.style.borderColor = DEFAULT_BORDER_COLOR;
       }}
     />

@@ -3,11 +3,13 @@
  */
 
 // components/mentor/onboarding/SkillsSection.jsx
+import type React from "react";
 import { useState, forwardRef } from "react";
+import type { FormChangeEvent } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
 
 interface SkillsSectionProps {
   form: { skills?: string[] };
-  onChange: (e: any) => void;
+  onChange: (e: FormChangeEvent) => void;
   errors?: { skills?: boolean };
 }
 
@@ -36,7 +38,7 @@ const SkillsSection = forwardRef<HTMLDivElement, SkillsSectionProps>(({ form, on
     });
   };
 
-  const handleKeyDown = (e: any) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       addSkill();
@@ -104,7 +106,7 @@ const SkillsSection = forwardRef<HTMLDivElement, SkillsSectionProps>(({ form, on
             id="core-skills-input"
             type="text"
             value={input}
-            onChange={(e: any) => setInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={addSkill}
             placeholder="Type a skill and press enter..."

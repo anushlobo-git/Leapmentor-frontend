@@ -17,6 +17,23 @@ interface ProfileUser {
   name?: string;
 }
 
+/**
+ * Dashboard profile as read from the Redux slice. Only the fields the cards
+ * render are named; the index signature covers the config-driven dynamic
+ * lookups (`profile?.[key]`) whose exact keys come from profileConfig.
+ */
+interface ProfileData {
+  verificationStatus?: string;
+  profilePicture?: string;
+  currentRole?: string;
+  company?: string;
+  bio?: string;
+  updatedAt?: string;
+  communicationPreferences?: string[];
+  languages?: string[];
+  [key: string]: unknown;
+}
+
 interface ProfileTabConfig {
   showVerification?: boolean;
   editPath: string;
@@ -24,7 +41,7 @@ interface ProfileTabConfig {
   professionalFields: Array<{
     key: string;
     label: string;
-    format?: (raw: any) => any;
+    format?: (raw: unknown) => ReactNode;
   }>;
   tagSections: Array<{
     key: string;
@@ -42,35 +59,35 @@ interface CardHeaderProps {
 
 interface HeroCardProps {
   user?: ProfileUser | null;
-  profile?: any;
+  profile?: ProfileData | null;
   config: ProfileTabConfig;
   onEdit: () => void;
 }
 
 interface ProfessionalInfoCardProps {
-  profile?: any;
+  profile?: ProfileData | null;
   fields: ProfileTabConfig["professionalFields"];
 }
 
 interface TagsCardProps {
-  profile?: any;
+  profile?: ProfileData | null;
   sections: ProfileTabConfig["tagSections"];
 }
 
 interface MentorshipPrefsCardProps {
-  profile?: any;
+  profile?: ProfileData | null;
   commLabelMap?: Record<string, string> | null;
 }
 
 interface SocialCardProps {
-  profile?: any;
+  profile?: ProfileData | null;
 }
 
 interface ProfileTabProps {
-  // Wrappers (mentor ProfileTab) may pass a Record override or the
-  // shared profileConfig object; keep this as `any` to match the original
-  // PropTypes.object contract without inventing a stricter wrapper type.
-  config: any;
+  // Wrappers (mentor ProfileTab) may pass a Record override or the shared
+  // profileConfig object; both structurally satisfy ProfileTabConfig, which
+  // is the only shape this component reads.
+  config: ProfileTabConfig;
 }
 
 // ── Icons (kept small and local — each used once per card) ─────────
@@ -380,7 +397,7 @@ const ProfessionalInfoCard = ({ profile, fields }: ProfessionalInfoCardProps) =>
     <CardHeader icon={Icon.briefcase} title="Professional Info" />
     <div className="grid grid-cols-2 gap-4">
       {fields.map(({ key, label, format }) => {
-        const raw = profile?.[key];
+        const raw = profile?.[key] as ReactNode;
         const value = format ? format(raw) : raw;
         if (!value) return null; // hides optional fields like hourlyRate/rating cleanly
         return (
@@ -399,7 +416,7 @@ const TagsCard = ({ profile, sections }: TagsCardProps) => (
     <CardHeader icon={Icon.skills} title="Skills & Interests" />
     <div className="space-y-5">
       {sections.map(({ key, title, emptyText, chipStyle }, i) => {
-        const items = profile?.[key] || [];
+        const items = (profile?.[key] as string[]) || [];
         return (
           <div key={key}>
             {i > 0 && <div className="border-t border-slate-100 -mt-2 mb-4" />}
@@ -490,7 +507,7 @@ const SocialCard = ({ profile }: SocialCardProps) => {
       <CardHeader icon={Icon.globe} title="Social & Web" />
       <div className="space-y-3">
         {links.map(({ key, label, icon, strip }) => {
-          const url = profile?.[key];
+          const url = profile?.[key] as string;
           return (
             <div
               key={key}
@@ -535,7 +552,7 @@ const SocialCard = ({ profile }: SocialCardProps) => {
 const ProfileTab = ({ config }: ProfileTabProps) => {
   const navigate = useNavigate();
   const user = useSelector(selectDashboardUser);
-  const profile = useSelector(selectDashboardProfile);
+  const profile = useSelector(selectDashboardProfile) as ProfileData | null;
   const goToEdit = () => navigate(config.editPath);
 
   return (

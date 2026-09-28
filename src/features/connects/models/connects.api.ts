@@ -5,6 +5,14 @@
 // src/features/connects/models/connects.api.ts
 import axiosInstance from "@lib/http/axiosInstance";
 
+/** A single availability slot the mentee picks when sending a connect request. */
+export interface ConnectSlotInput {
+  day?: string;
+  date?: string;
+  startTime: string;
+  endTime: string;
+}
+
 export const sendConnectRequest = ({
   mentorId,
   message,
@@ -14,7 +22,7 @@ export const sendConnectRequest = ({
 }: {
   mentorId: string;
   message?: string;
-  selectedSlots: any[];
+  selectedSlots: ConnectSlotInput[];
   sessionRate?: number;
   sessionCount?: number;
 }) =>

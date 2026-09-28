@@ -3,7 +3,7 @@
  */
 
 import { useState } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, ChangeEvent } from "react";
 
 interface TimelineGoal {
   _id?: string;
@@ -89,7 +89,7 @@ const TimelineEditForm = ({
           type="date"
           value={startDate}
           min={today}
-          onChange={(e: any) => setStartDate(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
         />
       </div>
@@ -105,7 +105,7 @@ const TimelineEditForm = ({
           type="date"
           value={endDate}
           min={startDate || today}
-          onChange={(e: any) => setEndDate(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
         />
       </div>
@@ -178,7 +178,7 @@ interface TimelineTrackerProps {
   saving: boolean;
 }
 
-const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }: TimelineTrackerProps) => {
+const TimelineTracker = ({ goal, onUpdate, saving }: TimelineTrackerProps) => {
   const [editing, setEditing] = useState(false);
   const [startDate, setStartDate] = useState(goal?.startDate || "");
   const [endDate, setEndDate] = useState(goal?.endDate || "");
@@ -222,7 +222,7 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }: TimelineTracker
   } else {
     content = (
       <p className="text-sm text-slate-400 text-center py-4">
-        No timeline set. Click 'Set Timeline' to add dates.
+        No timeline set. Click &apos;Set Timeline&apos; to add dates.
       </p>
     );
   }

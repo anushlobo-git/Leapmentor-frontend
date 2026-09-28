@@ -339,7 +339,7 @@ const HandleModal = ({
                 {!alreadyRefunded && (
                   <>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      This will refund <strong>{report.totalAmount} tokens</strong> from escrow back to the mentee's wallet and close the session.
+                      This will refund <strong>{report.totalAmount} tokens</strong> from escrow back to the mentee&apos;s wallet and close the session.
                     </p>
                     <button
                       type="button"

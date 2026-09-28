@@ -12,7 +12,7 @@ const getBarColor = (percent: number) => {
 };
 
 interface OnboardingProgressBarProps {
-  form: Record<string, any>;
+  form: Record<string, unknown>;
   fields: OnboardingFieldConfig[];
 }
 

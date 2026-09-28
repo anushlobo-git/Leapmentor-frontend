@@ -46,7 +46,7 @@ export const useEscrowPayment = (
         if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
         if (data?.sessionCount != null)
           setRemoteSessionCount(data.sessionCount);
-      } catch (err: any) {
+      } catch (err) {
         logger.warn("⚠️ Could not fetch escrow status:", {
           error: err.response?.data || err.message,
         });

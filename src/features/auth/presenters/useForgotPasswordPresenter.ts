@@ -7,6 +7,7 @@
 // dispatches, and post-reset navigation. The view (views/ForgotPassword.tsx)
 // only renders JSX using what this hook returns.
 import { useState, useEffect, useRef } from "react";
+import type React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -55,7 +56,7 @@ export const useForgotPasswordPresenter = () => {
 
   useEffect(() => {
     dispatch(clearMessages());
-  }, []);
+  }, [dispatch]);
 
   // ── Step 1 — Send OTP ─────────────────────────────────────
   const handleSendOTP = async (e: { preventDefault: () => void }) => {
@@ -80,8 +81,8 @@ export const useForgotPasswordPresenter = () => {
   // ── OTP box helpers ─ delegated to shared lib/auth/otpUtils ─
   const handleOtpChange = (val: string, idx: number) =>
     sharedHandleOtpChange(val, idx, otp, setOtp);
-  const handleOtpKeyDown = (e: any, idx: number) => sharedHandleOtpKeyDown(e, idx, otp);
-  const handleOtpPaste = (e: any) => sharedHandleOtpPaste(e, otp, setOtp);
+  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => sharedHandleOtpKeyDown(e, idx, otp);
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLDivElement>) => sharedHandleOtpPaste(e, otp, setOtp);
 
   // ── Step 2 — Verify OTP ───────────────────────────────────
   const handleVerifyOTP = async (e: { preventDefault: () => void }) => {
