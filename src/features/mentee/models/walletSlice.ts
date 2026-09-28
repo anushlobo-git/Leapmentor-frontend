@@ -37,6 +37,11 @@ const initialState: WalletState = {
 };
 
 /** Loads `/escrow/wallet`. Call again after a payment so every screen shows the new balance. */
+/**createAsyncThunk<
+  SUCCESS_RESULT,       // 1. fulfilled payload
+  ARGUMENT,             // 2. argument given to fetchWallet(...)
+  THUNK_API_OPTIONS     // 3. rejectWithValue type, etc.
+> */
 export const fetchWallet = createAsyncThunk<
   { balance: number; escrow: number },
   void,

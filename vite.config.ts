@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  //installs the react and tailwind plugin 
+  //installs the react and tailwind plugin
   plugins: [react(), tailwindcss()],
   // Controls how Vite resolves imports.
   resolve: {
@@ -47,11 +47,8 @@ export default defineConfig({
       exclude: [
         "node_modules/",
         "src/test/",
-        "src/main.tsx",
         "src/**/*.test.{js,jsx,ts,tsx}",
         "src/**/*.stories.{js,jsx,ts,tsx}",
-        "src/constants/**",
-        "src/config/**",
       ],
       thresholds: {
         statements: 80,

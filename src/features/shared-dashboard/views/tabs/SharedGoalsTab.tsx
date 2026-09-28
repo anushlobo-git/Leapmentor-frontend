@@ -433,7 +433,6 @@ const SharedGoalsTab = () => {
       {goal && (
         <TimelineTracker
           goal={goal}
-          viewerRole={viewerRole}
           onUpdate={async (goalId, dates) => {
             await updateGoal(goalId, dates);
           }}

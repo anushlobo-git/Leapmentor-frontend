@@ -158,7 +158,7 @@ interface Message {
   content?: string;
   createdAt?: string;
   readAt?: string;
-  sender?: { _id?: string };
+  sender?: { _id?: string } | string;
 }
 
 // Connect fields this tab reads off the shared-dashboard slice. The slice is
@@ -406,7 +406,7 @@ const SharedChatTab = () => {
   const prevScrollHeight = useRef(0);
 
   const isOwn = useCallback((msg: Message) => {
-    const sid = msg.sender?._id?.toString() || msg.sender?.toString();
+    const sid = typeof msg.sender === "string" ? msg.sender : msg.sender?._id?.toString();
     return sid === myId;
   }, [myId]);
 

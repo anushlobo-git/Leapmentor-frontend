@@ -50,7 +50,7 @@ export default function HelpCenter() {
     .filter((g) => g.items.length > 0);
 
   // handleSubmit becomes:
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmitError("");

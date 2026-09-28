@@ -173,7 +173,6 @@ const TimelineDisplay = ({ goal, progress, daysLeft }: { goal: TimelineGoal; pro
 
 interface TimelineTrackerProps {
   goal?: TimelineGoal;
-  viewerRole: string;
   onUpdate: (goalId: string, dates: { startDate: string; endDate: string }) => Promise<void>;
   saving: boolean;
 }
