@@ -41,7 +41,3 @@ The root `Dockerfile` does the following:
 ## CI/CD
 
 No CI/CD configuration is present in the repository tree provided here. There is no `.github/workflows` directory or equivalent pipeline config checked in.
-
-## Generated Artifacts
-
-Do not deploy or commit local analysis output. `dist/` is the deployable build output; `coverage/` contains local test coverage; `.scannerwork/` is the SonarQube Scanner working directory. The latter two are ignored by `.gitignore`.

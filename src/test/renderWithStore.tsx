@@ -12,6 +12,8 @@ import connectRequestsReducer from "@features/connects/models/connectRequestsSli
 import walletReducer from "@features/mentee/models/walletSlice";
 
 /** Real reducers, fresh state per call — tests mock the API modules, not Redux. */
+//if u want to add extra reducers then u can add in the 1st argument and in the second argument u give the actual
+//value that the store must have so that the store doesn't start with the initial value so yeah 
 export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedState?: Record<string, unknown>) =>
   configureStore({
     reducer: combineReducers({
