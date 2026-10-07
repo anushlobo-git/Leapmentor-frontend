@@ -29,3 +29,6 @@ dist-ssr
 
 #study material
 study/
+
+#kilo code ai agent 
+.kilo/

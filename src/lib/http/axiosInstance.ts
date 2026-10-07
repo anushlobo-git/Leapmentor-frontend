@@ -5,14 +5,17 @@
 // src/lib/axiosInstance.ts
 //
 // Single shared HTTP client for the ENTIRE app — mentor, mentee, and admin
-// requests all go through this one axios instance. Previously admin traffic
-// had its own axios.create() (adminAxiosInstance.ts) with a parallel copy of
-// this same interceptor logic. That meant every new role introduced another
-// hand-rolled client. Instead, this file is "domain aware": it picks the
+// requests all go through this one axios instance.  Instead, this file is "domain aware": it picks the
 // right base URL, auth strategy, refresh endpoint, and redirect target from
 // the request URL, via the AUTH_DOMAINS map below. Adding a new role later
 // means adding one entry to that map — never another axios instance.
 import axios from "axios";
+import type {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { clearAuthRole } from "@lib/http/cookies";
 import * as Sentry from "@sentry/react";
 import { v4 as uuidv4 } from "uuid";
@@ -20,15 +23,70 @@ import logger from "@lib/monitoring/logger";
 import { toast } from "sonner";
 import { unwrapApiResponse } from "@lib/http/apiResponse";
 import { HTTP_STATUS, isServerError, isRateLimited } from "@lib/http/httpStatus";
+import type { AppDispatch, RootState } from "@store/index";
 
-let _store = null;
+// ─── TYPES ───────────────────────────────────────────────────────────────────
+// The two auth domains this client knows about. Adding a new role later means
+// adding its name here AND one entry to AUTH_DOMAINS below — the compiler will
+// then force every Record<DomainName, ...> in this file to include it too.
+type DomainName = "admin" | "default";
+
+interface AuthDomain {
+  name: DomainName;
+  matches: (url?: string) => boolean;
+  baseURL: string;
+  usesBearer: boolean;
+  loginUrl: string;
+  refreshUrl: string;
+  redirectUrl: string;
+}
+
+// The `metadata` shape comes from the axios module augmentation in axios.d.ts.
+type RequestMetadata = NonNullable<AxiosRequestConfig["metadata"]>;
+
+// axios.d.ts doesn't declare `_retry`, so it is added locally here. It is set
+// on a request once it has been replayed after a silent refresh so the same
+// request can never trigger a second refresh (infinite-loop guard).
+type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+// Shape of the JSON error body the backend sends back ({ message: "..." }).
+interface ApiErrorBody {
+  message?: string;
+}
+
+// Everything the error helpers below need, computed once by buildErrorContext.
+interface ErrorContext {
+  originalRequest: RetryableRequestConfig | undefined;
+  domain: AuthDomain;
+  status: number | undefined;
+  url: string | undefined;
+  correlationId: string | undefined;
+  message: string;
+  isSkipped: boolean | undefined;
+  logPrefix: string;
+}
+
+// One parked request waiting for an in-flight refresh to finish.
+interface QueueItem {
+  resolve: (token: string | null) => void;
+  reject: (error: unknown) => void;
+}
+
+// The only two things this file needs from the Redux store. Typing it this
+// narrowly (instead of the full store type) keeps injectStore easy to mock.
+interface InjectedStore {
+  getState: () => RootState;
+  dispatch: AppDispatch;
+}
+
+let _store: InjectedStore | null = null;
 /**
  * Injects the Redux store so the axios interceptor can read the current
  * session (access token / role) and dispatch auth updates during refresh.
  * @param {import('@reduxjs/toolkit').EnhancedStore} store - App Redux store instance.
  * @returns {void}
  */
-export const injectStore = (store) => {
+export const injectStore = (store: InjectedStore): void => {
   _store = store;
 };
 
@@ -38,14 +96,14 @@ export const injectStore = (store) => {
 // token, where the silent-refresh endpoint lives, and where to redirect on
 // an unrecoverable 401. This is the one place role-specific auth behavior
 // lives — everything else in this file is domain-agnostic.
-const DEFAULT_BASE_URL =
+const DEFAULT_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 // Admin routes are served by the same versioned API unless a deployment
 // explicitly provides a separate admin origin/base path.
-const ADMIN_BASE_URL =
+const ADMIN_BASE_URL: string =
   import.meta.env.VITE_ADMIN_API_BASE_URL || DEFAULT_BASE_URL;
 
-const AUTH_DOMAINS = {
+const AUTH_DOMAINS: Record<DomainName, AuthDomain> = {
   admin: {
     name: "admin",
     //if the passed url as admin or starts with the admin then this matches gives true
@@ -69,7 +127,9 @@ const AUTH_DOMAINS = {
 //here the admin api calls gives a object called adminConfig={authDomain : "admin"} so if it exists in the
 //config then it will return the admin Domain else its domain is default for user
 //axiosInstance.get("/admin/stats",adminConfig)
-const resolveDomain = (config) => {
+const resolveDomain = (
+  config?: Pick<AxiosRequestConfig, "url" | "authDomain">,
+): AuthDomain => {
   // Check the config and see which domain to use
   // Prefer an explicit domain. URL matching remains a safe default for the
   // conventional /admin/* routes, but some admin endpoints intentionally
@@ -116,7 +176,7 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
     logger.error("Request setup failed", { error: error.message });
     throw error;
   },
@@ -126,7 +186,7 @@ axiosInstance.interceptors.request.use(
 // ─── RESPONSE INTERCEPTOR ────────────────────────────────────────────────────
 // Refresh-in-flight state is tracked per domain so a stuck admin refresh
 // can never block or get confused with a concurrent mentor/mentee refresh.
-const isRefreshing = { admin: false, default: false };
+const isRefreshing: Record<DomainName, boolean> = { admin: false, default: false };
 //this object stores the promises that needs to be run later for replacing the token
 //so example requestA is running refresh then requestB and requestC with the expired token will be here
 /**
@@ -136,9 +196,13 @@ const isRefreshing = { admin: false, default: false };
  */
 //now if the first request gets the token then the next function gets called with the new token so eliminating
 //concurrent calls
-const failedQueue = { admin: [], default: [] };
+const failedQueue: Record<DomainName, QueueItem[]> = { admin: [], default: [] };
 
-const processQueue = (domainName, error, token = null) => {
+const processQueue = (
+  domainName: DomainName,
+  error: unknown,
+  token: string | null = null,
+): void => {
   failedQueue[domainName].forEach((prom) => {
     if (error) prom.reject(error);//if there is a error then it rejects the pending request in the
     //object failedQueue
@@ -150,7 +214,11 @@ const processQueue = (domainName, error, token = null) => {
   failedQueue[domainName] = [];
 };
 
-const isRefreshableRequest = (domain, status, originalRequest) =>
+const isRefreshableRequest = (
+  domain: AuthDomain,
+  status: number | undefined,
+  originalRequest: RetryableRequestConfig | undefined,
+): boolean =>
   status === HTTP_STATUS.UNAUTHORIZED &&
   !originalRequest?._retry &&
   originalRequest?.url !== domain.refreshUrl &&
@@ -159,14 +227,14 @@ const isRefreshableRequest = (domain, status, originalRequest) =>
 // The error branch below used to be one long arrow function (Sonar cognitive
 // complexity 35). It's now a thin dispatcher that hands each error class to a
 // dedicated helper, so no single function nests more than a couple of levels.
-const buildErrorContext = (error) => {
+const buildErrorContext = (error: AxiosError<ApiErrorBody>): ErrorContext => {
   //u get the config of the request that was sent which got an error
-  const originalRequest = error?.config;
+  const originalRequest = error?.config as RetryableRequestConfig | undefined;
   const domain = resolveDomain(originalRequest);
   //status code is it 500 or 401 etc
   const status = error?.response?.status;
   const url = error?.config?.url;
-  const { correlationId } = error?.config?.metadata || {};
+  const { correlationId }: Partial<RequestMetadata> = error?.config?.metadata || {};
   const message = error?.response?.data?.message || error.message;
   const isSkipped = originalRequest?._skipAuthRedirect;
   const logPrefix = domain.name === "admin" ? "Admin " : "";
@@ -174,7 +242,10 @@ const buildErrorContext = (error) => {
 };
 
 // 1. Network error / timeout
-const handleNetworkError = (error, { url, correlationId, message, domain, logPrefix }) => {
+const handleNetworkError = (
+  error: AxiosError,
+  { url, correlationId, message, domain, logPrefix }: ErrorContext,
+): never => {
   const isTimeout = error.code === "ECONNABORTED";
   logger.error(
     isTimeout
@@ -197,12 +268,15 @@ const handleNetworkError = (error, { url, correlationId, message, domain, logPre
 
 // A refresh is already in flight for this domain, so this request parks its
 // resolve/reject in the queue instead of firing a second refresh.
-const queueRefreshRetry = (domain, originalRequest) =>
+const queueRefreshRetry = (
+  domain: AuthDomain,
+  originalRequest: RetryableRequestConfig,
+): Promise<AxiosResponse> =>
   //if a request already is refreshing then the next if is true so this pending promise goes and sits
   //in the failedQueue for next call so that multiple request doesn't call the refresh together
   //one refresh calls can be used for getting the token and then give the token to all the promise
   //pending request and check if it works
-  new Promise<string>((resolve, reject) => {
+  new Promise<string | null>((resolve, reject) => {
     failedQueue[domain.name].push({ resolve, reject });
   })
     //here the requests are paused and then stored in failedQueue this runs after the refresh is run
@@ -213,13 +287,17 @@ const queueRefreshRetry = (domain, originalRequest) =>
       }
       return axiosInstance(originalRequest);
     })
-    .catch((err) => {
+    .catch((err: unknown) => {
       throw err;
     });
 
 // No refresh in flight yet — this request becomes the one that performs the
 // silent refresh, then replays itself and drains the queue.
-const performRefresh = async (domain, originalRequest, ctx) => {
+const performRefresh = async (
+  domain: AuthDomain,
+  originalRequest: RetryableRequestConfig,
+  ctx: ErrorContext,
+): Promise<AxiosResponse> => {
   const { correlationId, isSkipped, logPrefix } = ctx;
   originalRequest._retry = true;
   isRefreshing[domain.name] = true;
@@ -229,12 +307,14 @@ const performRefresh = async (domain, originalRequest, ctx) => {
       // FIX: lazy-import authSlice actions here to avoid circular dependency
       const { setUser } = await import("@features/auth/models/authSlice");
 
-      const { data } = await axiosInstance.post(domain.refreshUrl);
+      const { data } = await axiosInstance.post<{ accessToken?: string }>(
+        domain.refreshUrl,
+      );
       const newAccessToken = data?.accessToken;
 
-      _store.dispatch(
+      _store?.dispatch(
         setUser({
-          user: _store.getState().auth.user,
+          user: _store.getState().auth.user ?? undefined,
           accessToken: newAccessToken,
         }),
       );
@@ -260,7 +340,7 @@ const performRefresh = async (domain, originalRequest, ctx) => {
 
     if (domain.usesBearer) {
       const { logout } = await import("@features/auth/models/authSlice");
-      _store.dispatch(logout());
+      _store?.dispatch(logout());
       clearAuthRole();
     } else {
       const { setAdminSession } = await import("@features/auth/models/authSlice");
@@ -279,13 +359,21 @@ const performRefresh = async (domain, originalRequest, ctx) => {
 // 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
 // isRefreshAbleRequest(domain, 401, requestA) returns true
 // (it's a 401, not retried yet, not the login/refresh URL).
-const handleUnauthorized = (domain, originalRequest, ctx) =>
+const handleUnauthorized = (
+  domain: AuthDomain,
+  originalRequest: RetryableRequestConfig,
+  ctx: ErrorContext,
+): Promise<AxiosResponse> =>
   isRefreshing[domain.name]
     ? queueRefreshRetry(domain, originalRequest)
     : performRefresh(domain, originalRequest, ctx);
 
 // 3. FORBIDDEN / still-unauthorized after the checks above — blocked or expired session
-const handleForbidden = async (error, domain, { url, correlationId, isSkipped, logPrefix }) => {
+const handleForbidden = async (
+  error: AxiosError,
+  domain: AuthDomain,
+  { url, correlationId, isSkipped, logPrefix }: ErrorContext,
+): Promise<never> => {
   logger.warn(`${logPrefix}Blocked or unauthorized session terminated`, {
     url,
     correlationId,
@@ -293,7 +381,7 @@ const handleForbidden = async (error, domain, { url, correlationId, isSkipped, l
 
   if (domain.usesBearer) {
     const { logout } = await import("@features/auth/models/authSlice");
-    _store.dispatch(logout());
+    _store?.dispatch(logout());
     clearAuthRole();
     if (!isSkipped) {
       globalThis.location.href = `${domain.redirectUrl}?reason=blocked`;
@@ -322,7 +410,8 @@ axiosInstance.interceptors.response.use(
     }
 
     const domain = resolveDomain(response.config);
-    const { correlationId, startTime } = response.config.metadata || {};
+    const { correlationId, startTime }: Partial<RequestMetadata> =
+      response.config.metadata || {};
     logger.info(domain.name === "admin" ? "Admin API Response" : "API Response", {
       status: response.status,
       url: response.config.url,
@@ -336,7 +425,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
 
-  async (error) => {
+  async (error: AxiosError<ApiErrorBody>) => {
     const ctx = buildErrorContext(error);
     const { originalRequest, domain, status, url, correlationId, message, logPrefix } = ctx;
 
@@ -348,7 +437,7 @@ axiosInstance.interceptors.response.use(
     // 2. UNAUTHORIZED — try silent refresh first, redirect only if refresh fails
     // isRefreshAbleRequest(domain, 401, requestA) returns true
     // (it's a 401, not retried yet, not the login/refresh URL).
-    if (isRefreshableRequest(domain, status, originalRequest)) {
+    if (originalRequest && isRefreshableRequest(domain, status, originalRequest)) {
       return handleUnauthorized(domain, originalRequest, ctx);
     }
 

@@ -1,39 +1,53 @@
 {
   "compilerOptions": {
+    //typescript compiler compiles code to javascript while running so to which javascript version
+    //it has to compile is given here
     "target": "ES2020",
+
     "useDefineForClassFields": true,
     "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    // Keep import/export as-is (modern ES modules)
     "module": "ESNext",
+
     "skipLibCheck": true,
 
     /* Bundler mode (Vite) */
     "moduleResolution": "bundler",
+
+    // Don't allow writing imports like "./file.ts" (write "./file")
     "allowImportingTsExtensions": false,
     "isolatedModules": true,
+    // Treat every file as an ES module, even if it has no import/export
+
     "moduleDetection": "force",
+
+    //only type check no providing any js file as out put
     "noEmit": true,
+    //`import React` no need of this in all the files
     "jsx": "react-jsx",
 
-    /* Incremental JS/TS interop while migrating.
-       allowJs + checkJs:false lets remaining .js/.jsx files keep compiling
-       untouched while converted .ts/.tsx files are fully type-checked.
-       Flip checkJs to true (or remove allowJs) once migration finishes. */
+    /* allow js files in the folder and don't type check on them */
     "allowJs": true,
     "checkJs": false,
 
     /* Linting (kept relatively permissive during migration; tighten in Phase 5) */
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "strict": true,
+    "noImplicitAny": true ,
+    "strictNullChecks": true,
+    "noUnusedLocals": true ,
+    "noUnusedParameters": true ,
+    // Error when a `switch` case runs into the next one because `break` is missing
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    //this is for casing that is in the filename like now i had two files that are
+    //button and Button that gave an error so typescript doesn't allow same filename to exist
+    //in the same folder
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
 
     "paths": {
+      "@/*": ["./src/*"],
       "@app/*": ["./src/app/*"],
       "@features/*": ["./src/features/*"],
       "@components/*": ["./src/components/*"],
