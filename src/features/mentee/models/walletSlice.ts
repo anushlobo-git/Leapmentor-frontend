@@ -3,6 +3,7 @@
  */
 
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
+import type { AxiosError } from "axios";
 import { getEscrowWallet } from "@features/mentee/models/mentee.api";
 import { mapWallet } from "@features/profile/models/settingsMapper";
 import logger from "@lib/monitoring/logger";
@@ -25,6 +26,11 @@ export interface WalletState {
   error: string | null;
   /** requestId of the latest fetch — stale responses (after reset/logout, or superseded) are ignored. */
   fetchRequestId: string | null;
+}
+
+/** Shape of the JSON body the backend sends back when `/escrow/wallet` fails. */
+interface WalletErrorBody {
+  message?: string;
 }
 
 const initialState: WalletState = {
@@ -51,8 +57,9 @@ export const fetchWallet = createAsyncThunk<
     const res = await getEscrowWallet();
     return mapWallet(res.data);
   } catch (err) {
-    logger.warn("Failed to fetch wallet", { error: err?.message });
-    return rejectWithValue(err?.response?.data?.message || "Failed to load wallet.");
+    const error = err as AxiosError<WalletErrorBody>;
+    logger.warn("Failed to fetch wallet", { error: error?.message });
+    return rejectWithValue(error?.response?.data?.message || "Failed to load wallet.");
   }
 });
 

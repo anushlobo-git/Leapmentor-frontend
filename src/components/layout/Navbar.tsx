@@ -5,7 +5,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@components/ui/Logo";
-import Button from "@components/ui/Button";
+//import Button from "@components/ui/Button";
+import {Button} from "@components/shadcn/button"
 import HamburgerIcon from "@components/ui/HamburgerIcon";
 
 export default function Navbar() {
@@ -29,11 +30,18 @@ export default function Navbar() {
 
         {/* Desktop Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="outline" onClick={() => navigate("/register")}>
-            Register
+          <Button
+            variant="outline"
+            className="h-10 w-32 border-2 border-blue-900 text-blue-900 hover:bg-blue-50"
+            onClick={() => navigate("/register")}
+          >
+          Register
           </Button>
-          <Button variant="primary" onClick={() => navigate("/login")}>
-            Login
+          <Button
+          className="h-10 w-32 bg-blue-900 text-white hover:bg-blue-800"
+          onClick={() => navigate("/login")}
+           >
+           Login
           </Button>
         </div>
 
@@ -53,18 +61,15 @@ export default function Navbar() {
 
 
           <Button
-            variant="outline"
-            fullWidth
-            onClick={() => { navigate("/register"); setMenuOpen(false); }}
+          variant="outline"
+          className="h-10 w-full border-2 border-blue-900 text-blue-900 hover:bg-blue-50"
+          onClick={() => {navigate("/register");setMenuOpen(false);}}
           >
-            Register
-          </Button>
-
-
-          <Button
-            variant="primary"
-            fullWidth
-            onClick={() => { navigate("/login"); setMenuOpen(false); }}
+         Register
+         </Button>
+         <Button
+          className="h-10 w-full bg-blue-900 text-white hover:bg-blue-800"
+          onClick={() => {navigate("/login");setMenuOpen(false);}}
           >
             Login
           </Button>
