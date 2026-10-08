@@ -2,66 +2,78 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-import { useEffect } from "react";
-import type React from "react";
+import { useRef } from "react";
+import { Button } from "@components/shadcn/button";
+/*
+- Dialog manages whether the popup is open or closed.
+- DialogContent is the visible popup box.
+- DialogTitle is its heading: “Contact Us”.
+- DialogDescription is its explanation: “Have questions? We’d love to hear from you.”
+
+Dialog — controls the popup
+  └── DialogContent — the box
+        ├── DialogTitle — heading
+        └── DialogDescription — explanation
+*/
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@components/shadcn/dialog";
 
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalProps>) {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+// Replaced the custom popup box
+// The old native <dialog> and its surrounding code became:
+
+// <DialogContent>
+//   {/* Contact information */}
+// </DialogContent>
+
+// This component now handles:
+// Clicking outside to close
+// Pressing Escape to close
+// Moving keyboard focus into the popup
+// Keeping Tab navigation inside it
+// Preventing background scrolling
+// That let me remove our manually written Escape listener, backdrop button, and animation code.
+export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalProps>) {
+  const openerRef = useRef<HTMLElement | null>(null);
 
   return (
-    <dialog
-      open
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-      aria-modal="true"
-      aria-labelledby="contact-modal-title"
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
     >
-      <button
-        type="button"
-        aria-label="Close contact modal"
-        onClick={onClose}
-        className="absolute inset-0 w-full h-full cursor-default"
-        style={{ border: "none", background: "transparent", padding: 0 }}
-      />
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "16px",
-          boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
-          width: "100%",
-          maxWidth: "420px",
-          padding: "32px",
-          animation: "modal-in 0.22s ease both",
-          textAlign: "center",
+      <DialogContent
+        //this hides or removes the default close button x in the top-right corner of the popup box
+        showCloseButton={false}
+        className="block max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl bg-white p-8 text-center shadow-2xl sm:max-w-[420px]"
+        //Remembers the previously focused element
+        onOpenAutoFocus={() => {
+          // The Footer opens this modal from a button outside the Dialog.
+          openerRef.current = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+        }}
+        //Returns keyboard focus to that element
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          openerRef.current?.focus();
         }}
       >
         {/* Icon */}
-        <div
-          style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "14px",
-            background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 18px",
-          }}
-        >
+        <div className="mx-auto mb-[18px] flex size-[52px] items-center justify-center rounded-[14px] bg-gradient-to-br from-[#6366f1] to-[#4f46e5]">
           <svg
+            aria-hidden="true"
             width="24"
             height="24"
             viewBox="0 0 24 24"
@@ -76,49 +88,21 @@ export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalP
           </svg>
         </div>
 
-        <h2
-          id="contact-modal-title"
-          style={{
-            fontSize: "18px",
-            fontWeight: "700",
-            color: "#0f172a",
-            marginBottom: "6px",
-          }}
-        >
+        <DialogTitle className="mb-1.5 text-lg font-bold leading-normal text-slate-900">
           Contact Us
-        </h2>
-        <p style={{ fontSize: "13px", color: "#94a3b8", marginBottom: "20px" }}>
+        </DialogTitle>
+        <DialogDescription className="mb-5 text-[13px] text-slate-400">
           Have questions? We&apos;d love to hear from you.
-        </p>
+        </DialogDescription>
 
         <a
           href="https://mail.google.com/mail/?view=cm&to=leapmentor2026@gmail.com"
           target="_blank"
           rel="noreferrer"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "#f1f5f9",
-            border: "1px solid #e2e8f0",
-            borderRadius: "10px",
-            padding: "12px 20px",
-            fontSize: "14px",
-            fontWeight: "600",
-            color: "#4f46e5",
-            textDecoration: "none",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            e.currentTarget.style.background = "#ede9fe";
-            e.currentTarget.style.borderColor = "#a5b4fc";
-          }}
-          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            e.currentTarget.style.background = "#f1f5f9";
-            e.currentTarget.style.borderColor = "#e2e8f0";
-          }}
+          className="inline-flex items-center gap-2 rounded-[10px] border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-indigo-600 no-underline transition-all duration-200 hover:border-indigo-300 hover:bg-violet-100"
         >
           <svg
+            aria-hidden="true"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -134,37 +118,27 @@ export default function ContactModal({ isOpen, onClose }: Readonly<ContactModalP
           leapmentor2026@gmail.com
         </a>
 
-        <div style={{ marginTop: "24px" }}>
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "1px solid #e2e8f0",
-              borderRadius: "8px",
-              padding: "8px 24px",
-              fontSize: "13px",
-              color: "#64748b",
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.background = "#f8fafc";
-            }}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.background = "none";
-            }}
-          >
-            Close
-          </button>
+        <div className="mt-6">
+          <DialogClose asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-auto rounded-lg border-slate-200 bg-transparent px-6 py-2 text-[13px] font-normal text-slate-500 hover:bg-slate-50 hover:text-slate-500"
+            >
+              Close
+            </Button>
+          </DialogClose>
         </div>
-      </div>
-
-      <style>{`
-        @keyframes modal-in {
-          from { opacity: 0; transform: translateY(16px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
-    </dialog>
+      </DialogContent>
+    </Dialog>
   );
 }
+
+//<DialogClose asChild>
+//   <Button type="button" variant="outline">
+//     Close
+//   </Button>
+// </DialogClose>
+// asChild means: “Give this existing Button the closing behavior.”
+// Without it, DialogClose would create its own button around our Button. We want one button, with both the styling and closing behavior.
+// I also used showCloseButton={false} on DialogContent because we already have our own Close button.

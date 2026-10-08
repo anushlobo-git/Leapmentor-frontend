@@ -9,6 +9,8 @@ import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import type { AxiosError } from "axios";
+import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { login } from "@features/auth/models/auth.api";
@@ -22,8 +24,30 @@ import { HTTP_STATUS } from "@lib/http/httpStatus";
 import type { AppDispatch } from "@store/index";
 import type { RawAuthUser } from "@lib/mappers/userMapper";
 
-const API_BASE =
+const API_BASE: string =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+
+/** Form values, inferred straight from the zod schema so the two can never drift apart. */
+type LoginFormValues = z.infer<typeof loginSchema>;
+
+/** Inline banner shown above the form. The view only ever renders `"error"`. */
+interface FormMessage {
+  type: "" | "error";
+  text: string;
+}
+
+/** Shape of the JSON body the backend sends back when /auth/login fails. */
+interface LoginErrorBody {
+  message?: string;
+  isEmailVerified?: boolean;
+  email?: string;
+}
+
+/** What the register page passes through `location.state` when redirecting here. */
+interface LoginNavState {
+  email?: string;
+  notice?: string;
+}
 
 interface UseLoginPresenterArgs {
   registerPath?: string;
@@ -46,7 +70,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
   // The register page routes an existing user here (they already have the
   // role, or the password didn't match) with their email + a short notice,
   // so we prefill the email and surface the reason as a toast.
-  const navState = (location.state ?? {}) as { email?: string; notice?: string };
+  const navState = (location.state ?? {}) as LoginNavState;
   //this is from react-hook form ,it is basically to manage the entire form
   const {
     //function that connects HTML input to React Hook Form <input {...register("email")} />
@@ -54,7 +78,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
-  } = useForm({
+  } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     mode: "onTouched",
     defaultValues: {
@@ -65,7 +89,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
 
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: string; text: string }>({ type: "", text: "" });
+  const [msg, setMsg] = useState<FormMessage>({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
@@ -82,12 +106,15 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePostAuth = (user: RawAuthUser, accessToken: string) => {
+  const handlePostAuth = (
+    user: RawAuthUser | undefined,
+    accessToken: string | undefined,
+  ) => {
     //saves in the redux
     dispatch(setUser({ accessToken, user }));
 
     const roles = user?.roles || [];
-    
+
     const chosenRole =
       role && roles.includes(role) ? role : getPrimaryRole(roles);
 
@@ -125,7 +152,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
 
   //this function is for the email and password submission in the login page
 
-  const onSubmit = async (data: { email: string; password: string }) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setMsg({ type: "", text: "" });
     try {
       setLoading(true);
@@ -133,9 +160,10 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
 
       handlePostAuth(res.data?.user, res.data?.accessToken);
     } catch (err) {
-      const status = err?.response?.status;
-      const errData = err?.response?.data;
-      const apiMsg = errData?.message || err?.message || "Invalid credentials";
+      const error = err as AxiosError<LoginErrorBody>;
+      const status = error?.response?.status;
+      const errData = error?.response?.data;
+      const apiMsg = errData?.message || error?.message || "Invalid credentials";
       if (
         status === HTTP_STATUS.FORBIDDEN &&
         errData?.isEmailVerified === false
@@ -147,7 +175,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
         setTimeout(
           () =>
             navigate(
-              `/verify-email?email=${encodeURIComponent(errData.email)}`,
+              `/verify-email?email=${encodeURIComponent(errData.email ?? "")}`,
             ),
           1000,
         );

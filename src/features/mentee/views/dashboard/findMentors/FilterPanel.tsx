@@ -5,6 +5,8 @@
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
 import { useState, useEffect, useRef } from "react";
 import type React from "react";
+import {Input} from "@components/shadcn/input";
+import {Button} from "@components/shadcn/button";
 
 interface FindMentorsFilters {
   industry: string;
@@ -96,9 +98,11 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
 
   return (
     <div>
-      {/* Toggle button */}
-      <button
+      {/* Toggle Button */}
+      <Button
         type="button"
+        variant="ghost"
+        aria-expanded={isOpen}
         onClick={() => setIsOpen((p: boolean) => !p)}
         className={`flex items-center gap-2 px-4 py-3 rounded-2xl border text-xs font-semibold transition-all duration-150 ${
           activeFilterCount > 0
@@ -139,7 +143,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
-      </button>
+      </Button>
 
       {/* Filter panel — collapsible */}
       {isOpen && (
@@ -174,7 +178,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
             </legend>
             <div className="flex items-center gap-2">
               {/* ✅ Uses localMin/localMax — debounced before hitting updateFilter */}
-              <input
+              <Input
                 type="number"
                 min="0"
                 placeholder="Min"
@@ -184,7 +188,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
               />
               <span className="text-slate-300 font-bold shrink-0">—</span>
-              <input
+              <Input
                 type="number"
                 min="0"
                 placeholder="Max"
@@ -203,7 +207,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
             </legend>
             <div className="flex gap-2 flex-wrap">
               {RATINGS.map((r) => (
-                <button
+                <Button
                   key={r.label}
                   type="button"
                   onClick={() => updateFilter("minRating", r.value)}
@@ -214,7 +218,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
                   }`}
                 >
                   {r.label}
-                </button>
+                </Button>
               ))}
             </div>
           </fieldset>
@@ -226,7 +230,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
             </legend>
             <div className="flex gap-2 flex-wrap">
               {EXPERIENCE_RANGES.map((r) => (
-                <button
+                <Button
                   key={r.label}
                   type="button"
                   onClick={() => updateFilter("experience", r.value)}
@@ -237,7 +241,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
                   }`}
                 >
                   {r.label}
-                </button>
+                </Button>
               ))}
             </div>
           </fieldset>
@@ -245,13 +249,13 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
           {/* Reset */}
           {activeFilterCount > 0 && (
             <div className="md:col-span-3 flex justify-end">
-              <button
+              <Button
                 type="button"
                 onClick={resetFilters}
                 className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors duration-150"
               >
                 Clear all filters
-              </button>
+              </Button>
             </div>
           )}
         </div>

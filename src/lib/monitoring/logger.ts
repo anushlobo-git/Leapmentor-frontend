@@ -18,12 +18,41 @@
 // arbitrary bag of per-call-site keys.
 import { Logtail } from "@logtail/browser"; // Uses the browser SDK, NOT node
 
-const sourceToken = import.meta.env.VITE_LOGTAIL_SOURCE_TOKEN;
+// Shared shapes used across this file.
+// LogContext is the free-form "bag of keys" callers pass as the 2nd argument.
+type LogContext = Record<string, unknown>;
+// The console methods this module patches with a redacting wrapper.
+type ConsoleMethod = "log" | "info" | "warn" | "error";
+// A console method that may carry our "already patched" marker flag.
+type PatchableConsoleFn = ((...args: unknown[]) => void) & {
+  __leapmentorPatched?: boolean;
+};
+
+const sourceToken: string | undefined = import.meta.env.VITE_LOGTAIL_SOURCE_TOKEN;
 
 // Initialize Logtail only if the token exists (prevents local dev crashes if token is missing)
-const logtail = sourceToken ? new Logtail(sourceToken) : null;
+const logtail: Logtail | null = sourceToken ? new Logtail(sourceToken) : null;
 
-const SENSITIVE_KEYS = [
+// ── Remove auto-added browser/device fields from Better Stack logs ──
+// @logtail/browser attaches these to every log by default. We don't need them.
+// if (logtail) {
+//   const NOISY_KEYS = [
+//     "device_pixel_ratio",
+//     "screen_width",
+//     "screen_height",
+//     "window_width",
+//     "window_height",
+//     "user_locale",
+//     "user_agent",
+//   ];
+//   logtail.use(async (log) => {
+//     const cleaned = { ...log } as Record<string, unknown>;
+//     NOISY_KEYS.forEach((k) => delete cleaned[k]);
+//     return cleaned as typeof log;
+//   });
+// }
+
+const SENSITIVE_KEYS: string[] = [
   "accessToken",
   "refreshToken",
   "token",
@@ -38,14 +67,14 @@ const SENSITIVE_KEYS = [
   "cookie",
 ];
 
-const isLikelyJwt = (str) => {
+const isLikelyJwt = (str: unknown): boolean => {
   if (typeof str !== "string") return false;
   // crude JWT check: three base64url segments separated by dots
   return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(str);
 };
 
 //logObj={user :"",accessToken:""} and key =[user,accessToken] ,value .......
-function redactValue(key, value) {
+function redactValue(key: string | null | undefined, value: unknown): unknown {
   if (value == null) return value;
 
   // Errors lose their message/stack via Object.entries (non-enumerable is
@@ -79,11 +108,11 @@ function redactValue(key, value) {
   return value;
 }
 
-function redactObject(obj) {
+function redactObject(obj: unknown): unknown {
   if (obj == null) return obj;
   if (obj instanceof Error) return redactValue(null, obj);
   if (Array.isArray(obj)) return obj.map((v) => redactValue(null, v));
-  const out = {};
+  const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     try {
       out[k] = redactValue(k, v);
@@ -94,7 +123,10 @@ function redactObject(obj) {
   return out;
 }
 
-function sanitizeMessage(message) {
+// Overloads: a string in gives a string out; anything else passes through untouched.
+function sanitizeMessage(message: string): string;
+function sanitizeMessage(message: unknown): unknown;
+function sanitizeMessage(message: unknown): unknown {
   if (typeof message !== "string") return message;
   // remove JWT-like substrings
   return message.replace(
@@ -103,7 +135,7 @@ function sanitizeMessage(message) {
   );
 }
 
-function formatConsoleArg(value) {
+function formatConsoleArg(value: unknown): string {
   if (value == null) return "";
   //sanitize is to replace the confidential string with redact string
   if (typeof value === "string") return sanitizeMessage(value);
@@ -122,15 +154,15 @@ function formatConsoleArg(value) {
 //this function is for console.log ,warn ,error or other logging calls in the application
 //and then catches the logs and replaces it with redact if it consist sensitive info
 //with the help of formatConsoleArg
-function patchConsoleMethod(methodName) {
+function patchConsoleMethod(methodName: ConsoleMethod): void {
   // This module IS the console wrapper: it swaps console[method] for a
   // redacting version, so referencing console directly here is intentional
   // (not stray debug logging the no-console rule is meant to catch).
   // eslint-disable-next-line no-console
-  const original = console[methodName];
+  const original = console[methodName] as PatchableConsoleFn | undefined;
   if (!original || original.__leapmentorPatched) return;
 
-  const patched = (...args) => {
+  const patched: PatchableConsoleFn = (...args: unknown[]) => {
     const safeArgs = args.map(formatConsoleArg);
     try {
       return original.apply(console, safeArgs);
@@ -139,7 +171,7 @@ function patchConsoleMethod(methodName) {
         return original.call(
           console,
           "[console] Unable to log",
-          error?.message || String(error),
+          (error as Error)?.message || String(error),
         );
       } catch {
         // no-op
@@ -152,10 +184,10 @@ function patchConsoleMethod(methodName) {
   console[methodName] = patched;
 }
 
-["log", "info", "warn", "error"].forEach(patchConsoleMethod);
+(["log", "info", "warn", "error"] as ConsoleMethod[]).forEach(patchConsoleMethod);
 
 //value in it is replace with redact for the sensitive information
-function formatLogValue(value) {
+function formatLogValue(value: unknown): string {
   if (value == null) return "";
   if (typeof value === "string") return sanitizeMessage(value);
   if (value instanceof Error) return sanitizeMessage(value.message);
@@ -167,8 +199,8 @@ function formatLogValue(value) {
 }
 
 //builds the console message to a standardized format
-function buildConsoleMessage(level, message, context) {
-  const parts = [];
+function buildConsoleMessage(level: string, message: unknown, context: unknown): string {
+  const parts: string[] = [];
   const messageText = formatLogValue(message);
   if (messageText) parts.push(`[${level}] ${messageText}`);
   else parts.push(`[${level}]`);
@@ -184,7 +216,10 @@ function buildConsoleMessage(level, message, context) {
  * If `message` is an Error, its `.message` becomes the log message and its
  * `.stack` is folded into context so the trace is never silently dropped.
  */
-function normalizeErrorInput(message, context) {
+function normalizeErrorInput(
+  message: string | Error,
+  context: LogContext,
+): { safeMessage: string; safeContext: LogContext } {
   if (message instanceof Error) {
     return {
       safeMessage: sanitizeMessage(message.message),
@@ -192,12 +227,12 @@ function normalizeErrorInput(message, context) {
         ...context,
         name: message.name,
         stack: message.stack,
-      }),
+      }) as LogContext,
     };
   }
   return {
     safeMessage: sanitizeMessage(message),
-    safeContext: redactObject(context),
+    safeContext: redactObject(context) as LogContext,
   };
 }
 
@@ -210,7 +245,7 @@ function normalizeErrorInput(message, context) {
 // consistent field names across the whole app instead of per-call-site keys.
 const ECS_VERSION = "8.11.0";
 const SERVICE_NAME = "leapmentor-frontend";
-const SERVICE_ENVIRONMENT = import.meta.env.MODE; // "development" | "production" | "test"
+const SERVICE_ENVIRONMENT: string = import.meta.env.MODE; // "development" | "production" | "test"
 
 /**
  * Reshapes a level + message + free-form context into an ECS-ish metadata
@@ -239,7 +274,7 @@ interface EcsMeta {
   labels?: Record<string, unknown>;
 }
 
-function buildEcsMeta(level, context) {
+function buildEcsMeta(level: "warn" | "error", context: LogContext): EcsMeta {
   const meta: EcsMeta = {
     "log.level": level,
     "ecs.version": ECS_VERSION,
@@ -269,7 +304,10 @@ function buildEcsMeta(level, context) {
     if (status != null) meta.http.response = { status_code: status };
   }
   if (stack || name) {
-    meta.error = { ...(stack && { stack_trace: stack }), ...(name && { type: name }) };
+    meta.error = {
+      ...(stack ? { stack_trace: stack } : {}),
+      ...(name ? { type: name } : {}),
+    };
   }
   if (Object.keys(rest).length) meta.labels = rest;
 
@@ -283,10 +321,10 @@ const logger = {
   // redirects, invoice downloads, etc.) don't need to change; they simply
   // stop producing output. This is a one-line revert if info logging is
   // ever needed again — flip the body back to what warn/error do below.
-  info: (..._args: unknown[]) => {},
-  warn: (message, context = {}) => {
+  info: (..._args: unknown[]): void => {},
+  warn: (message: string, context: LogContext = {}): void => {
     const safeMessage = sanitizeMessage(message);
-    const safeContext = redactObject(context);
+    const safeContext = redactObject(context) as LogContext;
     if (logtail) logtail.warn(safeMessage, buildEcsMeta("warn", safeContext));
     try {
       console.warn(buildConsoleMessage("WARN", safeMessage, safeContext));
@@ -294,7 +332,7 @@ const logger = {
       // no-op: logging must never throw and break the caller's flow
     }
   },
-  error: (message, context = {}) => {
+  error: (message: string | Error, context: LogContext = {}): void => {
     const { safeMessage, safeContext } = normalizeErrorInput(message, context);
     if (logtail) logtail.error(safeMessage, buildEcsMeta("error", safeContext));
     try {

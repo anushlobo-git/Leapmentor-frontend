@@ -3,11 +3,13 @@
  */
 
 /* eslint-disable react-refresh/only-export-components */
-// This is the route-configuration module: it deliberately exports route
-// definition arrays/objects (PUBLIC_ROUTES, ROLE_GUARDED_ROUTES, appRoutes,
-// ...) alongside the small layout/error components used in the route tree.
-// That mix is inherent to a data-router config file, so fast refresh's
-// component-only rule is disabled here.
+// This file is our "map of the whole app." It does two things:
+//   1. Lists every page and WHO is allowed to see it.
+//   2. Turns that list into the actual route tree React Router uses.
+// Because it exports both data (route lists) AND a couple of small
+// components, we switch off one eslint rule that expects a file to
+// export only components. That mix is normal for a route-config file.
+
 
 /**
  * @fileoverview Route registry (data router)
@@ -45,10 +47,10 @@
  */
 import type { ComponentType, ReactNode } from "react";
 import {
-  Outlet,
-  ScrollRestoration,
+  Outlet, // the "hole" where a child page is slotted into a parent
+  ScrollRestoration,// remembers scroll position on back/forward
   redirect,
-  useNavigation,
+  useNavigation,   // tells us when a page is mid-loading (for the progress bar)
   type RouteObject,
 } from "react-router-dom";
 import {
@@ -56,7 +58,7 @@ import {
   ALL_ROLES,
   PERMISSIONS,
   ROLES,
-  ROLE_CONFIG,
+  ROLE_CONFIG,     // the single source for each role's URLs (login, dashboard, etc.)
   type Permission,
   type Role,
   type RouteRole,
@@ -69,8 +71,9 @@ import PageLoader from "./PageLoader";
 import Home from "@features/marketing/views/Home";
 import NotFound from "@app/pages/NotFound";
 
-/** A page/layout's code, as a dynamic import — this is what makes each
- * route's `lazy` property (Phase 3) able to code-split it. */
+// An "Importer" is a function that, when called, downloads a page's code.
+// Nothing is downloaded until this function is actually called — that's the
+// trick that lets us load each page only when someone visits it.
 //const loadLogin: Importer = () => import("./Login");
 //So anything assigned to Importer must be a function that takes no arguments.
 type Importer = () => Promise<{ default: ComponentType<{ children?: ReactNode }> }>;
@@ -90,6 +93,7 @@ export interface RouteDef {
   /** Optional wrapper rendered around the page (inside the guard). */
   Layout?: Importer;
 }
+//these are the interface that are required to create the appRoutes
 
 export interface GuardedRouteDef extends RouteDef {
   access: RouteAccess;
@@ -136,7 +140,10 @@ const AdminVerifications: Importer = () => import("@features/admin/views/AdminVe
  */
 
 //Importer are the function that takes nothing as an argument but returns the react component inside the promise
-//for the variable that as import page then its Importer
+//for the variable as import page then its Importer
+
+// The set of pages every role needs. The URLs come from ROLE_CONFIG;
+// this only says WHICH component shows at each URL.
 interface RolePages {
   Onboarding: Importer;
   Dashboard: Importer;
@@ -145,6 +152,9 @@ interface RolePages {
   extra?: Array<{ path: string; Page: Importer; permissions?: Permission[] }>;
 }
 
+// The one place that ties each role to its actual components.
+// `Record<Role, RolePages>` = "every role MUST have an entry here,"
+// which is why adding a new role forces you to fill this in (TS won't build otherwise).
 //it has the pages based on the roles
 const ROLE_PAGES: Record<Role, RolePages> = {
   [ROLES.MENTOR]: {
@@ -179,7 +189,9 @@ export const PUBLIC_ROUTES: RouteDef[] = [
   { path: "/sso-callback", Page: SSOCallback },
 ];
 
-// ── Role-guarded routes, generated from the registry ──────────
+// ── Build a role's guarded routes automatically ───────────────
+// Given a role, this returns its onboarding + edit-profile + dashboard
+// routes (plus any extra pages), each stamped with "you need this role."
 const roleRoutes = (role: Role): GuardedRouteDef[] => {
   //it gives the 3 variable that as the dedicated path url like onboarding/mentor
   const { onboardingPath, dashboardPath, editProfilePath } = ROLE_CONFIG[role];
@@ -192,17 +204,19 @@ const roleRoutes = (role: Role): GuardedRouteDef[] => {
     onboardingPath ? { path: onboardingPath, Page: pages.Onboarding, access } : null,
     editProfilePath ? { path: editProfilePath, Page: pages.EditProfile, access } : null,
     dashboardPath ? { path: dashboardPath, Page: pages.Dashboard, access } : null,
+    // Extra pages get BOTH the role (decides which login to send anon users to)
+    // AND their own permission (what actually unlocks the page).
     ...(pages.extra ?? []).map(({ path, Page, permissions }) => ({
       path,
       Page,
-      // The role decides which login page an anonymous visitor is sent to;
-      // the permission is what actually gates the page.
+
       access: { roles: [role], permissions },
     })),
   ];
+  // Drop the nulls, keeping only real routes.
   return candidates.filter((route): route is GuardedRouteDef => route !== null);
 };
-
+// Do the above for EVERY role and flatten into one big list
 export const ROLE_GUARDED_ROUTES: GuardedRouteDef[] = ALL_ROLES.flatMap(roleRoutes);
 
 // ── Admin (separate cookie-session domain) ────────────────────
@@ -210,7 +224,7 @@ export const ADMIN_LOGIN_ROUTE: RouteDef = {
   path: ROLE_CONFIG[ADMIN_ROLE].loginPath,
   Page: AdminLogin,
 };
-
+//needs the role to be "admin"
 const adminAccess: RouteAccess = { roles: [ADMIN_ROLE] };
 
 export const ADMIN_ROUTES: GuardedRouteDef[] = [
@@ -229,20 +243,19 @@ export const ADMIN_ROUTES: GuardedRouteDef[] = [
 // that createBrowserRouter actually consumes.
 // ════════════════════════════════════════════════════════════════
 
-/** Nested route paths must be relative (no leading "/") to the parent
- * they sit under — react-router throws otherwise. All our groups nest
- * directly under the pathless root, so stripping the leading slash is
- * always correct here. */
-//it removes / from all the child path 
+
+//it removes / from all the child path
+//because all the path and the elements are nested under the "/" so when ever u give the
+//path inside as /login so remove and / and attach the parent element attaches the / making it
+//  /login
 const relative = (path: string) => path.replace(/^\//, "");
 
-/**
- * Builds the `{ lazy }` half of a route object: code-splits the page (and,
- * if given, a Layout that wraps it) via a single dynamic import, and
- * optionally wraps the result in an inner permission-only <ProtectedRoute>
- * (the role itself is already enforced by the group's layout route, so
- * this only ever checks `permissions`).
- */
+// Helper that gives a route its `lazy` loader. When the route is visited:
+//   1. download the page's code (and its Layout, if any) at the same time,
+//   2. put the page inside the Layout (if there is one),
+//   3. if this page needs a PERMISSION, wrap it in a small guard for that.
+// (The role check is already done by the group's guard, so here we only
+//  ever check permissions.)
 const page = (
   Page: Importer,
   opts: { Layout?: Importer; permissions?: Permission[] } = {},
@@ -269,9 +282,9 @@ const page = (
   },
 });
 
-/** One layout route per guarded role group: the guard (`<ProtectedRoute
- * roles={[role]}>`) and the group's own errorElement are written once,
- * here — every page below inherits both instead of repeating them. */
+// Build ONE guarded "group" for a role. The guard and the error screen are
+// written once here; every page in `children` sits behind them via <Outlet />.
+// This is why we don't repeat <ProtectedRoute> on every single page.
 const buildRoleGroup = (role: Role): RouteObject => ({
   element: (
     <ProtectedRoute roles={[role]}>
@@ -356,11 +369,11 @@ export const appRoutes: RouteObject[] = [
     path: "/",
     element: <RootLayout />,
     errorElement: <RouteErrorBoundary />,
-    // Shown on first load while this route's matched lazy page (and its
-    // loader) is still resolving — the v7
-    // replacement for <RouterProvider fallbackElement>, which v7 removed.
+    // The spinner shown on the very first load, while the matched page's
+    // code is still downloading.
     hydrateFallbackElement: <PageLoader />,
     children: [
+      // Home page at "/".
       { index: true, element: <Home /> },
 
       // ── Public: register, logins, verify, SSO ─────────────
@@ -398,3 +411,117 @@ export const appRoutes: RouteObject[] = [
     ],
   },
 ];
+
+/*
+appRoutes = [
+  {
+    path: "/",                          // ROOT
+    element: <RootLayout />,            // wrapper (loading bar + scroll + <Outlet/>)
+    errorElement: <RouteErrorBoundary/>,
+    children: [
+
+      { index: true, element: <Home/> },        // "/"
+
+       ── from PUBLIC_ROUTES.map(...) ──
+      { path: "register",      ...page(Register) },
+      { path: "login",         ...page(Login) },
+      { path: "verify-email",  ...page(VerifyEmail) },
+      { path: "forgot-password", ...page(ForgotPassword) },
+      { path: "sso-callback",  ...page(SSOCallback) },
+
+       ── from ALL_ROLES.map(buildRoleGroup) ──
+      {                                          // MENTOR group
+        element: <ProtectedRoute roles={["mentor"]}><Outlet/></ProtectedRoute>,
+        errorElement: <RouteErrorBoundary/>,
+        children: [
+          { path: "onboarding/mentor",   ...page(MentorOnboarding) },
+          { path: "profile/mentor/edit", ...page(MentorEditProfileShell) },
+          { path: "dashboard/mentor",    ...page(MentorDashboard) },
+          { path: "verify-documents",    ...page(MentorVerification, {permissions:[...]}) },
+        ],
+      },
+      {                                          // MENTEE group
+        element: <ProtectedRoute roles={["mentee"]}><Outlet/></ProtectedRoute>,
+        errorElement: <RouteErrorBoundary/>,
+        children: [
+          { path: "onboarding/mentee",   ...page(MenteeOnboarding) },
+          { path: "profile/mentee/edit", ...page(MenteeEditProfileShell) },
+          { path: "dashboard/mentee",    ...page(MenteeDashboard) },
+        ],
+      },
+
+       ── shared dashboard ──
+      { path: "shared-dashboard/:connectRequestId", ...lazy(page + loader) },
+
+       ── from buildAdminRoute() ──
+      {                                          // ADMIN section
+        path: "admin",
+        ...page(AdminSessionGate),               // cookie-session probe first
+        errorElement: <RouteErrorBoundary/>,
+        children: [
+          { path: "login", ...page(AdminLogin) },
+          {
+            element: <ProtectedRoute roles={["admin"]}><Outlet/></ProtectedRoute>,
+            children: [
+              { index: true, loader: () => redirect("/admin/users") },
+              { path: "users",         ...page(AdminUserManagement) },
+              { path: "engagements",   ...page(AdminEngagements) },
+              { path: "reports",       ...page(AdminReports) },
+              { path: "payments",      ...page(AdminPayments) },
+              { path: "settings",      ...page(AdminSettings) },
+              { path: "wallet-requests", ...page(AdminWalletRequests) },
+              { path: "support",       ...page(AdminSupportMessages, {Layout: AdminLayout}) },
+              { path: "verifications", ...page(AdminVerifications, {Layout: AdminLayout}) },
+            ],
+          },
+        ],
+      },
+
+      { path: "*", element: <NotFound/> },       // anything else → 404
+    ],
+  },
+];
+
+the component tree
+
+/  (RootLayout: loading bar + scroll + Outlet)   [errorElement]
+│
+├── (index)  →  Home                        URL: /
+│
+├── register              →  Register       URL: /register        (public)
+├── login                 →  Login          URL: /login           (public)
+├── verify-email          →  VerifyEmail    URL: /verify-email     (public)
+├── forgot-password       →  ForgotPassword URL: /forgot-password  (public)
+├── sso-callback          →  SSOCallback    URL: /sso-callback     (public)
+│
+├── 🛡 ProtectedRoute roles=["mentor"]   [errorElement]   ← ONE guard for the group
+│     ├── onboarding/mentor    →  MentorOnboarding       URL: /onboarding/mentor
+│     ├── profile/mentor/edit  →  MentorEditProfileShell URL: /profile/mentor/edit
+│     ├── dashboard/mentor     →  MentorDashboard        URL: /dashboard/mentor
+│     └── verify-documents 🔑  →  MentorVerification     URL: /verify-documents
+│
+├── 🛡 ProtectedRoute roles=["mentee"]   [errorElement]
+│     ├── onboarding/mentee    →  MenteeOnboarding       URL: /onboarding/mentee
+│     ├── profile/mentee/edit  →  MenteeEditProfileShell URL: /profile/mentee/edit
+│     └── dashboard/mentee     →  MenteeDashboard        URL: /dashboard/mentee
+│
+├── shared-dashboard/:connectRequestId → SharedDashboardPage (+loader)
+│                                          URL: /shared-dashboard/abc123
+│
+├── admin  (AdminSessionGate runs first)   [errorElement]
+│     ├── login               →  AdminLogin              URL: /admin/login
+│     └── 🛡 ProtectedRoute roles=["admin"]
+│           ├── (index)  →  redirect to /admin/users     URL: /admin
+│           ├── users          →  AdminUserManagement    URL: /admin/users
+│           ├── engagements    →  AdminEngagements       URL: /admin/engagements
+│           ├── reports        →  AdminReports           URL: /admin/reports
+│           ├── payments       →  AdminPayments          URL: /admin/payments
+│           ├── settings       →  AdminSettings          URL: /admin/settings
+│           ├── wallet-requests → AdminWalletRequests    URL: /admin/wallet-requests
+│           ├── support   📦   →  AdminSupportMessages   URL: /admin/support
+│           └── verifications 📦 → AdminVerifications    URL: /admin/verifications
+│
+└── *  →  NotFound                          URL: anything unmatched
+
+🛡 = a guard sits here    🔑 = also needs a permission    📦 = wrapped in AdminLayout
+*/
