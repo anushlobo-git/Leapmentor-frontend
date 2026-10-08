@@ -32,10 +32,10 @@
 
     /* Linting (kept relatively permissive during migration; tighten in Phase 5) */
     "strict": true,
-    "noImplicitAny": true ,
+    "noImplicitAny": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true ,
-    "noUnusedParameters": true ,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     // Error when a `switch` case runs into the next one because `break` is missing
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
@@ -58,6 +58,12 @@
       "@test/*": ["./src/test/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/features/goals/models/goals.types.ts "
+  ],
   "exclude": ["node_modules", "dist", "coverage", "vite.config.ts"]
 }

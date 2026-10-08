@@ -5,12 +5,14 @@ import { Dialog as DialogPrimitive } from "radix-ui"
 import { Button } from "@/components/shadcn/button"
 import { XIcon } from "lucide-react"
 
+// It holds everything together and remembers whether the card is open or closed. It shows nothing by itself.
+
 function Dialog({
   ...props
 }: Readonly<React.ComponentProps<typeof DialogPrimitive.Root>>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
-
+//: the button that opens the card
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
@@ -28,7 +30,8 @@ function DialogClose({
 }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
-
+//It darkens and slightly blurs everything behind the card so the customer focuses on it.
+//  DialogContent already adds one for you.
 function DialogOverlay({
   className,
   ...props
@@ -45,6 +48,7 @@ function DialogOverlay({
   )
 }
 
+//It's the white card in the middle of the screen, with a close "X" in the corner, and it also brings its own dimmed backdrop.
 function DialogContent({
   className,
   children,
@@ -151,7 +155,22 @@ function DialogDescription({
     />
   )
 }
-
+/**
+ * the entire dialog with the trigger button, the overlay, the content, the header, the footer, the title and the description.
+ * <Dialog>
+  <DialogTrigger asChild><Button>Book a session</Button></DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Book a session</DialogTitle>
+      <DialogDescription>Pick a time that suits you.</DialogDescription>
+    </DialogHeader>
+    <DialogFooter showCloseButton>
+      <Button>Confirm</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+ * Export all the components for use in other files.
+ */
 export {
   Dialog,
   DialogClose,
