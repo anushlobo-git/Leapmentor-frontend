@@ -10,6 +10,7 @@ describe("FilterPanel", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
+    Element.prototype.scrollIntoView = vi.fn();
 
     mockUpdateFilter = vi.fn();
     mockResetFilters = vi.fn();
@@ -111,7 +112,8 @@ describe("FilterPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /Filters/i }));
 
     const select = screen.getByRole("combobox", { name: /Industry/i });
-    fireEvent.change(select, { target: { value: "Finance" } });
+    fireEvent.click(select);
+    fireEvent.click(screen.getByRole("option", { name: "Finance" }));
 
     expect(mockUpdateFilter).toHaveBeenCalledWith("industry", "Finance");
   });

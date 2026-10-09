@@ -2,11 +2,76 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
+
+
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
+
+
+/**
+ * before
+ * <select>
+  <option>...</option>
+</select>
+Now:
+<Select
+  value={filters.industry || "all"}
+  onValueChange={(value) =>
+    updateFilter("industry", value === "all" ? "" : value)
+  }
+>
+  <SelectTrigger id="filter-industry">
+    <SelectValue placeholder="All Industries" />
+  </SelectTrigger>
+
+  <SelectContent>
+    <SelectItem value="all">All Industries</SelectItem>
+
+    {INDUSTRIES.map((ind) => (
+      <SelectItem key={ind} value={ind}>
+        {ind}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+ */
+
+/**
+ * onValueChange  -- This runs when the user chooses an option:
+onValueChange={(value) => ...}
+ */
+
+/*
+SelectTrigger
+This is the visible button:
+<SelectTrigger id="filter-industry">
+The user clicks this to open the dropdown.
+*/
+
+/**
+ * SelectValue
+This displays the selected industry inside the trigger:
+<SelectValue placeholder="All Industries" />
+
+SelectContent
+This is the dropdown menu that appears after clicking the trigger.
+
+SelectItem
+Each SelectItem is one option:
+<SelectItem value="Finance">
+  Finance
+</SelectItem>
+ */
 import { useState, useEffect, useRef } from "react";
 import type React from "react";
-import {Input} from "@components/shadcn/input";
-import {Button} from "@components/shadcn/button";
+import { Button } from "@components/shadcn/button";
+import { Input } from "@components/shadcn/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@components/shadcn/select";
 
 interface FindMentorsFilters {
   industry: string;
@@ -156,19 +221,27 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) 
             >
               Industry
             </label>
-            <select
-              id="filter-industry"
-              value={filters.industry}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilter("industry", e.target.value)}
-              className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
+            <Select
+              value={filters.industry || "all"}
+              onValueChange={(value) =>
+                updateFilter("industry", value === "all" ? "" : value)
+              }
             >
-              <option value="">All Industries</option>
-              {INDUSTRIES.map((ind: string) => (
-                <option key={ind} value={ind}>
-                  {ind}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                id="filter-industry"
+                className="h-auto w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              >
+                <SelectValue placeholder="All Industries" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Industries</SelectItem>
+                {INDUSTRIES.map((ind: string) => (
+                  <SelectItem key={ind} value={ind}>
+                    {ind}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Price range */}
