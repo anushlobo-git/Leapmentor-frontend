@@ -2,7 +2,7 @@
 
 This document reflects the current feature-based TypeScript structure. The old structure mixed Atomic Design (`atoms/molecules/organisms/templates`) with feature folders (`components/mentee`, `components/mentor`, etc.), which meant a "component" could live in five different places. Everything below is organized by **business domain first** (`features/`), with a small, deliberately generic `components/` reserved for pieces that carry no business logic.
 
-Production source files use `.ts` and `.tsx`. Test files are the only remaining `.js`/`.jsx` files during the final test migration; see [TYPESCRIPT_MIGRATION.md](TYPESCRIPT_MIGRATION.md).
+Production source files use `.ts` and `.tsx`. Test files are the only remaining `.js`/`.jsx` files during the final test migration;
 
 The detailed feature inventory below originated during the JavaScript restructure and may show historical `.js`/`.jsx` extensions. Treat those extensions as `.ts`/`.tsx` in the current checkout; folder ownership and responsibilities remain the same.
 

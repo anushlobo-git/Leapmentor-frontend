@@ -13,13 +13,21 @@ vi.mock("@components/ui/Logo", () => ({
   default: ({ onClick }) => <div data-testid="logo" onClick={onClick}>Logo</div>,
 }));
 
-vi.mock("@components/ui/Button", () => ({
-  default: ({ children, onClick, variant, fullWidth }) => (
-    <button 
-      data-testid={`button-${variant}`} 
-      onClick={onClick}
-      className={fullWidth ? "full-width" : ""}
-    >
+// vi.mock("@components/ui/Button", () => ({
+//   default: ({ children, onClick, variant, fullWidth }) => (
+//     <button
+//       data-testid={`button-${variant}`}
+//       onClick={onClick}
+//       className={fullWidth ? "full-width" : ""}
+//     >
+//       {children}
+//     </button>
+//   ),
+// }));
+
+vi.mock("@components/shadcn/button", () => ({
+  Button: ({ children, onClick, variant = "default", className }) => (
+    <button data-testid={`button-${variant}`} onClick={onClick} className={className}>
       {children}
     </button>
   ),
@@ -51,7 +59,7 @@ describe("Navbar", () => {
       </BrowserRouter>
     );
     expect(screen.getByTestId("button-outline")).toBeInTheDocument();
-    expect(screen.getByTestId("button-primary")).toBeInTheDocument();
+    expect(screen.getByTestId("button-default")).toBeInTheDocument();
   });
 
   it("should render Register button", () => {
@@ -103,10 +111,10 @@ describe("Navbar", () => {
         <Navbar />
       </BrowserRouter>
     );
-    
+
     const hamburger = screen.getByTestId("hamburger");
     expect(hamburger).toHaveAttribute("data-open", "false");
-    
+
     await user.click(hamburger);
     expect(hamburger).toHaveAttribute("data-open", "true");
   });
@@ -125,32 +133,32 @@ describe("Navbar", () => {
   it("should scroll to top when logo clicked on home page", async () => {
     const user = userEvent.setup();
     globalThis.location.pathname = "/";
-    
+
     render(
       <BrowserRouter>
         <Navbar />
       </BrowserRouter>
     );
-    
+
     const logo = screen.getByTestId("logo");
     await user.click(logo);
-    
+
     expect(globalThis.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
   });
 
   it("should navigate to home when logo clicked on other page", async () => {
     const user = userEvent.setup();
     globalThis.location.pathname = "/other";
-    
+
     render(
       <BrowserRouter>
         <Navbar />
       </BrowserRouter>
     );
-    
+
     const logo = screen.getByTestId("logo");
     await user.click(logo);
-    
+
     expect(globalThis.scrollTo).not.toHaveBeenCalled();
   });
 });

@@ -12,9 +12,6 @@ export default tseslint.config(
       "dist/**",
       "node_modules/**",
       "coverage/**",
-      // SonarQube scanner cache: ~35 MB of bundled TS lib .d.ts files. ESLint 9
-      // flat config ignores neither dot-folders nor .gitignore, so without this
-      // `eslint .` crawls the whole bundle and OOMs (JS heap out of memory).
       ".scannerwork/**",
       "study/**",
       "public/sw.js",

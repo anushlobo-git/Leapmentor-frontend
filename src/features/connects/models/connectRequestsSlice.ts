@@ -9,6 +9,7 @@ import {
   type AsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
+import type { AxiosError } from "axios";
 import { getIncomingRequests } from "@features/mentor/models/mentor.api";
 import { getMyConnectRequests, deleteConnectRequest } from "@features/mentee/models/mentee.api";
 import logger from "@lib/monitoring/logger";
@@ -26,10 +27,17 @@ export interface ConnectRequest {
   _id: string;
   status: string;
   [field: string]: unknown;
-  //index signature 
+  //index signature
    //(3) "…and any number of OTHER fields, of unknown type"
 }
 
+/** Shape of the JSON body the backend sends back when a connect-request call fails. */
+interface RequestErrorBody {
+  message?: string;
+}
+
+//Omit is to remove a field from the connectRequest
+//all the elements inside it can be optional like can exist or no
 type RequestPatch = Partial<Omit<ConnectRequest, "_id">>;
 
 interface RequestList {
@@ -47,6 +55,7 @@ interface ConnectRequestsState {
   mentee: RequestList;
 }
 
+//when u call emptyList() it will return object { items: [], status: "idle", loadedOnce: false, error: null, requestId: null }
 const emptyList = (): RequestList => ({ items: [], status: "idle", loadedOnce: false, error: null, requestId: null });
 
 const initialState: ConnectRequestsState = { mentor: emptyList(), mentee: emptyList() };
@@ -64,8 +73,9 @@ export const fetchMentorRequests: FetchThunk = createAsyncThunk<
       const res = await getIncomingRequests();
       return (res.data.requests || []) as ConnectRequest[];
     } catch (err) {
-      logger.warn("Failed to fetch incoming mentor requests", { error: err?.message });
-      return rejectWithValue(err?.response?.data?.message || "Failed to load requests.");
+      const error = err as AxiosError<RequestErrorBody>;
+      logger.warn("Failed to fetch incoming mentor requests", { error: error?.message });
+      return rejectWithValue(error?.response?.data?.message || "Failed to load requests.");
     }
   },
 );
@@ -81,7 +91,8 @@ export const fetchMenteeRequests: FetchThunk = createAsyncThunk<
       const res = await getMyConnectRequests();
       return (Array.isArray(res.data.requests) ? res.data.requests : []) as ConnectRequest[];
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || "Failed to load requests.");
+      const error = err as AxiosError<RequestErrorBody>;
+      return rejectWithValue(error?.response?.data?.message || "Failed to load requests.");
     }
   },
 );

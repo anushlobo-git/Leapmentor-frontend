@@ -2,13 +2,51 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
+/** A reference the backend may send as a bare id or as a populated object. */
+type RawRef = string | { _id?: string; id?: string; name?: string } | null;
+
+/** Pulls a plain id string out of a RawRef (never returns an object). */
+const refId = (ref: RawRef | undefined): string | null =>
+  typeof ref === "string" ? ref : (ref?._id ?? ref?.id ?? null);
+
+/** INCOMING: raw goal from the API. Everything optional, backend may omit anything. */
+interface RawGoal {
+  _id?: string;
+  id?: string;
+  title?: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  connectRequestId?: string;
+  connectRequest?: string;
+  createdBy?: RawRef;
+  mentor?: RawRef;
+  mentee?: RawRef;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** OUTGOING (to the UI): what screens can rely on. Required unless "absent" is meaningful. */
+export interface Goal {
+  _id: string | null;
+  title: string;
+  description: string;
+  startDate: string | null;
+  endDate: string | null;
+  status: string | null;
+  connectRequestId: string | null;
+  createdBy: RawRef;
+  mentor: RawRef;
+  mentee: RawRef;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
 /**
- * Normalize a raw goal object from the API into the internal shape used across the app.
- * Provides defensive defaults for all fields to prevent silent failures when backend shape changes.
- * @param {Object} raw - Raw goal object from API
- * @returns {Object} Normalized goal object with guaranteed field structure
+ * Normalize a raw goal from the API. Returns null when there is no goal at all.
  */
-export const mapGoal = (raw) => {
+export const mapGoal = (raw?: RawGoal | null): Goal | null => {
   if (!raw) return null;
   return {
     _id: raw._id ?? raw.id ?? null,
@@ -27,14 +65,7 @@ export const mapGoal = (raw) => {
 };
 
 /**
- * Normalize a raw milestone object from the API into the internal shape used across the app.
- * Provides defensive defaults for all fields to prevent silent failures when backend shape changes.
- * @param {Object} raw - Raw milestone object from API
- * @returns {Object} Normalized milestone object with guaranteed field structure
- */
-/**
- * Raw milestone DTO from the API — only the fields mapMilestone reads are
- * named. `goal` may arrive as a populated object or as a bare id.
+ * INCOMING: raw milestone from the API. `goal` may be a populated object or a bare id.
  */
 interface RawMilestone {
   _id?: string;
@@ -46,7 +77,7 @@ interface RawMilestone {
   completedAt?: string;
   completedBy?: string;
   goalId?: string;
-  goal?: { _id?: string; id?: string };
+  goal?: RawRef;
   connectRequestId?: string;
   connectRequest?: string;
   order?: number;
@@ -55,7 +86,25 @@ interface RawMilestone {
   updatedAt?: string;
 }
 
-export const mapMilestone = (raw: RawMilestone = {}) => {
+/** OUTGOING (to the UI): normalized milestone. */
+export interface Milestone {
+  _id: string | null;
+  title: string;
+  description: string;
+  dueDate: string | null;
+  isCompleted: boolean;
+  completedAt: string | null;
+  completedBy: string | null;
+  goalId: string | null;
+  connectRequestId: string | null;
+  order: number;
+  slotIndex: number | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+// Called with nothing -> defaults. Called with null -> null (keeps the original behaviour).
+export const mapMilestone = (raw: RawMilestone | null = {}): Milestone | null => {
   if (!raw) return null;
   return {
     _id: raw._id ?? raw.id ?? null,
@@ -65,7 +114,8 @@ export const mapMilestone = (raw: RawMilestone = {}) => {
     isCompleted: Boolean(raw.isCompleted),
     completedAt: raw.completedAt ?? null,
     completedBy: raw.completedBy ?? null,
-    goalId: raw.goalId ?? raw.goal?._id ?? raw.goal?.id ?? raw.goal ?? null,
+    // refId guarantees a string id, never the whole populated object
+    goalId: raw.goalId ?? refId(raw.goal),
     connectRequestId: raw.connectRequestId ?? raw.connectRequest ?? null,
     order: typeof raw.order === "number" ? raw.order : 0,
     slotIndex: typeof raw.slotIndex === "number" ? raw.slotIndex : null,

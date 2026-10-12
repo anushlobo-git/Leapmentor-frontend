@@ -4,6 +4,7 @@
 
 import type { ReactNode, MouseEventHandler } from "react";
 
+
 interface ButtonProps {
   readonly children: ReactNode;
   readonly variant?: "primary" | "outline";
@@ -13,6 +14,7 @@ interface ButtonProps {
   readonly disabled?: boolean;
   readonly withIcon?: boolean;
 }
+
 
 export default function Button({
   children,

@@ -4,6 +4,7 @@
 
 // src/features/goals/components/SessionCard.jsx
 import { useState } from "react";
+//imports the function from the file sessionCardUtils
 import {
   formatSlotDate,
   formatTime,

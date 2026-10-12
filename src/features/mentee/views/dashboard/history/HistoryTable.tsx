@@ -6,22 +6,23 @@
 import StatusBadge from "@features/mentee/views/dashboard/history/StatusBadge";
 import { formatDate, getInitials } from "@features/mentee/views/dashboard/history/constants";
 import type { HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
+import { Button } from "@components/shadcn/button";
 
 const DeleteIcon = ({ onClick, title }: { onClick: () => void; title?: string }) => (
-  <button type="button" onClick={onClick} title={title}
-    className="flex items-center justify-center w-7 h-7 rounded-lg border border-red-300 text-red-400 bg-red-50 hover:border-red-400 hover:text-red-500 hover:bg-red-100 transition-all">
+  <Button type="button" onClick={onClick} title={title} variant="ghost" size="icon-sm"
+    className="rounded-lg border border-red-300 text-red-400 bg-red-50 hover:border-red-400 hover:text-red-500 hover:bg-red-100 transition-all">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="3 6 5 6 21 6"/>
       <path d="M19 6l-1 14H6L5 6"/>
       <path d="M10 11v6"/><path d="M14 11v6"/>
       <path d="M9 6V4h6v2"/>
     </svg>
-  </button>
+  </Button>
 );
 
 const ViewButton = ({ onClick, isSelected }: { onClick: () => void; isSelected: boolean }) => (
-  <button type="button" onClick={onClick}
-    className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+  <Button type="button" onClick={onClick} variant="ghost" size="sm"
+    className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
       isSelected
         ? "bg-slate-100 text-slate-600 border-slate-200"
         : "bg-blue-900 text-white border-blue-900 hover:bg-blue-700"
@@ -30,7 +31,7 @@ const ViewButton = ({ onClick, isSelected }: { onClick: () => void; isSelected: 
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
     </svg>
-  </button>
+  </Button>
 );
 
 // Avatar color based on name
@@ -41,8 +42,10 @@ const AVATAR_GRADIENTS = [
   "from-rose-500 to-rose-700",
   "from-amber-500 to-amber-700",
 ];
-const getGradient = (name = "") =>
-  AVATAR_GRADIENTS[name.codePointAt(0) % AVATAR_GRADIENTS.length];
+const getGradient = (name : string ) =>{
+  const index = (name.codePointAt(0) ?? 0) % AVATAR_GRADIENTS.length;
+  return  AVATAR_GRADIENTS[index];
+}
 
 interface HistoryTableProps {
   requests: HistoryRequest[];

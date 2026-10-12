@@ -49,12 +49,12 @@ interface HistoryMentorProfile {
 }
 
 interface HistoryRequest {
-  _id: string;
+  _id: string ;
   status: string;
   mentor?: HistoryPerson | null;
   mentorProfile?: HistoryMentorProfile | null;
-  requestedAt?: string;
-  respondedAt?: string;
+  requestedAt?: string | null;
+  respondedAt?: string | null;
   message?: string;
   selectedSlots?: HistorySlot[];
   confirmedSlot?: HistorySlot | null;

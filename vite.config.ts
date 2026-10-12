@@ -19,6 +19,7 @@ export default defineConfig({
   // Controls how Vite resolves imports.
   resolve: {
     alias: {
+      "@": path.resolve(__dirname, "./src"),
       "@app": path.resolve(__dirname, "./src/app"),
       "@features": path.resolve(__dirname, "./src/features"),
       "@components": path.resolve(__dirname, "./src/components"),

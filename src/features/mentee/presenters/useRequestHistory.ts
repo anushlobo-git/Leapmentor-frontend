@@ -24,13 +24,19 @@ import type { AppDispatch } from "@store/index";
 const useRequestHistory = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, status, loadedOnce, error: fetchError } = useSelector(selectMenteeRequestList);
-  const requests = useMemo(() => items.map(mapConnectRequest), [items]);
+  const requests = useMemo(
+    () =>
+      items.map(mapConnectRequest).filter(
+        (request): request is ReturnType<typeof mapConnectRequest> & { _id: string } =>
+          typeof request._id === "string" && request._id.length > 0,
+      ),
+     [items],
+   );
   const loading = status === "loading";
   const initialLoad = !loadedOnce; // first load only — background refetches never block the UI
   const error = fetchError ?? "";
   const [activeTab, setActiveTab] = useState("all");
-  const [selected, setSelected] = useState<ReturnType<typeof mapConnectRequest> | null>(null);
-
+  const [selected, setSelected] = useState<(typeof requests)[number] | null>(null);
   // ── Fetch all requests ──────────────────────────────────────
   const fetchRequests = useCallback(() => dispatch(fetchMenteeRequests()), [dispatch]);
 

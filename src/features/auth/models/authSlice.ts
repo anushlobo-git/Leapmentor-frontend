@@ -8,6 +8,7 @@ import axiosInstance from "@lib/http/axiosInstance";
 import { login as loginRequest } from "@features/auth/models/auth.api";
 import { mapAuthUser, type RawAuthUser } from "@lib/mappers/userMapper";
 import type { RootState } from "@store/index";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
 
 // ── Thunks ──────────────────────────────────────────────────
 //action type prefix ,
@@ -42,7 +43,7 @@ export const registerUser = createAsyncThunk(
       );
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Registration failed.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Registration failed."));
     }
   }
 );
@@ -59,7 +60,7 @@ export const loginUser = createAsyncThunk(
       const res = await loginRequest(email, password);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Login failed.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Login failed."));
     }
   }
 );
@@ -76,7 +77,7 @@ export const sendOtp = createAsyncThunk(
       const res = await axiosInstance.post(`/verification/send`, { email: email.trim() });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to send OTP.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Failed to send OTP."));
     }
   }
 );
@@ -96,7 +97,7 @@ export const verifyEmail = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "OTP verification failed.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "OTP verification failed."));
     }
   }
 );
@@ -115,7 +116,7 @@ export const verifyMagicLink = createAsyncThunk(
       );
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Magic link verification failed.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Magic link verification failed."));
     }
   }
 );
@@ -132,7 +133,7 @@ export const forgotPassword = createAsyncThunk(
       const res = await axiosInstance.post(`/auth/forgot-password`, { email: email.trim() });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to send OTP.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Failed to send OTP."));
     }
   }
 );
@@ -152,7 +153,7 @@ export const verifyResetOtp = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Invalid OTP.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Invalid OTP."));
     }
   }
 );
@@ -176,14 +177,14 @@ export const resetPassword = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to reset password.");
+      return rejectWithValue(getApiErrorMessage(err, getErrorMessage(err) || "Failed to reset password."));
     }
   }
 );
 
 interface AuthState {
   user: ReturnType<typeof mapAuthUser> | RawAuthUser | null;
-  accessToken: string | null;
+  accessToken: string | null | undefined;
   role: "admin" | null;
   adminBootstrapping: boolean;
   loading: boolean;

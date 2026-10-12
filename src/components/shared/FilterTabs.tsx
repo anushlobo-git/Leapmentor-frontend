@@ -3,6 +3,7 @@
  */
 
 // src/components/shared/FilterTabs.jsx
+import { Button } from "@components/shadcn/button";
 
 const defaultBadgeClass = (tabKey: string, activeTab: string) =>
   activeTab === tabKey ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500";
@@ -48,17 +49,18 @@ const FilterTabs = ({
       }
     >
       {tabs.map((tab) => (
-        <button
+        <Button
           key={tab.key}
           type="button"
+          variant="ghost"
           onClick={() => onChange(tab.key)}
           className={`${
             scrollable
               ? "flex-shrink-0 sm:flex-1 gap-1.5 text-xs sm:text-sm whitespace-nowrap"
               : "flex-1 gap-2 text-sm"
-          } flex items-center justify-center px-3 py-2.5 font-semibold transition-all duration-150 border-b-2 ${
+          } h-auto rounded-none border-x-0 border-t-0 shadow-none flex items-center justify-center px-3 py-2.5 font-semibold transition-all duration-150 border-b-2 ${
             activeTab === tab.key
-              ? "text-blue-900 border-blue-900 bg-blue-50/50"
+              ? "text-blue-900 border-blue-900 bg-blue-50/50 hover:bg-blue-50/50 hover:text-blue-900"
               : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
           }`}
         >
@@ -73,7 +75,7 @@ const FilterTabs = ({
               {counts[tab.key]}
             </span>
           )}
-        </button>
+        </Button>
       ))}
     </div>
   </div>
