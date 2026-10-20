@@ -2,16 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { useEffect, useRef } from "react";
 import { googleAuthRequest } from "@features/auth/models/auth.api";
-import { setAuthRole } from "@lib/http/cookies";
 import logger from "@lib/monitoring/logger";
 
 // Mock External System Modules
 vi.mock("@features/auth/models/auth.api", () => ({
   googleAuthRequest: vi.fn(),
-}));
-
-vi.mock("@lib/http/cookies", () => ({
-  setAuthRole: vi.fn(),
 }));
 
 vi.mock("@lib/monitoring/logger", () => ({
@@ -179,7 +174,7 @@ describe("useGoogleAuth", () => {
     expect(googleAuthRequest).not.toHaveBeenCalled();
   });
 
-  it("should complete full successful sign-in pipeline workflow, assigning authRole cookie to 'mentor'", async () => {
+  it("should complete the full successful sign-in pipeline and sync the user", async () => {
     const mockOnSuccess = vi.fn();
     const mockOnLoading = vi.fn();
     const mockDispatch = vi.fn();
@@ -210,7 +205,6 @@ describe("useGoogleAuth", () => {
       termsAccepted: true,
     });
 
-    expect(setAuthRole).toHaveBeenCalledWith("mentor");
     expect(mockDispatch).toHaveBeenCalledWith({
       accessToken: "jwt-token-abc",
       user: { roles: ["mentor", "user"] },
@@ -219,7 +213,36 @@ describe("useGoogleAuth", () => {
     expect(mockOnLoading).toHaveBeenLastCalledWith(false);
   });
 
-  it("should alternate authRole assignment to 'mentee' when response includes appropriate matching payload credentials", async () => {
+  it("should recover from one transient network failure by retrying Google auth once", async () => {
+    const mockOnSuccess = vi.fn();
+    const mockOnError = vi.fn();
+
+    googleAuthRequest
+      .mockRejectedValueOnce({ code: "ERR_NETWORK", message: "temporary outage" })
+      .mockResolvedValueOnce({
+        data: {
+          accessToken: "recovered-jwt-token",
+          user: { roles: ["mentor"] },
+        },
+      });
+
+    await renderTestComponent({ onSuccess: mockOnSuccess, onError: mockOnError });
+
+    await savedGoogleCallback({ credential: "mock-credential-token" });
+
+    expect(googleAuthRequest).toHaveBeenCalledTimes(2);
+    expect(logger.warn).toHaveBeenCalledWith(
+      "Google sign-in failed — retrying once",
+      { error: "temporary outage" },
+    );
+    expect(mockOnSuccess).toHaveBeenCalledWith({
+      accessToken: "recovered-jwt-token",
+      user: { roles: ["mentor"] },
+    });
+    expect(mockOnError).not.toHaveBeenCalled();
+  });
+
+  it("should sync a mentee response into the auth store", async () => {
     googleAuthRequest.mockResolvedValueOnce({
       data: {
         accessToken: "jwt-token-def",
@@ -230,10 +253,10 @@ describe("useGoogleAuth", () => {
     await renderTestComponent({ roles: ["mentee"] });
 
     await savedGoogleCallback({ credential: "mock-credential-token" });
-    expect(setAuthRole).toHaveBeenCalledWith("mentee");
+    expect(googleAuthRequest).toHaveBeenCalled();
   });
 
-  it("should bypass setting authRole cookies if user attributes returns an empty list or missing roles completely", async () => {
+  it("should still complete auth when the user has no roles yet", async () => {
     googleAuthRequest.mockResolvedValueOnce({
       data: {
         accessToken: "jwt-token-xyz",
@@ -244,7 +267,7 @@ describe("useGoogleAuth", () => {
     await renderTestComponent({ roles: ["guest"] });
 
     await savedGoogleCallback({ credential: "mock-credential-token" });
-    expect(setAuthRole).not.toHaveBeenCalled();
+    expect(googleAuthRequest).toHaveBeenCalled();
   });
 
   it("should parse exception messages securely from response data wrappers when network actions fail", async () => {

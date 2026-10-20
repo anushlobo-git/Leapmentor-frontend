@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "@features/auth/models/authSlice";
 import { exchangeLinkedInToken } from "@features/auth/models/auth.api";
-import { setAuthRole } from "@lib/http/cookies";
 import { getPrimaryRole, getDashboardPath, getOnboardingPath } from "@lib/auth/redirectUtils";
 import logger from "@lib/monitoring/logger";
 import type { AppDispatch } from "@store/index";
@@ -67,7 +66,6 @@ export const useSSOCallbackPresenter = () => {
         const resolvedRole = getPrimaryRole(user?.roles) || "mentee";
 
         dispatch(setUser({ accessToken: res.data.accessToken || null, user })); // ✅
-        setAuthRole(resolvedRole);
 
         navigate(
           isNewUser ? getOnboardingPath(resolvedRole) : getDashboardPath(resolvedRole),

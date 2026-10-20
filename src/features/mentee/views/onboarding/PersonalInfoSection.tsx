@@ -177,9 +177,9 @@ const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) =
           <label
             htmlFor="bio-textarea"
             className="block text-xs font-semibold text-[#475569] mb-2"
-          >
-            Bio
-          </label>
+            >
+            Bio <span className="text-blue-900">*</span>
+            </label>
           <textarea
             id="bio-textarea"
             name="bio"

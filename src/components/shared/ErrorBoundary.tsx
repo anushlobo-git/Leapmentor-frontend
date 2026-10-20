@@ -4,11 +4,30 @@
 
 // src/components/shared/ErrorBoundary.jsx
 import type { ReactNode } from "react";
+/*
+React itself supports error boundaries, but traditionally they must be written as class components using:
+
+static getDerivedStateFromError()
+componentDidCatch()
+
+react-error-boundary provides a ready-made implementation with a simpler function-component API:
+
+<ErrorBoundary  FallbackComponent={ErrorFallback}   onError={handleError} >
+  <YourComponent />
+</ErrorBoundary>
+
+It is maintained by Brian Vaughn, a well-known React ecosystem maintainer.
+
+
+*/
+
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 import type { FallbackProps } from "react-error-boundary";
 import * as Sentry from "@sentry/react";
 import logger from "@lib/monitoring/logger";
 
+//It converts any unknown error into a string message for logging and display.
+// It is used in both the ErrorFallback and the ErrorBoundary onError callback.
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message || error.name;
   if (typeof error === "string") return error;
@@ -23,6 +42,20 @@ function toErrorMessage(error: unknown): string {
 // react-error-boundary calls this with { error, resetErrorBoundary } —
 // resetErrorBoundary is the library's own reset function, supplied to us
 // rather than something we have to build ourselves.
+
+/**
+ * ErrorFallback is the UI shown after an error boundary catches an error.
+ *
+ * This is the original error that caused the component to fail.
+ *
+ * This is a function supplied by the library.
+   calling it clears the internal error state of the error boundary.
+
+   resetErrorBoundary();
+
+   This clears the internal error state maintained by react-error-boundary.
+Without this call, the boundary could remain in its error state until the page is reloaded.
+ */
 export const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
   const handleGoHome = () => {
     logger.info("ErrorBoundary reset — navigating to homepage");
@@ -104,6 +137,46 @@ interface ErrorBoundaryProps {
  *     stay identical to before — App.tsx and main.tsx did not need to
  *     change at all.
  *   - the Sentry reporting + logging behavior stays defined in one place.
+ */
+
+
+/**
+ * resetKeys
+
+resetKeys={resetKeys}
+
+This allows the boundary to reset when the supplied values change.
+
+For example:
+
+<ErrorBoundary resetKeys={[location.pathname]}>
+  <Page />
+</ErrorBoundary>
+
+If the path changes from:
+
+/dashboard
+
+to:
+
+/profile
+
+the error boundary can reset because the reset key changed.
+ */
+
+/**
+ * FallbackComponent
+ *
+FallbackComponent={ErrorFallback}
+
+This tells the library:
+
+When an error happens, render ErrorFallback.
+The library will call it with:
+{
+  error,
+  resetErrorBoundary
+}
  */
 const ErrorBoundary = ({ children, resetKeys }: ErrorBoundaryProps) => (
   <ReactErrorBoundary

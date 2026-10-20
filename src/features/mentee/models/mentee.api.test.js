@@ -12,6 +12,7 @@ import {
   getMyLeapRequest,
   createLeapRequest,
   getMentorAvailability,
+  createMenteeProfile,
 } from "./mentee.api";
 
 // Mock axiosInstance
@@ -42,6 +43,34 @@ describe("mentee.api", () => {
         formData,
         { onUploadProgress }
       );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe("createMenteeProfile", () => {
+    it("posts the complete onboarding request to the profile endpoint", async () => {
+      const mockResponse = { data: { success: true } };
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
+      axiosInstance.post.mockResolvedValue(mockResponse);
+      const payload = {
+        profilePicture: "",
+        profilePictureFileName: "",
+        bio: "Learning testing",
+        currentRole: "QA",
+        company: "Leap",
+        industry: "Technology",
+        yearsOfExperience: "1-3 Years",
+        interestedFields: ["QA"],
+        skills: ["Testing"],
+        communicationPreferences: ["Chat"],
+        languages: ["English"],
+        linkedInUrl: "",
+        portfolioUrl: "",
+      };
+
+      const result = await createMenteeProfile(payload);
+
+      expect(axiosInstance.post).toHaveBeenCalledWith("/mentee-profile", payload);
       expect(result).toEqual(mockResponse);
     });
   });

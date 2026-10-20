@@ -17,7 +17,6 @@ import {
   clearMessages,
   setUser,
 } from "@features/auth/models/authSlice";
-import { setAuthRole } from "@lib/http/cookies";
 import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import { registerSchema } from "@lib/validation/schemas";
 import {
@@ -179,7 +178,6 @@ export const useRegisterPresenter = ({ role }: UseRegisterPresenterArgs) => {
     if (loggedIn && accessToken) {
       const primaryRole = getPrimaryRole(user?.roles) || role;
       dispatch(setUser({ accessToken, user }));
-      setAuthRole(primaryRole);
       setRedirecting(true);
       setTimeout(() => navigate(`/dashboard/${primaryRole}`), 800);
       return;

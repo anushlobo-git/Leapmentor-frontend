@@ -65,10 +65,6 @@ vi.mock("@sentry/react", () => ({
   captureException: vi.fn(),
 }));
 
-vi.mock("@lib/http/cookies", () => ({
-  clearAuthRole: vi.fn(),
-}));
-
 vi.mock("@lib/http/apiResponse", () => ({
   unwrapApiResponse: vi.fn((data) => ({ ...data, unwrapped: true })),
 }));
@@ -87,7 +83,6 @@ import { injectStore } from "./axiosInstance";
 import logger from "@lib/monitoring/logger";
 import { toast } from "sonner";
 import * as Sentry from "@sentry/react";
-import { clearAuthRole } from "@lib/http/cookies";
 import { unwrapApiResponse } from "@lib/http/apiResponse";
 import { isServerError, isRateLimited } from "@lib/http/httpStatus";
 
@@ -314,7 +309,6 @@ describe("Axios Interceptors Instance Engine", () => {
       await expect(rejectionPromise).rejects.toThrow();
 
       expect(mockStore.dispatch).toHaveBeenCalledWith(mockLogout());
-      expect(clearAuthRole).toHaveBeenCalled();
       expect(globalThis.location.href).toBe("/login");
     });
 
@@ -335,7 +329,6 @@ describe("Axios Interceptors Instance Engine", () => {
       ).rejects.toEqual(blockedUserError);
 
       expect(mockStore.dispatch).toHaveBeenCalledWith(mockLogout());
-      expect(clearAuthRole).toHaveBeenCalled();
       expect(globalThis.location.href).toBe("/login?reason=blocked");
     });
 

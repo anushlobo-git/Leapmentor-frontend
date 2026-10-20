@@ -5,7 +5,6 @@ import userEvent from "@testing-library/user-event";
 const mockUseNavigate = vi.fn();
 const mockUseDispatch = vi.fn();
 const mockLogin = vi.fn();
-const mockSetAuthRole = vi.fn();
 const mockSetUser = vi.fn();
 const mockUseGoogleAuth = vi.fn();
 //we are mocking the usedispatch and usenavigate hooks that is the dependency which is needed during the login
@@ -47,9 +46,6 @@ vi.mock("@features/auth/views/shared/AuthIcons", () => ({
 vi.mock("@components/shared/FullScreenLoader", () => ({
   __esModule: true,
   default: ({ message }) => <div data-testid="loader">{message}</div>,
-}));
-vi.mock("@lib/http/cookies", () => ({
-  setAuthRole: (...args) => mockSetAuthRole(...args),
 }));
 vi.mock("@lib/monitoring/logger", () => ({
   __esModule: true,
@@ -161,7 +157,6 @@ describe("LoginForm", () => {
         "Password1!",
       ),
     );
-    expect(mockSetAuthRole).toHaveBeenCalledWith("mentor");
     await waitFor(
       () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentor"),
       { timeout: 2000 },
@@ -200,7 +195,6 @@ describe("LoginForm", () => {
         .closest("form"),
     );
 
-    await waitFor(() => expect(mockSetAuthRole).toHaveBeenCalledWith("mentee"));
     await waitFor(
       () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentee"),
       { timeout: 2000 },
@@ -239,7 +233,6 @@ describe("LoginForm", () => {
         .closest("form"),
     );
 
-    await waitFor(() => expect(mockSetAuthRole).toHaveBeenCalledWith("mentor"));
     await waitFor(
       () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentor"),
       { timeout: 2000 },

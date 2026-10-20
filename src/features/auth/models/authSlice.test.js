@@ -177,6 +177,17 @@ describe("authSlice", () => {
       expect(state.accessToken).toBe("token123");
     });
 
+    it("should derive the primary role from the authenticated user", () => {
+      const action = setUser({
+        user: { roles: ["mentee", "mentor"] },
+        accessToken: "token123",
+      });
+
+      const state = authReducer(initialState, action);
+
+      expect(state.role).toBe("mentor");
+    });
+
     it("should set user to null when payload.user is null", () => {
       const action = setUser({ user: null, accessToken: "token123" });
       const state = authReducer(initialState, action);

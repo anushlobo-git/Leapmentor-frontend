@@ -39,8 +39,8 @@ export const ALL_ROLES: Role[] = Object.values(ROLES);
 
 /**
  * When an account holds more than one role and something needs a single
- * "primary" one (which dashboard to land on, what to put in the authRole
- * routing-hint cookie), earlier entries here win the tie.
+ * "primary" one (which dashboard to land on), earlier entries here win the
+ * tie.
  */
 //["mentor","mentee"]
 export const ROLE_PRIORITY: Role[] = [ROLES.MENTOR, ROLES.MENTEE];

@@ -7,44 +7,72 @@
 //   1. Lists every page and WHO is allowed to see it.
 //   2. Turns that list into the actual route tree React Router uses.
 // Because it exports both data (route lists) AND a couple of small
-// components, we switch off one eslint rule that expects a file to
-// export only components. That mix is normal for a route-config file.
+
+/**
+ * BrowserRouter does not support route object properties such as:
+ loader
+ action
+ errorElement
+ shouldRevalidate
+ *
+ * So this will not work with a normal BrowserRouter route:
+ * <Route
+  path="/dashboard"
+  element={<Dashboard />}
+  loader={loadDashboard}
+  errorElement={<RouteErrorBoundary />}
+  />
+ *
+ *Normal BrowserRouter
+
+Think of it as:
+URL changes
+  → React renders the matching component
+
+It mainly handles:
+- URL matching
+- navigation
+- links
+- route rendering
+
+For API calls, the component usually does:
+useEffect(() => {
+  fetchData();
+}, []);
+
+The component must handle:
+- loading
+- success
+- error
+
+Data router
+
+Think of it as:
+
+URL changes
+  → loader runs first
+  → data is loaded
+  → route renders
+
+The router itself understands:
+- route data loading
+- route actions
+- loading transitions
+- loader errors
+- route-level error UI
+- lazy route loading
+- revalidation
+
+This gives the route a more complete lifecycle.
+
+ */
 
 
 /**
  * @fileoverview Route registry (data router)
  * @description
- * This file has two jobs:
- *
- *  1. Declare *who* can see each page — the same flat, role-driven data as
- *     before (PUBLIC_ROUTES / ROLE_GUARDED_ROUTES / ADMIN_ROUTES). Adding a
- *     new account role still only means editing constants/roles.ts plus one
- *     entry in ROLE_PAGES below.
- *  2. Turn that data into the actual react-router-dom v7 data-router tree
- *     (`appRoutes`, a RouteObject[]) that `createBrowserRouter` consumes —
- *     with route organization (layout routes for each guarded group, one
- *     `<ProtectedRoute>` per group instead of one per page), an index route
- *     for `/admin`, per-route code-splitting via the router's own `lazy`
- *     property, and an `errorElement` per group so a crash in, say, the
- *     mentor dashboard doesn't take down the rest of the app.
- *
- * How to add a new account role (say "moderator"):
- *   1. constants/roles.ts — add it to ROLES, ROLE_PRIORITY, ROLE_CONFIG
- *      (loginPath, dashboardPath, onboardingPath, editProfilePath) and
- *      ROLE_PERMISSIONS (mirror the backend).
- *   2. Below — add ONE entry to ROLE_PAGES with that role's components.
- *      ROLE_PAGES is typed Record<Role, …>, so TypeScript refuses to
- *      compile until you do; the onboarding, dashboard and edit-profile
- *      routes (and their guards) are then generated for you, including
- *      their own layout route in `appRoutes`. All roles share the one
- *      `/login` toggle page, so there is no per-role login to add.
- *   3. App.tsx does not change.
- *
- * Route access lives on each route as `access: { roles?, permissions? }`
- * and is enforced by <ProtectedRoute>. Remember the frontend only decides
- * what to *show* — the backend (authenticate + requireRole /
- * requirePermission) is the real enforcement.
  */
+
 import type { ComponentType, ReactNode } from "react";
 import {
   Outlet, // the "hole" where a child page is slotted into a parent

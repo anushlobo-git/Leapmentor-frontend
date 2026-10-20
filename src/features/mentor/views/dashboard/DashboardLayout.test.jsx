@@ -19,13 +19,6 @@ vi.mock("react", async (importOriginal) => {
   };
 });
 
-// Mock the problematic modules that cause teardown errors
-vi.mock("@lib/http/cookies", () => ({
-  clearAuthRole: vi.fn(),
-  getAuthRole: vi.fn(),
-  setAuthRole: vi.fn(),
-}));
-
 vi.mock("@features/connects/presenters/useOngoingConnects", () => ({
   default: vi.fn(() => ({ ongoingConnects: [] })),
 }));

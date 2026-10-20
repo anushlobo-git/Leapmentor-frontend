@@ -16,7 +16,6 @@ import type {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import { clearAuthRole } from "@lib/http/cookies";
 import * as Sentry from "@sentry/react";
 import { v4 as uuidv4 } from "uuid";
 import logger from "@lib/monitoring/logger";
@@ -341,7 +340,6 @@ const performRefresh = async (
     if (domain.usesBearer) {
       const { logout } = await import("@features/auth/models/authSlice");
       _store?.dispatch(logout());
-      clearAuthRole();
     } else {
       const { setAdminSession } = await import("@features/auth/models/authSlice");
       _store?.dispatch(setAdminSession(null));
@@ -382,7 +380,6 @@ const handleForbidden = async (
   if (domain.usesBearer) {
     const { logout } = await import("@features/auth/models/authSlice");
     _store?.dispatch(logout());
-    clearAuthRole();
     if (!isSkipped) {
       globalThis.location.href = `${domain.redirectUrl}?reason=blocked`;
     }

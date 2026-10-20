@@ -9,10 +9,13 @@
 
 /**
  * before
- * <select>
+ *
+ <select>
   <option>...</option>
 </select>
+
 Now:
+
 <Select
   value={filters.industry || "all"}
   onValueChange={(value) =>
@@ -61,7 +64,7 @@ Each SelectItem is one option:
   Finance
 </SelectItem>
  */
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import type React from "react";
 import { Button } from "@components/shadcn/button";
 import { Input } from "@components/shadcn/input";
@@ -72,6 +75,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/shadcn/select";
+import useDebouncedPriceFilters from "@features/mentee/presenters/useDebouncedPriceFilters";
 
 interface FindMentorsFilters {
   industry: string;
@@ -86,6 +90,21 @@ interface FilterPanelProps {
   updateFilter: (key: keyof FindMentorsFilters, value: string) => void;
   resetFilters: () => void;
 }
+
+/**
+ * ocp  -- adding a new industry
+ *The UI renders these values through one reusable loop
+
+
+ {INDUSTRIES.map((ind: string) => (
+  <SelectItem key={ind} value={ind}>
+    {ind}
+  </SelectItem>
+))}
+
+ if u need to add a new industry u need not have to give select Item biochemistry in there
+ one object and then looping of that object displays the additional added industry as well
+ */
 
 const INDUSTRIES = [
   "Technology",
@@ -117,41 +136,19 @@ const EXPERIENCE_RANGES = [
   { label: "10+ yrs", value: "10+" },
 ];
 
-const PRICE_DEBOUNCE_MS = 600;
-
 const FilterPanel = ({ filters, updateFilter, resetFilters }: FilterPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // ✅ Local price state — so typing doesn't fire updateFilter on every keystroke
-  const [localMin, setLocalMin] = useState(filters.minPrice);
-  const [localMax, setLocalMax] = useState(filters.maxPrice);
-
-  const minTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const maxTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ✅ Sync local state if filters are reset externally (e.g. "Clear all filters")
-  useEffect(() => {
-    setLocalMin(filters.minPrice);
-  }, [filters.minPrice]);
-  useEffect(() => {
-    setLocalMax(filters.maxPrice);
-  }, [filters.maxPrice]);
-
-  const handleMinPrice = (value: string) => {
-    setLocalMin(value);
-    if (minTimer.current) clearTimeout(minTimer.current);
-    minTimer.current = setTimeout(() => {
-      updateFilter("minPrice", value);
-    }, PRICE_DEBOUNCE_MS);
-  };
-
-  const handleMaxPrice = (value: string) => {
-    setLocalMax(value);
-    if (maxTimer.current) clearTimeout(maxTimer.current);
-    maxTimer.current = setTimeout(() => {
-      updateFilter("maxPrice", value);
-    }, PRICE_DEBOUNCE_MS);
-  };
+  const {
+    localMin,
+    localMax,
+    handleMinPrice,
+    handleMaxPrice,
+  } = useDebouncedPriceFilters({
+    initialMinPrice: filters.minPrice,
+    initialMaxPrice: filters.maxPrice,
+    updateFilter,
+  });
 
   const activeFilterCount = [
     filters.industry,

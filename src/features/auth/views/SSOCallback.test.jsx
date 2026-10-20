@@ -3,7 +3,6 @@ import { render, screen, act, fireEvent } from "@testing-library/react";
 import SSOCallback from "./SSOCallback";
 import { setUser } from "@features/auth/models/authSlice";
 import { exchangeLinkedInToken } from "@features/auth/models/auth.api";
-import { setAuthRole } from "@lib/http/cookies";
 import logger from "@lib/monitoring/logger";
 
 // ── Mock Framework Hooks & Stores ────────────────────────
@@ -24,10 +23,6 @@ vi.mock("@features/auth/models/authSlice", () => ({
 
 vi.mock("@features/auth/models/auth.api", () => ({
   exchangeLinkedInToken: vi.fn(),
-}));
-
-vi.mock("@lib/http/cookies", () => ({
-  setAuthRole: vi.fn(),
 }));
 
 vi.mock("@lib/monitoring/logger", () => ({
@@ -174,7 +169,6 @@ describe("SSOCallback", () => {
         user: mockApiResponse.data.user,
       }),
     );
-    expect(setAuthRole).toHaveBeenCalledWith("mentee");
     expect(mockNavigate).toHaveBeenCalledWith("/dashboard/mentee", {
       replace: true,
     });

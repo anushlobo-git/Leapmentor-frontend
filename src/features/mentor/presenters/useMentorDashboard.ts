@@ -3,7 +3,7 @@
  */
 
 // src/hooks/useMentorDashboard.js
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
@@ -15,6 +15,7 @@ import {
 } from "@features/profile/models/dashboardUserSlice";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
 import type { AppDispatch } from "@store/index";
+import type { DashboardData } from "@features/shared-dashboard/models/dashboard.types";
 /**
  * Custom hook for mentor dashboard.
  * The fetch lives in dashboardUserSlice (`loadMentorDashboard`); user/profile are read
@@ -23,7 +24,7 @@ import type { AppDispatch } from "@store/index";
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useMentorDashboard = () => {
+const useMentorDashboard = (): DashboardData => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
@@ -35,55 +36,55 @@ const useMentorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  const fetchData = useCallback(async (): Promise<void> => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
 
-    const fetchData = async () => {
-      let loaded;
-      try {
-        loaded = await dispatch(loadMentorDashboard()).unwrap();
-      } catch (e) {
-        const err = e as DashboardLoadError;
-        // Role guard
-        if (err?.stage === "role") {
-          navigate("/dashboard/mentee");
-          return;
-        }
-        // New mentor — no profile yet
-        if (err?.stage === "profile" && err.status === HTTP_STATUS.NOT_FOUND) {
-          if (!isEditPage) {
-            setLoading(false);
-            navigate("/onboarding/mentor");
-          }
-          return;
-        }
-        if (err?.status === HTTP_STATUS.UNAUTHORIZED) {
-          navigate("/login");
-          return;
-        }
-        setError("Something went wrong. Please try again.");
-        setLoading(false);
+    let loaded;
+    try {
+      loaded = await dispatch(loadMentorDashboard()).unwrap();
+    } catch (e) {
+      const err = e as DashboardLoadError;
+      // Role guard
+      if (err?.stage === "role") {
+        navigate("/dashboard/mentee");
         return;
       }
-
-      // Onboarding incomplete → redirect
-      if (!loaded.profile.isProfileComplete && !isEditPage) {
-        setLoading(false);
-        navigate("/onboarding/mentor");
+      // New mentor — no profile yet
+      if (err?.stage === "profile" && err.status === HTTP_STATUS.NOT_FOUND) {
+        if (!isEditPage) {
+          setLoading(false);
+          navigate("/onboarding/mentor");
+        }
         return;
       }
-
-      // All good — show dashboard
+      if (err?.status === HTTP_STATUS.UNAUTHORIZED) {
+        navigate("/login");
+        return;
+      }
+      setError("Something went wrong. Please try again.");
       setLoading(false);
-    };
+      return;
+    }
 
+    // Onboarding incomplete → redirect
+    if (!loaded.profile.isProfileComplete && !isEditPage) {
+      setLoading(false);
+      navigate("/onboarding/mentor");
+      return;
+    }
+
+    // All good — show dashboard
+    setLoading(false);
+  }, [dispatch, isAuthenticated, isEditPage, navigate]);
+
+  useEffect(() => {
     fetchData();
-  }, [isEditPage, navigate, isAuthenticated, dispatch]);
+  }, [fetchData]);
 
-  return { user, profile, loading, error };
+  return { user, profile, loading, error, refetch: fetchData };
 };
 
 export default useMentorDashboard;

@@ -35,7 +35,7 @@ describe("useMenteeOnboarding hook", () => {
   const initialForm = {
     profilePicture: "",
     profilePictureFileName: "",
-    bio: "",
+    bio: "Learning testing",
     currentRole: "QA",
     company: "Leap",
     industry: "Tech",
@@ -227,6 +227,9 @@ describe("useMenteeOnboarding hook", () => {
       });
       result.current.handleChange({
         target: { name: "skills", value: ["HTML"] },
+      });
+      result.current.handleChange({
+        target: { name: "bio", value: "Learning testing" },
       });
     });
 

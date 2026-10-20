@@ -15,6 +15,7 @@ import {
 } from "@features/profile/models/dashboardUserSlice";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
 import type { AppDispatch } from "@store/index";
+import type { DashboardData } from "@features/shared-dashboard/models/dashboard.types";
 
 /**
  * Custom hook for mentee dashboard.
@@ -24,7 +25,7 @@ import type { AppDispatch } from "@store/index";
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useMenteeDashboard = () => {
+const useMenteeDashboard = (): DashboardData => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();

@@ -10,7 +10,6 @@ import { useHomePresenter } from "@features/marketing/presenters/useHomePresente
 
 export default function Home() {
   useHomePresenter();
-
   return (
     <PublicLayout>
       <Hero />

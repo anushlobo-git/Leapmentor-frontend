@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { login } from "@features/auth/models/auth.api";
 import { setUser } from "@features/auth/models/authSlice";
 import useGoogleAuth from "@features/auth/presenters/useGoogleAuth";
-import { setAuthRole } from "@lib/http/cookies";
 import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import { loginSchema } from "@lib/validation/schemas";
 import logger from "@lib/monitoring/logger";
@@ -118,10 +117,7 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
     const chosenRole =
       role && roles.includes(role) ? role : getPrimaryRole(roles);
 
-    //it sets the role in the cookie in this pattern `authRole=${role};path=/;SameSite=Lax`
-    if (chosenRole) {
-      setAuthRole(chosenRole);
-    } else {
+    if (!chosenRole) {
       setMsg({ type: "error", text: "No role found. Please register first." });
       return;
     }

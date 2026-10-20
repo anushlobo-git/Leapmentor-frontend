@@ -6,7 +6,6 @@ import App from "./App";
 import { appRoutes } from "./routes";
 import axiosInstance from "@lib/http/axiosInstance";
 import logger from "@lib/monitoring/logger";
-import { hasSessionHint, clearAuthRole } from "@lib/http/cookies";
 import { setUser, logout } from "@features/auth/models/authSlice";
 
 // ── 1. Mock External Modules & Libraries ──────────────────────────────────
@@ -32,11 +31,6 @@ vi.mock("@lib/monitoring/logger", () => ({
     warn: vi.fn(),
     error: vi.fn(),
   },
-}));
-
-vi.mock("@lib/http/cookies", () => ({
-  hasSessionHint: vi.fn(),
-  clearAuthRole: vi.fn(),
 }));
 
 // ── 2. Mock Page Components & Route Wrappers ──────────────────────────────
@@ -191,8 +185,7 @@ describe("App", () => {
   // createAppRouter(), built in a useMemo — see App.tsx) reads
   // window.location the moment it's constructed, which happens on first
   // render, after the mock above is already in place.
-  it("should render target page immediately when no session hint cookie is present", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(false);
+  it("should render target page when no refresh session is available", async () => {
     vi.mocked(useSelector).mockReturnValue(null);
 
     currentPath = "/";
@@ -203,7 +196,6 @@ describe("App", () => {
   });
 
   it("should render target page immediately when access token is already available in Redux", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue("valid-redux-token");
 
     currentPath = "/login";
@@ -216,7 +208,6 @@ describe("App", () => {
   });
 
   it("should block UI with loader and successfully refresh token if session hint exists without an access token", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue(null);
 
     axiosInstance.post.mockResolvedValueOnce({
@@ -242,7 +233,6 @@ describe("App", () => {
   });
 
   it("should catch errors on failed refresh, trigger clean-up log, and handle location redirect", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue(null);
 
     axiosInstance.post.mockRejectedValueOnce(
@@ -257,11 +247,10 @@ describe("App", () => {
       await screen.findByText("MentorDashboard Component"),
     ).toBeInTheDocument();
 
-    expect(interceptedHref).toBe("/login");
+    expect(interceptedHref).toBe("");
     expect(mockDispatch).toHaveBeenCalledWith(logout());
-    expect(clearAuthRole).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledWith(
-      "Silent refresh failed — redirecting to login",
+      "Silent refresh unavailable — continuing without a session",
     );
   });
 
@@ -385,7 +374,6 @@ describe("App", () => {
   it.each(navigationMatrix)(
     "should properly resolve route match mapping for path '$path'",
     async ({ path, targetText, wrappers, wrapperCounts }) => {
-      vi.mocked(hasSessionHint).mockReturnValue(false);
       vi.mocked(useSelector).mockReturnValue("active-token");
 
       const router = createMemoryRouter(appRoutes, { initialEntries: [path] });

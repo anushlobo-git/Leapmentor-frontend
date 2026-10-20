@@ -9,6 +9,7 @@ import { login as loginRequest } from "@features/auth/models/auth.api";
 import { mapAuthUser, type RawAuthUser } from "@lib/mappers/userMapper";
 import type { RootState } from "@store/index";
 import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+import { getPrimaryRole, type RouteRole } from "@constants/roles";
 
 // ── Thunks ──────────────────────────────────────────────────
 //action type prefix ,
@@ -185,7 +186,8 @@ export const resetPassword = createAsyncThunk(
 interface AuthState {
   user: ReturnType<typeof mapAuthUser> | RawAuthUser | null;
   accessToken: string | null | undefined;
-  role: "admin" | null;
+  /** Primary role derived from the authenticated user, never from a cookie. */
+  role: RouteRole | null;
   adminBootstrapping: boolean;
   loading: boolean;
   sending: boolean;
@@ -254,6 +256,7 @@ const authSlice = createSlice({
     setUser(state, action: { payload: { user?: RawAuthUser; accessToken?: string } }) {
       state.user  = action.payload.user ? mapAuthUser(action.payload.user) : null;
       state.accessToken = action.payload.accessToken;
+      state.role = getPrimaryRole(state.user?.roles);
     },
     /**
      * Stores an authenticated admin session. Admins have no access token —
@@ -297,6 +300,7 @@ const authSlice = createSlice({
         if (action.payload.accessToken) {
           state.accessToken = action.payload.accessToken;
           state.user = action.payload.user ? mapAuthUser(action.payload.user) : null;
+          state.role = getPrimaryRole(state.user?.roles);
         }
         state.successMsg =
           action.payload.outcome === "role_added"
@@ -319,6 +323,7 @@ const authSlice = createSlice({
         state.loading    = false;
         state.accessToken = action.payload.accessToken || null;
         state.user       = action.payload.user ? mapAuthUser(action.payload.user) : null;
+        state.role       = getPrimaryRole(state.user?.roles);
         state.successMsg = "Login successful!";
       })
       .addCase(loginUser.rejected, (state, action) => {

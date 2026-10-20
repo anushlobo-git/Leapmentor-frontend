@@ -12,10 +12,36 @@ import {
 } from "@features/mentee/models/menteeOnboardingSlice";
 import { useFormDirty } from "@lib/hooks/useFormDirty";
 import type { RootState, AppDispatch } from "@store/index";
+import type { MenteeOnboardingForm } from "@features/mentee/models/mentee.types";
+import { toMenteeOnboardingRequest } from "@features/mentee/models/menteeOnboardingRequestMapper";
+
+interface MenteeFormChangeEvent {
+  target: { name: string; value: string | string[] };
+}
+
+interface MenteeSubmitEvent {
+  preventDefault: () => void;
+}
 /**
  * Custom hook for mentee onboarding.
  * @returns {Object} Hook state and handlers for the caller.
  */
+
+const DEFAULT_FORM: MenteeOnboardingForm = {
+  profilePicture: "",
+  profilePictureFileName: "",
+  bio: "",
+  currentRole: "",
+  company: "",
+  industry: "",
+  yearsOfExperience: "",
+  interestedFields: [],
+  skills: [],
+  communicationPreferences: [],
+  languages: [],
+  linkedInUrl: "",
+  portfolioUrl: "",
+};
 
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
@@ -25,42 +51,14 @@ const useMenteeOnboarding = () => {
     (state: RootState) => state.menteeOnboarding,
   );
 
-  const [form, setForm] = useState(() => {
+  const [form, setForm] = useState<MenteeOnboardingForm>(() => {
     try {
       const saved = sessionStorage.getItem("menteeOnboardingForm");
       return saved
         ? JSON.parse(saved)
-        : {
-            profilePicture: "",
-            profilePictureFileName: "",
-            bio: "",
-            currentRole: "",
-            company: "",
-            industry: "",
-            yearsOfExperience: "",
-            interestedFields: [],
-            skills: [],
-            communicationPreferences: [],
-            languages: [],
-            linkedInUrl: "",
-            portfolioUrl: "",
-          };
+        : { ...DEFAULT_FORM };
     } catch {
-      return {
-        profilePicture: "",
-        profilePictureFileName: "",
-        bio: "",
-        currentRole: "",
-        company: "",
-        industry: "",
-        yearsOfExperience: "",
-        interestedFields: [],
-        skills: [],
-        communicationPreferences: [],
-        languages: [],
-        linkedInUrl: "",
-        portfolioUrl: "",
-      };
+      return { ...DEFAULT_FORM };
     }
   });
 
@@ -93,12 +91,12 @@ const useMenteeOnboarding = () => {
     sessionStorage.setItem("menteeOnboardingForm", JSON.stringify(form));
   }, [form]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: MenteeFormChangeEvent) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: MenteeSubmitEvent) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
     dispatch(clearOnboardingMessages());
@@ -123,8 +121,10 @@ const useMenteeOnboarding = () => {
         type: "error",
         text: "Please add at least one Skill of Interest.",
       });
+    if (!form.bio.trim())
+      return setMsg({ type: "error", text: "Bio is required." });
 
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
+    const isOnlyNumbers = (val: string) => /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({
         type: "error",
@@ -136,7 +136,7 @@ const useMenteeOnboarding = () => {
         text: "Company name cannot be a number.",
       });
 
-    const isValidUrl = (val) => {
+    const isValidUrl = (val: string) => {
       if (!val) return true;
       try {
         new URL(val);
@@ -156,12 +156,7 @@ const useMenteeOnboarding = () => {
         text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com).",
       });
 
-    dispatch(
-      submitMenteeOnboarding({
-        ...form,
-        profilePictureFileName: form.profilePictureFileName || "",
-      }),
-    );
+    dispatch(submitMenteeOnboarding(toMenteeOnboardingRequest(form)));
   };
 
   return { form, loading, msg, redirecting, isDirty, handleChange, handleSubmit };

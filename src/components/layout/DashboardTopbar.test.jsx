@@ -15,10 +15,6 @@ vi.mock("@features/auth/models/auth.api", () => ({
   logoutRequest: vi.fn(),
 }));
 
-vi.mock("@lib/http/cookies", () => ({
-  clearAuthRole: vi.fn(),
-}));
-
 vi.mock("@constants/images", () => ({
   IMAGES: {
     LOGO: "/logo.png",
@@ -26,7 +22,6 @@ vi.mock("@constants/images", () => ({
 }));
 
 import { logoutRequest } from "@features/auth/models/auth.api";
-import { clearAuthRole } from "@lib/http/cookies";
 
 describe("DashboardTopbar", () => {
   let store;
@@ -166,7 +161,6 @@ describe("DashboardTopbar", () => {
     await user.click(logoutButton);
 
     expect(logoutRequest).toHaveBeenCalled();
-    expect(clearAuthRole).toHaveBeenCalled();
   });
 
   it("should handle logout even if API request fails", async () => {
@@ -189,7 +183,6 @@ describe("DashboardTopbar", () => {
     await user.click(logoutButton);
 
     expect(logoutRequest).toHaveBeenCalled();
-    expect(clearAuthRole).toHaveBeenCalled();
   });
 
   it("should have header element", () => {

@@ -6,8 +6,6 @@ import { useEffect, useRef } from "react";
 import type React from "react";
 import { googleAuthRequest } from "@features/auth/models/auth.api";
 import { setUser as setUserAction } from "@features/auth/models/authSlice";
-import { setAuthRole } from "@lib/http/cookies";
-import { getPrimaryRole } from "@lib/auth/redirectUtils";
 import logger from "@lib/monitoring/logger";
 import type { AppDispatch } from "@store/index";
 import type { RawAuthUser } from "@lib/mappers/userMapper";
@@ -20,6 +18,41 @@ interface SSOAuthResult {
   accessToken?: string;
   isNewUser?: boolean;
 }
+
+interface GoogleAuthError {
+  code?: string;
+  message?: string;
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+}
+
+const isTransientGoogleAuthError = (error: unknown): boolean => {
+  const authError = error as GoogleAuthError;
+  const status = authError.response?.status;
+
+  return (
+    authError.code === "ERR_NETWORK" ||
+    authError.code === "ECONNABORTED" ||
+    status === 408 ||
+    status === 429 ||
+    (typeof status === "number" && status >= 500)
+  );
+};
+
+const getGoogleAuthErrorMessage = (error: unknown): string => {
+  const authError = error as GoogleAuthError;
+  return (
+    authError.response?.data?.message ||
+    authError.response?.data?.error ||
+    authError.message ||
+    "Google sign-in failed"
+  );
+};
 
 const callbackRef: {
   onSuccess: ((data: SSOAuthResult) => void) | null;
@@ -101,27 +134,27 @@ const useGoogleAuth = ({
               callbackRef.onLoadingChange?.(true);
               logger.info("Google sign-in callback received");
 
-              const res = await googleAuthRequest({
+              const request = {
                 credential: response.credential,
                 roles: callbackRef.rolesRef.current,
                 termsAccepted: true,
-              });
+              };
 
-              const user = res.data?.user;
-              const roles = user?.roles || [];
+              let res;
+              try {
+                res = await googleAuthRequest(request);
+              } catch (error) {
+                if (!isTransientGoogleAuthError(error)) throw error;
 
-              // ✅ Set authRole cookie so ProtectedRoute works
-              // Was a hand-rolled mentor > mentee if/else — now delegates
-              // to the same shared tie-break every other auth flow uses,
-              // so all of them stay in sync automatically if the priority
-              // order (or the set of roles) ever changes.
-              const primaryRole = getPrimaryRole(roles);
-
-              if (primaryRole) {
-                setAuthRole(primaryRole);
+                logger.warn("Google sign-in failed — retrying once", {
+                  error: getGoogleAuthErrorMessage(error),
+                });
+                res = await googleAuthRequest(request);
               }
 
-              // ✅ Sync user into Redux (no token needed, it's in httpOnly cookie)
+              const user = res.data?.user;
+              // Sync the authenticated user and derived role into Redux. The
+              // auth slice derives the role from this trusted API payload.
               callbackRef.dispatch?.(
                 callbackRef.setUser({
                   accessToken: res.data.accessToken,
@@ -131,11 +164,7 @@ const useGoogleAuth = ({
 
               callbackRef.onSuccess?.(res.data);
             } catch (err) {
-              const apiMsg =
-                err?.response?.data?.message ||
-                err?.response?.data?.error ||
-                err?.message ||
-                "Google sign-in failed";
+              const apiMsg = getGoogleAuthErrorMessage(err);
               logger.warn("Google sign-in failed", { error: apiMsg });
               callbackRef.onError?.(apiMsg);
             } finally {

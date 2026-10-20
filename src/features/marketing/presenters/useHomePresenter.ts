@@ -19,7 +19,6 @@ export const useHomePresenter = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // authToken is HttpOnly (unreadable), check authRole cookie instead
     if (isAuthenticated) {
       // Was `user?.roles?.[0]` — just took whatever order the array
       // happened to be in, and fell back to the mentee dashboard for ANY

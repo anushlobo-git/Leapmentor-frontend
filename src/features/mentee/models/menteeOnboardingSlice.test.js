@@ -21,6 +21,35 @@ describe("menteeOnboardingSlice", () => {
     loading: false,
     error: null,
     successMsg: null,
+    profile: null,
+  };
+
+  const successfulResponse = {
+    success: true,
+    message: "Profile created",
+    profile: {
+      _id: "profile-1",
+      user: { id: "user-1", name: "Ada", email: "ada@example.com", isEmailVerified: true },
+      currentRole: "QA",
+      industry: "Technology",
+      company: "Leap",
+      yearsOfExperience: "1-3 Years",
+      bio: "Learning testing",
+      profilePicture: "",
+      profilePictureFileName: "",
+      linkedInUrl: "",
+      portfolioUrl: "",
+      skills: ["Testing"],
+      interestedFields: ["QA"],
+      communicationPreferences: ["Chat"],
+      languages: ["English"],
+      isProfileComplete: true,
+      isProfilePublished: true,
+      emailNotifications: true,
+      marketingPreferences: false,
+      createdAt: "2026-10-08T00:00:00.000Z",
+      updatedAt: "2026-10-08T00:00:00.000Z",
+    },
   };
 
   beforeEach(() => {
@@ -181,7 +210,7 @@ describe("menteeOnboardingSlice", () => {
 
       it("posts the payload and defaults missing profilePictureFileName to empty string", async () => {
         axiosInstance.post.mockResolvedValue({
-          data: { message: "Profile created" },
+          data: successfulResponse,
         });
         const store = createStore();
 
@@ -192,11 +221,30 @@ describe("menteeOnboardingSlice", () => {
           profilePictureFileName: "",
         });
         expect(store.getState().loading).toBe(false);
-        expect(store.getState().successMsg).toBe("Profile created");
-      });
+      expect(store.getState().successMsg).toBe("Profile created");
+    });
 
-      it("keeps an existing profilePictureFileName and handles undefined payload", async () => {
-        axiosInstance.post.mockResolvedValue({ data: {} });
+    it("rejects a 2xx response that is missing required profile data", async () => {
+      axiosInstance.post.mockResolvedValue({
+        data: {
+          success: true,
+          message: "Profile created",
+          profile: {},
+        },
+      });
+      const store = createStore();
+
+      await store.dispatch(submitMenteeOnboarding({ name: "Ada" }));
+
+      expect(store.getState().loading).toBe(false);
+      expect(store.getState().successMsg).toBeNull();
+      expect(store.getState().error).toBe(
+        "Mentee onboarding response is missing required created profile data.",
+      );
+    });
+
+    it("keeps an existing profilePictureFileName and handles undefined payload", async () => {
+        axiosInstance.post.mockResolvedValue({ data: successfulResponse });
         const store = createStore();
 
         await store.dispatch(
@@ -206,7 +254,7 @@ describe("menteeOnboardingSlice", () => {
           profilePictureFileName: "pic.png",
         });
 
-        axiosInstance.post.mockResolvedValue({ data: { message: "ok" } });
+        axiosInstance.post.mockResolvedValue({ data: successfulResponse });
         await store.dispatch(submitMenteeOnboarding(undefined));
         expect(axiosInstance.post).toHaveBeenCalledWith("/mentee-profile", {
           profilePictureFileName: "",
@@ -234,13 +282,13 @@ describe("menteeOnboardingSlice", () => {
         expect(store.getState().error).toBe("Network down");
       });
 
-      it("rejects with undefined when neither response nor message exists", async () => {
+    it("rejects with a fallback when neither response nor message exists", async () => {
         axiosInstance.post.mockRejectedValue({});
         const store = createStore();
 
         await store.dispatch(submitMenteeOnboarding({ name: "Ada" }));
 
-        expect(store.getState().error).toBeUndefined();
+      expect(store.getState().error).toBe("Mentee onboarding could not be completed.");
       });
     });
   });

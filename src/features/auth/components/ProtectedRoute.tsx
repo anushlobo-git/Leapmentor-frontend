@@ -49,7 +49,7 @@ const ProtectedRoute = ({ children, role, roles, permissions }: ProtectedRoutePr
   const isAuthenticated = useSelector(selectIsAuthenticated);
   //his he verified the email verification part
   const isVerified       = useSelector(selectIsVerified);
-  //current role from the cookies authRole
+  // Primary role derived from the authenticated user and stored in Redux.
   const currentRole      = useSelector(selectRole);
   //user details from the slice
   const user             = useSelector((state: RootState) => state.auth.user);
@@ -108,10 +108,7 @@ const ProtectedRoute = ({ children, role, roles, permissions }: ProtectedRoutePr
     return <Navigate to={fallbackPath === location.pathname ? "/" : fallbackPath} replace />;
   }
 
-  // The authRole cookie only proves *some* session is logged in with this role —
-  // it says nothing about whether THIS account's email has been verified.
-  // Block onboarding/dashboard access for unverified accounts even if a
-  // (possibly stale, possibly backend-set) authRole cookie is present.
+  // Block onboarding/dashboard access for unverified accounts.
   if (!isVerified) {
     return (
       <Navigate

@@ -27,6 +27,13 @@ import NotFound from "@app/pages/NotFound";
 
 const RouteErrorBoundary = () => {
   // Grab the error that caused this screen to show.
+
+  //   to read the error thrown by:
+  // - a loader
+  // - an action
+  // - a lazy route import
+  // - a route component render
+  // - a route-level navigation
   const error = useRouteError();
   const navigate = useNavigate();
   // Is this a "real HTTP problem" (404 not found, 403 forbidden, etc.)

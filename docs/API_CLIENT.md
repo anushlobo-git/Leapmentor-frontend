@@ -147,6 +147,59 @@ All admin endpoints are now in a single module: `src/features/admin/api/admin.ap
 - `POST /support/messages` consistently sends the form fields plus `role`.
 - The main inconsistency visible in the codebase is not an endpoint shape problem: `src/features/notifications/hooks/useSocketToast.js` reads `VITE_API_SOCKET_URL` while the setup docs also mention `VITE_SOCKET_URL`.
 
+## Traced lifecycle: `POST /mentee-profile`
+
+This is the first fully typed API contract in the migration. The source of
+truth was checked across the frontend form, the backend Joi validator, the
+service, the Mongoose model, the backend DTO mapper, and the shared response
+envelope.
+
+1. `useMenteeOnboarding` holds a typed `MenteeOnboardingForm`.
+2. Client validation runs before dispatch. The backend-required fields are
+   `currentRole`, `industry`, `bio`, `skills`, and `interestedFields`. The
+   frontend also requires `yearsOfExperience` before submission.
+3. `toMenteeOnboardingRequest` is the outbound mapper. It selects the known
+   API fields instead of spreading arbitrary form state.
+4. `submitMenteeOnboarding` dispatches the typed request through
+   `createMenteeProfile` in `src/features/mentee/models/mentee.api.ts`.
+5. The backend creates the profile and returns:
+
+   ```json
+   {
+     "success": true,
+     "data": { "profile": "<MenteeProfileDTO>" },
+     "message": "Mentee profile created successfully"
+   }
+   ```
+
+6. The Axios response interceptor unwraps that envelope into
+   `{ success, profile, message }`.
+7. `assertMenteeOnboardingResponse` performs runtime validation. It requires
+   the created profile ID and the profile fields produced by the backend DTO.
+   Therefore a `2xx` response without the profile data is rejected locally and
+   the onboarding flow does not redirect as if creation succeeded.
+8. `mapMenteeProfile` maps the validated API DTO into the frontend profile
+   shape and the onboarding slice stores it together with the success message.
+
+The backend uses empty strings, empty arrays, or defaults for optional profile
+values. Those fields are therefore present in the DTO, but they may contain an
+empty value. The frontend mapper intentionally converts some of those empty
+values to `null` for UI use. The backend stores mentee `yearsOfExperience` as a
+descriptive string such as `"1-3 Years"`; the mapper preserves that string.
+
+The contract files for this call are:
+
+- `src/features/mentee/models/mentee.types.ts` — compile-time form, request,
+  response, and profile contracts.
+- `src/features/mentee/models/menteeOnboardingRequestMapper.ts` — form to
+  outgoing request body mapping.
+- `src/features/mentee/models/menteeOnboardingResponse.validation.ts` — runtime
+  response validation.
+- `src/features/mentee/models/mentee.api.ts` — HTTP endpoint function.
+- `src/features/mentee/models/menteeOnboardingSlice.ts` — request execution,
+  response validation, mapping, and Redux state transition.
+- `src/features/mentee/models/menteeMapper.ts` — API DTO to frontend model.
+
 ## Scope Note
 
 This document covers the endpoint surfaces used in `src/features/*/api/`, Redux thunks in feature `store/` slices, and every call that was previously inline in a component or page (all of which have now been extracted). Hook-level axios usage (e.g. `useTrackEarnings.js`, `useSlotLock.js`) is intentionally left in the hook — hooks are already the correct layer for API calls, so those were not moved.

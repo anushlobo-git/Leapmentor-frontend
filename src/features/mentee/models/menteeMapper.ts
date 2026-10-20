@@ -9,79 +9,84 @@
  * used across the app.
  */
 interface RawMenteeProfile {
-  _id?: string;
+  _id: string;
   id?: string;
-  user?: {
+  user: {
     _id?: string;
     id?: string;
     name?: string;
     email?: string;
     isEmailVerified?: boolean;
-  };
+  } | string;
   isEmailVerified?: boolean;
-  profilePicture?: string;
+  profilePicture: string;
   avatar?: string;
-  profilePictureFileName?: string;
-  bio?: string;
-  currentRole?: string;
-  company?: string;
-  industry?: string;
-  yearsOfExperience?: number | string;
-  skills?: string[];
-  interestedFields?: string[];
-  communicationPreferences?: string[];
-  languages?: string[];
-  linkedInUrl?: string;
-  portfolioUrl?: string;
+  profilePictureFileName: string;
+  bio: string;
+  currentRole: string;
+  company: string;
+  industry: string;
+  yearsOfExperience: number | string;
+  skills: string[];
+  interestedFields: string[];
+  communicationPreferences: string[];
+  languages: string[];
+  linkedInUrl: string;
+  portfolioUrl: string;
   phoneNumber?: string;
-  isProfilePublished?: boolean;
-  emailNotifications?: boolean;
-  marketingPreferences?: boolean;
-  isProfileComplete?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  isProfilePublished: boolean;
+  emailNotifications: boolean;
+  marketingPreferences: boolean;
+  isProfileComplete: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export const mapMenteeProfile = (raw: RawMenteeProfile = {}) => ({
-  _id: raw._id ?? raw.id ?? null,
+export const mapMenteeProfile = (raw: RawMenteeProfile) => {
+  const rawUser =
+    typeof raw.user === "object" && raw.user !== null ? raw.user : undefined;
 
-  user: {
-    _id: raw.user?._id ?? raw.user?.id ?? null,
-    name: raw.user?.name ?? "",
-    email: raw.user?.email ?? "",
-    isEmailVerified: Boolean(raw.user?.isEmailVerified ?? raw.isEmailVerified),
-  },
+  return {
+    _id: raw._id ?? raw.id ?? null,
 
-  profilePicture: raw.profilePicture ?? raw.avatar ?? null,
-  profilePictureFileName: raw.profilePictureFileName ?? null,
-  bio: raw.bio ?? "",
+    user: {
+      _id: rawUser?._id ?? rawUser?.id ?? null,
+      name: rawUser?.name ?? "",
+      email: rawUser?.email ?? "",
+      isEmailVerified: Boolean(rawUser?.isEmailVerified ?? raw.isEmailVerified),
+    },
 
-  currentRole: raw.currentRole ?? "",
-  company: raw.company ?? "",
-  industry: raw.industry ?? "",
-  yearsOfExperience:
-    typeof raw.yearsOfExperience === "number"
-      ? raw.yearsOfExperience
-      : Number(raw.yearsOfExperience) || null,
+    profilePicture: raw.profilePicture ?? raw.avatar ?? null,
+    profilePictureFileName: raw.profilePictureFileName ?? null,
+    bio: raw.bio ?? "",
 
-  skills: Array.isArray(raw.skills) ? raw.skills : [],
-  interestedFields: Array.isArray(raw.interestedFields)
-    ? raw.interestedFields
-    : [],
-  communicationPreferences: Array.isArray(raw.communicationPreferences)
-    ? raw.communicationPreferences
-    : [],
-  languages: Array.isArray(raw.languages) ? raw.languages : [],
+    currentRole: raw.currentRole ?? "",
+    company: raw.company ?? "",
+    industry: raw.industry ?? "",
+    yearsOfExperience:
+      typeof raw.yearsOfExperience === "number"
+        ? raw.yearsOfExperience
+        : Number(raw.yearsOfExperience) || null,
 
-  linkedInUrl: raw.linkedInUrl ?? null,
-  portfolioUrl: raw.portfolioUrl ?? null,
-  phoneNumber: raw.phoneNumber ?? null,
-  isProfilePublished: raw.isProfilePublished ?? false,
-  emailNotifications: raw.emailNotifications ?? true,
-  marketingPreferences: raw.marketingPreferences ?? false,
+    skills: Array.isArray(raw.skills) ? raw.skills : [],
+    interestedFields: Array.isArray(raw.interestedFields)
+      ? raw.interestedFields
+      : [],
+    communicationPreferences: Array.isArray(raw.communicationPreferences)
+      ? raw.communicationPreferences
+      : [],
+    languages: Array.isArray(raw.languages) ? raw.languages : [],
 
-  isProfileComplete: Boolean(raw.isProfileComplete),
+    linkedInUrl: raw.linkedInUrl ?? null,
+    portfolioUrl: raw.portfolioUrl ?? null,
+    phoneNumber: raw.phoneNumber ?? null,
+    isProfilePublished: raw.isProfilePublished ?? false,
+    emailNotifications: raw.emailNotifications ?? true,
+    marketingPreferences: raw.marketingPreferences ?? false,
 
-  createdAt: raw.createdAt ?? null,
-  updatedAt: raw.updatedAt ?? null,
-});
+    isProfileComplete: Boolean(raw.isProfileComplete),
+
+    createdAt: raw.createdAt ?? null,
+    updatedAt: raw.updatedAt ?? null,
+  };
+};

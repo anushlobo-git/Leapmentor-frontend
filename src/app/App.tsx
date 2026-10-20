@@ -11,29 +11,22 @@ import type { AppDispatch, RootState } from "@store/index";
 import { setUser, logout } from "@features/auth/models/authSlice";
 import { refreshTokenRequest } from "@features/auth/models/auth.api";
 import logger from "@lib/monitoring/logger";
-import { hasSessionHint, clearAuthRole } from "@lib/http/cookies";
 import PageLoader from "./PageLoader";
 import { createAppRouter } from "./createAppRouter";
 
-// FIX: Silent refresh on page load.
-// When the page is hard-refreshed, Redux is wiped but the httpOnly
-// refreshToken cookie is still alive. If the authRole cookie exists (user
-// was logged in) but Redux has no accessToken, hit /auth/refresh to
-// rehydrate Redux before rendering any route. This has to finish *before*
-// the router renders anything, because a future loader (Phase 5) reading
-// `store.getState().auth` would otherwise run against an empty session.
+// Silent refresh on page load.
+// When the page is hard-refreshed, Redux is wiped but the HttpOnly
+// refreshToken cookie is still sent automatically by the browser. Probe the
+// refresh endpoint directly; the client must not inspect that cookie or use a
+// second readable cookie as a session hint.
 const useSessionBootstrap = () => {
   const dispatch = useDispatch<AppDispatch>();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
-  const [rehydrating, setRehydrating] = useState(() => {
-    // Only block render if we actually need to rehydrate
-    return hasSessionHint() && !accessToken;
-  });
+  const [rehydrating, setRehydrating] = useState(() => !accessToken);
 
   useEffect(() => {
-    if (!hasSessionHint() || accessToken) {
-      // Not logged in, or token already in Redux — nothing to do
+    if (accessToken) {
       setRehydrating(false);
       return;
     }
@@ -46,18 +39,17 @@ const useSessionBootstrap = () => {
         }
         dispatch(setUser({ user: data.user, accessToken: data.accessToken }));
       } catch {
-        // Refresh token expired — cookies are stale, clean up
+        // No refresh session is also a valid state for public pages. Protected
+        // routes perform the appropriate redirect after bootstrap completes.
         dispatch(logout());
-        clearAuthRole();
-        logger.warn("Silent refresh failed — redirecting to login");
-        globalThis.location.href = "/login";
+        logger.warn("Silent refresh unavailable — continuing without a session");
       } finally {
         setRehydrating(false);
       }
     };
 
     rehydrate();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [accessToken, dispatch]);
 
   return !rehydrating;
 };
