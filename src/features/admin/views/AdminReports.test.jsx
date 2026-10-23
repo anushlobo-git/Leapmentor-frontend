@@ -128,6 +128,26 @@ describe("AdminReports", () => {
     expect(screen.getByText(/Report updated/)).toBeInTheDocument();
   });
 
+  it("renders API complaint categories and falls back for unknown categories", async () => {
+    mockGetReportStats.mockResolvedValue({
+      data: { totalReports: 2, pendingResolution: 2, resolvedToday: 0 },
+    });
+    mockGetReports.mockResolvedValue({
+      data: {
+        reports: [
+          { id: 46, category: "inappropriate_behavior", status: "open" },
+          { id: 47, category: "new_category_from_api", status: "open" },
+        ],
+        pagination: { totalCount: 2, currentPage: 1, totalPages: 1 },
+      },
+    });
+
+    render(<AdminReports />);
+
+    expect(await screen.findByText("Inappropriate Behavior")).toBeInTheDocument();
+    expect(screen.getByText("Other")).toBeInTheDocument();
+  });
+
   it("shows error toast when report stats fetch fails and handles status filter/search", async () => {
     mockGetReportStats.mockRejectedValue(new Error("Stats failed"));
     mockGetReports.mockResolvedValue({

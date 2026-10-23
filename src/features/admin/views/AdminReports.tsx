@@ -11,7 +11,15 @@ import StatCard from "@features/admin/views/common/StatCard";
 
 type ReportId = string | number;
 type ReportStatus = "open" | "under_review" | "resolved" | "dismissed";
-type ReportCategory = "vulgar_chat" | "harassment" | "refund" | "other";
+type ReportCategory =
+  | "inappropriate_behavior"
+  | "session_misconduct"
+  | "fake_credentials"
+  | "spam_scam"
+  | "vulgar_chat"
+  | "harassment"
+  | "refund"
+  | "other";
 type ToastType = "success" | "error";
 
 interface ToastMessage {
@@ -115,15 +123,25 @@ const StatusBadge = ({ status }: { status?: ReportStatus }) => {
 };
 
 // ── Category Badge ─────────────────────────────────────────────
-const CAT_CONFIG = {
+interface CategoryConfig {
+  bg: string;
+  color: string;
+  label: string;
+}
+
+const CAT_CONFIG: Record<string, CategoryConfig> = {
+  inappropriate_behavior: { bg: "#fef2f2", color: "#dc2626", label: "Inappropriate Behavior" },
+  session_misconduct: { bg: "#fff7ed", color: "#c2410c", label: "Session Misconduct" },
+  fake_credentials: { bg: "#f5f3ff", color: "#7c3aed", label: "Fake Credentials" },
+  spam_scam: { bg: "#eff6ff", color: "#2563eb", label: "Spam / Scam" },
   vulgar_chat: { bg: "#fef2f2", color: "#dc2626", label: "Vulgar Chat" },
   harassment: { bg: "#fef2f2", color: "#dc2626", label: "Harassment" },
   refund: { bg: "#fffbeb", color: "#d97706", label: "Refund" },
   other: { bg: "#f8fafc", color: "#64748b", label: "Other" },
 };
 
-const CategoryBadge = ({ category }: { category?: ReportCategory }) => {
-  const cfg = category ? CAT_CONFIG[category] : CAT_CONFIG.other;
+const CategoryBadge = ({ category }: { category?: ReportCategory | string | null }) => {
+  const cfg = category ? CAT_CONFIG[category] ?? CAT_CONFIG.other : CAT_CONFIG.other;
   return (
     <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-700 uppercase tracking-wide"
       style={{ background: cfg.bg, color: cfg.color, fontWeight: 700, letterSpacing: "0.06em", fontFamily: FONT }}>
