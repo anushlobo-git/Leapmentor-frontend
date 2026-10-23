@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { searchMentorsRequest } from "@features/mentee/models/mentee.api";
 import { mapMentorSearchResponse } from "@features/mentor/models/mentorMapper";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
 
 const DEBOUNCE_MS = 300;
 const LIMIT = 6;
@@ -20,17 +21,22 @@ const EXPERIENCE_MAPPINGS = {
   "under-1":{ min: null , max: "1" },
 };
 
+type SearchFilters = {
+  industry: string;
+  minPrice: string;
+  maxPrice: string;
+  minRating: string;
+  experience: string;
+};
+
+type ExperienceKey = keyof typeof EXPERIENCE_MAPPINGS;
+type MentorSearchResult = ReturnType<typeof mapMentorSearchResponse>["mentors"][number];
+
 // ── SEARCH QUERY BUILDER HELPER ───────────────────────────────
 // Extracts string building branches into an independent, low-complexity worker
 const buildSearchQueryParams = (
   currentSkill: string,
-  currentFilters: {
-    industry: string;
-    minPrice: string;
-    maxPrice: string;
-    minRating: string;
-    experience: string;
-  },
+  currentFilters: SearchFilters,
   currentPage: number,
 ) => {
   const params = new URLSearchParams();
@@ -56,7 +62,8 @@ const buildSearchQueryParams = (
     params.set("minRating", currentFilters.minRating);
   }
 
-  const expConfig = EXPERIENCE_MAPPINGS[currentFilters.experience];
+  const expConfig =
+    EXPERIENCE_MAPPINGS[currentFilters.experience as ExperienceKey];
   if (expConfig) {
     if (expConfig.min !== null) params.set("minExperience", expConfig.min);
     if (expConfig.max !== null) params.set("maxExperience", expConfig.max);
@@ -74,14 +81,14 @@ const buildSearchQueryParams = (
  */
 const useMentorSearch = () => {
   const [skill, setSkill] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<SearchFilters>({
     industry: "",
     minPrice: "",
     maxPrice: "",
     minRating: "",
     experience: "",
   });
-  const [mentors, setMentors] = useState([]);
+  const [mentors, setMentors] = useState<MentorSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
@@ -90,10 +97,15 @@ const useMentorSearch = () => {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  const debounceTimer = useRef(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchMentors = useCallback(
-    async (currentSkill, currentFilters, currentPage, append = false) => {
+    async (
+      currentSkill: string,
+      currentFilters: SearchFilters,
+      currentPage: number,
+      append = false,
+    ) => {
       try {
         if (append) {
           setLoadingMore(true);
@@ -117,9 +129,9 @@ const useMentorSearch = () => {
         setHasMore(pagination.hasMore);
         setTotalCount(pagination.totalCount);
         setHasSearched(true);
-      } catch (err) {
+      } catch (err: unknown) {
         setError(
-          err?.response?.data?.message || err.message || "Search failed.",
+          getApiErrorMessage(err, getErrorMessage(err) || "Search failed."),
         );
       } finally {
         setLoading(false);
@@ -136,17 +148,19 @@ const useMentorSearch = () => {
       setPage(1);
       fetchMentors(skill, filters, 1, false);
     }, DEBOUNCE_MS);
-    return () => clearTimeout(debounceTimer.current);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
   }, [skill, filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Wrapped setSkill — clears stale error on new search input
-  const handleSetSkill = (value) => {
+  const handleSetSkill = (value: string) => {
     setError("");
     setSkill(value);
   };
 
   // updateFilter — clears stale error on any filter change
-  const updateFilter = (key, value) => {
+  const updateFilter = (key: keyof SearchFilters, value: string) => {
     setError("");
     setFilters((prev) => ({ ...prev, [key]: value }));
   };

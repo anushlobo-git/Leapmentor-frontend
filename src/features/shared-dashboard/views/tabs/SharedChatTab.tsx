@@ -21,7 +21,7 @@ const GRADIENTS = [
   "linear-gradient(135deg, #f59e0b, #b45309)",
 ];
 const getGradient = (name = "") =>
-  GRADIENTS[name.codePointAt(0) % GRADIENTS.length];
+  GRADIENTS[(name.codePointAt(0) ?? 0) % GRADIENTS.length];
 
 const formatTime = (dateStr?: string) => {
   if (!dateStr) return "";
@@ -30,8 +30,8 @@ const formatTime = (dateStr?: string) => {
   });
 };
 
-const formatDateSeparator = (dateStr: string) => {
-  const date = new Date(dateStr);
+const formatDateSeparator = (dateStr: string | null | undefined) => {
+  const date = new Date(dateStr ?? "");
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
@@ -40,8 +40,8 @@ const formatDateSeparator = (dateStr: string) => {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
-const isSameDay = (a: string, b: string) =>
-  new Date(a).toDateString() === new Date(b).toDateString();
+const isSameDay = (a: string | null | undefined, b: string | null | undefined) =>
+  new Date(a ?? "").toDateString() === new Date(b ?? "").toDateString();
 
 // ── Avatar ────────────────────────────────────────────────────
 interface AvatarProps {
@@ -113,7 +113,7 @@ const ChatHeader = ({ name, picture, otherOnline }: ChatHeaderProps) => (
 
 // ── Date Separator ────────────────────────────────────────────
 interface DateSeparatorProps {
-  dateStr: string;
+  dateStr: string | null | undefined;
 }
 
 const DateSeparator = memo(({ dateStr }: DateSeparatorProps) => (
@@ -134,7 +134,7 @@ DateSeparator.displayName = "DateSeparator";
 
 // ── Read Receipt ──────────────────────────────────────────────
 interface ReadReceiptProps {
-  readAt?: string;
+  readAt?: string | null;
 }
 
 const ReadReceipt = ({ readAt }: ReadReceiptProps) => (
@@ -156,8 +156,8 @@ const ReadReceipt = ({ readAt }: ReadReceiptProps) => (
 interface Message {
   _id?: string;
   content?: string;
-  createdAt?: string;
-  readAt?: string;
+  createdAt?: string | null;
+  readAt?: string | null;
   sender?: { _id?: string } | string;
 }
 
@@ -200,7 +200,7 @@ const MessageBubble = memo(({ message, isOwn, otherName, otherPicture }: Message
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "2px", marginTop: "3px" }}>
         <span style={{ fontSize: "10px", color: "#94a3b8" }}>
-          {formatTime(message.createdAt)}
+          {formatTime(message.createdAt ?? undefined)}
         </span>
         {isOwn && <ReadReceipt readAt={message.readAt} />}
       </div>

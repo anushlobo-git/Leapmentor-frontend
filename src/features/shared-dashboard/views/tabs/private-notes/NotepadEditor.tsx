@@ -173,7 +173,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: NotepadEdito
           {note?._id && (
             <button
               type="button"
-              onClick={() => onDelete(note._id)}
+               onClick={() => onDelete?.(note._id!)}
               className="p-2 rounded-lg border border-red-200 text-red-400 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-all"
             >
               <svg

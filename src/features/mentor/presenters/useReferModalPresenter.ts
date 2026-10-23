@@ -7,6 +7,7 @@ import {
   getSimilarMentors,
   referRequest,
 } from "@features/mentor/models/mentor.api";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 
 export interface SimilarMentor {
   _id: string;
@@ -53,10 +54,8 @@ export const useReferModalPresenter = (
         const res = await getSimilarMentors(request._id);
         setMentors(res.data.mentors || []);
         setMySkills(res.data.mySkills || []);
-      } catch (err) {
-        setError(
-          err?.response?.data?.message || "Failed to load similar mentors.",
-        );
+      } catch (err: unknown) {
+        setError(getApiErrorMessage(err, "Failed to load similar mentors."));
       } finally {
         setLoading(false);
       }
@@ -72,8 +71,8 @@ export const useReferModalPresenter = (
       await referRequest(request._id, selected?.user?._id);
       setSuccess(true);
       onReferred(request._id, "referred");
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to refer request.");
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Failed to refer request."));
     } finally {
       setReferring(false);
     }

@@ -525,7 +525,8 @@ export default function LeapBuddy({
 
             {messages.map((msg, idx) => {
               const isUser = msg.role === "user";
-              const tStatus = ticketStatus[msg.msgIdx];
+              const ticketId = msg.msgIdx;
+              const tStatus = ticketId === undefined ? undefined : ticketStatus[ticketId];
               const messageKey = msg._id || `${msg.role}-${msg.text}-${idx}`;
               return (
                 <div
@@ -556,7 +557,7 @@ export default function LeapBuddy({
                   </div>
 
                   {/* Escalation ticket form */}
-                  {msg.escalate && tStatus !== undefined && (
+                  {msg.escalate && ticketId !== undefined && tStatus !== undefined && (
                     <div
                       style={{
                         marginTop: 7,
@@ -604,12 +605,12 @@ export default function LeapBuddy({
                             <FormField
                               type="email"
                               placeholder="Your email"
-                              value={ticketForms[msg.msgIdx]?.email || ""}
+                              value={ticketForms[ticketId]?.email || ""}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setTicketForms((p) => ({
                                   ...p,
-                                  [msg.msgIdx]: {
-                                    ...p[msg.msgIdx],
+                                   [ticketId]: {
+                                     ...p[ticketId],
                                     email: e.target.value,
                                   },
                                 }))
@@ -623,12 +624,12 @@ export default function LeapBuddy({
                             />
                             <FormField
                               placeholder="Subject"
-                              value={ticketForms[msg.msgIdx]?.subject || ""}
+                               value={ticketForms[ticketId]?.subject || ""}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setTicketForms((p) => ({
                                   ...p,
-                                  [msg.msgIdx]: {
-                                    ...p[msg.msgIdx],
+                                   [ticketId]: {
+                                     ...p[ticketId],
                                     subject: e.target.value,
                                   },
                                 }))
@@ -644,12 +645,12 @@ export default function LeapBuddy({
                               as="textarea"
                               rows={2}
                               placeholder="Describe your issue..."
-                              value={ticketForms[msg.msgIdx]?.message || ""}
+                               value={ticketForms[ticketId]?.message || ""}
                               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                                 setTicketForms((p) => ({
                                   ...p,
-                                  [msg.msgIdx]: {
-                                    ...p[msg.msgIdx],
+                                   [ticketId]: {
+                                     ...p[ticketId],
                                     message: e.target.value,
                                   },
                                 }))
@@ -674,7 +675,7 @@ export default function LeapBuddy({
                               </p>
                             )}
                             <button
-                              onClick={() => submitTicket(msg.msgIdx)}
+                               onClick={() => submitTicket(ticketId)}
                               disabled={tStatus === "sending"}
                               style={{
                                 padding: "7px 12px",

@@ -12,6 +12,9 @@ import {
 } from "@features/mentor/models/mentor.api";
 import logger from "@lib/monitoring/logger";
 import { mapEarningsSummary, mapChartPoint, mapPayoutsResponse } from "@features/mentor/models/earningsMapper";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+
+type Payout = ReturnType<typeof mapPayoutsResponse>["payouts"][number];
 
 /**
  * Loads mentor earnings summary, chart data, payout history, and withdrawal actions.
@@ -38,7 +41,7 @@ const useTrackEarnings = () => {
   const [loadingChart, setLoadingChart] = useState(true);
 
   // ── Payouts table ─────────────────────────────────────────
-  const [payouts, setPayouts]         = useState([]);
+  const [payouts, setPayouts]         = useState<Payout[]>([]);
   const [loadingPayouts, setLoadingPayouts] = useState(true);
   const [search, setSearch]           = useState("");
   const [page, setPage]               = useState(1);
@@ -53,7 +56,7 @@ const useTrackEarnings = () => {
   // ── Error ─────────────────────────────────────────────────
   const [error, setError] = useState("");
 
-  const debounceTimer = useRef(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstSearchRun = useRef(true);
 
   // ── Fetch stats ───────────────────────────────────────────
@@ -62,12 +65,13 @@ const useTrackEarnings = () => {
       setLoadingStats(true);
       const res = await getMentorEarnings();
       setStats(mapEarningsSummary(res.data));
-    } catch (err) {
+    } catch (err: unknown) {
       setError(
-        err?.response?.data?.message ??
-        err?.message ??
-        (typeof err === "string" ? err : null) ??
-        "Failed to load earnings."
+        getApiErrorMessage(
+          err,
+          getErrorMessage(err) ??
+            (typeof err === "string" ? err : "Failed to load earnings."),
+        ),
       );
     } finally {
       setLoadingStats(false);
@@ -75,20 +79,24 @@ const useTrackEarnings = () => {
   }, []);
 
   // ── Fetch chart ───────────────────────────────────────────
-  const fetchChart = useCallback(async (period) => {
+  const fetchChart = useCallback(async (period: string) => {
     try {
       setLoadingChart(true);
       const res = await getMentorEarningsChart(period);
       setChartData(Array.isArray(res.data.data) ? res.data.data.map(mapChartPoint) : []);
-    } catch (err) {
-      logger.error("Chart fetch error:", { error: err.message });
+    } catch (err: unknown) {
+      logger.error("Chart fetch error:", { error: getErrorMessage(err) });
     } finally {
       setLoadingChart(false);
     }
   }, []);
 
   // ── Fetch payouts ─────────────────────────────────────────
-  const fetchPayouts = useCallback(async (currentPage, currentSearch, append = false) => {
+  const fetchPayouts = useCallback(async (
+    currentPage: number,
+    currentSearch: string,
+    append = false,
+  ) => {
     try {
       setLoadingPayouts(true);
       const params = new URLSearchParams({
@@ -101,8 +109,8 @@ const useTrackEarnings = () => {
       setPayouts((prev) => append ? [...prev, ...mapped.payouts] : mapped.payouts);
       setHasMore(mapped.pagination.hasMore);
       setTotalCount(mapped.pagination.totalCount);
-    } catch (err) {
-      logger.error("Payouts fetch error:", { error: err.message });
+    } catch (err: unknown) {
+      logger.error("Payouts fetch error:", { error: getErrorMessage(err) });
     } finally {
       setLoadingPayouts(false);
     }
@@ -116,7 +124,7 @@ const useTrackEarnings = () => {
 }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Chart period toggle ───────────────────────────────────
-  const handleChartPeriod = (period) => {
+  const handleChartPeriod = (period: string) => {
     setChartPeriod(period);
     fetchChart(period);
   };
@@ -133,7 +141,11 @@ const useTrackEarnings = () => {
       setPage(1);
       fetchPayouts(1, search);
     }, 300);
-    return () => clearTimeout(debounceTimer.current);
+    return () => {
+      if (debounceTimer.current !== null) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
   }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Load more ─────────────────────────────────────────────
@@ -174,10 +186,10 @@ const useTrackEarnings = () => {
         setShowWithdraw(false);
         setWithdrawMsg({ type: "", text: "" });
       }, 1500);
-    } catch (err) {
+    } catch (err: unknown) {
       setWithdrawMsg({
         type: "error",
-        text: err?.response?.data?.message || "Withdrawal failed.",
+        text: getApiErrorMessage(err, "Withdrawal failed."),
       });
     } finally {
       setWithdrawing(false);

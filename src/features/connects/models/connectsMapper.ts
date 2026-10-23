@@ -9,7 +9,7 @@
 // read — nested mentor/mentee objects and profile objects, not flattened fields.
 // A mapper whose output shape nothing in the app reads is worse than no mapper.
 
-const mapPerson = (raw) => {
+const mapPerson = (raw?: RawPerson | null) => {
   if (!raw) return null;
   return {
     _id: raw._id ?? raw.id ?? null,

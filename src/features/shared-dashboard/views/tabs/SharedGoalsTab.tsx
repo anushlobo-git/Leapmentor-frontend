@@ -498,7 +498,7 @@ const SharedGoalsTab = () => {
                 onCancelSlot={cancelSlot}
                 onRescheduleSlot={rescheduleSlot}
                 allSlots={slots}
-                connectRequestId={connectRequestId}
+                connectRequestId={connectRequestId!}
               />
             ))}
           </div>
@@ -508,7 +508,7 @@ const SharedGoalsTab = () => {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <FeedbackModal
-          slotIndex={feedbackSlotIndex}
+          slotIndex={feedbackSlotIndex ?? undefined}
           onClose={() => setShowFeedbackModal(false)}
           onFeedbackSubmitted={handleFeedbackSubmitted} // ← passed down
         />

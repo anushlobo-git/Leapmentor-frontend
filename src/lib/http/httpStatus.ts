@@ -48,9 +48,9 @@ export const HTTP_STATUS = Object.freeze({
 /**
  * Returns true when the status code represents a server-side error (5xx).
  */
-export const isServerError = (status) => status >= 500;
+export const isServerError = (status: number | undefined) => status !== undefined && status >= 500;
 
 /**
  * Returns true when the client has been rate-limited (HTTP 429).
  */
-export const isRateLimited = (status) => status === HTTP_STATUS.TOO_MANY_REQUESTS;
+export const isRateLimited = (status: number | undefined) => status === HTTP_STATUS.TOO_MANY_REQUESTS;

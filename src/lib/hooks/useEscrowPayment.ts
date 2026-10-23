@@ -38,7 +38,7 @@ export const useEscrowPayment = (
     const fetchStatus = async () => {
       try {
         setFetching(true);
-        const data = await getEscrowStatus(connectId);
+        const data = await getEscrowStatus(connectId!);
         if (typeof data?.wallet?.balance === "number")
           dispatch(walletSynced({ balance: data.wallet.balance }));
         if (data?.commissionRate != null)
@@ -46,9 +46,13 @@ export const useEscrowPayment = (
         if (data?.sessionRate != null) setRemoteSessionRate(data.sessionRate);
         if (data?.sessionCount != null)
           setRemoteSessionCount(data.sessionCount);
-      } catch (err) {
+      } catch (err: unknown) {
+        const error = err as {
+          response?: { data?: unknown };
+          message?: string;
+        };
         logger.warn("⚠️ Could not fetch escrow status:", {
-          error: err.response?.data || err.message,
+          error: error.response?.data || error.message,
         });
       } finally {
         setFetching(false);

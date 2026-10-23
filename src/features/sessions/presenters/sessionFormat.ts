@@ -7,7 +7,13 @@
  * @param {{ date?: string } | null | undefined} slot - Session slot object.
  * @returns {string} Human-readable date or an empty string when unavailable.
  */
-export const formatSlotDate = (slot) => {
+interface SlotFormatInput {
+  date?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+export const formatSlotDate = (slot: SlotFormatInput | null | undefined) => {
   if (!slot?.date) return "";
   return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "short",
@@ -21,9 +27,9 @@ export const formatSlotDate = (slot) => {
  * @param {{ startTime?: string, endTime?: string } | null | undefined} slot - Session slot object.
  * @returns {string} Human-readable time range or an empty string when unavailable.
  */
-export const formatSlotTime = (slot) => {
+export const formatSlotTime = (slot: SlotFormatInput | null | undefined) => {
   if (!slot?.startTime || !slot?.endTime) return "";
-  const fmt = (t) => {
+  const fmt = (t: string) => {
     const [h, m] = t.split(":");
     const hour = Number.parseInt(h);
     const ampm = hour >= 12 ? "PM" : "AM";

@@ -103,7 +103,7 @@ const PrivateNotesTab = () => {
 
       {privateSubTab === "files" && <PrivateFilesSection />}
       {privateSubTab === "notepad" && (
-        <NotepadSection connectId={connectId} isCompleted={isCompleted} />
+        <NotepadSection connectId={connectId ?? ""} isCompleted={isCompleted} />
       )}
     </div>
   );

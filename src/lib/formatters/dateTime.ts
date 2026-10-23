@@ -3,6 +3,7 @@
  */
 
 const DEFAULT_LOCALE = "en-US";
+type DateInput = string | number | Date | null | undefined;
 /**
  * Formats a plain "YYYY-MM-DD" slot/session date (as opposed to a full
  * ISO datetime) safely in local time. Appending "T00:00:00" avoids the
@@ -10,7 +11,7 @@ const DEFAULT_LOCALE = "en-US";
  * as UTC midnight and can roll back a day in negative-UTC-offset zones.
  * Defaults to "Mon, Jan 1" style; pass { year: "numeric" } etc. to extend.
  */
-export const formatSlotDate = (dateStr : string , options : Intl.DateTimeFormatOptions  = {} ) => {
+export const formatSlotDate = (dateStr: string, options: Intl.DateTimeFormatOptions = {}) => {
   if (!dateStr) return "";
   const date = new Date(`${dateStr}T00:00:00`);
   if (Number.isNaN(date.getTime())) return "";
@@ -21,10 +22,10 @@ export const formatSlotDate = (dateStr : string , options : Intl.DateTimeFormatO
   });
 };
 
-export const formatDateString = (value, options = {}) => {
+export const formatDateString = (value: DateInput, options: Intl.DateTimeFormatOptions = {}) => {
   if (!value) return "";
 
-  const date = new Date(value);
+  const date = new Date(value as string | number | Date);
   if (Number.isNaN(date.getTime())) return "";
 
   return date.toLocaleDateString(DEFAULT_LOCALE, {
@@ -35,10 +36,10 @@ export const formatDateString = (value, options = {}) => {
   });
 };
 
-export const formatTimeString = (value, options = {}) => {
+export const formatTimeString = (value: DateInput, options: Intl.DateTimeFormatOptions = {}) => {
   if (!value) return "";
 
-  const date = new Date(value);
+  const date = new Date(value as string | number | Date);
   if (Number.isNaN(date.getTime())) return "";
 
   return date.toLocaleTimeString(DEFAULT_LOCALE, {
@@ -54,7 +55,7 @@ export const formatTimeString = (value, options = {}) => {
  * time-only strings, not full dates — formatTimeString expects a real
  * date/datetime and will return "" for these.
  */
-export const formatTimeOfDay = (time) => {
+export const formatTimeOfDay = (time: string | null | undefined) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
   if (Number.isNaN(h) || Number.isNaN(m)) return "";
@@ -63,19 +64,22 @@ export const formatTimeOfDay = (time) => {
   return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
-export const formatFullSlot = (value, options = {}) => {
+export const formatFullSlot = (
+  value: DateInput | object,
+  options: Intl.DateTimeFormatOptions = {},
+) => {
   if (!value) return "";
 
-  const date = new Date(value);
+  const date = new Date(value as string | number | Date);
   if (Number.isNaN(date.getTime())) return "";
 
   return `${formatDateString(date, options)} ${formatTimeString(date, options)}`.trim();
 };
 
-export const formatDateTime = (value, options = {}) => {
+export const formatDateTime = (value: DateInput, options: Intl.DateTimeFormatOptions = {}) => {
   if (!value) return "";
 
-  const date = new Date(value);
+  const date = new Date(value as string | number | Date);
   if (Number.isNaN(date.getTime())) return "";
 
   return date.toLocaleString(DEFAULT_LOCALE, {
@@ -92,10 +96,10 @@ export const formatDateTime = (value, options = {}) => {
  * Formats a timestamp as "Today", "Yesterday", or a full date — used for
  * chat/notes-style day separators.
  */
-export const formatDateSeparator = (value) => {
+export const formatDateSeparator = (value: DateInput) => {
   if (!value) return "";
 
-  const date = new Date(value);
+  const date = new Date(value as string | number | Date);
   if (Number.isNaN(date.getTime())) return "";
 
   const today = new Date();
@@ -115,11 +119,11 @@ export const formatDateSeparator = (value) => {
 /**
  * True if two timestamps fall on the same calendar day.
  */
-export const isSameDay = (a, b) => {
+export const isSameDay = (a: DateInput, b: DateInput) => {
   if (!a || !b) return false;
 
-  const dateA = new Date(a);
-  const dateB = new Date(b);
+  const dateA = new Date(a as string | number | Date);
+  const dateB = new Date(b as string | number | Date);
   if (Number.isNaN(dateA.getTime()) || Number.isNaN(dateB.getTime()))
     return false;
 

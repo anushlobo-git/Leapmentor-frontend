@@ -25,8 +25,8 @@ interface NavItem {
 }
 
 interface SidebarContentProps {
-  activeTab: DashboardTab;
-  setActiveTab: (tab: DashboardTab) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   onClose?: () => void;
   viewerRole?: ViewerRole;
 }
@@ -160,11 +160,11 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole }:
       <button
         type="button"
         className="shared-sidebar-backdrop"
-        onClick={onClose}
+        onClick={() => onClose?.()}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            onClose();
+            onClose?.();
           }
         }}
         aria-label="Close sidebar"
@@ -202,7 +202,7 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole }:
           padding: "12px 16px 0", flexShrink: 0,
         }}>
           <button
-            onClick={onClose}
+            onClick={() => onClose?.()}
             style={{
               padding: "6px", borderRadius: "8px", border: "none",
               background: "rgba(148,163,184,0.15)", cursor: "pointer",

@@ -92,7 +92,7 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
             An unexpected error occurred. Don&apos;t worry, our team has been
             notified. Let&apos;s get you back on track.
           </p>
-          {error && (
+          {Boolean(error) && (
             <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded-lg text-left text-xs font-mono text-rose-700 max-h-32 overflow-y-auto break-all">
               {toErrorMessage(error)}
             </div>

@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@features/auth/models/authSlice";
 import { exchangeLinkedInToken } from "@features/auth/models/auth.api";
 import { getPrimaryRole, getDashboardPath, getOnboardingPath } from "@lib/auth/redirectUtils";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 import logger from "@lib/monitoring/logger";
 import type { AppDispatch } from "@store/index";
 
@@ -71,9 +72,12 @@ export const useSSOCallbackPresenter = () => {
           isNewUser ? getOnboardingPath(resolvedRole) : getDashboardPath(resolvedRole),
           { replace: true }
         );
-      } catch (err) {
+      } catch (err: unknown) {
         sessionStorage.removeItem("linkedin_code_used");
-        const msg = err?.response?.data?.message || err.message || "LinkedIn sign-in failed.";
+        const msg = getApiErrorMessage(
+          err,
+          err instanceof Error ? err.message : "LinkedIn sign-in failed.",
+        );
         setError(msg);
       }
     };

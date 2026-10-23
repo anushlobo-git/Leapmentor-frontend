@@ -25,7 +25,7 @@ export const getAvatarColor = (name = "") => {
   return AVATAR_COLORS[index % AVATAR_COLORS.length];
 };
 
-export const formatDate = (iso) => {
+export const formatDate = (iso?: string | null) => {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-US", {
     year: "numeric",
@@ -41,7 +41,7 @@ export const TABS = [
   { key: "all", label: "All" },
 ];
 
-export const getEmptyStateLabel = (currentSearch, currentTab) => {
+export const getEmptyStateLabel = (currentSearch: string, currentTab: string) => {
   if (currentSearch) return `No results for "${currentSearch}"`;
   if (currentTab === "pending") return "No pending requests 🎉";
   return `No ${currentTab} requests yet`;

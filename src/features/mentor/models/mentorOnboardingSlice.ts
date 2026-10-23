@@ -5,8 +5,19 @@
 // src/store/slices/mentorOnboardingSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@lib/http/axiosInstance";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
 
-export const submitMentorOnboarding = createAsyncThunk(
+interface MentorOnboardingState {
+  loading: boolean;
+  error: string | null | undefined;
+  successMsg: string | null;
+}
+
+export const submitMentorOnboarding = createAsyncThunk<
+  unknown,
+  Record<string, unknown>,
+  { rejectValue: string }
+>(
   "mentorOnboarding/submit",
   async (payload: Record<string, unknown>, { rejectWithValue }) => {
     try {
@@ -16,21 +27,26 @@ export const submitMentorOnboarding = createAsyncThunk(
       };
       const res = await axiosInstance.post("/mentor-profile", payloadToSend);
       return res.data;
-    } catch (err) {
+    } catch (err: unknown) {
       return rejectWithValue(
-        err?.response?.data?.message || err?.message || "Something went wrong.",
+        getApiErrorMessage(
+          err,
+          getErrorMessage(err) ?? "Something went wrong.",
+        ),
       );
     }
   },
 );
 
+const initialState: MentorOnboardingState = {
+  loading: false,
+  error: null,
+  successMsg: null,
+};
+
 const mentorOnboardingSlice = createSlice({
   name: "mentorOnboarding",
-  initialState: {
-    loading: false,
-    error: null,
-    successMsg: null,
-  },
+  initialState,
   reducers: {
     /**
      * Clears mentor onboarding success and error messages.

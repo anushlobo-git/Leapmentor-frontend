@@ -5,7 +5,7 @@
 // src/features/shared-dashboard/api/shared-dashboard.api.js
 import axiosInstance from "@lib/http/axiosInstance";
 
-export const getConnectDetail = (connectRequestId) =>
+export const getConnectDetail = (connectRequestId: string) =>
   axiosInstance.get(`/connect-requests/${connectRequestId}/detail`);
 
 export const getChatHistory = (roomId: string, pageNum: number, limit: number) =>

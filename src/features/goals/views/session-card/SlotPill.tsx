@@ -27,7 +27,7 @@ const SlotPill = ({ slot, group, selected, onSelect, booked }: SlotPillProps) =>
   <button
     type="button"
     disabled={booked}
-    onClick={() => !booked && onSelect({ day: group.day, date: group.date, startTime: slot.startTime, endTime: slot.endTime })}
+    onClick={() => !booked && onSelect({ day: group.day!, date: group.date!, startTime: slot.startTime, endTime: slot.endTime })}
     className={`
       relative flex items-center justify-center
       rounded-2xl px-3 h-12 text-center border w-full

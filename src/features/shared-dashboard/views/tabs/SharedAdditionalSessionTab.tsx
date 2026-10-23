@@ -268,15 +268,16 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
     const loadEscrowStatus = async () => {
       try {
         setFetching(true);
-        const res = await getEscrowStatus(connectId);
+        const res = await getEscrowStatus(connectId!);
         // getEscrowStatus already unwraps axios' `.data`; also accept a nested `data` envelope.
         const status = res?.data ?? res;
         if (typeof status?.wallet?.balance === "number") {
           dispatch(walletSynced({ balance: status.wallet.balance }));
         }
         if (status?.commissionRate != null) setCommissionRate(status.commissionRate);
-      } catch (err) {
-        logger.warn("Could not fetch escrow status:", { error: err.message });
+      } catch (err: unknown) {
+        const error = err as { message?: string };
+        logger.warn("Could not fetch escrow status:", { error: error.message });
       } finally {
         setFetching(false);
       }
@@ -290,11 +291,12 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
     if (insufficient) { setError(`Need ${paymentShortfall} more tokens.`); return; }
     try {
       setLoading(true);
-      await payAdditionalEscrow({ connectRequestId: connectId, sessionRate, slotId });
+      await payAdditionalEscrow({ connectRequestId: connectId!, sessionRate, slotId });
       dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setShowSuccess(true);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Payment failed. Please try again.");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || "Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -325,10 +327,10 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
               <div className="space-y-1.5">
                 {[
                   { label: "Mentor", value: mentorName },
-                  slot?.date && { label: "Date", value: `${slot.day}, ${new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` },
-                  slot?.startTime && { label: "Time", value: `${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}` },
+                  slot?.date ? { label: "Date", value: `${slot.day}, ${new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` } : false,
+                  slot?.startTime ? { label: "Time", value: `${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}` } : false,
                   { label: "Rate", value: `${sessionRate} tokens / session` },
-                ].filter(Boolean).map(({ label, value }) => (
+                ].filter((row): row is { label: string; value: string } => Boolean(row)).map(({ label, value }) => (
                   <div key={label} className="flex items-center justify-between">
                     <span className="text-xs text-slate-400">{label}</span>
                     <span className="text-xs font-semibold text-slate-700">{value}</span>
@@ -422,7 +424,8 @@ const SharedAdditionalSessionTab = () => {
       setAvailability(res.data.slots || []);
       if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);
     } catch (err) {
-      setAvailError(err?.response?.data?.message || "Failed to load availability.");
+      const error = err as { response?: { data?: { message?: string } } };
+      setAvailError(error.response?.data?.message || "Failed to load availability.");
     } finally {
       setAvailLoading(false);
     }

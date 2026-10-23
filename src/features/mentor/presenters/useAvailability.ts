@@ -6,13 +6,22 @@
 import { useState, useEffect } from "react";
 import { getMyAvailability, updateMyAvailability } from "@features/mentor/models/mentor.api";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+import type { DateEntry } from "@features/mentor/presenters/useCalendarAvailabilityPresenter";
+
+interface AvailabilityState {
+  timezone: string;
+  sessionDurations: number[];
+  googleCalendarConnected: boolean;
+  specificDates: DateEntry[];
+}
 /**
  * Custom hook for availability.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
 const useAvailability = () => {
-  const [availability, setAvailability] = useState({
+  const [availability, setAvailability] = useState<AvailabilityState>({
     timezone: "Asia/Kolkata",
     sessionDurations: [30, 60],
     googleCalendarConnected: false,
@@ -36,8 +45,9 @@ const useAvailability = () => {
           ...data,
           specificDates: data.specificDates || [],
         }));
-      } catch (err) {
-        if (err?.response?.status !== HTTP_STATUS.NOT_FOUND) {
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status !== HTTP_STATUS.NOT_FOUND) {
           setMsg({ type: "error", text: "Failed to load availability." });
         }
       } finally {
@@ -49,7 +59,7 @@ const useAvailability = () => {
   }, []);
 
   // Toggle session duration
-  const toggleDuration = (duration) => {
+  const toggleDuration = (duration: number) => {
     setAvailability((prev) => {
       const current = prev.sessionDurations;
       const updated = current.includes(duration)
@@ -60,12 +70,14 @@ const useAvailability = () => {
   };
 
   // Update timezone
-  const updateTimezone = (tz) => {
+  const updateTimezone = (tz: string) => {
     setAvailability((prev) => ({ ...prev, timezone: tz }));
   };
 
   // Set specificDates — accepts value or updater function
-  const setSpecificDates = (updater) => {
+  const setSpecificDates = (
+    updater: DateEntry[] | ((prev: DateEntry[]) => DateEntry[]),
+  ) => {
     setAvailability((prev) => ({
       ...prev,
       specificDates: typeof updater === "function"
@@ -85,8 +97,11 @@ const useAvailability = () => {
         specificDates:    availability.specificDates,
       });
       setMsg({ type: "success", text: "Availability saved successfully!" });
-    } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Failed to save.";
+    } catch (err: unknown) {
+      const apiMsg = getApiErrorMessage(
+        err,
+        getErrorMessage(err) ?? "Failed to save.",
+      );
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setSaving(false);

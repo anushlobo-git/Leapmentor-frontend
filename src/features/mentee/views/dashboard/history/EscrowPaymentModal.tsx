@@ -18,6 +18,7 @@ import {
   BalanceRow,
 } from "@components/shared/payment/EscrowPaymentUI";
 import { useEscrowPayment } from "@lib/hooks/useEscrowPayment";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 import { fetchWallet } from "@features/mentee/models/walletSlice";
 import type { AppDispatch } from "@store/index";
 import type { HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
@@ -82,10 +83,8 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
         commissionAmount: platformFee,
         mentorPayout: mentorAmount,
       });
-    } catch (err) {
-      setError(
-        err?.response?.data?.message || "Payment failed. Please try again.",
-      );
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Payment failed. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -119,7 +118,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
           { label: "Mentor", value: mentorName },
           confirmedSlot && {
             label: "Date",
-            value: `${confirmedSlot.day}, ${formatSlotDate(confirmedSlot.date, { year: "numeric" })}`,
+            value: `${confirmedSlot.day}, ${formatSlotDate(confirmedSlot.date ?? "", { year: "numeric" })}`,
           },
           confirmedSlot && {
             label: "Time",

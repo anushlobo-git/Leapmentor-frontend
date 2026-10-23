@@ -452,8 +452,8 @@ interface CalendarGridProps {
   onToggleDate: (dateStr: string) => void;
   onNavPrev: () => void;
   onNavNext: () => void;
-  calendarEvents?: CalendarEvent[];
-  busySlots?: BusySlot[];
+  calendarEvents: CalendarEvent[];
+  busySlots: BusySlot[];
 }
 
 const CalendarGrid = ({
@@ -538,7 +538,7 @@ const CalendarGrid = ({
           const isSelected = specificDates.some((d) => d.date === dateStr);
           const dayEvents = getEventsForDate(dateStr, calendarEvents);
           const hasEvents = dayEvents.length > 0;
-          const hasBusy = busySlots?.some((b) => {
+          const hasBusy = busySlots.some((b) => {
             const busyDate = new Date(b.start).toLocaleDateString("en-CA", {
               timeZone: "Asia/Kolkata",
             });
@@ -598,7 +598,7 @@ const CalendarGrid = ({
         })}
       </div>
 
-      {calendarEvents?.length > 0 && (
+      {calendarEvents.length > 0 && (
         <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-orange-400" />

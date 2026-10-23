@@ -32,14 +32,14 @@ export const STATUS_LABELS = {
   completed: "🎓 Session completed — tokens released to mentor",
 };
 
-export const formatDate = (dateStr) => {
+export const formatDate = (dateStr?: string | null) => {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
   });
 };
 
-export const formatTime = (time) => {
+export const formatTime = (time?: string | null) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
   const ampm = h >= 12 ? "PM" : "AM";
@@ -47,5 +47,5 @@ export const formatTime = (time) => {
   return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
-export const getInitials = (name) =>
-  name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+export const getInitials = (name?: string | null) =>
+  name?.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "?";

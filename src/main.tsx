@@ -20,12 +20,12 @@ const App = lazy(() => import("@app/App"));
 injectStore(store);
 
 if (import.meta.env.DEV) {
-  globalThis.store = store;
+  (globalThis as typeof globalThis & { store?: typeof store }).store = store;
 }
 
 initializeSentry();
 
-createRoot(document.getElementById("root")).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Sentry.ErrorBoundary
       fallback={({ resetError }) => (

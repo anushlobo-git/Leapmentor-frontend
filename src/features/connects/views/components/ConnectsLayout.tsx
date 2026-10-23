@@ -124,9 +124,9 @@ const ConnectsLayout = ({
         )}
 
         {/* Empty state — only show if no active AND no completed */}
-        {!loading && !error && count === 0 && !hasCompleted && (
+         {!loading && !error && count === 0 && !hasCompleted && emptyState && (
            <ConnectsEmptyState {...emptyState} />
-        )}
+         )}
 
         {/* Active cards */}
         {!loading && !error && children}

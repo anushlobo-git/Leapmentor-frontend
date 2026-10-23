@@ -34,8 +34,9 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }: In
         }
       };
       globalThis.addEventListener("message", handler);
-    } catch (err) {
-      logger.error("Google Calendar error:", { error: err.message || err });
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      logger.error("Google Calendar error:", { error: error.message || err });
       setLoading(false);
     }
   };
@@ -45,8 +46,9 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }: In
     try {
       await disconnectGoogleCalendar();
       onConnectionChange(false);
-    } catch (err) {
-      logger.error("Google Calendar error:", { error: err.message || err });
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      logger.error("Google Calendar error:", { error: error.message || err });
     } finally {
       setLoading(false);
     }

@@ -11,7 +11,7 @@ import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
-const urlBase64ToUint8Array = (base64String) => {
+const urlBase64ToUint8Array = (base64String: string) => {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
     .replaceAll("-", "+")
@@ -47,8 +47,10 @@ const usePushNotification = () => {
         await subscribeToPush(subscription);
 
         logger.info("Push notifications enabled");
-      } catch (err) {
-        logger.warn("Push setup failed", { error: err.message });
+      } catch (err: unknown) {
+        logger.warn("Push setup failed", {
+          error: (err as { message?: string }).message,
+        });
       }
     };
 
@@ -58,7 +60,7 @@ const usePushNotification = () => {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
-    const handleMessage = (event) => {
+    const handleMessage = (event: MessageEvent) => {
       logger.info("Message received from service worker", {
         data: event.data,
       });

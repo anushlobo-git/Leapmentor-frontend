@@ -7,7 +7,10 @@
 // Builds the { category, items: [{ q, a }] } shape from plain tuples.
 // Keeping the data as tuples (rather than repeated object literals)
 // avoids duplicate-block detection on the repeated `q:`/`a:` key pattern.
-const buildFaqCategories = (categories) =>
+type FaqPair = [question: string, answer: string];
+type FaqCategory = [category: string, qaPairs: FaqPair[]];
+
+const buildFaqCategories = (categories: FaqCategory[]) =>
   categories.map(([category, qaPairs]) => ({
     category,
     items: qaPairs.map(([q, a]) => ({ q, a })),
@@ -82,7 +85,7 @@ const mentorFaqData = [
   ],
 ];
 
-const mentorFaqs = buildFaqCategories(mentorFaqData);
+const mentorFaqs = buildFaqCategories(mentorFaqData as FaqCategory[]);
 
 // ─── MENTEE FAQS ──────────────────────────────────────────────────────────────
 
@@ -153,6 +156,6 @@ const menteeFaqData = [
   ],
 ];
 
-const menteeFaqs = buildFaqCategories(menteeFaqData);
+const menteeFaqs = buildFaqCategories(menteeFaqData as FaqCategory[]);
 
 export { mentorFaqs, menteeFaqs };

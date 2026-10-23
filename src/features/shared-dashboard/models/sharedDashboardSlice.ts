@@ -3,9 +3,43 @@
  */
 
 // src/store/slices/sharedDashboardSlice.js
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+export interface SharedDashboardConnect {
+  _id?: string;
+  status?: string;
+  viewerRole?: "mentor" | "mentee";
+  mentor?: { name?: string };
+  mentee?: { name?: string };
+  mentorProfile?: {
+    profilePicture?: string;
+    currentRole?: string;
+    company?: string;
+    skills?: string[];
+    hourlyRate?: number;
+  };
+  menteeProfile?: {
+    profilePicture?: string;
+    currentRole?: string;
+    company?: string;
+    skills?: string[];
+  };
+  confirmedSlot?: {
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+    status?: string;
+  };
+  totalAmount?: number | null;
+  paidAt?: string | null;
+}
+
+export interface SharedDashboardState {
+  connect: SharedDashboardConnect | null;
+  activeTab: string;
+}
+
+const initialState: SharedDashboardState = {
   connect: null,
   activeTab: "overview",
 };
@@ -14,10 +48,10 @@ const sharedDashboardSlice = createSlice({
   name: "sharedDashboard",
   initialState,
   reducers: {
-    setConnect: (state, action) => {
+    setConnect: (state, action: PayloadAction<SharedDashboardConnect | null>) => {
       state.connect = action.payload;
     },
-    setActiveTab: (state, action) => {
+    setActiveTab: (state, action: PayloadAction<string>) => {
       state.activeTab = action.payload;
     },
     resetSharedDashboard: () => initialState,
@@ -27,12 +61,14 @@ const sharedDashboardSlice = createSlice({
 export const { setConnect, setActiveTab, resetSharedDashboard } =
   sharedDashboardSlice.actions;
 
-export const selectConnect = (state) => state.sharedDashboard.connect;
-export const selectConnectId = (state) => state.sharedDashboard.connect?._id ?? null;
-export const selectActiveTab = (state) => state.sharedDashboard.activeTab;
-export const selectViewerRole = (state) =>
+type RootLike = { sharedDashboard: SharedDashboardState };
+
+export const selectConnect = (state: RootLike) => state.sharedDashboard.connect;
+export const selectConnectId = (state: RootLike) => state.sharedDashboard.connect?._id ?? null;
+export const selectActiveTab = (state: RootLike) => state.sharedDashboard.activeTab;
+export const selectViewerRole = (state: RootLike) =>
   state.sharedDashboard.connect?.viewerRole ?? "mentee";
-export const selectConnectStatus = (state) =>
+export const selectConnectStatus = (state: RootLike) =>
   state.sharedDashboard.connect?.status ?? null;
 
 export default sharedDashboardSlice.reducer;

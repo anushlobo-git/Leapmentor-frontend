@@ -98,7 +98,7 @@ export function useMentorProfileModalPresenter(
       setSlotsError("");
       setSelectedSlots([]);
       setActiveDayIndex(0);
-      const res = await getMentorAvailability(mentor.user._id, duration);
+      const res = await getMentorAvailability(mentor.user!._id!, duration);
       setGroupedSlots(res.data.slots || []);
       if (res.data.sessionDurations?.length) {
         setAvailableDurations(res.data.sessionDurations);
@@ -106,9 +106,10 @@ export function useMentorProfileModalPresenter(
           setSelectedDuration(res.data.sessionDurations[0]);
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number } };
       setSlotsError(
-        err?.response?.status === HTTP_STATUS.NOT_FOUND
+        error.response?.status === HTTP_STATUS.NOT_FOUND
           ? "This mentor hasn't set their availability yet."
           : "Failed to load available slots.",
       );
@@ -167,7 +168,7 @@ export function useMentorProfileModalPresenter(
     if (sendingRef.current || selectedSlots.length === 0) return;
     sendingRef.current = true;
     const ok = await sendRequest({
-      mentorId: mentor.user._id,
+      mentorId: mentor.user!._id!,
       message,
       selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }: SlotObj) => ({
         day,

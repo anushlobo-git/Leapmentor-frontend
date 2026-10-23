@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { respondToRequest, referRequest } from "@features/mentor/models/mentor.api";
 import { useToast } from "@app/providers/ToastContext"; // ✅
+import { getApiErrorMessage } from "@lib/http/getApiError";
 /**
  * Custom hook for respond to request.
  * @returns {Object} Hook state and handlers for the caller.
@@ -18,7 +19,12 @@ const useRespondToRequest = () => {
   const { showToast } = useToast(); // ✅
 
   // ── Accept or Reject ──────────────────────────────────────
-  const respond = async ({ requestId, status, confirmedSlot, menteeName }) => {
+  const respond = async ({
+    requestId,
+    status,
+    confirmedSlot,
+    menteeName,
+  }: RespondArgs) => {
     try {
       setResponding(true);
       
@@ -38,8 +44,8 @@ const useRespondToRequest = () => {
         });
       }
       return true;
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to respond to request.";
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(err, "Failed to respond to request.");
       showToast({ type: "error", title: "Action failed", message: msg });
       return false;
     } finally {
@@ -48,7 +54,12 @@ const useRespondToRequest = () => {
   };
 
   // ── Refer ─────────────────────────────────────────────────
-  const refer = async ({ requestId, referToMentorId, menteeName, referredMentorName }) => {
+  const refer = async ({
+    requestId,
+    referToMentorId,
+    menteeName,
+    referredMentorName,
+  }: ReferArgs) => {
     try {
       setReferring(true);
       await referRequest(requestId, referToMentorId);
@@ -58,8 +69,8 @@ const useRespondToRequest = () => {
         message: `${menteeName}'s request has been referred to ${referredMentorName}.`,
       });
       return true;
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to refer request.";
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(err, "Failed to refer request.");
       showToast({ type: "error", title: "Referral failed", message: msg });
       return false;
     } finally {
@@ -71,3 +82,16 @@ const useRespondToRequest = () => {
 };
 
 export default useRespondToRequest;
+interface RespondArgs {
+  requestId: string;
+  status: string;
+  confirmedSlot?: unknown;
+  menteeName?: string;
+}
+
+interface ReferArgs {
+  requestId: string;
+  referToMentorId?: string;
+  menteeName?: string;
+  referredMentorName?: string;
+}

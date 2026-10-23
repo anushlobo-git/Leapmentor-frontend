@@ -4,32 +4,49 @@
 
 // src/components/admin/AdminSupportMessages.jsx
 import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   getSupportMessages,
   resolveSupportMessage,
 } from "@features/admin/models/admin.api";
 
-const STATUS_STYLES = {
+type SupportStatus = "open" | "resolved";
+
+interface SupportMessage {
+  _id: string;
+  role?: string;
+  subject?: string;
+  email?: string;
+  createdAt?: string;
+  message?: string;
+  status: SupportStatus;
+}
+
+const STATUS_STYLES: Record<SupportStatus, { background: string; color: string; label: string }> = {
   open: { background: "#fef9c3", color: "#854d0e", label: "Open" },
   resolved: { background: "#dcfce7", color: "#166534", label: "Resolved" },
 };
 
 export default function AdminSupportMessages() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
-  const [expanded, setExpanded] = useState(null);
-  const [resolving, setResolving] = useState(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [resolving, setResolving] = useState<string | null>(null);
 
   const fetchMessages = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await getSupportMessages();
-      setMessages(res.data.data || res.data.messages || res.data || []);
-    } catch (err) {
-      setError(err.message);
+      setMessages((res.data.data || res.data.messages || res.data || []) as SupportMessage[]);
+    } catch (err: unknown) {
+      setError(
+        (axios.isAxiosError<{ message?: string }>(err)
+          ? err.response?.data?.message
+          : undefined) || (err instanceof Error ? err.message : "Failed to load messages."),
+      );
     } finally {
       setLoading(false);
     }
@@ -39,7 +56,7 @@ export default function AdminSupportMessages() {
     fetchMessages();
   }, []);
 
-  const markResolved = async (id) => {
+  const markResolved = async (id: string) => {
     if (resolving === id) return;
     setResolving(id);
     try {
@@ -180,7 +197,7 @@ export default function AdminSupportMessages() {
                 </div>
 
                 <span style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0 }}>
-                  {new Date(msg.createdAt).toLocaleDateString("en-US", {
+                  {new Date(msg.createdAt ?? "").toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                     year: "numeric",

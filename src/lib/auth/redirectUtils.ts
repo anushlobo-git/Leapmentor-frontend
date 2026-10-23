@@ -56,7 +56,7 @@ export const getBaseUrl = () =>
 /**
  * Build OAuth redirect URL
  */
-export const buildOAuthUrl = (provider, params = {}) => {
+export const buildOAuthUrl = (provider: string, params: Record<string, string> = {}) => {
   const baseUrl = getBaseUrl();
   const searchParams = new URLSearchParams(params);
   return `${baseUrl}/auth/${provider}?${searchParams}`;

@@ -65,6 +65,13 @@ export interface DashboardLoadResult {
 
 type Role = "mentee" | "mentor";
 
+type DashboardApiError = {
+  response?: {
+    status?: number;
+  };
+  message?: string;
+};
+
 const ROLE_API = {
   // Wrapped in arrows so the API modules are only touched when a thunk runs.
   mentee: {
@@ -88,10 +95,11 @@ const buildLoader = (role: Role) =>
       let userData: RawAuthUser;
       try {
         userData = (await api.getUser()).data;
-      } catch (err) {
+      } catch (err: unknown) {
+        const error = err as DashboardApiError;
         return rejectWithValue({
-          status: err?.response?.status,
-          message: err?.message ?? "Failed to load user.",
+          status: error.response?.status,
+          message: error.message ?? "Failed to load user.",
           stage: "user",
         });
       }
@@ -103,10 +111,11 @@ const buildLoader = (role: Role) =>
       try {
         const profileData = (await api.getProfile()).data;
         return { user: mapAuthUser(userData), profile: api.mapProfile(profileData) };
-      } catch (err) {
+      } catch (err: unknown) {
+        const error = err as DashboardApiError;
         return rejectWithValue({
-          status: err?.response?.status,
-          message: err?.message ?? "Failed to load profile.",
+          status: error.response?.status,
+          message: error.message ?? "Failed to load profile.",
           stage: "profile",
         });
       }
@@ -125,9 +134,10 @@ const buildProfileRefetch = (role: Role) =>
       try {
         const res = await ROLE_API[role].getProfile();
         return ROLE_API[role].mapProfile(res.data);
-      } catch (err) {
-        logger.error("Profile refetch failed", { error: err.message });
-        return rejectWithValue(err.message);
+      } catch (err: unknown) {
+        const error = err as DashboardApiError;
+        logger.error("Profile refetch failed", { error: error.message });
+        return rejectWithValue(error.message);
       }
     },
   );

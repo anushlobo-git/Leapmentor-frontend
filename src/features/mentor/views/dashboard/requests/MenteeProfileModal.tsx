@@ -9,7 +9,7 @@ import RequestActionModal from "@features/mentor/views/dashboard/requests/Reques
 import ReferModal from "@features/mentor/views/dashboard/requests/ReferModal";
 import logger from "@lib/monitoring/logger";
 
-const formatTime = (time: string) => {
+const formatTime = (time: string | null | undefined) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
   const ampm = h >= 12 ? "PM" : "AM";
@@ -17,7 +17,7 @@ const formatTime = (time: string) => {
   return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: string | null | undefined) => {
   if (!dateStr) return "";
   return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "long", month: "short", day: "numeric", year: "numeric",
@@ -33,9 +33,9 @@ const Spinner = ({ light = false }: { light?: boolean }) => (
 );
 
 interface MenteeRequestSlot {
-  date?: string;
-  startTime?: string;
-  endTime?: string;
+  date?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
 }
 
 interface MenteeRequest {
@@ -74,8 +74,9 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }: MenteeProfileModalPr
       await respondToRequest(request._id, body);
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
-    } catch (err) {
-      logger.error("Respond error:", { error: err.message || err});
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      logger.error("Respond error:", { error: error.message || err });
     } finally {
       setLoading(null);
     }
@@ -94,7 +95,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }: MenteeProfileModalPr
     return (
       <RequestActionModal
         type={actionModal.type}
-        menteeName={actionModal.mentee}
+        menteeName={actionModal.mentee ?? ""}
         onBack={() => { setActionModal(null); onClose(); }}
       />
     );

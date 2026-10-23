@@ -5,6 +5,7 @@
 // src/features/mentor/components/onboarding/PersonalInfoSection.jsx
 import type React from "react";
 import { useRef, useState } from "react";
+import axios from "axios";
 import { uploadMentorProfilePicture } from "@features/mentor/models/mentor.api";
 import { validateImageFile } from "@lib/validation/schemas";
 import type { FormChangeEvent } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
@@ -30,7 +31,7 @@ const PersonalInfoSection = ({ form, onChange }: PersonalInfoSectionProps) => {
 
     const validation = validateImageFile(file, 5);
     if (!validation.valid) {
-      setUploadErr(validation.error);
+      setUploadErr(validation.error ?? "Invalid image file.");
       return;
     }
 
@@ -57,10 +58,11 @@ const PersonalInfoSection = ({ form, onChange }: PersonalInfoSectionProps) => {
       onChange({
         target: { name: "profilePictureFileName", value: res.data.fileName },
       });
-    } catch (err) {
+    } catch (err: unknown) {
       setUploadErr(
-        err?.response?.data?.message ||
-          "Failed to upload image. Please try again.",
+        (axios.isAxiosError<{ message?: string }>(err)
+          ? err.response?.data?.message
+          : undefined) || "Failed to upload image. Please try again.",
       );
     } finally {
       setUploading(false);

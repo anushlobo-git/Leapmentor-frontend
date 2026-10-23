@@ -6,6 +6,7 @@
 import { useState, useRef } from "react";
 import { sendConnectRequest } from "@features/connects/models/connects.api";
 import type { ConnectSlotInput } from "@features/connects/models/connects.api";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 /**
  * Custom hook for connect request.
  * @returns {Object} Hook state and handlers for the caller.
@@ -46,8 +47,11 @@ const useConnectRequest = () => {
       });
       setSuccess(true);
       return true;
-    } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Failed to send request.";
+    } catch (err: unknown) {
+      const apiMsg = getApiErrorMessage(
+        err,
+        err instanceof Error ? err.message : "Failed to send request.",
+      );
       setError(apiMsg);
       return false;
     } finally {

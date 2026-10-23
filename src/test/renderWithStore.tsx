@@ -25,7 +25,7 @@ export const makeTestStore = (extra: Record<string, Reducer> = {}, preloadedStat
       dashboardUser: dashboardUserReducer,
       wallet: walletReducer,
       ...extra,
-    }) as Reducer<Record<string, unknown>>,
+    }) as unknown as Reducer<Record<string, unknown>>,
     preloadedState,
   });
 

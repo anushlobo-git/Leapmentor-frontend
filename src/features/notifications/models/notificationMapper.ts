@@ -7,7 +7,25 @@
  * @param {string} dateStr - ISO date string
  * @returns {string} Formatted time ago string (e.g., "5 minutes ago", "Yesterday")
  */
-const timeAgo = (dateStr) => {
+type RawNotificationMetadata = {
+  senderName?: string | null;
+  [key: string]: unknown;
+};
+
+type RawApiNotification = {
+  _id?: string | number | null;
+  type?: string | null;
+  read?: boolean | null;
+  createdAt?: string | null;
+  title?: string | null;
+  senderName?: string | null;
+  message?: string | null;
+  body?: string | null;
+  content?: string | null;
+  metadata?: RawNotificationMetadata | null;
+};
+
+const timeAgo = (dateStr: string | null | undefined) => {
   if (!dateStr) return "";
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -26,7 +44,7 @@ const timeAgo = (dateStr) => {
  * @param {Object} notif - Raw notification object from API
  * @returns {Object} Normalized notification object with guaranteed field structure
  */
-export const normalizeApiNotif = (notif) => ({
+export const normalizeApiNotif = (notif: RawApiNotification) => ({
   id: notif._id ?? null,
   _id: notif._id ?? null,
   type: notif.type ?? "",

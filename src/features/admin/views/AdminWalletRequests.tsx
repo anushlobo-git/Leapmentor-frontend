@@ -17,18 +17,45 @@ import {
   Toast,
 } from "@features/admin/views/wallet/WalletRequestTable";
 import { TABS, getEmptyStateLabel } from "./walletRequests.utils";
+import { getApiErrorMessage } from "@lib/http/getApiError";
+
+interface WalletMentee {
+  _id?: string;
+  name?: string;
+  email?: string;
+  profilePicture?: string | null;
+}
+
+interface WalletRequest {
+  _id?: string;
+  mentee?: WalletMentee | null;
+  currentBalance?: number;
+  createdAt?: string;
+  status?: string;
+}
+
+interface ToastData {
+  message: string;
+  type: "success" | "error";
+}
+
+interface HistoryMentee {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
 
 // ── Main Page ─────────────────────────────────────────────────
 const AdminWalletRequests = () => {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<WalletRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const [search, setSearch] = useState("");
-  const [historyMentee, setHistoryMentee] = useState(null);
+  const [historyMentee, setHistoryMentee] = useState<HistoryMentee | null>(null);
 
-  const showToast = (message, type = "success") => {
+  const showToast = (message: string, type: ToastData["type"] = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
   };
@@ -37,7 +64,7 @@ const AdminWalletRequests = () => {
     try {
       setLoading(true);
       const res = await getLeapRequests();
-      setRequests(res.data.requests || res.data || []);
+      setRequests((res.data.requests || res.data || []) as WalletRequest[]);
     } catch {
       showToast("Failed to load requests.", "error");
     } finally {
@@ -49,7 +76,8 @@ const AdminWalletRequests = () => {
     fetchRequests();
   }, [fetchRequests]);
 
-  const handleApprove = async (reqId) => {
+  const handleApprove = async (reqId: string | undefined) => {
+    if (!reqId) return;
     try {
       setActionLoading(reqId);
       await approveLeapRequest(reqId);
@@ -57,14 +85,15 @@ const AdminWalletRequests = () => {
         prev.map((r) => (r._id === reqId ? { ...r, status: "approved" } : r)),
       );
       showToast("500 LP added to mentee's wallet successfully!", "success");
-    } catch (err) {
-      showToast(err.response?.data?.message || "Approval failed.", "error");
+    } catch (err: unknown) {
+      showToast(getApiErrorMessage(err, "Approval failed."), "error");
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleReject = async (reqId) => {
+  const handleReject = async (reqId: string | undefined) => {
+    if (!reqId) return;
     try {
       setActionLoading(reqId);
       await rejectLeapRequest(reqId);
@@ -72,8 +101,8 @@ const AdminWalletRequests = () => {
         prev.map((r) => (r._id === reqId ? { ...r, status: "rejected" } : r)),
       );
       showToast("Request rejected.", "error");
-    } catch (err) {
-      showToast(err.response?.data?.message || "Rejection failed.", "error");
+    } catch (err: unknown) {
+      showToast(getApiErrorMessage(err, "Rejection failed."), "error");
     } finally {
       setActionLoading(null);
     }
@@ -89,7 +118,7 @@ const AdminWalletRequests = () => {
     return matchTab && matchSearch;
   });
 
-  const counts = {
+  const counts: Record<string, number> = {
     pending: requests.filter((r) => r.status === "pending").length,
     approved: requests.filter((r) => r.status === "approved").length,
     rejected: requests.filter((r) => r.status === "rejected").length,
@@ -154,7 +183,10 @@ const AdminWalletRequests = () => {
                 onApprove={handleApprove}
                 onReject={handleReject}
                 actionLoading={actionLoading}
-                onViewHistory={setHistoryMentee}
+                onViewHistory={(mentee) => {
+                  const history = mentee as HistoryMentee | null | undefined;
+                  if (history) setHistoryMentee(history);
+                }}
               />
             ))}
           </tbody>

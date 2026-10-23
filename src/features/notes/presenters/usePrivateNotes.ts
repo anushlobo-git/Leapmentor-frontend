@@ -10,16 +10,25 @@ import {
   updatePrivateNote  as apiUpdate,
   deletePrivateNote  as apiDelete,
 } from "@features/notes/models/privateNotes.api";
+import type { PrivateNote } from "@features/notes/models/privateNotes.api";
+
+type PrivateNotesApiError = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
 /**
  * Custom hook for private notes.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const usePrivateNotes = (connectRequestId) => {
-  const [notes,   setNotes]   = useState([]);
+const usePrivateNotes = (connectRequestId: string | null | undefined) => {
+  const [notes,   setNotes]   = useState<PrivateNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
-  const [error,   setError]   = useState(null);
+  const [error,   setError]   = useState<string | null>(null);
 
   // ── Fetch all notes ───────────────────────────────────────
   const fetchNotes = useCallback(async () => {
@@ -29,8 +38,9 @@ const usePrivateNotes = (connectRequestId) => {
       setError(null);
       const data = await apiGetAll(connectRequestId);
       setNotes(data.notes || []);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load notes.");
+    } catch (err: unknown) {
+      const error = err as PrivateNotesApiError;
+      setError(error.response?.data?.message || "Failed to load notes.");
     } finally {
       setLoading(false);
     }
@@ -47,8 +57,9 @@ const usePrivateNotes = (connectRequestId) => {
       const data = await apiCreate(connectRequestId, title, content);
       setNotes((prev) => [data.note, ...prev]);
       return { success: true, note: data.note };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to create note.";
+    } catch (err: unknown) {
+      const error = err as PrivateNotesApiError;
+      const msg = error.response?.data?.message || "Failed to create note.";
       setError(msg);
       return { success: false, message: msg };
     } finally {
@@ -57,7 +68,7 @@ const usePrivateNotes = (connectRequestId) => {
   }, [connectRequestId]);
 
   // ── Update a note ─────────────────────────────────────────
-  const updateNote = useCallback(async (noteId, title, content) => {
+  const updateNote = useCallback(async (noteId: string, title: string, content: string) => {
     try {
       setSaving(true);
       setError(null);
@@ -66,8 +77,9 @@ const usePrivateNotes = (connectRequestId) => {
         prev.map((n) => (n._id === noteId ? data.note : n))
       );
       return { success: true, note: data.note };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to save note.";
+    } catch (err: unknown) {
+      const error = err as PrivateNotesApiError;
+      const msg = error.response?.data?.message || "Failed to save note.";
       setError(msg);
       return { success: false, message: msg };
     } finally {
@@ -76,14 +88,15 @@ const usePrivateNotes = (connectRequestId) => {
   }, []);
 
   // ── Delete a note ─────────────────────────────────────────
-  const deleteNote = useCallback(async (noteId) => {
+  const deleteNote = useCallback(async (noteId: string) => {
     try {
       setError(null);
       await apiDelete(noteId);
       setNotes((prev) => prev.filter((n) => n._id !== noteId));
       return { success: true };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to delete note.";
+    } catch (err: unknown) {
+      const error = err as PrivateNotesApiError;
+      const msg = error.response?.data?.message || "Failed to delete note.";
       setError(msg);
       return { success: false, message: msg };
     }

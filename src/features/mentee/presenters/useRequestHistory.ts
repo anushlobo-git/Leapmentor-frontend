@@ -14,6 +14,7 @@ import {
   selectMenteeRequestList,
 } from "@features/connects/models/connectRequestsSlice";
 import type { AppDispatch } from "@store/index";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
 /**
  * Custom hook for request history.
  * Requests come from connectRequestsSlice (shared with the mentee home tab);
@@ -50,8 +51,13 @@ const useRequestHistory = () => {
       try {
         await dispatch(deleteMenteeRequest(id)).unwrap();
         setSelected((prev) => (prev?._id === id ? null : prev));
-      } catch (err) {
-        logger.error("Delete error:", { error: err?.response?.data?.message || err.message });
+      } catch (err: unknown) {
+        logger.error("Delete error:", {
+          error: getApiErrorMessage(
+            err,
+            getErrorMessage(err) || "Failed to delete request.",
+          ),
+        });
       }
     },
     [dispatch],

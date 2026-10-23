@@ -18,8 +18,8 @@ export interface PrivateFileNote {
   _id: string;
   fileType?: string;
   title?: string;
-  fileName: string;
-  fileUrl: string;
+  fileName?: string;
+  fileUrl?: string;
   fileSize?: number;
   createdAt?: string;
 }
@@ -32,7 +32,7 @@ interface PrivateFileCardProps {
 // ── Private File Card ─────────────────────────────────────────
 const PrivateFileCard = ({ note, onDelete }: PrivateFileCardProps) => {
   const [deleting, setDeleting] = useState(false);
-  const cfg = FILE_TYPE_CONFIG[note.fileType] || FILE_TYPE_CONFIG.other;
+  const cfg = FILE_TYPE_CONFIG[note.fileType as keyof typeof FILE_TYPE_CONFIG] || FILE_TYPE_CONFIG.other;
 
   const handleDelete = async () => {
     if (!globalThis.confirm("Delete this file?")) return;

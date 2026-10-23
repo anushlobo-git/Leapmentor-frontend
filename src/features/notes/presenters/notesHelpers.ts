@@ -7,14 +7,14 @@
  */
 //used nowhere else so can delete later
 
-export const formatFileSize = (bytes) => {
+export const formatFileSize = (bytes: number | null | undefined) => {
   if (!bytes) return "—";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-export const formatDate = (dateStr) => {
+export const formatDate = (dateStr: string | null | undefined) => {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString("en-US", {
     month: "short",
@@ -23,8 +23,8 @@ export const formatDate = (dateStr) => {
   });
 };
 
-export const formatDateSeparator = (dateStr) => {
-  const date = new Date(dateStr);
+export const formatDateSeparator = (dateStr: string | null | undefined) => {
+  const date = new Date(dateStr ?? "");
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
@@ -38,12 +38,24 @@ export const formatDateSeparator = (dateStr) => {
   });
 };
 
-export const isSameDay = (a, b) =>
-  new Date(a).toDateString() === new Date(b).toDateString();
+export const isSameDay = (
+  a: string | null | undefined,
+  b: string | null | undefined,
+) => new Date(a ?? "").toDateString() === new Date(b ?? "").toDateString();
 
-export const getFileType = (fileName) => {
+export type FileType = "pdf" | "image" | "doc" | "ppt" | "excel" | "txt" | "other";
+
+export interface FileTypeConfig {
+  bg: string;
+  border: string;
+  text: string;
+  icon: string;
+  label: string;
+}
+
+export const getFileType = (fileName: string | null | undefined): FileType => {
   if (!fileName) return "other";
-  const ext = fileName.split(".").pop().toLowerCase();
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
   if (ext === "pdf") return "pdf";
   if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "image";
   if (["doc", "docx"].includes(ext)) return "doc";
@@ -69,7 +81,7 @@ export const ALLOWED_FILE_TYPES = [
   "text/plain",
 ];
 
-export const FILE_ICON_STYLES = {
+export const FILE_ICON_STYLES: Record<FileType, string> = {
   pdf: "bg-red-100 text-red-600",
   image: "bg-green-100 text-green-600",
   doc: "bg-blue-100 text-blue-600",
@@ -79,7 +91,7 @@ export const FILE_ICON_STYLES = {
   other: "bg-violet-100 text-violet-600",
 };
 
-export const FILE_ICON_LABELS = {
+export const FILE_ICON_LABELS: Record<FileType, string> = {
   pdf: "PDF",
   image: "IMG",
   doc: "DOC",
@@ -89,7 +101,7 @@ export const FILE_ICON_LABELS = {
   other: "FILE",
 };
 
-export const FILE_TYPE_CONFIG = {
+export const FILE_TYPE_CONFIG: Record<FileType, FileTypeConfig> = {
   pdf: {
     bg: "bg-red-100",
     border: "border-red-200",

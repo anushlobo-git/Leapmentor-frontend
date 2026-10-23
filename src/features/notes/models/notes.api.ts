@@ -5,6 +5,31 @@
 // ✅ replace entire file
 import axiosInstance from "@lib/http/axiosInstance";
 
+export interface FileNote {
+  _id: string;
+  title?: string;
+  fileName?: string;
+  fileType?: string;
+  fileSize?: number;
+  fileUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  uploadedBy?: string | { _id?: string; name?: string };
+}
+
+export interface FileNotesResponse {
+  notes?: FileNote[];
+}
+
+export interface FileNoteResponse {
+  note: FileNote;
+  success?: boolean;
+}
+
+export interface DeleteNoteResponse {
+  success?: boolean;
+}
+
 /**
  * Uploads a note or note attachment for a connect request.
  * @param {string} connectRequestId - Connect request identifier.
@@ -14,18 +39,18 @@ import axiosInstance from "@lib/http/axiosInstance";
  * @returns {Promise<any>} Backend response payload.
  */
 export const uploadNote = async (
-  connectRequestId,
-  file,
-  title = "",
-  isPrivate = false,
-) => {
+  connectRequestId: string,
+  file: File,
+  title: string = "",
+  isPrivate: boolean = false,
+): Promise<FileNoteResponse> => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("connectRequestId", connectRequestId);
   if (title?.trim()) formData.append("title", title.trim());
   if (isPrivate) formData.append("isPrivate", "true");
 
-  const res = await axiosInstance.post("/notes/upload", formData);
+  const res = await axiosInstance.post<FileNoteResponse>("/notes/upload", formData);
   return res.data;
 };
 
@@ -34,8 +59,8 @@ export const uploadNote = async (
  * @param {string} connectRequestId - Connect request identifier.
  * @returns {Promise<any>} Backend response payload.
  */
-export const getNotes = async (connectRequestId) => {
-  const res = await axiosInstance.get(`/notes/${connectRequestId}`);
+export const getNotes = async (connectRequestId: string): Promise<FileNotesResponse> => {
+  const res = await axiosInstance.get<FileNotesResponse>(`/notes/${connectRequestId}`);
   return res.data;
 };
 
@@ -44,8 +69,8 @@ export const getNotes = async (connectRequestId) => {
  * @param {string} connectRequestId - Connect request identifier.
  * @returns {Promise<any>} Backend response payload.
  */
-export const getPrivateNotes = async (connectRequestId) => {
-  const res = await axiosInstance.get(`/notes/${connectRequestId}/private`);
+export const getPrivateNotes = async (connectRequestId: string): Promise<FileNotesResponse> => {
+  const res = await axiosInstance.get<FileNotesResponse>(`/notes/${connectRequestId}/private`);
   return res.data;
 };
 
@@ -54,7 +79,7 @@ export const getPrivateNotes = async (connectRequestId) => {
  * @param {string} noteId - Note identifier.
  * @returns {Promise<any>} Backend response payload.
  */
-export const deleteNote = async (noteId) => {
-  const res = await axiosInstance.delete(`/notes/${noteId}`);
+export const deleteNote = async (noteId: string): Promise<DeleteNoteResponse> => {
+  const res = await axiosInstance.delete<DeleteNoteResponse>(`/notes/${noteId}`);
   return res.data;
 };

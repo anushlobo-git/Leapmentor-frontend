@@ -5,7 +5,7 @@
 // src/features/sessions/api/sessions.api.js
 import axiosInstance from "@lib/http/axiosInstance";
 
-export const getMentorAvailabilityForConnect = (connectRequestId, duration) =>
+export const getMentorAvailabilityForConnect = (connectRequestId: string, duration: number) =>
   axiosInstance.get(`/sessions/${connectRequestId}/mentor-availability?duration=${duration}`);
 
 // --- session slots ---

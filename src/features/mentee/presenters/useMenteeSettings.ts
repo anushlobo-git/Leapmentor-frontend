@@ -22,12 +22,20 @@ import {
   selectWalletEscrow,
 } from "@features/mentee/models/walletSlice";
 import type { AppDispatch } from "@store/index";
+import type { MenteeProfileApiRecord } from "@features/mentee/models/mentee.types";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 
 /**
  * Custom hook for mentee settings.
  * @returns {Object} Hook state and handlers for the caller.
  */
-const useMenteeSettings = (initialProfile) => {
+type InitialMenteeSettingsProfile = Partial<
+  Pick<MenteeProfileApiRecord, "emailNotifications" | "marketingPreferences">
+>;
+
+const useMenteeSettings = (
+  initialProfile?: InitialMenteeSettingsProfile | null,
+) => {
   const dispatch = useDispatch<AppDispatch>();
   const [fetching, setFetching] = useState(!initialProfile);
   const [saving, setSaving] = useState(false);
@@ -47,7 +55,7 @@ const useMenteeSettings = (initialProfile) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordChangedAt, setPasswordChangedAt] = useState(null);
+  const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
 
   // ── Pre-fill from profile ─────────────────────────────────
   useEffect(() => {
@@ -66,7 +74,7 @@ const useMenteeSettings = (initialProfile) => {
         const mapped = mapMenteeSettings(res.data);
         setEmailNotifications(mapped.emailNotifications);
         setMarketingPreferences(mapped.marketingPreferences);
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error("Error fetching mentee profile", { error: err });
         setMsg({ type: "error", text: "Failed to load settings." });
       } finally {
@@ -84,7 +92,7 @@ const useMenteeSettings = (initialProfile) => {
         const res = await getCurrentUser();
         const mapped = mapUserPasswordInfo(res.data);
         setPasswordChangedAt(mapped.passwordChangedAt);
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error("Error fetching user info", { error: err });
         // silent fail — not critical for UI stability
       }
@@ -108,7 +116,7 @@ const useMenteeSettings = (initialProfile) => {
       });
       setMsg({ type: "success", text: "Preferences saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error("Error saving preferences", { error: err });
       setMsg({ type: "error", text: "Failed to save preferences." });
     } finally {
@@ -148,7 +156,7 @@ const useMenteeSettings = (initialProfile) => {
     } catch (err) {
       setPwMsg({
         type: "error",
-        text: err?.response?.data?.message || "Failed to change password.",
+        text: getApiErrorMessage(err, "Failed to change password."),
       });
     } finally {
       setChangingPw(false);
@@ -156,7 +164,7 @@ const useMenteeSettings = (initialProfile) => {
   };
 
   // ── Format "last changed X ago" ───────────────────────────
-  const formatPasswordAge = (dateStr) => {
+  const formatPasswordAge = (dateStr: string | null | undefined) => {
     if (!dateStr) return "Never changed";
     const diff = Date.now() - new Date(dateStr).getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));

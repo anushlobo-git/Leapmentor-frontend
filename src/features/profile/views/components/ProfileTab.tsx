@@ -41,7 +41,7 @@ interface ProfileTabConfig {
   professionalFields: Array<{
     key: string;
     label: string;
-    format?: (raw: unknown) => ReactNode;
+    format?: (raw: number | null | undefined) => ReactNode;
   }>;
   tagSections: Array<{
     key: string;
@@ -398,7 +398,7 @@ const ProfessionalInfoCard = ({ profile, fields }: ProfessionalInfoCardProps) =>
     <div className="grid grid-cols-2 gap-4">
       {fields.map(({ key, label, format }) => {
         const raw = profile?.[key] as ReactNode;
-        const value = format ? format(raw) : raw;
+        const value = format ? format(raw as number | null | undefined) : raw;
         if (!value) return null; // hides optional fields like hourlyRate/rating cleanly
         return (
           <div key={key}>
@@ -551,7 +551,7 @@ const SocialCard = ({ profile }: SocialCardProps) => {
 // ── Page ─────────────────────────────────────────────────────────
 const ProfileTab = ({ config }: ProfileTabProps) => {
   const navigate = useNavigate();
-  const user = useSelector(selectDashboardUser);
+  const user = useSelector(selectDashboardUser) as ProfileUser | null;
   const profile = useSelector(selectDashboardProfile) as ProfileData | null;
   const goToEdit = () => navigate(config.editPath);
 

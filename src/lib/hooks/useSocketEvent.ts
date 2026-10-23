@@ -3,7 +3,8 @@
  */
 
 // src/lib/hooks/useSocketEvent.js
-import { useEffect } from "react";
+import { useEffect, type DependencyList } from "react";
+import type { Socket } from "socket.io-client";
 import logger from "@lib/monitoring/logger";
 
 const SOCKET_POLL_INTERVAL_MS = 200;
@@ -29,7 +30,19 @@ const SOCKET_POLL_INTERVAL_MS = 200;
  * @param {string} [logLabel] - label used in log messages, to keep
  *   per-feature log context when debugging.
  */
-const useSocketEvent = (setup, deps, logLabel = "Socket") => {
+type SocketEventHandler = (...args: never[]) => void;
+
+interface SocketSubscription {
+  events: Record<string, SocketEventHandler>;
+  onConnect?: (socket: Socket) => void;
+  onCleanup?: () => void;
+}
+
+const useSocketEvent = (
+  setup: () => SocketSubscription | null | undefined,
+  deps: DependencyList,
+  logLabel: string = "Socket",
+) => {
   useEffect(() => {
     const result = setup();
     if (!result?.events) return undefined;
@@ -45,7 +58,10 @@ const useSocketEvent = (setup, deps, logLabel = "Socket") => {
         });
         onConnect?.(globalThis.__leapSocket);
         eventNames.forEach((eventName) => {
-          globalThis.__leapSocket.on(eventName, events[eventName]);
+          globalThis.__leapSocket?.on(
+            eventName,
+            events[eventName] as unknown as (...args: unknown[]) => void,
+          );
         });
       }
     }, SOCKET_POLL_INTERVAL_MS);
@@ -53,7 +69,10 @@ const useSocketEvent = (setup, deps, logLabel = "Socket") => {
     return () => {
       clearInterval(waitForSocket);
       eventNames.forEach((eventName) => {
-        globalThis.__leapSocket?.off(eventName, events[eventName]);
+        globalThis.__leapSocket?.off(
+          eventName,
+          events[eventName] as unknown as (...args: unknown[]) => void,
+        );
       });
       onCleanup?.();
     };

@@ -104,7 +104,7 @@ const STATUS_CONFIG = {
 };
 
 const StatusBadge = ({ status }: { status?: ReportStatus }) => {
-  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.open;
+  const cfg = status ? STATUS_CONFIG[status] : STATUS_CONFIG.open;
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-700 uppercase tracking-wide"
       style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, fontWeight: 700, letterSpacing: "0.06em", fontFamily: FONT }}>
@@ -123,7 +123,7 @@ const CAT_CONFIG = {
 };
 
 const CategoryBadge = ({ category }: { category?: ReportCategory }) => {
-  const cfg = CAT_CONFIG[category] || CAT_CONFIG.other;
+  const cfg = category ? CAT_CONFIG[category] : CAT_CONFIG.other;
   return (
     <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-700 uppercase tracking-wide"
       style={{ background: cfg.bg, color: cfg.color, fontWeight: 700, letterSpacing: "0.06em", fontFamily: FONT }}>
@@ -296,7 +296,7 @@ const HandleModal = ({
                   </div>
                 ))}
               </div>
-              {report.totalAmount > 0 && (
+              {report.totalAmount != null && report.totalAmount > 0 && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e8eaf0" }}>
                   <p className="text-[9px] font-700 uppercase tracking-widest text-slate-400" style={{ fontWeight: 700 }}>Session Amount</p>
                   <p className="text-sm font-700 text-slate-800 mt-0.5" style={{ fontWeight: 700, fontFamily: MONO }}>

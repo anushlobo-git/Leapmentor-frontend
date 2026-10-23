@@ -3,11 +3,15 @@
  */
 
 import { useEffect, useRef } from "react";
-import { io } from "socket.io-client";
+import { io, type Socket } from "socket.io-client";
 import { useToast } from "@app/providers/ToastContext";
 import { useSelector } from "react-redux";
 import logger from "@lib/monitoring/logger";
 import type { RootState } from "@store/index";
+
+declare global {
+  var __leapSocket: Socket | null | undefined;
+}
 
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 /**
@@ -20,7 +24,7 @@ const useSocketToast = (onRequestChanged: ((data: unknown) => void) | undefined,
   const { showToast } = useToast();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken); // ✅ from Redux
 
-  const socketRef = useRef(null);
+  const socketRef = useRef<Socket | null>(null);
 
   const showToastRef = useRef(showToast);
   useEffect(() => {

@@ -18,6 +18,7 @@ import { SlotRow } from "@features/mentee/views/dashboard/history/RequestStatusV
 import MentorProfileModal from "@features/mentee/views/dashboard/findMentors/MentorProfileModal";
 import type { HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
 import logger from "@lib/monitoring/logger";
+import { getErrorMessage } from "@lib/http/getApiError";
 
 // ── Ongoing content ─────────────────────────────────────────
 export const OngoingContent = ({ request, onClose }: { request: HistoryRequest; onClose: () => void }) => {
@@ -47,7 +48,7 @@ export const OngoingContent = ({ request, onClose }: { request: HistoryRequest; 
     } catch (err) {
       logger.warn("Failed to download invoice", {
         requestId: request._id,
-        error: err?.message || err,
+        error: getErrorMessage(err) || err,
       });
       alert("Failed to download invoice. Please try again.");
     } finally {
@@ -201,10 +202,10 @@ export const ReferredContent = ({ request, onDelete }: { request: HistoryRequest
         company: referredToProfile?.company || "",
         industry: referredToProfile?.industry || "",
         bio: referredToProfile?.bio || "",
-        hourlyRate: referredToProfile?.hourlyRate || null,
+        hourlyRate: referredToProfile?.hourlyRate ?? undefined,
         avgRating: referredToProfile?.avgRating || 0,
-        yearsOfExperience: referredToProfile?.yearsOfExperience || null,
-        profilePicture: referredToProfile?.profilePicture || null,
+        yearsOfExperience: referredToProfile?.yearsOfExperience ?? undefined,
+        profilePicture: referredToProfile?.profilePicture ?? undefined,
         skills: referredToProfile?.skills || [],
       }
     : null;
@@ -319,5 +320,4 @@ export const ReferredContent = ({ request, onDelete }: { request: HistoryRequest
     </>
   );
 };
-
 

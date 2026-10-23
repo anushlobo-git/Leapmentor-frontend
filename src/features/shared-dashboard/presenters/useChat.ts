@@ -7,26 +7,50 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { getChatHistory } from "@features/shared-dashboard/models/shared-dashboard.api";
 import logger from "@lib/monitoring/logger";
 import useSocketEvent from "@lib/hooks/useSocketEvent";
+import type { Socket } from "socket.io-client";
 
 const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
+
+interface ChatMessage {
+  _id: string;
+  content?: string;
+  createdAt?: string | null;
+  readAt?: string | null;
+  sender?: { _id?: string } | string;
+  [key: string]: unknown;
+}
+
+interface ChatHistoryResponse {
+  messages: ChatMessage[];
+  hasMore: boolean;
+}
+
+type ChatApiError = {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
 /**
  * Custom hook for chat.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useChat = (connectRequestId) => {
-  const [messages, setMessages] = useState([]);
+const useChat = (connectRequestId: string | null | undefined) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [otherOnline, setOtherOnline] = useState(false);
   const [page, setPage] = useState(1);
 
-  const socketRef = useRef(null);
-  const typingTimerRef = useRef(null);
+  const socketRef = useRef<Socket | null>(null);
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTypingRef = useRef(false);
 
   const connectRequestIdRef = useRef(connectRequestId);
@@ -34,23 +58,28 @@ const useChat = (connectRequestId) => {
     connectRequestIdRef.current = connectRequestId;
   }, [connectRequestId]);
 
-  const mergeMessage = (messagesList, incomingMessage) => {
+  const mergeMessage = (messagesList: ChatMessage[], incomingMessage: ChatMessage) => {
     if (messagesList.some((message) => message._id === incomingMessage._id)) {
       return messagesList;
     }
     return [...messagesList, incomingMessage];
   };
 
-  const markMessagesAsRead = (messagesList, readAt) =>
-    messagesList.map((message) =>
+  const markMessagesAsRead = (
+    messagesList: ChatMessage[],
+    readAt: string | null | undefined,
+  ) => messagesList.map((message: ChatMessage) =>
       message.readAt ? message : { ...message, readAt },
     );
 
   // ── Fetch message history (REST) ──────────────────────────
-  const fetchHistory = useCallback(async (roomId, pageNum = 1) => {
+  const fetchHistory = useCallback(async (
+    roomId: string,
+    pageNum: number = 1,
+  ): Promise<ChatHistoryResponse> => {
     logger.info("Loading chat history", { roomId, page: pageNum });
     const res = await getChatHistory(roomId, pageNum, PAGE_LIMIT);
-    return res.data;
+    return res.data as ChatHistoryResponse;
   }, []); // ✅ stable — no dependencies
 
   // ── Initial history load ──────────────────────────────────
@@ -68,13 +97,14 @@ const useChat = (connectRequestId) => {
         setMessages(data.messages);
         setHasMore(data.hasMore);
         setPage(1);
-      } catch (err) {
+      } catch (err: unknown) {
+        const error = err as ChatApiError | null | undefined;
         logger.warn("Failed to load chat messages", {
           roomId: connectRequestId,
-          error: err?.message,
+          error: error?.message,
         });
         if (!cancelled)
-          setError(err?.response?.data?.message || "Failed to load messages");
+          setError(error?.response?.data?.message || "Failed to load messages");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -92,7 +122,7 @@ const useChat = (connectRequestId) => {
     () => {
       if (!connectRequestId) return null;
 
-      const handleNewMessage = (message) => {
+      const handleNewMessage = (message: ChatMessage) => {
         logger.info("New chat message received", {
           roomId: connectRequestId,
           messageId: message._id,
@@ -104,16 +134,17 @@ const useChat = (connectRequestId) => {
       const handleTypingStop = () => setIsTyping(false);
       const handleUserOnline = () => setOtherOnline(true);
       const handleUserOffline = () => setOtherOnline(false);
-      const handleMessagesRead = ({ readAt }) => {
+      const handleMessagesRead = ({ readAt }: { readAt?: string | null }) => {
         setMessages((prev) => markMessagesAsRead(prev, readAt));
       };
-      const handleError = (error) => {
+      const handleError = (error: unknown) => {
+        const socketError = error as ChatApiError | null | undefined;
         logger.warn("Chat socket error", { roomId: connectRequestId, error });
-        setError(error?.message || error?.toString?.() || "Socket error");
+        setError(socketError?.message || socketError?.toString?.() || "Socket error");
       };
 
       return {
-        onConnect: (socket) => {
+        onConnect: (socket: Socket) => {
           socketRef.current = socket;
           logger.info("Chat socket connected, joining room", {
             roomId: connectRequestId,
@@ -130,7 +161,10 @@ const useChat = (connectRequestId) => {
           error: handleError,
         },
         onCleanup: () => {
-          clearTimeout(typingTimerRef.current);
+          if (typingTimerRef.current !== null) {
+            clearTimeout(typingTimerRef.current);
+            typingTimerRef.current = null;
+          }
           socketRef.current = null;
         },
       };
@@ -148,6 +182,7 @@ const useChat = (connectRequestId) => {
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     const roomId = connectRequestIdRef.current;
+    if (!roomId) return;
     try {
       setLoadingMore(true);
       const nextPage = page + 1;
@@ -155,15 +190,16 @@ const useChat = (connectRequestId) => {
       setMessages((prev) => [...data.messages, ...prev]);
       setHasMore(data.hasMore);
       setPage(nextPage);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load older messages");
+    } catch (err: unknown) {
+      const error = err as ChatApiError;
+      setError(error.response?.data?.message || "Failed to load older messages");
     } finally {
       setLoadingMore(false);
     }
   }, [loadingMore, hasMore, page, fetchHistory]);
 
   // ── Send message ──────────────────────────────────────────
-  const sendMessage = useCallback((content) => {
+  const sendMessage = useCallback((content: string) => {
     if (!content?.trim() || !socketRef.current) return;
     socketRef.current.emit("send_message", {
       connectRequestId: connectRequestIdRef.current,
@@ -174,7 +210,10 @@ const useChat = (connectRequestId) => {
         connectRequestId: connectRequestIdRef.current,
       });
       isTypingRef.current = false;
-      clearTimeout(typingTimerRef.current);
+      if (typingTimerRef.current !== null) {
+        clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
     }
   }, []);
 
@@ -188,7 +227,9 @@ const useChat = (connectRequestId) => {
       socketRef.current.emit("typing_start", { connectRequestId: roomId });
     }
 
-    clearTimeout(typingTimerRef.current);
+    if (typingTimerRef.current !== null) {
+      clearTimeout(typingTimerRef.current);
+    }
     typingTimerRef.current = setTimeout(() => {
       if (isTypingRef.current) {
         isTypingRef.current = false;

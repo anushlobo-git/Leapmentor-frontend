@@ -128,6 +128,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: DetailDrawerProp
   const [imgError, setImgError] = useState(false);
   if (!mentor) return null;
   const { user, mentorProfile } = mentor;
+  const skills = mentorProfile?.skills ?? [];
   const isVerified = mentorProfile?.verificationStatus === "verified";
   const verifyButtonStyle = {
     background: verifying
@@ -307,7 +308,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: DetailDrawerProp
           )}
 
           {/* Skills — keyed by skill name (content), not array index */}
-          {mentorProfile?.skills?.length > 0 && (
+          {skills.length > 0 && (
             <section>
               <div
                 className="flex items-center gap-2 px-3 py-2 rounded-xl mb-3"
@@ -321,7 +322,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: DetailDrawerProp
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 px-1">
-                {mentorProfile.skills.map((s) => (
+                {skills.map((s) => (
                   <Pill key={s} label={s} />
                 ))}
               </div>
@@ -382,7 +383,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: DetailDrawerProp
           ) : (
             <button
               type="button"
-              onClick={() => onVerify(mentorProfile._id)}
+              onClick={() => onVerify(mentorProfile?._id)}
               disabled={verifying}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all duration-150 disabled:opacity-60"
               style={verifyButtonStyle}

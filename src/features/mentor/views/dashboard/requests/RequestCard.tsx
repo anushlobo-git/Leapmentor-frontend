@@ -289,10 +289,10 @@ const RequestCard = ({ request, onViewProfile }: { request: RequestCardRequest; 
         company: request.referredByProfile?.company || "",
         industry: request.referredByProfile?.industry || "",
         bio: request.referredByProfile?.bio || "",
-        hourlyRate: request.referredByProfile?.hourlyRate || null,
+        hourlyRate: request.referredByProfile?.hourlyRate || undefined,
         avgRating: request.referredByProfile?.avgRating || 0,
-        yearsOfExperience: request.referredByProfile?.yearsOfExperience || null,
-        profilePicture: request.referredByProfile?.profilePicture || null,
+        yearsOfExperience: request.referredByProfile?.yearsOfExperience || undefined,
+        profilePicture: request.referredByProfile?.profilePicture || undefined,
         skills: request.referredByProfile?.skills || [],
       }
     : null;

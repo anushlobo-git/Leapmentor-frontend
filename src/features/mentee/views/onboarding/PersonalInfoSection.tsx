@@ -16,7 +16,7 @@ interface PersonalInfoSectionProps {
 const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadErr, setUploadErr] = useState("");
+  const [uploadErr, setUploadErr] = useState<string | undefined>("");
   const [progress, setProgress] = useState(0);
   const [imgError, setImgError] = useState(false);
 
@@ -54,9 +54,12 @@ const PersonalInfoSection = ({ form, handleChange }: PersonalInfoSectionProps) =
           value: res.data.fileName,
         },
       });
-    } catch (err) {
+    } catch (err: unknown) {
+      const uploadError = err as {
+        response?: { data?: { message?: string } };
+      };
       setUploadErr(
-        err?.response?.data?.message ||
+        uploadError.response?.data?.message ||
           "Failed to upload image. Please try again.",
       );
     } finally {

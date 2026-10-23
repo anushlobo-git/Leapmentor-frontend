@@ -12,11 +12,32 @@ import type { AppDispatch } from "@store/index";
 import { useFormDirty } from "@lib/hooks/useFormDirty";
 import logger from "@lib/monitoring/logger";
 import { selectIsAuthenticated } from "@features/auth/models/authSlice";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+import type { FormChangeEvent } from "@features/mentor/presenters/useOnboardingFormShellPresenter";
 
 /**
  * Custom hook for mentor edit profile.
  * @returns {Object} Hook state and handlers for the caller.
  */
+
+interface MentorEditProfileForm {
+  profilePicture: string;
+  bio: string;
+  currentRole: string;
+  industry: string;
+  company: string;
+  yearsOfExperience: string | number;
+  hourlyRate: string | number;
+  skills: string[];
+  communicationPreferences: string[];
+  languages: string | string[];
+  linkedInUrl: string;
+  portfolioUrl: string;
+}
+
+interface MentorSubmitEvent {
+  preventDefault: () => void;
+}
 
 const useMentorEditProfile = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -27,7 +48,7 @@ const useMentorEditProfile = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [saved, setSaved] = useState(false);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<MentorEditProfileForm>({
     profilePicture: "",
     bio: "",
     currentRole: "",
@@ -65,10 +86,10 @@ const useMentorEditProfile = () => {
           linkedInUrl: data.linkedInUrl || "",
           portfolioUrl: data.portfolioUrl || "",
         });
-      } catch (err) {
-         logger.error("Failed to load mentor profile data", {
-           error: err?.message,
-         });
+      } catch (err: unknown) {
+        logger.error("Failed to load mentor profile data", {
+          error: getErrorMessage(err),
+        });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
         setFetchLoading(false);
@@ -78,21 +99,21 @@ const useMentorEditProfile = () => {
   }, []);
 
   // ✅ Same universal onChange as OnboardingFormShell
-  const handleChange = (e) => {
+  const handleChange = (e: FormChangeEvent) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   // ✅ Same payload shape as OnboardingFormShell but calls PUT
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: MentorSubmitEvent) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
+    const isOnlyNumbers = (val: string) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({ type: "error", text: "Current Role cannot be a number." });
     if (isOnlyNumbers(form.company))
       return setMsg({ type: "error", text: "Company name cannot be a number." });
-    const isValidUrl = (val) => {
+    const isValidUrl = (val: string) => {
       if (!val) return true;
       try { new URL(val); return true; }
       catch { return false; }
@@ -127,8 +148,11 @@ const useMentorEditProfile = () => {
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);
-    } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Something went wrong.";
+    } catch (err: unknown) {
+      const apiMsg = getApiErrorMessage(
+        err,
+        getErrorMessage(err) ?? "Something went wrong.",
+      );
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);

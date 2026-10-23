@@ -74,7 +74,7 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }: UploadModa
     if (!file) return;
     const validation = validateDocumentFile(file);
     if (!validation.valid) {
-      setFileError(validation.error);
+      setFileError(validation.error || "Invalid document file.");
       return;
     }
     setSelectedFile(file);
@@ -339,7 +339,7 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }: NoteCardProps
     ? undefined
     : note.uploadedBy?.name;
   const isOwn = uploaderId === myId;
-  const cfg = FILE_TYPE_CONFIG[note.fileType] || FILE_TYPE_CONFIG.other;
+  const cfg = FILE_TYPE_CONFIG[note.fileType as keyof typeof FILE_TYPE_CONFIG] || FILE_TYPE_CONFIG.other;
 
   const handleDelete = async () => {
     if (!globalThis.confirm("Delete this file?")) return;
@@ -448,8 +448,8 @@ const SharedFilesSection = ({ myId }: { myId?: string }) => {
   const { notes, loading, uploading, error, uploadNote, deleteNote } =
     useNotes(connectId) as NotesState;
 
-  const handleUpload = async (file, title) => uploadNote(file, title, false);
-  const handleDelete = async (noteId) => deleteNote(noteId, false);
+  const handleUpload = async (file: File, title: string) => uploadNote(file, title, false);
+  const handleDelete = async (noteId: string) => deleteNote(noteId, false);
 
   const groupedItems = groupNotesByDay(notes) as Array<
     | { type: "separator"; key: string; dateStr?: string }

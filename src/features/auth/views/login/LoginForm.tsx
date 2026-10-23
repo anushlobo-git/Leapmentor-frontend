@@ -4,6 +4,7 @@
 
 // View for LoginForm — pure JSX. All state/logic lives in
 // presenters/useLoginPresenter.ts.
+import type { RefObject } from "react";
 import { useLoginPresenter } from "@features/auth/presenters/useLoginPresenter";
 import AuthSSOButtons from "@features/auth/views/shared/AuthSSOButtons";
 import { AuthBrand } from "@features/auth/views/shared/AuthUI";
@@ -180,7 +181,7 @@ const LoginForm = ({ placeholder, registerPath, role }: LoginFormProps) => {
       </div>
 
       <AuthSSOButtons
-        googleBtnRef={googleBtnRef}
+         googleBtnRef={googleBtnRef as RefObject<HTMLDivElement>}
         loading={loading}
         onLinkedIn={handleLinkedIn}
       />

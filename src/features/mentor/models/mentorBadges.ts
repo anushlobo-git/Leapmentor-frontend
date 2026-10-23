@@ -4,7 +4,20 @@
 
 // Shared achievement badge definitions, used by MentorHomeTab and
 // MentorProfileModal (mentee-facing mentor profile view).
-export const MENTOR_BADGES = [
+interface MentorBadgeProfile {
+  totalSessions?: number;
+  avgRating?: number | string;
+}
+
+interface MentorBadge {
+  key: string;
+  label: string;
+  icon: string;
+  desc: string;
+  condition: (profile?: MentorBadgeProfile | null) => boolean;
+}
+
+export const MENTOR_BADGES: MentorBadge[] = [
   {
     key: "newcomer",
     label: "Newcomer",
@@ -24,7 +37,7 @@ export const MENTOR_BADGES = [
     label: "Top Rated",
     icon: "⭐",
     desc: "Achieved 4.5+ rating",
-    condition: (p) => (p?.avgRating || 0) >= 4.5,
+    condition: (p) => ((p?.avgRating || 0) as number) >= 4.5,
   },
   {
     key: "expert_guide",

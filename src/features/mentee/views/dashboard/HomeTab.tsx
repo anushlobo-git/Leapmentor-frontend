@@ -42,10 +42,10 @@ const HomeTab = () => {
   // Extracted so the mentors grid only needs a single (non-nested) ternary.
   const mentorsContent =
     mentors.length > 0 ? (
-      mentors.map((mentor: FindMentorsMentor) => (
-        <HomeMentorCard
-          key={mentor._id || mentor.user?._id}
-          mentor={mentor}
+       mentors.map((mentor) => (
+         <HomeMentorCard
+           key={mentor._id || mentor.user?._id}
+           mentor={mentor as unknown as FindMentorsMentor}
           onViewProfile={setSelectedMentor}
         />
       ))

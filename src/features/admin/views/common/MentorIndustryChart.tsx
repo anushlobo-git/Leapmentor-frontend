@@ -127,7 +127,7 @@ const CustomXTick = ({ x = 0, y = 0, payload }: CustomXTickProps) => {
 
 // ── FIX FOR SONARQUBE: Standalone Custom Bar Component definition ──
 const CustomBarShape = (props: Partial<BarShapeProps>) => {
-  const { index } = props;
+  const index = props.index ?? 0;
   return (
     <Rectangle
       {...props}

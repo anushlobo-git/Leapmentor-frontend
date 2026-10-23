@@ -11,10 +11,22 @@ import { refetchMenteeProfile } from "@features/profile/models/dashboardUserSlic
 import type { AppDispatch } from "@store/index";
 import { useFormDirty } from "@lib/hooks/useFormDirty";
 import logger from "@lib/monitoring/logger";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+import type { MenteeOnboardingForm } from "@features/mentee/models/mentee.types";
 /**
  * Custom hook for mentee edit profile.
  * @returns {Object} Hook state and handlers for the caller.
  */
+
+type MenteeEditProfileForm = Omit<MenteeOnboardingForm, "profilePictureFileName">;
+
+interface MenteeFormChangeEvent {
+  target: { name: string; value: string | string[] };
+}
+
+interface MenteeSubmitEvent {
+  preventDefault: () => void;
+}
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();
@@ -24,7 +36,7 @@ const useMenteeEditProfile = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [saved, setSaved] = useState(false);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<MenteeEditProfileForm>({
     currentRole: "", industry: "", company: "",
     yearsOfExperience: "", bio: "", profilePicture: "",
     linkedInUrl: "", portfolioUrl: "",
@@ -52,9 +64,9 @@ const useMenteeEditProfile = () => {
           communicationPreferences: data.communicationPreferences || [],
           languages: data.languages || [],
         });
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error("Failed to load mentee profile data", {
-          error: err?.message,
+          error: getErrorMessage(err),
         });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
@@ -64,12 +76,12 @@ const useMenteeEditProfile = () => {
     fetchProfile();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e: MenteeFormChangeEvent) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: MenteeSubmitEvent) => {
     e.preventDefault();
     setLoading(true);
     setMsg({ type: "", text: "" });
@@ -86,13 +98,13 @@ const useMenteeEditProfile = () => {
     if (!form.skills.length)
       return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
 
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
+    const isOnlyNumbers = (val: string) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({ type: "error", text: "Current Role cannot be a number." });
     if (isOnlyNumbers(form.company))
       return setMsg({ type: "error", text: "Company name cannot be a number." });
 
-    const isValidUrl = (val) => {
+    const isValidUrl = (val: string) => {
       if (!val) return true;
       try { new URL(val); return true; }
       catch { return false; }
@@ -113,10 +125,10 @@ const useMenteeEditProfile = () => {
       dispatch(refetchMenteeProfile());
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
-    } catch (err) {
+    } catch (err: unknown) {
       setMsg({
         type: "error",
-        text: err?.response?.data?.message || "Update failed.",
+        text: getApiErrorMessage(err, "Update failed."),
       });
     } finally {
       setLoading(false);

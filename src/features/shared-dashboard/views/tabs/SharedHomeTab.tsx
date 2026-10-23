@@ -36,7 +36,7 @@ const GRADIENTS = [
 ];
 
 const getGradient = (name = "") =>
-  GRADIENTS[name.codePointAt(0) % GRADIENTS.length];
+  GRADIENTS[(name.codePointAt(0) ?? 0) % GRADIENTS.length];
 
 const formatSlot = formatFullSlot;
 

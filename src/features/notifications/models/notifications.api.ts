@@ -12,10 +12,11 @@ export const markAllNotificationsRead = () =>
 
 export const clearAllNotifications = () => axiosInstance.delete(`/notifications/clear-all`);
 
-export const markNotificationRead = (id) =>
+export const markNotificationRead = (id: string | number | null) =>
   axiosInstance.patch(`/notifications/${id}/read`, {});
 
-export const deleteNotification = (id) => axiosInstance.delete(`/notifications/${id}`);
+export const deleteNotification = (id: string | number | null) =>
+  axiosInstance.delete(`/notifications/${id}`);
 
 export const subscribeToPush = (subscription: PushSubscription) =>
   axiosInstance.post(`/push/subscribe`, { subscription });

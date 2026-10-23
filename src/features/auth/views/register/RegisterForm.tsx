@@ -5,6 +5,7 @@
 // View for RegisterForm — pure JSX. All state/logic lives in
 // presenters/useRegisterPresenter.ts.
 import type React from "react";
+import type { RefObject } from "react";
 import { useRegisterPresenter } from "@features/auth/presenters/useRegisterPresenter";
 import FullScreenLoader from "@components/shared/FullScreenLoader";
 import AuthSSOButtons from "@features/auth/views/shared/AuthSSOButtons";
@@ -300,7 +301,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
 
       <div className="relative">
         <AuthSSOButtons
-          googleBtnRef={googleBtnRef}
+           googleBtnRef={googleBtnRef as RefObject<HTMLDivElement>}
           loading={loading}
           disabled={!termsAccepted}
           onLinkedIn={handleLinkedIn}

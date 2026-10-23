@@ -35,7 +35,7 @@ const StarRating = ({ rating, reviewCount }: { rating?: number | string; reviewC
           {r > 0 ? r.toFixed(1) : "New"}
         </span>
       </div>
-      {reviewCount > 0 && (
+      {reviewCount != null && reviewCount > 0 && (
         <p className="text-xs text-slate-400">({reviewCount} reviews)</p>
       )}
     </div>

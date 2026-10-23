@@ -31,10 +31,14 @@ const LeapPointsPanel = ({ balance, loading }: LeapPointsPanelProps) => {
         if (res.data?.status === "pending") {
           setRequestStatus("pending");
         }
-      } catch (err) {
+      } catch (err: unknown) {
+        const error = err as {
+          message?: string;
+          response?: { data?: unknown; status?: number };
+        };
         // With your new backend logic, this will rarely trigger unless the server is down
         logger.warn("Leap request check failed:", {
-          error: err.response?.data || err.message,
+          error: error.response?.data || error.message,
         });
       } finally {
         setChecking(false);
@@ -48,16 +52,20 @@ const LeapPointsPanel = ({ balance, loading }: LeapPointsPanelProps) => {
       setRequestStatus("sending");
       await createLeapRequest("balance_refill");
       setRequestStatus("sent");
-    } catch (err) {
-      const msg = err.response?.data?.message || "";
+    } catch (err: unknown) {
+      const error = err as {
+        message?: string;
+        response?: { data?: { message?: string }; status?: number };
+      };
+      const msg = error.response?.data?.message || "";
       if (
         msg.toLowerCase().includes("pending") ||
-        err.response?.status === HTTP_STATUS.CONFLICT
+        error.response?.status === HTTP_STATUS.CONFLICT
       ) {
         setRequestStatus("pending");
       } else {
         logger.error("Leap request error", {
-          error: err.response?.data || err.message,
+          error: error.response?.data || error.message,
         });
         setRequestStatus("error");
         setTimeout(() => setRequestStatus(null), 3000);

@@ -19,14 +19,18 @@ import logger from "@lib/monitoring/logger";
 import { formatDateSeparator, isSameDay } from "@lib/formatters/dateTime";
 
 export interface NoteFile {
-  _id?: string;
+  _id: string;
   createdAt?: string;
   fileUrl?: string;
   fileName?: string;
 }
 
-export const groupNotesByDay = (notes: NoteFile[]) => {
-  const groupedItems = [];
+type GroupedNoteItem =
+  | { type: "separator"; dateStr?: string; key: string }
+  | { type: "note"; note: NoteFile; key: string };
+
+export const groupNotesByDay = (notes: NoteFile[]): GroupedNoteItem[] => {
+  const groupedItems: GroupedNoteItem[] = [];
   notes.forEach((note, index) => {
     const prev = notes[index - 1];
     if (!prev || !isSameDay(prev.createdAt, note.createdAt)) {
@@ -50,7 +54,7 @@ export const downloadNoteFile = async (note: NoteFile, label: string) => {
     fileUrl: note.fileUrl,
   });
   try {
-    const response = await fetch(note.fileUrl);
+    const response = await fetch(note.fileUrl!);
     const blob = await response.blob();
     const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -60,17 +64,18 @@ export const downloadNoteFile = async (note: NoteFile, label: string) => {
     a.click();
     a.remove();
     globalThis.URL.revokeObjectURL(url);
-  } catch (err) {
+    } catch (err: unknown) {
+      const error = err as { message?: string };
     const capitalized = label.charAt(0).toUpperCase() + label.slice(1);
     logger.warn(
       `${capitalized} download failed, falling back to browser open`,
       {
         fileId: note._id,
         fileUrl: note.fileUrl,
-        error: err?.message,
+        error: error.message,
       },
     );
-    globalThis.open(note.fileUrl, "_blank");
+    globalThis.open(note.fileUrl!, "_blank");
   }
 };
 

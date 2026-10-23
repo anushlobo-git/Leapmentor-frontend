@@ -11,6 +11,12 @@ import VerificationInstructionsModal from "@features/mentor/views/verification/V
 import { IMAGES } from "@constants/images";
 import { useVerificationFormShellPresenter } from "@features/mentor/presenters/useVerificationFormShellPresenter";
 
+type PhoneFieldChange = {
+  target: { name: string; value: string };
+};
+
+type WorkExperienceFieldFile = File | { name: string; size: number };
+
 const VerificationFormShell = () => {
   const {
     phoneNumber,
@@ -28,6 +34,17 @@ const VerificationFormShell = () => {
     closeModal,
     handleSubmit,
   } = useVerificationFormShellPresenter();
+
+  const handlePhoneFieldChange = (event: PhoneFieldChange) => {
+    handlePhoneChange(event as unknown as Parameters<typeof handlePhoneChange>[0]);
+  };
+
+  const handleWorkExperienceFieldChange = (
+    files: WorkExperienceFieldFile[],
+    error: string | null,
+  ) => {
+    handleWorkExpChange(files as File[], error);
+  };
 
   return (
     <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -82,7 +99,7 @@ const VerificationFormShell = () => {
 
           <PhoneNumberField
             value={phoneNumber}
-            onChange={handlePhoneChange}
+            onChange={handlePhoneFieldChange}
             error={errors.phoneNumber}
           />
 
@@ -94,7 +111,7 @@ const VerificationFormShell = () => {
 
           <WorkExperienceUpload
             files={workExperienceFiles}
-            onChange={handleWorkExpChange}
+            onChange={handleWorkExperienceFieldChange}
             error={errors.workExperienceFiles}
           />
 

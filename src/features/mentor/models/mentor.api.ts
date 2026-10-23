@@ -4,24 +4,34 @@
 
 // src/features/mentor/api/mentor.api.js
 import axiosInstance from "@lib/http/axiosInstance";
+import type { AxiosProgressEvent } from "axios";
+
+type UploadProgressHandler = (event: AxiosProgressEvent) => void;
+type QueryParams = Record<string, unknown>;
 
 // --- onboarding / verification uploads ---
-export const uploadVerificationDocuments = (formData, onUploadProgress) =>
+export const uploadVerificationDocuments = (
+  formData: FormData,
+  onUploadProgress?: UploadProgressHandler,
+) =>
   axiosInstance.post(`/upload/verification-documents`, formData, { onUploadProgress });
 
-export const uploadMentorProfilePicture = (formData, onUploadProgress) =>
+export const uploadMentorProfilePicture = (
+  formData: FormData,
+  onUploadProgress?: UploadProgressHandler,
+) =>
   axiosInstance.post(`/upload/profile-picture`, formData, { onUploadProgress });
 
 // --- requests ---
 export const getIncomingRequests = () => axiosInstance.get(`/connect-requests/incoming`);
 
-export const respondToRequest = (requestId, body) =>
+export const respondToRequest = (requestId: string, body: unknown) =>
   axiosInstance.patch(`/connect-requests/${requestId}`, body);
 
-export const getSimilarMentors = (requestId) =>
+export const getSimilarMentors = (requestId: string) =>
   axiosInstance.get(`/connect-requests/${requestId}/similar-mentors`);
 
-export const referRequest = (requestId, referToMentorId) =>
+export const referRequest = (requestId: string, referToMentorId: string | undefined) =>
   axiosInstance.patch(`/connect-requests/${requestId}/refer`, { referToMentorId });
 
 // --- earnings ---
@@ -63,8 +73,8 @@ export const getGoogleCalendarAuthUrl = () => axiosInstance.get("/google-calenda
 
 export const disconnectGoogleCalendar = () => axiosInstance.post("/google-calendar/disconnect");
 
-export const getGoogleCalendarBusySlots = (params) =>
+export const getGoogleCalendarBusySlots = (params: QueryParams) =>
   axiosInstance.get("/google-calendar/busy", { params });
 
-export const getGoogleCalendarEvents = (params) =>
+export const getGoogleCalendarEvents = (params: QueryParams) =>
   axiosInstance.get("/google-calendar/events", { params });

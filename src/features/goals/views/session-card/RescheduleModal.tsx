@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { getMentorAvailabilityForConnect } from "@features/sessions/models/sessions.api";
 import { formatTime, isActive } from "@features/goals/presenters/sessionCardUtils";
 import type { SessionSlot } from "@features/goals/presenters/sessionCardUtils";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 import AvailabilityBody from "./AvailabilityBody";
 import type { AvailabilityGroup, SelectedSlot } from "./AvailabilityBody";
 
@@ -38,8 +39,8 @@ const RescheduleModal = ({ slotIndex, connectRequestId, existingSlots, onConfirm
       const res = await getMentorAvailabilityForConnect(connectRequestId, dur);
       setAvailability(res.data.slots || []);
       if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);
-    } catch (err) {
-      setAvailError(err?.response?.data?.message || "Failed to load availability.");
+    } catch (err: unknown) {
+      setAvailError(getApiErrorMessage(err, "Failed to load availability."));
     } finally {
       setAvailLoading(false);
     }
@@ -117,10 +118,10 @@ const RescheduleModal = ({ slotIndex, connectRequestId, existingSlots, onConfirm
           <div>
             <AvailabilityBody
               availLoading={availLoading}
-              availError={availError}
+              availError={availError ?? undefined}
               availability={availability}
               duration={duration}
-              selectedSlot={selectedNewSlot}
+              selectedSlot={selectedNewSlot ?? undefined}
               onSelect={setSelectedNewSlot}
               bookedSlots={bookedSlots}
             />

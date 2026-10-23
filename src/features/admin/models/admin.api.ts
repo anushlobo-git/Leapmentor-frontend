@@ -14,8 +14,21 @@ import axiosInstance from "@lib/http/axiosInstance";
 // with public/user operations (for example /support/messages).
 const adminConfig = { authDomain: "admin" as const };
 
+type AdminId = string | number;
+type AdminQueryParams = object;
+
+interface UpdateReportPayload {
+  status: string;
+  adminNote?: string;
+}
+
+interface AddAdminPayload {
+  name: string;
+  email: string;
+}
+
 // --- auth ---
-export const adminLogin = (email, password) =>
+export const adminLogin = (email: string, password: string) =>
   axiosInstance.post(`/admin/auth/login`, { email, password }, adminConfig);
 
 export const adminLogout = () => axiosInstance.post("/admin/auth/logout", null, adminConfig);
@@ -27,28 +40,29 @@ export const getPendingLeapRequestsCount = () =>
 // --- support messages ---
 export const getSupportMessages = () => axiosInstance.get(`/support/messages`, adminConfig);
 
-export const resolveSupportMessage = (id) =>
+export const resolveSupportMessage = (id: AdminId) =>
   axiosInstance.patch(`/support/messages/${id}/resolve`, null, adminConfig);
 
 // --- mentor verifications ---
 export const getMentorVerifications = () =>
   axiosInstance.get("/admin/mentor-verifications", adminConfig);
 
-export const verifyMentorProfile = (mentorProfileId) =>
+export const verifyMentorProfile = (mentorProfileId: AdminId) =>
   axiosInstance.patch(`/admin/mentor-verifications/${mentorProfileId}/verify`, null, adminConfig);
 
 // --- reports ---
 export const getReportStats = () => axiosInstance.get(`/admin/reports/stats`, adminConfig);
 
-export const getReports = (params) => axiosInstance.get(`/admin/reports`, { ...adminConfig, params });
+export const getReports = (params: AdminQueryParams) =>
+  axiosInstance.get(`/admin/reports`, { ...adminConfig, params });
 
-export const updateReport = (reportId, { status, adminNote }) =>
+export const updateReport = (reportId: AdminId, { status, adminNote }: UpdateReportPayload) =>
   axiosInstance.patch(`/admin/reports/${reportId}`, { status, adminNote }, adminConfig);
 
-export const refundReport = (reportId, adminNote) =>
+export const refundReport = (reportId: AdminId, adminNote: string) =>
   axiosInstance.post(`/admin/reports/${reportId}/refund`, { adminNote }, adminConfig);
 
-export const deleteReportSession = (reportId, adminNote) =>
+export const deleteReportSession = (reportId: AdminId, adminNote: string) =>
   axiosInstance.delete(`/admin/reports/${reportId}/session`, { ...adminConfig, data: { adminNote } });
 
 // --- payments ---
@@ -56,22 +70,22 @@ export const getPaymentStats = () => axiosInstance.get(`/admin/payments/stats`, 
 
 export const getPaymentChart = () => axiosInstance.get(`/admin/payments/chart`, adminConfig);
 
-export const getPaymentTransactions = (params) =>
+export const getPaymentTransactions = (params: AdminQueryParams) =>
   axiosInstance.get(`/admin/payments/transactions`, { ...adminConfig, params });
 
 // --- engagements ---
 export const getEngagementStats = () => axiosInstance.get(`/admin/engagements/stats`, adminConfig);
 
-export const getEngagements = (params) =>
+export const getEngagements = (params: AdminQueryParams) =>
   axiosInstance.get(`/admin/engagements`, { ...adminConfig, params });
 
 // --- wallet / leap requests ---
 export const getLeapRequests = () => axiosInstance.get(`/leap-requests`, adminConfig);
 
-export const approveLeapRequest = (reqId) =>
+export const approveLeapRequest = (reqId: AdminId) =>
   axiosInstance.patch(`/leap-requests/${reqId}/approve`, {}, adminConfig);
 
-export const rejectLeapRequest = (reqId) =>
+export const rejectLeapRequest = (reqId: AdminId) =>
   axiosInstance.patch(`/leap-requests/${reqId}/reject`, {}, adminConfig);
 
 // --- user management ---
@@ -82,20 +96,21 @@ export const getUserGrowth = () => axiosInstance.get(`/admin/user-growth`, admin
 export const getMentorIndustryStats = () =>
   axiosInstance.get(`/admin/stats/mentor-industries`, adminConfig);
 
-export const getUsers = (params) => axiosInstance.get(`/admin/users`, { ...adminConfig, params });
+export const getUsers = (params: AdminQueryParams) =>
+  axiosInstance.get(`/admin/users`, { ...adminConfig, params });
 
-export const blockUser = (userId) =>
+export const blockUser = (userId: AdminId) =>
   axiosInstance.patch(`/admin/users/${userId}/block`, {}, adminConfig);
 
-export const unblockUser = (userId) =>
+export const unblockUser = (userId: AdminId) =>
   axiosInstance.patch(`/admin/users/${userId}/unblock`, {}, adminConfig);
 
 // --- settings ---
 export const getCommissionSettings = () =>
   axiosInstance.get(`/admin/settings/commission`, adminConfig);
 
-export const updateCommissionSettings = (commissionRate) =>
+export const updateCommissionSettings = (commissionRate: number) =>
   axiosInstance.put(`/admin/settings/commission`, { commissionRate }, adminConfig);
 
-export const addAdmin = ({ name, email }) =>
+export const addAdmin = ({ name, email }: AddAdminPayload) =>
   axiosInstance.post(`/admin/settings/add-admin`, { name, email }, adminConfig);

@@ -8,7 +8,6 @@ import {
   getMentorVerifications,
   verifyMentorProfile,
 } from "@features/admin/models/admin.api";
-import PropTypes from "prop-types";
 import {
   IconShield,
   IconCheck,
@@ -22,12 +21,38 @@ import DetailDrawer, {
   StatusBadge,
 } from "@features/admin/views/verifications/VerificationDetailDrawer";
 
+type FilterKey = "all" | "pending" | "verified";
+
+interface MentorDocument {
+  url?: string;
+  uploadedAt?: string;
+}
+
+interface MentorProfile {
+  _id?: string;
+  verificationStatus?: string;
+  profilePicture?: string;
+  phoneNumber?: string;
+  resumeDocument?: MentorDocument;
+  workExperienceDocuments?: MentorDocument[];
+}
+
+interface MentorVerification {
+  user?: { _id?: string; name?: string; email?: string };
+  mentorProfile?: MentorProfile;
+}
+
+interface ToastMessage {
+  msg: string;
+  type: "success" | "error";
+}
+
 const STAT_FILTERS = [
   { key: "all", label: "Total Mentors", color: "#1e40af", bg: "#eff6ff" },
   { key: "pending", label: "Pending Review", color: "#a16207", bg: "#fefce8" },
   { key: "verified", label: "Verified", color: "#15803d", bg: "#f0fdf4" },
-];
-const FILTER_TABS = ["all", "pending", "verified"];
+] as const;
+const FILTER_TABS: readonly FilterKey[] = ["all", "pending", "verified"];
 
 // ── Mentor Row Component ──────────────────────────────
 // Sonar (S6819): a <div role="button"> was used to make the whole row
@@ -44,6 +69,13 @@ const MentorRow = ({
   isVerified,
   setSelected,
   docCount,
+}: {
+  m: MentorVerification;
+  i: number;
+  filteredLength: number;
+  isVerified: boolean;
+  setSelected: (mentor: MentorVerification) => void;
+  docCount: number;
 }) => {
   const [imgError, setImgError] = useState(false);
 
@@ -122,15 +154,6 @@ const MentorRow = ({
   );
 };
 
-MentorRow.propTypes = {
-  m: PropTypes.object.isRequired,
-  i: PropTypes.number.isRequired,
-  filteredLength: PropTypes.number.isRequired,
-  isVerified: PropTypes.bool.isRequired,
-  setSelected: PropTypes.func.isRequired,
-  docCount: PropTypes.number.isRequired,
-};
-
 // Extracted out of JSX: the original had a 3-way nested ternary
 // (loading ? … : error ? … : filtered.length === 0 ? … : …) directly in
 // the render tree. Sonar flags nested ternaries as hard to read, so this
@@ -141,6 +164,12 @@ const renderTableRows = ({
   filtered,
   fetchMentors,
   setSelected,
+}: {
+  loading: boolean;
+  error: string | null;
+  filtered: MentorVerification[];
+  fetchMentors: () => void;
+  setSelected: (mentor: MentorVerification) => void;
 }) => {
   if (loading) {
     return (
@@ -193,14 +222,14 @@ const renderTableRows = ({
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════
 const AdminVerifications = () => {
-  const [mentors, setMentors] = useState([]);
+  const [mentors, setMentors] = useState<MentorVerification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all"); // all | pending | verified
-  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [selected, setSelected] = useState<MentorVerification | null>(null);
   const [verifying, setVerifying] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<ToastMessage | null>(null);
 
   // ── Fetch ──────────────────────────────────────────────
   const fetchMentors = useCallback(async () => {
@@ -208,9 +237,9 @@ const AdminVerifications = () => {
     setError(null);
     try {
       const res = await getMentorVerifications();
-      setMentors(res.data.mentors || res.data);
-    } catch (e) {
-      setError(e.message);
+      setMentors((res.data.mentors || res.data) as MentorVerification[]);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to load mentors.");
     } finally {
       setLoading(false);
     }
@@ -220,13 +249,17 @@ const AdminVerifications = () => {
     fetchMentors();
   }, [fetchMentors]);
 
-  const showToast = (msg, type) => {
+  const showToast = (msg: string, type: ToastMessage["type"]) => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
 
   // ── Verify ─────────────────────────────────────────────
-  const handleVerify = async (mentorProfileId) => {
+  const handleVerify = async (mentorProfileId?: string) => {
+    if (!mentorProfileId) {
+      showToast("Mentor profile ID is missing.", "error");
+      return;
+    }
     setVerifying(true);
     try {
       // Response isn't used — the API confirms success by not throwing,
@@ -248,17 +281,20 @@ const AdminVerifications = () => {
         ),
       );
       if (selected?.mentorProfile?._id === mentorProfileId) {
-        setSelected((prev) => ({
-          ...prev,
-          mentorProfile: {
-            ...prev.mentorProfile,
-            verificationStatus: "verified",
-          },
-        }));
+        setSelected((prev) => {
+          if (!prev?.mentorProfile) return prev;
+          return {
+            ...prev,
+            mentorProfile: {
+              ...prev.mentorProfile,
+              verificationStatus: "verified",
+            },
+          };
+        });
       }
       showToast("✓ Mentor verified successfully!", "success");
-    } catch (e) {
-      showToast(e.message, "error");
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "Verification failed.", "error");
     } finally {
       setVerifying(false);
     }
@@ -278,7 +314,7 @@ const AdminVerifications = () => {
     return matchSearch && matchFilter;
   });
 
-  const counts = {
+  const counts: Record<FilterKey, number> = {
     all: mentors.length,
     pending: mentors.filter(
       (m) => m.mentorProfile?.verificationStatus !== "verified",

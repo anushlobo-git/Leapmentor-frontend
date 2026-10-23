@@ -12,12 +12,6 @@ import EmptyState from "@components/shared/EmptyState";
 import type { RequestCardRequest } from "@features/mentor/views/dashboard/requests/RequestCard";
 import { useRequestsTabPresenter } from "@features/mentor/presenters/useRequestsTabPresenter";
 
-interface EmptyObject{
-  pending:string;
-  referred:string;
-  all:string;
-}
-
 const TABS = [
   { key: "all", label: "All Requests" },
   { key: "pending", label: "Pending" },
@@ -36,16 +30,14 @@ const getTabBadgeClass = (tabKey: string, activeTab: string) => {
 };
 
 // ── Extracted: empty-state copy per tab (was a triple-nested ternary) ──
-const EMPTY_STATE_MESSAGES:EmptyObject = {
+const EMPTY_STATE_MESSAGES: Record<string, string> = {
   pending: "You'll see new requests here when mentees reach out.",
   referred: "Requests you've referred to other mentors will appear here.",
   all: "When mentees send you connect requests, they'll appear here.",
 };
 
-const getEmptyStateMessage = (activeTab: string) =>{
-  const EmptyStateMessage :string = EMPTY_STATE_MESSAGES[activeTab];
-   EmptyStateMessage || `No requests have been ${activeTab} yet.`;
-   }
+const getEmptyStateMessage = (activeTab: string): string =>
+  EMPTY_STATE_MESSAGES[activeTab] || `No requests have been ${activeTab} yet.`;
 
 const RequestsTab = () => {
   const {

@@ -60,24 +60,48 @@ interface ConnectsTabProps {
   role: "mentee" | "mentor";
 }
 
+interface ConnectCardPerson {
+  currentRole?: string;
+  company?: string;
+  skills?: string[];
+  profilePicture?: string;
+}
+
 const ConnectsTab = ({ role }: ConnectsTabProps) => {
   const { ongoing, completed, loading, error } = useOngoingConnects();
   const navigate = useNavigate();
   const cfg = ROLE_CONFIG[role];
 
-  const renderCard = (c: MappedConnectRequest, isCompleted: boolean) => (
-    <ConnectCard
-      key={c._id}
-      name={c[cfg.counterpartKey]?.name || cfg.counterpartLabel}
-      person={c[cfg.counterpartProfileKey]}
-      session={c}
-      tokenLabel={
-        isCompleted ? cfg.completedTokenLabel(c.totalAmount) : cfg.ongoingTokenLabel(c.totalAmount)
-      }
-      isCompleted={isCompleted}
-      onDashboardClick={() => navigate(`/shared-dashboard/${c._id}`)}
-    />
-  );
+  const renderCard = (c: MappedConnectRequest, isCompleted: boolean) => {
+    const name = role === "mentee" ? c.mentor?.name : c.mentee?.name;
+    const person =
+      role === "mentee"
+        ? (c.mentorProfile as ConnectCardPerson | null)
+        : (c.menteeProfile as ConnectCardPerson | null);
+    const session = {
+      confirmedSlot: c.confirmedSlot ?? undefined,
+      paidAt: c.paidAt ?? undefined,
+      completedAt: c.completedAt ?? undefined,
+      totalAmount: c.totalAmount ?? undefined,
+    };
+    const amount = c.totalAmount ?? 0;
+
+    return (
+      <ConnectCard
+        key={c._id}
+        name={name || cfg.counterpartLabel}
+        person={person ?? undefined}
+        session={session}
+        tokenLabel={
+          isCompleted
+            ? cfg.completedTokenLabel(amount)
+            : cfg.ongoingTokenLabel(amount)
+        }
+        isCompleted={isCompleted}
+        onDashboardClick={() => navigate(`/shared-dashboard/${c._id}`)}
+      />
+    );
+  };
 
   return (
     <ConnectsLayout
@@ -85,7 +109,7 @@ const ConnectsTab = ({ role }: ConnectsTabProps) => {
       subtitle={cfg.subtitle}
       count={ongoing.length}
       loading={loading}
-      error={error}
+      error={error ?? undefined}
       completedCount={completed.length}
       emptyState={cfg.emptyState}
       completedChildren={completed.map((c: MappedConnectRequest) => renderCard(c, true))}

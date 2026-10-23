@@ -25,6 +25,15 @@ export interface SharedDashboardLoaderData {
   error: string | null;
 }
 
+type SharedDashboardApiError = {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+};
+
 /**
  * Fetches the connect for /shared-dashboard/:connectRequestId before the page renders.
  * Loaders aren't components, so auth is read straight from the store.
@@ -41,17 +50,18 @@ export const sharedDashboardLoader = async ({
   if (!selectIsAuthenticated(store.getState())) throw redirect("/login");
 
   try {
-    const res = await getConnectDetail(params.connectRequestId);
+    const res = await getConnectDetail(params.connectRequestId!);
     return { connect: res.data.connect, error: null };
-  } catch (err) {
-    const status = err?.response?.status;
+  } catch (err: unknown) {
+    const error = err as SharedDashboardApiError;
+    const status = error.response?.status;
     if (status === HTTP_STATUS.UNAUTHORIZED) throw redirect("/login");
     if (status === HTTP_STATUS.FORBIDDEN) {
       throw new Response("Forbidden", { status: HTTP_STATUS.FORBIDDEN });
     }
     return {
       connect: null,
-      error: err?.response?.data?.message || "Failed to load session.",
+      error: error.response?.data?.message || "Failed to load session.",
     };
   }
 };

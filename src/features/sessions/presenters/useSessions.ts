@@ -12,16 +12,29 @@ import {
   rescheduleSessionSlot,
 } from "@features/sessions/models/sessions.api";
 import { mapSlot, mapSessionSlotsResponse } from "@features/sessions/models/sessionsMapper";
+
+type SessionSlot = ReturnType<typeof mapSlot>;
+type SessionSlotsResponse = Parameters<typeof mapSessionSlotsResponse>[0];
+type SessionApiError = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
 /**
  * Custom hook for sessions.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useSessions = (connectRequestId, onAllComplete) => {
-  const [slots, setSlots] = useState([]);
+const useSessions = (
+  connectRequestId: string | null | undefined,
+  onAllComplete?: () => void | Promise<void>,
+) => {
+  const [slots, setSlots] = useState<SessionSlot[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingSlots, setSavingSlots] = useState(new Set());
-  const [error, setError] = useState(null);
+  const [savingSlots, setSavingSlots] = useState<Set<number>>(new Set<number>());
+  const [error, setError] = useState<string | null>(null);
   const [completedSlots, setCompletedSlots] = useState(0);
   const [totalSlots, setTotalSlots] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -32,7 +45,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     onAllCompleteRef.current = onAllComplete;
   }, [onAllComplete]);
 
-  const setSavingSlot = (index, val) =>
+  const setSavingSlot = (index: number, val: boolean) =>
     setSavingSlots((prev) => {
       const next = new Set(prev);
       if (val) {
@@ -44,7 +57,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
     });
 
   //  now also sets allComplete
-  const applySlotUpdate = useCallback((data) => {
+  const applySlotUpdate = useCallback((data: SessionSlotsResponse) => {
     const mapped = mapSessionSlotsResponse(data);
     setSlots(mapped.slots);
     setCompletedSlots(mapped.completedSlots);
@@ -60,8 +73,9 @@ const useSessions = (connectRequestId, onAllComplete) => {
       setError(null);
       const res = await getSessionSlots(connectRequestId);
       applySlotUpdate(res.data);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load sessions.");
+    } catch (err: unknown) {
+      const error = err as SessionApiError;
+      setError(error.response?.data?.message || "Failed to load sessions.");
     } finally {
       if (!silent) setLoading(false);
     }
@@ -82,12 +96,12 @@ const useSessions = (connectRequestId, onAllComplete) => {
   // Session sync is now handled by polling above — socket block removed
 
   const setMeetingLink = useCallback(
-    async (slotIndex, meetingLink) => {
+    async (slotIndex: number, meetingLink: string) => {
       if (!meetingLink?.trim()) return { success: false };
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await updateSlotMeetingLink(connectRequestId, slotIndex, meetingLink);
+        const res = await updateSlotMeetingLink(connectRequestId!, slotIndex, meetingLink);
         const mappedSlot = mapSlot(res.data.slot);
         setSlots((prev) =>
           prev.map((s, i) =>
@@ -95,9 +109,11 @@ const useSessions = (connectRequestId, onAllComplete) => {
           ),
         );
         return { success: true };
-      } catch (err) {
-        setError(err?.response?.data?.message || "Failed to save meeting link.");
-        return { success: false, message: err?.response?.data?.message };
+      } catch (err: unknown) {
+        const error = err as SessionApiError;
+        const message = error.response?.data?.message;
+        setError(message || "Failed to save meeting link.");
+        return { success: false, message };
       } finally {
         setSavingSlot(slotIndex, false);
       }
@@ -107,16 +123,18 @@ const useSessions = (connectRequestId, onAllComplete) => {
 
   //  now uses applySlotUpdate so allComplete is set correctly
   const markSlotComplete = useCallback(
-    async (slotIndex) => {
+    async (slotIndex: number) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await markSlotCompleteRequest(connectRequestId, slotIndex);
+        const res = await markSlotCompleteRequest(connectRequestId!, slotIndex);
         applySlotUpdate(res.data); //  replaces manual setSlots/setCompletedSlots/setProgress
         return { ...res.data, success: true };
-      } catch (err) {
-        setError(err?.response?.data?.message || "Failed to mark session complete.");
-        return { success: false, message: err?.response?.data?.message };
+      } catch (err: unknown) {
+        const error = err as SessionApiError;
+        const message = error.response?.data?.message;
+        setError(message || "Failed to mark session complete.");
+        return { success: false, message };
       } finally {
         setSavingSlot(slotIndex, false);
       }
@@ -125,15 +143,21 @@ const useSessions = (connectRequestId, onAllComplete) => {
   );
 
   const addSlot = useCallback(
-    async ({ day, date, startTime, endTime }) => {
+    async ({ day, date, startTime, endTime }: {
+      day: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+    }) => {
       try {
         setSavingSlot(-1, true);
         setError(null);
-        const res = await addSessionSlot(connectRequestId, { day, date, startTime, endTime });
+        const res = await addSessionSlot(connectRequestId!, { day, date, startTime, endTime });
         applySlotUpdate(res.data);
         return { success: true, slotId: res.data.slotId ?? null };
-      } catch (err) {
-        const msg = err?.response?.data?.message || "Failed to add session.";
+      } catch (err: unknown) {
+        const error = err as SessionApiError;
+        const msg = error.response?.data?.message || "Failed to add session.";
         setError(msg);
         return { success: false, message: msg };
       } finally {
@@ -144,15 +168,16 @@ const useSessions = (connectRequestId, onAllComplete) => {
   );
 
   const cancelSlot = useCallback(
-    async (slotIndex, reason = "") => {
+    async (slotIndex: number, reason: string = "") => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await cancelSessionSlot(connectRequestId, slotIndex, reason);
+        const res = await cancelSessionSlot(connectRequestId!, slotIndex, reason);
         applySlotUpdate(res.data);
         return { ...res.data, success: true };
-      } catch (err) {
-        const msg = err?.response?.data?.message || "Failed to cancel slot.";
+      } catch (err: unknown) {
+        const error = err as SessionApiError;
+        const msg = error.response?.data?.message || "Failed to cancel slot.";
         setError(msg);
         return { success: false, message: msg };
       } finally {
@@ -163,15 +188,20 @@ const useSessions = (connectRequestId, onAllComplete) => {
   );
 
   const rescheduleSlot = useCallback(
-    async (slotIndex, { date, startTime, endTime }) => {
+    async (slotIndex: number, { date, startTime, endTime }: {
+      date: string;
+      startTime: string;
+      endTime: string;
+    }) => {
       try {
         setSavingSlot(slotIndex, true);
         setError(null);
-        const res = await rescheduleSessionSlot(connectRequestId, slotIndex, { date, startTime, endTime });
+        const res = await rescheduleSessionSlot(connectRequestId!, slotIndex, { date, startTime, endTime });
         applySlotUpdate(res.data);
         return { ...res.data, success: true };
-      } catch (err) {
-        const msg = err?.response?.data?.message || "Failed to reschedule slot.";
+      } catch (err: unknown) {
+        const error = err as SessionApiError;
+        const msg = error.response?.data?.message || "Failed to reschedule slot.";
         setError(msg);
         return { success: false, message: msg };
       } finally {

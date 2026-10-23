@@ -292,7 +292,7 @@ const MilestoneList = ({
   };
 
   const handleDeleteConfirm = () => {
-    onDelete(milestoneToDelete._id);
+    onDelete(milestoneToDelete!._id);
     setMilestoneToDelete(null);
   };
 

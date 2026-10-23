@@ -5,16 +5,34 @@
 // src/hooks/useReportComplaint.js
 import { useState, useCallback } from "react";
 import { submitReportRequest } from "@features/reports/models/reports.api";
+
+interface ReportDetails {
+  complaintType: string;
+  description: string;
+  screenshot?: File | null;
+}
+
+type ReportApiError = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
 /**
  * Custom hook for report complaint.
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useReportComplaint = (connectRequestId) => {
+const useReportComplaint = (connectRequestId: string | null | undefined) => {
   const [submitting, setSubmitting] = useState(false);
-  const [error,      setError]      = useState(null);
+  const [error,      setError]      = useState<string | null>(null);
 
-  const submitReport = useCallback(async ({ complaintType, description, screenshot }) => {
+  const submitReport = useCallback(async ({
+    complaintType,
+    description,
+    screenshot,
+  }: ReportDetails) => {
     if (!connectRequestId) return { success: false };
 
     try {
@@ -31,8 +49,9 @@ const useReportComplaint = (connectRequestId) => {
       await submitReportRequest(formData);
 
       return { success: true };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to submit report. Please try again.";
+    } catch (err: unknown) {
+      const error = err as ReportApiError;
+      const msg = error.response?.data?.message || "Failed to submit report. Please try again.";
       setError(msg);
       return { success: false, message: msg };
     } finally {

@@ -26,17 +26,17 @@ export const mentorProfileConfig = {
     {
       key: "yearsOfExperience",
       label: "Experience",
-      format: (v) => (v ? `${v}+ Years` : null),
+      format: (v: number | null | undefined) => (v ? `${v}+ Years` : null),
     },
     {
       key: "hourlyRate",
       label: "Session Rate",
-      format: (v) => (v > 0 ? `LP ${v}/hr` : null),
+      format: (v: number | null | undefined) => (v && v > 0 ? `LP ${v}/hr` : null),
     },
     {
       key: "avgRating",
       label: "Rating",
-      format: (v) => (v > 0 ? `⭐ ${v.toFixed(1)} / 5` : null),
+      format: (v: number | null | undefined) => (v && v > 0 ? `⭐ ${v.toFixed(1)} / 5` : null),
     },
   ],
 
@@ -68,7 +68,7 @@ export const menteeProfileConfig = {
     {
       key: "yearsOfExperience",
       label: "Experience",
-      format: (v) => (v ? `${v} Years` : null),
+      format: (v: number | null | undefined) => (v ? `${v} Years` : null),
     },
     { key: "company", label: "Company" },
     { key: "industry", label: "Industry" },

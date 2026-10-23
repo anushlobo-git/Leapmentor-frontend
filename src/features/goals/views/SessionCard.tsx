@@ -55,7 +55,7 @@ const SessionCard = ({
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
 
   const cancelled = slot?.status === "cancelled";
-  const bothDone = slot?.menteeMarked && slot?.mentorMarked;
+  const bothDone = Boolean(slot?.menteeMarked && slot?.mentorMarked);
   const canCancel = !cancelled && !bothDone;
 
   const { label: statusLabel, className: statusClass } = getSessionStatus(

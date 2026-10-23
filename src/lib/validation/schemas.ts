@@ -103,7 +103,7 @@ export const FileValidationResult = z.object({
  * @param {File | null | undefined} file - File selected by the user.
  * @returns {{ valid: boolean, error?: string }} Validation result.
  */
-export const validateDocumentFile = (file) => {
+export const validateDocumentFile = (file: File | null | undefined) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!DOCUMENT_TYPES.has(file.type)) {
     return {
@@ -125,7 +125,7 @@ export const validateDocumentFile = (file) => {
  * @param {number} [maxSizeMB=5] - Maximum permitted file size in megabytes.
  * @returns {{ valid: boolean, error?: string }} Validation result.
  */
-export const validateImageFile = (file, maxSizeMB = 5) => {
+export const validateImageFile = (file: File | null | undefined, maxSizeMB: number = 5) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!file.type.startsWith("image/")) {
     return { valid: false, error: "Only image files are allowed." };
@@ -142,7 +142,7 @@ export const validateImageFile = (file, maxSizeMB = 5) => {
  * @param {File | null | undefined} file - File selected by the user.
  * @returns {{ valid: boolean, error?: string }} Validation result.
  */
-export const validateScreenshotFile = (file) => {
+export const validateScreenshotFile = (file: File | null | undefined) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!IMAGE_TYPES.has(file.type)) {
     return {
@@ -162,7 +162,7 @@ export const validateScreenshotFile = (file) => {
  * @param {File | null | undefined} file - File selected by the user.
  * @returns {{ valid: boolean, error?: string }} Validation result.
  */
-export const validateResumeFile = (file) => {
+export const validateResumeFile = (file: File | null | undefined) => {
   if (!file) return { valid: false, error: "No file selected" };
   if (!RESUME_TYPES.has(file.type)) {
     return {
@@ -183,13 +183,16 @@ export const validateResumeFile = (file) => {
  * @param {number} [maxFiles=3] - Maximum number of files allowed.
  * @returns {{ valid: boolean, error?: string }} Validation result.
  */
-export const validateWorkExperienceFiles = (files, maxFiles = 3) => {
+export const validateWorkExperienceFiles = (
+  files: Array<{ type?: string; size: number }> | null | undefined,
+  maxFiles: number = 3,
+) => {
   if (!files || files.length === 0) return { valid: true };
   if (files.length > maxFiles) {
     return { valid: false, error: `Maximum ${maxFiles} files allowed` };
   }
   for (const file of files) {
-    if (!RESUME_TYPES.has(file.type)) {
+    if (!RESUME_TYPES.has(file.type ?? "")) {
       return {
         valid: false,
         error: "Only PDF, JPG, PNG, WEBP files are allowed",
@@ -208,7 +211,7 @@ export const validateWorkExperienceFiles = (files, maxFiles = 3) => {
 // Zod schemas for form-based file uploads (when file is part of a form object)
 export const documentUploadSchema = z.object({
   file: z.custom((file) => {
-    const result = validateDocumentFile(file);
+    const result = validateDocumentFile(file as File);
     return result.valid;
   }, "Invalid file"),
   title: z.string().optional(),
@@ -216,21 +219,21 @@ export const documentUploadSchema = z.object({
 
 export const imageUploadSchema = z.object({
   file: z.custom((file) => {
-    const result = validateImageFile(file);
+    const result = validateImageFile(file as File);
     return result.valid;
   }, "Invalid image file"),
 });
 
 export const screenshotUploadSchema = z.object({
   file: z.custom((file) => {
-    const result = validateScreenshotFile(file);
+    const result = validateScreenshotFile(file as File);
     return result.valid;
   }, "Invalid screenshot file"),
 });
 
 export const resumeUploadSchema = z.object({
   file: z.custom((file) => {
-    const result = validateResumeFile(file);
+    const result = validateResumeFile(file as File);
     return result.valid;
   }, "Invalid resume file"),
 });

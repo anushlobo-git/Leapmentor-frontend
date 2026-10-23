@@ -23,7 +23,7 @@ export const MESSAGE_TYPES = {
 /**
  * Create error message
  */
-export const createErrorMessage = (text) => ({
+export const createErrorMessage = (text: string) => ({
   type: MESSAGE_TYPES.ERROR,
   text,
 });
@@ -31,7 +31,7 @@ export const createErrorMessage = (text) => ({
 /**
  * Create success message
  */
-export const createSuccessMessage = (text) => ({
+export const createSuccessMessage = (text: string) => ({
   type: MESSAGE_TYPES.SUCCESS,
   text,
 });
@@ -39,7 +39,7 @@ export const createSuccessMessage = (text) => ({
 /**
  * Create info message
  */
-export const createInfoMessage = (text) => ({
+export const createInfoMessage = (text: string) => ({
   type: MESSAGE_TYPES.INFO,
   text,
 });
@@ -60,7 +60,7 @@ export const AUTH_ERROR_MESSAGES = {
   TERMS_NOT_ACCEPTED: "Please accept the terms and conditions to continue.",
   ROLE_MISSING: "Something went wrong — please refresh and try again.",
   MENTOR_NO_RATE: "Mentor has not set a session rate.",
-  INSUFFICIENT_TOKENS: (needed) => `Need ${needed} more tokens.`,
+  INSUFFICIENT_TOKENS: (needed: number) => `Need ${needed} more tokens.`,
   PAYMENT_FAILED: "Payment failed. Please try again.",
   NETWORK_ERROR: "Network error. Please check your connection and try again.",
 };

@@ -5,15 +5,22 @@
 // src/features/auth/api/auth.api.js
 import axiosInstance from "@lib/http/axiosInstance";
 
-export const login = (email, password) =>
+interface SsoRequest {
+  code?: string;
+  credential?: string;
+  roles?: string[];
+  termsAccepted?: boolean;
+}
+
+export const login = (email: string, password: string) =>
   axiosInstance.post(`/auth/login`, { email, password });
 
-export const exchangeLinkedInToken = ({ code, roles, termsAccepted }) =>
+export const exchangeLinkedInToken = ({ code, roles, termsAccepted }: SsoRequest) =>
   axiosInstance.post("/auth/linkedin/token", { code, roles, termsAccepted });
 
 export const logoutRequest = () => axiosInstance.post("/auth/logout");
 
-export const googleAuthRequest = ({ credential, roles, termsAccepted }) =>
+export const googleAuthRequest = ({ credential, roles, termsAccepted }: SsoRequest) =>
   axiosInstance.post(`/auth/google`, { credential, roles, termsAccepted });
 
 export const refreshTokenRequest = () => axiosInstance.post("/auth/refresh");

@@ -35,7 +35,7 @@ const NotepadSection = ({ connectId, isCompleted }: NotepadSectionProps) => {
 
   const handleCreate = async () => {
     const result = await createNote("Untitled Note", "");
-    if (result?.success) {
+    if (result?.success && result.note) {
       setActiveNoteId(result.note._id);
       setMobileView("editor");
     }
@@ -44,7 +44,7 @@ const NotepadSection = ({ connectId, isCompleted }: NotepadSectionProps) => {
   const handleSave = async (noteId: string | undefined, title: string, content: string) => {
     if (noteId) return await updateNote(noteId, title, content);
     const result = await createNote(title, content);
-    if (result?.success) setActiveNoteId(result.note._id);
+    if (result?.success && result.note) setActiveNoteId(result.note._id);
     return result;
   };
 

@@ -21,12 +21,12 @@ interface ResumeUploadProps {
 
 const ResumeUpload = ({ file, onChange, error }: ResumeUploadProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files[0];
+    const selected = e.target.files?.[0];
     if (!selected) return;
 
     const validation = validateResumeFile(selected);
     if (!validation.valid) {
-      onChange(null, validation.error);
+      onChange(null, validation.error ?? "Invalid resume file.");
       return;
     }
     onChange(selected, null);
@@ -38,7 +38,7 @@ const ResumeUpload = ({ file, onChange, error }: ResumeUploadProps) => {
     if (!dropped) return;
     const validation = validateResumeFile(dropped);
     if (!validation.valid) {
-      onChange(null, validation.error);
+      onChange(null, validation.error ?? "Invalid resume file.");
       return;
     }
     onChange(dropped, null);

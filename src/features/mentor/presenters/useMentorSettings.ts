@@ -7,8 +7,31 @@ import { useState, useEffect } from "react";
 import { getMentorProfile, updateMentorProfile } from "@features/mentor/models/mentor.api";
 import logger from "@lib/monitoring/logger";
 import { mapMentorSettings } from "@features/profile/models/settingsMapper";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
 
-const BADGES = [
+interface MentorSettingsProfile {
+  hourlyRate?: string | number | null;
+  emailNotifications?: boolean;
+  isProfilePublished?: boolean;
+  publicProfile?: boolean;
+  totalSessions?: number;
+  avgRating?: number | string;
+}
+
+interface MentorSettingsBadgeProfile {
+  totalSessions?: number;
+  avgRating?: number | string;
+}
+
+interface MentorSettingsBadge {
+  key: string;
+  label: string;
+  icon: string;
+  desc: string;
+  condition: (profile?: MentorSettingsBadgeProfile | null) => boolean;
+}
+
+const BADGES: MentorSettingsBadge[] = [
   {
     key: "newcomer",
     label: "Newcomer",
@@ -28,7 +51,7 @@ const BADGES = [
     label: "Top Rated",
     icon: "⭐",
     desc: "Achieved 4.5+ rating",
-    condition: (profile) => (profile?.avgRating || 0) >= 4.5,
+    condition: (profile) => ((profile?.avgRating || 0) as number) >= 4.5,
   },
   {
     key: "expert_guide",
@@ -43,8 +66,10 @@ const BADGES = [
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useMentorSettings = (initialProfile) => {
-  const [profile, setProfile]   = useState(initialProfile ?? null);
+const useMentorSettings = (initialProfile?: MentorSettingsProfile | null) => {
+  const [profile, setProfile] = useState<MentorSettingsProfile | null>(
+    initialProfile ?? null,
+  );
   const [fetching, setFetching] = useState(initialProfile == null); // skip fetch if profile passed in
   const [saving, setSaving]     = useState(false);
   const [msg, setMsg]           = useState({ type: "", text: "" });
@@ -77,8 +102,10 @@ const useMentorSettings = (initialProfile) => {
       setHourlyRate(mapped.hourlyRate);
       setEmailNotifications(mapped.emailNotifications);
       setPublicProfile(mapped.isProfilePublished);
-    } catch (err) {
-       logger.error("Failed to load mentor settings", { error: err?.message });
+    } catch (err: unknown) {
+      logger.error("Failed to load mentor settings", {
+        error: getErrorMessage(err),
+      });
       setMsg({ type: "error", text: "Failed to load settings." });
     } finally {
       setFetching(false);
@@ -99,8 +126,11 @@ const useMentorSettings = (initialProfile) => {
       });
       setMsg({ type: "success", text: "Settings saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
-    } catch (err) {
-      setMsg({ type: "error", text: err?.response?.data?.message || "Failed to save settings." });
+    } catch (err: unknown) {
+      setMsg({
+        type: "error",
+        text: getApiErrorMessage(err, "Failed to save settings."),
+      });
     } finally {
       setSaving(false);
     }

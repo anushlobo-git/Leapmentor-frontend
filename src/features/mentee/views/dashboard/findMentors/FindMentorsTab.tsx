@@ -57,6 +57,17 @@ const FindMentorsTab = () => {
     );
   }
 
+  const displayMentors: FindMentorsMentor[] = mentors.map((mentor) => ({
+    ...mentor,
+    _id: mentor._id ?? undefined,
+    user: mentor.user
+      ? { ...mentor.user, _id: mentor.user._id ?? undefined }
+      : undefined,
+    hourlyRate: mentor.hourlyRate ?? undefined,
+    profilePicture: mentor.profilePicture ?? undefined,
+    yearsOfExperience: mentor.yearsOfExperience ?? undefined,
+  }));
+
   return (
     <div className="space-y-5">
       {/* ── Header + Fee Card row ── */}
@@ -102,7 +113,7 @@ const FindMentorsTab = () => {
 
       {/* Results */}
       <MentorGrid
-        mentors={mentors}
+        mentors={displayMentors}
         loading={loading}
         loadingMore={loadingMore}
         hasMore={hasMore}

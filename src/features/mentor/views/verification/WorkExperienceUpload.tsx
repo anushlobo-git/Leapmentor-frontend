@@ -21,12 +21,12 @@ interface WorkExperienceUploadProps {
 
 const WorkExperienceUpload = ({ files, onChange, error }: WorkExperienceUploadProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(e.target.files) as File[];
+    const selected = Array.from(e.target.files!) as File[];
     const combined = [...files, ...selected];
 
     const validation = validateWorkExperienceFiles(combined, MAX_FILES);
     if (!validation.valid) {
-      onChange(files, validation.error);
+      onChange(files, validation.error as string);
       return;
     }
 
@@ -42,7 +42,7 @@ const WorkExperienceUpload = ({ files, onChange, error }: WorkExperienceUploadPr
 
     const validation = validateWorkExperienceFiles(combined, MAX_FILES);
     if (!validation.valid) {
-      onChange(files, validation.error);
+      onChange(files, validation.error as string);
       return;
     }
     onChange(combined, null);

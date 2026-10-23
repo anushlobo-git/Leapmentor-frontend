@@ -31,6 +31,35 @@ interface GoogleAuthError {
   };
 }
 
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
+interface GoogleIdentityServices {
+  accounts: {
+    id: {
+      initialize: (options: {
+        client_id: string;
+        callback: (response: GoogleCredentialResponse) => void;
+      }) => void;
+      renderButton: (
+        parent: HTMLElement,
+        options: {
+          theme: string;
+          size: string;
+          width: number;
+          text: string;
+        },
+      ) => void;
+    };
+  };
+}
+
+declare global {
+  var __googleInitialized: boolean | undefined;
+  var google: GoogleIdentityServices | undefined;
+}
+
 const isTransientGoogleAuthError = (error: unknown): boolean => {
   const authError = error as GoogleAuthError;
   const status = authError.response?.status;
@@ -103,7 +132,7 @@ const useGoogleAuth = ({
 
   callbackRef.onSuccess = onSuccess;
   callbackRef.onError = onError;
-  callbackRef.onLoadingChange = onLoadingChange;
+  callbackRef.onLoadingChange = onLoadingChange ?? null;
   callbackRef.rolesRef = rolesRef;
   callbackRef.termsAcceptedRef = termsAcceptedRef;
   callbackRef.dispatch = dispatch;
@@ -118,11 +147,13 @@ const useGoogleAuth = ({
 
     const initGoogle = () => {
       if (!btnRef.current) return;
+      const google = globalThis.google;
+      if (!google) return;
 
       if (!globalThis.__googleInitialized) {
-        globalThis.google.accounts.id.initialize({
+        google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
-          callback: async (response) => {
+          callback: async (response: GoogleCredentialResponse) => {
             const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
 
             if (!termsAccepted) {
@@ -136,7 +167,7 @@ const useGoogleAuth = ({
 
               const request = {
                 credential: response.credential,
-                roles: callbackRef.rolesRef.current,
+                 roles: callbackRef.rolesRef?.current ?? [],
                 termsAccepted: true,
               };
 
@@ -155,12 +186,14 @@ const useGoogleAuth = ({
               const user = res.data?.user;
               // Sync the authenticated user and derived role into Redux. The
               // auth slice derives the role from this trusted API payload.
-              callbackRef.dispatch?.(
-                callbackRef.setUser({
-                  accessToken: res.data.accessToken,
-                  user: user || null,
-                }),
-              );
+               if (callbackRef.dispatch && callbackRef.setUser) {
+                 callbackRef.dispatch(
+                   callbackRef.setUser({
+                     accessToken: res.data.accessToken,
+                     user: user || null,
+                   }),
+                 );
+               }
 
               callbackRef.onSuccess?.(res.data);
             } catch (err) {
@@ -176,7 +209,7 @@ const useGoogleAuth = ({
       }
 
       btnRef.current.innerHTML = "";
-      globalThis.google.accounts.id.renderButton(btnRef.current, {
+      google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",
         size: "large",
         width: 400,

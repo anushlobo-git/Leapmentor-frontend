@@ -42,6 +42,14 @@ interface AdditionalSessionPaymentModalProps {
   onSuccess: () => void;
 }
 
+type PaymentApiError = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
+
 const AdditionalSessionPaymentModal = ({
   connect,
   slot,
@@ -82,15 +90,16 @@ const AdditionalSessionPaymentModal = ({
     try {
       setLoading(true);
       await payAdditionalEscrow({
-        connectRequestId: connect._id,
+        connectRequestId: connect!._id!,
         sessionRate,
-        slotId,
+        slotId: slotId!,
       });
       dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setShowSuccess(true);
-    } catch (err) {
+    } catch (err: unknown) {
+      const error = err as PaymentApiError;
       setError(
-        err?.response?.data?.message || "Payment failed. Please try again.",
+        error.response?.data?.message || "Payment failed. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -123,14 +132,14 @@ const AdditionalSessionPaymentModal = ({
       <SessionDetailRows
         rows={[
           { label: "Mentor", value: mentorName },
-          slot?.date && {
+          slot?.date ? {
             label: "Date",
             value: `${slot.day}, ${formatSlotDate(slot.date, { year: "numeric" })}`,
-          },
-          slot?.startTime && {
+          } : false,
+          slot?.startTime ? {
             label: "Time",
-            value: `${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}`,
-          },
+            value: `${formatTime(slot.startTime)} – ${formatTime(slot.endTime ?? "")}`,
+          } : false,
           { label: "Rate", value: `${sessionRate} tokens / session` },
         ]}
       />

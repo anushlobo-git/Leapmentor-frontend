@@ -8,19 +8,26 @@
  * @param {unknown} body - Raw axios response body.
  * @returns {unknown} Either the original payload or the flattened envelope.
  */
-export const unwrapApiResponse = (body) => {
+type ApiEnvelope = {
+  success?: unknown;
+  data?: unknown;
+  message?: unknown;
+};
+
+export const unwrapApiResponse = (body: unknown) => {
+  const envelope = body as ApiEnvelope;
   if (
     !body ||
     typeof body !== "object" ||
     Array.isArray(body) ||
     body instanceof Blob ||
-    body.success === undefined
+    envelope.success === undefined
   ) {
     return body;
   }
 
-  const payload = body.data;
-  let flattened = {};
+  const payload = envelope.data;
+  let flattened: Record<string, unknown> = {};
 
   if (payload === undefined) {
     flattened = {};
@@ -29,14 +36,14 @@ export const unwrapApiResponse = (body) => {
     typeof payload === "object" &&
     !Array.isArray(payload)
   ) {
-    flattened = payload;
+    flattened = payload as Record<string, unknown>;
   } else {
     flattened = { data: payload };
   }
 
   return {
     ...flattened,
-    success: body.success,
-    message: body.message,
+    success: envelope.success,
+    message: envelope.message,
   };
 };

@@ -63,7 +63,7 @@ const ReportModal = ({ onClose, onSuccess }: ReportModalProps) => {
     if (ct.value === "other") return acc; // drop dupes first
     acc.push(ct);
     return acc;
-  }, []).concat(BASE_COMPLAINT_TYPES.find(ct => ct.value === "other"));
+    }, []).concat(BASE_COMPLAINT_TYPES.find(ct => ct.value === "other")!);
 
   const { submitReport, submitting, error, setError } = useReportComplaint(connectId);
 
@@ -78,7 +78,7 @@ const ReportModal = ({ onClose, onSuccess }: ReportModalProps) => {
     if (!file) return;
     const validation = validateScreenshotFile(file);
     if (!validation.valid) {
-      setError(validation.error);
+      setError(validation.error || "Invalid screenshot file.");
       return;
     }
     setError(null);

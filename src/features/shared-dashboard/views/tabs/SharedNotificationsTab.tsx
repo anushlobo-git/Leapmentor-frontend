@@ -25,6 +25,14 @@ import type { AppDispatch } from "@store/index";
 
 type ViewerRole = "mentee" | "mentor";
 
+type NotificationTypeConfig = {
+  bg: string;
+  stroke: string;
+  label: string;
+  tint: string;
+  border: string;
+};
+
 interface StatCardProps {
   icon?: ReactNode;
   label: string;
@@ -46,7 +54,7 @@ interface SharedNotificationsTabProps {
 }
 
 // ── Type config ───────────────────────────────────────────────
-const TYPE_CONFIG = {
+const TYPE_CONFIG: Record<string, NotificationTypeConfig> = {
   connect_request_received: { bg: "bg-blue-100", stroke: "#3b82f6", label: "Connect Request", tint: "bg-blue-50/60", border: "border-blue-200" },
   connect_request: { bg: "bg-blue-100", stroke: "#3b82f6", label: "Connect Request", tint: "bg-blue-50/60", border: "border-blue-200" },
   connect_request_accepted: { bg: "bg-green-100", stroke: "#22c55e", label: "Accepted", tint: "bg-green-50/60", border: "border-green-200" },
@@ -58,7 +66,7 @@ const TYPE_CONFIG = {
   feedback: { bg: "bg-slate-100", stroke: "#94a3b8", label: "Feedback", tint: "bg-slate-50/80", border: "border-slate-200" },
 };
 
-const TYPE_ICON_PATH = {
+const TYPE_ICON_PATH: Record<string, ReactNode> = {
   connect_request_received: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
   connect_request: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>,
   connect_request_accepted: <polyline points="20 6 9 17 4 12" />,

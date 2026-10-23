@@ -6,6 +6,7 @@ import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadVerificationDocuments } from "@features/mentor/models/mentor.api";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 
 export const useVerificationFormShellPresenter = () => {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ export const useVerificationFormShellPresenter = () => {
     try {
       const formData = new FormData();
       formData.append("phoneNumber", phoneNumber.trim());
-      formData.append("resume", resumeFile);
+       formData.append("resume", resumeFile!);
       workExperienceFiles.forEach((file: File) => {
         formData.append("workExperienceDocs", file);
       });
@@ -83,10 +84,13 @@ export const useVerificationFormShellPresenter = () => {
 
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentor"), 1500);
-    } catch (err) {
+    } catch (err: unknown) {
       setMsg({
         type: "error",
-        text: err?.response?.data?.message || "Failed to submit documents. Please try again.",
+        text: getApiErrorMessage(
+          err,
+          "Failed to submit documents. Please try again.",
+        ),
       });
     } finally {
       setLoading(false);

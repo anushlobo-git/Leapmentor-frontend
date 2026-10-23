@@ -65,7 +65,7 @@ const PrivateUploadModal = ({ onUpload, uploading, onClose }: PrivateUploadModal
     if (!file) return;
     const validation = validateDocumentFile(file);
     if (!validation.valid) {
-      setFileError(validation.error);
+      setFileError(validation.error || "Invalid document file.");
       return;
     }
     setSelectedFile(file);

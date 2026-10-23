@@ -12,6 +12,32 @@ import useRequestHistory from "@features/mentee/presenters/useRequestHistory";
 import { TABS } from "@features/mentee/views/dashboard/history/constants";
 import HistoryTable from "@features/mentee/views/dashboard/history/HistoryTable";
 import DetailDrawer, { type HistoryRequest } from "@features/mentee/views/dashboard/history/DetailDrawer";
+import type { MappedConnectRequest } from "@features/connects/models/connectsMapper";
+
+type MappedHistoryRequest = MappedConnectRequest & { _id: string };
+
+const toHistoryRequest = (request: MappedHistoryRequest): HistoryRequest => ({
+  ...request,
+  mentor: request.mentor
+    ? {
+        ...request.mentor,
+        _id: request.mentor._id ?? undefined,
+        email: request.mentor.email ?? undefined,
+      }
+    : null,
+  mentorProfile: request.mentorProfile as HistoryRequest["mentorProfile"],
+  referredTo: request.referredTo
+    ? {
+        ...request.referredTo,
+        _id: request.referredTo._id ?? undefined,
+        email: request.referredTo.email ?? undefined,
+      }
+    : null,
+  referredToProfile:
+    request.referredToProfile as HistoryRequest["referredToProfile"],
+  selectedSlots: request.selectedSlots as HistoryRequest["selectedSlots"],
+  confirmedSlot: request.confirmedSlot as HistoryRequest["confirmedSlot"],
+});
 
 const RequestHistoryTab = () => {
   const {
@@ -27,6 +53,18 @@ const RequestHistoryTab = () => {
     updateRequest,
     fetchRequests,
   } = useRequestHistory();
+
+  const historyRequests = filtered.map(toHistoryRequest);
+  const selectedHistoryRequest = selected
+    ? toHistoryRequest(selected)
+    : null;
+  const handleSelect = (request: HistoryRequest | null) => {
+    setSelected(
+      request
+        ? filtered.find((item) => item._id === request._id) ?? null
+        : null,
+    );
+  };
 
   useSocketEvent(
     () => ({
@@ -70,15 +108,15 @@ const RequestHistoryTab = () => {
 
       {/* Table */}
       <HistoryTable
-        requests={filtered}
-        selected={selected}
-        onSelect={setSelected as unknown as (request: HistoryRequest | null) => void}
+        requests={historyRequests}
+        selected={selectedHistoryRequest}
+        onSelect={handleSelect}
         onDelete={deleteRequest}
       />
 
       {/* Drawer */}
       <DetailDrawer
-        request={selected}
+        request={selectedHistoryRequest}
         onClose={() => setSelected(null)}
         onDelete={deleteRequest}
         onUpdateRequest={updateRequest}

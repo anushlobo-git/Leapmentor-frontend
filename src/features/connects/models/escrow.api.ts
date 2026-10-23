@@ -5,6 +5,18 @@
 // src/escrow.api.js
 import axiosInstance from "@lib/http/axiosInstance"; // Use the configured axios instance with interceptors
 
+interface EscrowPaymentPayload {
+  connectRequestId: string;
+  sessionRate: number;
+  sessionCount: number;
+}
+
+interface AdditionalEscrowPayload {
+  connectRequestId: string;
+  sessionRate: number;
+  slotId: string;
+}
+
 /**
  * Locks tokens into escrow for a connect request.
  * @param {{ connectRequestId: string, sessionRate: number, sessionCount: number }} params - Escrow payment payload.
@@ -14,7 +26,7 @@ export const payEscrow = async ({
   connectRequestId,
   sessionRate,
   sessionCount,
-}) => {
+}: EscrowPaymentPayload) => {
   const res = await axiosInstance.post(
     `/escrow/pay`,
     { connectRequestId, sessionRate, sessionCount },
@@ -27,7 +39,7 @@ export const payEscrow = async ({
  * @param {string} requestId - Connect request identifier.
  * @returns {Promise<any>} Backend response payload.
  */
-export const releaseEscrow = async (requestId) => {
+export const releaseEscrow = async (requestId: string) => {
   const res = await axiosInstance.post(
     `/escrow/release/${requestId}`,
     {},
@@ -40,7 +52,7 @@ export const releaseEscrow = async (requestId) => {
  * @param {string} requestId - Connect request identifier.
  * @returns {Promise<any>} Backend response payload.
  */
-export const refundEscrow = async (requestId) => {
+export const refundEscrow = async (requestId: string) => {
   const res = await axiosInstance.post(
     `/escrow/refund/${requestId}`,
     {},
@@ -53,7 +65,7 @@ export const refundEscrow = async (requestId) => {
  * @param {string} requestId - Connect request identifier.
  * @returns {Promise<any>} Backend response payload.
  */
-export const getEscrowStatus = async (requestId) => {
+export const getEscrowStatus = async (requestId: string) => {
   const res = await axiosInstance.get(`/escrow/status/${requestId}`);
   return res.data;
 };
@@ -63,7 +75,11 @@ export const getEscrowStatus = async (requestId) => {
  * @param {{ connectRequestId: string, sessionRate: number, slotId: string }} params - Additional session payment payload.
  * @returns {Promise<any>} Backend response payload.
  */
-export const payAdditionalEscrow = async ({ connectRequestId, sessionRate, slotId }) => {
+export const payAdditionalEscrow = async ({
+  connectRequestId,
+  sessionRate,
+  slotId,
+}: AdditionalEscrowPayload) => {
   const res = await axiosInstance.post(
     `/escrow/pay-additional`,
     { connectRequestId, sessionRate, slotId },

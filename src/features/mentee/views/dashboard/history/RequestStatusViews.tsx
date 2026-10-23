@@ -66,7 +66,7 @@ export const SlotRow = ({ slot, isConfirmed }: { slot: Slot; isConfirmed: boolea
     <span
       className={`text-xs font-semibold ${isConfirmed ? "text-emerald-700" : "text-slate-600"}`}
     >
-      {slot.day}, {formatSlotDate(slot.date)}
+      {slot.day}, {formatSlotDate(slot.date ?? "")}
     </span>
     <span
       className={`text-xs font-bold ${isConfirmed ? "text-emerald-600" : "text-blue-500"}`}
@@ -197,7 +197,7 @@ export const CompletedContent = ({ request, onClose }: { request: HistoryRequest
         <div className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
           <p className="text-xs font-semibold text-slate-700">
             {confirmedSlot.day},{" "}
-            {formatSlotDate(confirmedSlot.date, { year: "numeric" })}
+            {formatSlotDate(confirmedSlot.date ?? "", { year: "numeric" })}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
             {formatTime(confirmedSlot.startTime)} –{" "}
@@ -250,7 +250,6 @@ export const RejectedContent = ({ request, onClose }: { request: HistoryRequest;
     </div>
   );
 };
-
 
 
 

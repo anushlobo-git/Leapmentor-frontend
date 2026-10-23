@@ -118,7 +118,7 @@ const ReferModal = ({ request, onClose, onReferred }: ReferModalProps) => {
                       <p className="text-sm font-bold text-slate-800 truncate">
                         {mentor.user?.name}
                       </p>
-                      {mentor.avgRating > 0 && (
+                        {mentor.avgRating !== undefined && mentor.avgRating > 0 && (
                         <span className="flex items-center gap-0.5 text-xs text-amber-500 font-semibold shrink-0">
                           ⭐ {mentor.avgRating.toFixed(1)}
                         </span>

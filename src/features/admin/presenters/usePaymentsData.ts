@@ -9,20 +9,34 @@ import {
   getPaymentChart,
   getPaymentTransactions,
 } from "@features/admin/models/admin.api";
+import type { PaymentToastMessage } from "@features/admin/views/payments/Toast";
+import type { RevenueDatum } from "@features/admin/views/payments/RevenuePanel";
+import type {
+  Transaction,
+  TransactionPagination,
+} from "@features/admin/views/payments/TransactionsTable";
 
 const SEARCH_DEBOUNCE_MS = 400;
 const TOAST_DURATION_MS = 3500;
 const PAGE_SIZE = 15;
+
+interface PaymentStats {
+  totalRevenue?: number;
+  platformCommission?: number;
+  commissionRate?: number;
+  pendingPayouts?: number;
+  refundedRequests?: number;
+}
 
 /**
  * Owns all state + data fetching for the Admin Payments page:
  * stats, chart data, transactions, pagination, search/filter, toast.
  */
 export const usePaymentsData = () => {
-  const [stats, setStats] = useState(null);
-  const [chartData, setChartData] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [pagination, setPagination] = useState({
+  const [stats, setStats] = useState<PaymentStats | null>(null);
+  const [chartData, setChartData] = useState<RevenueDatum[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [pagination, setPagination] = useState<TransactionPagination>({
     totalCount: 0,
     currentPage: 1,
     totalPages: 1,
@@ -31,10 +45,10 @@ export const usePaymentsData = () => {
   const [typeFilter, setTypeFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingChart, setLoadingChart] = useState(true);
-  const [toast, setToast] = useState(null);
-  const searchTimer = useRef(null);
+  const [toast, setToast] = useState<PaymentToastMessage | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = useCallback((msg, type = "error") => {
+  const showToast = useCallback((msg: string, type: string = "error") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), TOAST_DURATION_MS);
   }, []);
@@ -90,9 +104,9 @@ export const usePaymentsData = () => {
   }, []);
 
   const handleSearch = useCallback(
-    (val) => {
+    (val: string) => {
       setSearch(val);
-      clearTimeout(searchTimer.current);
+      if (searchTimer.current) clearTimeout(searchTimer.current);
       searchTimer.current = setTimeout(
         () => fetchTransactions(1, val, typeFilter),
         SEARCH_DEBOUNCE_MS,
@@ -102,7 +116,7 @@ export const usePaymentsData = () => {
   );
 
   const handleTypeFilter = useCallback(
-    (type) => {
+    (type: string) => {
       setTypeFilter(type);
       fetchTransactions(1, search, type);
     },

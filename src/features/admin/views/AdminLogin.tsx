@@ -4,11 +4,13 @@
 
 // src/pages/admin/AdminLogin.jsx
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { adminLogin } from "@features/admin/models/admin.api";
 import { setAdminSession } from "@features/auth/models/authSlice";
 import { IMAGES } from "@constants/images";
+import { getApiErrorMessage } from "@lib/http/getApiError";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +21,7 @@ const AdminLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -27,10 +29,8 @@ const AdminLogin = () => {
       const res = await adminLogin(email, password);
       dispatch(setAdminSession(res.data.admin));
       navigate("/admin/users");
-    } catch (err) {
-      setError(
-        err?.response?.data?.message || "Login failed. Please try again.",
-      );
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Login failed. Please try again."));
     } finally {
       setLoading(false);
     }

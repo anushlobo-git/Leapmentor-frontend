@@ -18,13 +18,14 @@ import {
   selectMentorRequestList,
 } from "@features/connects/models/connectRequestsSlice";
 import type { AppDispatch } from "@store/index";
+import { getErrorMessage } from "@lib/http/getApiError";
 
 const BADGES = MENTOR_BADGES;
 
 /** Minimal profile shape the badge conditions read from. */
 interface BadgeProfile {
   totalSessions?: number;
-  avgRating?: number;
+  avgRating?: number | string;
 }
 
 /** Shape of a badge definition used when computing unlocked badges. */
@@ -33,7 +34,7 @@ interface MentorBadge {
   label: string;
   icon: string;
   desc: string;
-  condition: (profile?: BadgeProfile) => boolean;
+  condition: (profile?: BadgeProfile | null) => boolean;
 }
 
 /** Minimal profile shape used to compute profile-completion percentage. */
@@ -43,9 +44,9 @@ interface ProfileCompletion {
   company?: string;
   industry?: string;
   profilePicture?: string;
-  skills?: unknown[];
+  skills?: string[];
   linkedInUrl?: string;
-  yearsOfExperience?: number;
+  yearsOfExperience?: number | null;
 }
 
 export const getProfileCompletion = (profile: unknown) => {
@@ -57,9 +58,9 @@ export const getProfileCompletion = (profile: unknown) => {
     p.company,
     p.industry,
     p.profilePicture,
-    p.skills?.length > 0,
+    (p.skills?.length ?? 0) > 0,
     p.linkedInUrl,
-    p.yearsOfExperience > 0,
+    (p.yearsOfExperience ?? 0) > 0,
   ];
   return Math.round((fields.filter(Boolean).length / fields.length) * 100);
 };
@@ -67,9 +68,14 @@ export const getProfileCompletion = (profile: unknown) => {
 export const useMentorHomeTabPresenter = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector(selectDashboardUser);
-  const profile = useSelector(selectDashboardProfile);
-  const firstName = (user as { name?: string } | null)?.name?.split(" ")[0] || "there";
+  const user = useSelector(selectDashboardUser) as {
+    name?: string;
+    email?: string;
+  } | null;
+  const profile = useSelector(selectDashboardProfile) as (ProfileCompletion & BadgeProfile & {
+    interestedFields?: string[];
+  }) | null;
+  const firstName = user?.name?.split(" ")[0] || "there";
 
   // Sessions / pending / completed counts are derived from the shared requests slice.
   const { items: allRequests, loadedOnce, status } = useSelector(selectMentorRequestList);
@@ -123,8 +129,10 @@ export const useMentorHomeTabPresenter = () => {
           pendingPayout: res.data.pendingPayout || 0,
           walletBalance: res.data.walletBalance || 0,
         });
-      } catch (err) {
-        logger.error("MentorHomeTab earnings error:", { error: err.message });
+      } catch (err: unknown) {
+        logger.error("MentorHomeTab earnings error:", {
+          error: getErrorMessage(err),
+        });
         setEarnings({
           totalEarnings: 0,
           sessionsThisMonth: 0,
