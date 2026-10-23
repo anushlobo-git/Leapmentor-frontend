@@ -7,13 +7,13 @@ import { renderHook } from "@testing-library/react";
 import useSocketEvent from "./useSocketEvent";
 
 // Mock logger
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     info: vi.fn(),
   },
 }));
 
-import logger from "@lib/logger";
+import logger from "@lib/monitoring/logger";
 
 describe("useSocketEvent", () => {
   let mockSocket;

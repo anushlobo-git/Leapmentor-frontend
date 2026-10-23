@@ -4,11 +4,14 @@
 
 // src/store/index.js
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer             from "@features/auth/store/authSlice";
-import menteeOnboardingReducer from "@features/mentee/store/menteeOnboardingSlice";
-import mentorOnboardingReducer from "@features/mentor/store/mentorOnboardingSlice";
-import sharedDashboardReducer  from "@features/shared-dashboard/store/sharedDashboardSlice";
-import dashboardUserReducer    from "@features/profile/store/dashboardUserSlice";
+import authReducer             from "@features/auth/models/authSlice";
+import menteeOnboardingReducer from "@features/mentee/models/menteeOnboardingSlice";
+import mentorOnboardingReducer from "@features/mentor/models/mentorOnboardingSlice";
+import sharedDashboardReducer  from "@features/shared-dashboard/models/sharedDashboardSlice";
+import notificationsReducer     from "@features/notifications/models/notificationsSlice";
+import connectRequestsReducer    from "@features/connects/models/connectRequestsSlice";
+import dashboardUserReducer    from "@features/profile/models/dashboardUserSlice";
+import walletReducer           from "@features/mentee/models/walletSlice";
 
 const store = configureStore({
   reducer: {
@@ -17,10 +20,18 @@ const store = configureStore({
     mentorOnboarding: mentorOnboardingReducer,
     sharedDashboard:  sharedDashboardReducer,
     dashboardUser:    dashboardUserReducer,
+    notifications:    notificationsReducer,
+    connectRequests:  connectRequestsReducer,
+    wallet:           walletReducer,
   },
 });
 
+//ReturnType is used in order to specify the store.getState what it returns is the type for the
+//variable
 export type RootState = ReturnType<typeof store.getState>;
+
+//this is used while u are importing the dispatch and using it for like
+//const dispatch=useDispatch<AppDispatch>()
 export type AppDispatch = typeof store.dispatch;
 
 export default store;

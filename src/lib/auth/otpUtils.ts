@@ -11,11 +11,11 @@
  *   Pass a distinct prefix (e.g. "votp") when a page needs unique DOM ids.
  */
 export const handleOtpChange = (
-  value,
-  index,
-  otpArray,
-  setOtpArray,
-  idPrefix = "otp",
+  value: string,
+  index: number,
+  otpArray: string[],
+  setOtpArray: (value: string[]) => void,
+  idPrefix: string = "otp",
 ) => {
   if (!/^\d?$/.test(value)) return;
   const newOtp = [...otpArray];
@@ -31,7 +31,12 @@ export const handleOtpChange = (
 /**
  * Handle backspace in OTP input
  */
-export const handleOtpKeyDown = (event, index, otpArray, idPrefix = "otp") => {
+export const handleOtpKeyDown = (
+  event: React.KeyboardEvent<HTMLInputElement>,
+  index: number,
+  otpArray: string[],
+  idPrefix: string = "otp",
+) => {
   if (event.key === "Backspace" && !otpArray[index] && index > 0) {
     document.getElementById(`${idPrefix}-${index - 1}`)?.focus();
   }
@@ -41,10 +46,10 @@ export const handleOtpKeyDown = (event, index, otpArray, idPrefix = "otp") => {
  * Handle paste event in OTP input
  */
 export const handleOtpPaste = (
-  event,
-  otpArray,
-  setOtpArray,
-  idPrefix = "otp",
+  event: React.ClipboardEvent<HTMLElement>,
+  _otpArray: string[],
+  setOtpArray: (value: string[]) => void,
+  idPrefix: string = "otp",
 ) => {
   const pastedData = event.clipboardData
     .getData("text")
@@ -62,7 +67,7 @@ export const handleOtpPaste = (
 /**
  * Convert OTP array to string
  */
-export const getOtpString = (otpArray) => otpArray.join("");
+export const getOtpString = (otpArray: string[]) => otpArray.join("");
 
 /**
  * Reset OTP array
@@ -74,3 +79,4 @@ export const resetOtp = () => ["", "", "", "", "", ""];
  */
 export const getOtpInputClasses = () =>
   "w-10 h-10 text-center text-lg font-semibold border-2 border-slate-200 rounded-lg focus:border-blue-900 focus:ring-2 focus:ring-blue-100 outline-none transition-all";
+import type React from "react";

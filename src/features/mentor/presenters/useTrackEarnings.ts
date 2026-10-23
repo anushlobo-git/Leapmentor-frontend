@@ -1,0 +1,227 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/hooks/useTrackEarnings.js
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  getMentorEarnings,
+  getMentorEarningsChart,
+  getMentorEarningsPayouts,
+  withdrawMentorEarnings,
+} from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
+import { mapEarningsSummary, mapChartPoint, mapPayoutsResponse } from "@features/mentor/models/earningsMapper";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+
+type Payout = ReturnType<typeof mapPayoutsResponse>["payouts"][number];
+
+/**
+ * Loads mentor earnings summary, chart data, payout history, and withdrawal actions.
+ * @returns {Object} Earnings state and action handlers used by the earnings dashboard.
+ */
+/**
+ * Custom hook for track earnings.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
+const useTrackEarnings = () => {
+  // ── Stats ─────────────────────────────────────────────────
+  const [stats, setStats]           = useState({
+    totalEarnings:     0,
+    sessionsThisMonth: 0,
+    avgRating:         0,
+    pendingPayout:     0,
+    walletBalance:     0,
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  // ── Chart ─────────────────────────────────────────────────
+  const [chartData, setChartData]     = useState([]);
+  const [chartPeriod, setChartPeriod] = useState("monthly");
+  const [loadingChart, setLoadingChart] = useState(true);
+
+  // ── Payouts table ─────────────────────────────────────────
+  const [payouts, setPayouts]         = useState<Payout[]>([]);
+  const [loadingPayouts, setLoadingPayouts] = useState(true);
+  const [search, setSearch]           = useState("");
+  const [page, setPage]               = useState(1);
+  const [hasMore, setHasMore]         = useState(false);
+  const [totalCount, setTotalCount]   = useState(0);
+
+  // ── Withdraw modal ────────────────────────────────────────
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [withdrawing, setWithdrawing]   = useState(false);
+  const [withdrawMsg, setWithdrawMsg]   = useState({ type: "", text: "" });
+
+  // ── Error ─────────────────────────────────────────────────
+  const [error, setError] = useState("");
+
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstSearchRun = useRef(true);
+
+  // ── Fetch stats ───────────────────────────────────────────
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoadingStats(true);
+      const res = await getMentorEarnings();
+      setStats(mapEarningsSummary(res.data));
+    } catch (err: unknown) {
+      setError(
+        getApiErrorMessage(
+          err,
+          getErrorMessage(err) ??
+            (typeof err === "string" ? err : "Failed to load earnings."),
+        ),
+      );
+    } finally {
+      setLoadingStats(false);
+    }
+  }, []);
+
+  // ── Fetch chart ───────────────────────────────────────────
+  const fetchChart = useCallback(async (period: string) => {
+    try {
+      setLoadingChart(true);
+      const res = await getMentorEarningsChart(period);
+      setChartData(Array.isArray(res.data.data) ? res.data.data.map(mapChartPoint) : []);
+    } catch (err: unknown) {
+      logger.error("Chart fetch error:", { error: getErrorMessage(err) });
+    } finally {
+      setLoadingChart(false);
+    }
+  }, []);
+
+  // ── Fetch payouts ─────────────────────────────────────────
+  const fetchPayouts = useCallback(async (
+    currentPage: number,
+    currentSearch: string,
+    append = false,
+  ) => {
+    try {
+      setLoadingPayouts(true);
+      const params = new URLSearchParams({
+        page:  String(currentPage),
+        limit: String(10),
+        ...(currentSearch ? { search: currentSearch } : {}),
+      });
+      const res = await getMentorEarningsPayouts(params.toString());
+      const mapped = mapPayoutsResponse(res.data);
+      setPayouts((prev) => append ? [...prev, ...mapped.payouts] : mapped.payouts);
+      setHasMore(mapped.pagination.hasMore);
+      setTotalCount(mapped.pagination.totalCount);
+    } catch (err: unknown) {
+      logger.error("Payouts fetch error:", { error: getErrorMessage(err) });
+    } finally {
+      setLoadingPayouts(false);
+    }
+  }, []);
+
+  // ── On mount ──────────────────────────────────────────────
+  useEffect(() => {
+    fetchStats();
+    fetchChart("monthly");
+    fetchPayouts(1, "");
+}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Chart period toggle ───────────────────────────────────
+  const handleChartPeriod = (period: string) => {
+    setChartPeriod(period);
+    fetchChart(period);
+  };
+
+  // ── Debounced search ──────────────────────────────────────
+  useEffect(() => {
+    if (isFirstSearchRun.current) {
+      isFirstSearchRun.current = false;
+      return;
+    }
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setPage(1);
+      fetchPayouts(1, search);
+    }, 300);
+    return () => {
+      if (debounceTimer.current !== null) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Load more ─────────────────────────────────────────────
+  const loadMore = () => {
+    setPage((prevPage) => {
+      const nextPage = prevPage + 1;
+      fetchPayouts(nextPage, search, true);
+      return nextPage;
+    });
+  };
+
+  // ── Prev / Next ───────────────────────────────────────────
+  const goNext = () => {
+    setPage((prevPage) => {
+      const nextPage = prevPage + 1;
+      fetchPayouts(nextPage, search);
+      return nextPage;
+    });
+  };
+
+  const goPrev = () => {
+    setPage((prevPage) => {
+      const nextPage = Math.max(1, prevPage - 1);
+      fetchPayouts(nextPage, search);
+      return nextPage;
+    });
+  };
+
+  // ── Withdraw ──────────────────────────────────────────────
+  const handleWithdraw = async () => {
+    try {
+      setWithdrawing(true);
+      setWithdrawMsg({ type: "", text: "" });
+      const res = await withdrawMentorEarnings();
+      setWithdrawMsg({ type: "success", text: res.data.message });
+      setStats((prev) => ({ ...prev, walletBalance: 0 }));
+      setTimeout(() => {
+        setShowWithdraw(false);
+        setWithdrawMsg({ type: "", text: "" });
+      }, 1500);
+    } catch (err: unknown) {
+      setWithdrawMsg({
+        type: "error",
+        text: getApiErrorMessage(err, "Withdrawal failed."),
+      });
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
+  return {
+    stats,
+    loadingStats,
+    chartData,
+    chartPeriod,
+    loadingChart,
+    payouts,
+    loadingPayouts,
+    search,
+    setSearch,
+    page,
+    setPage,
+    hasMore,
+    totalCount,
+    error,
+    showWithdraw,
+    setShowWithdraw,
+    withdrawing,
+    withdrawMsg,
+    handleChartPeriod,
+    loadMore,
+    goNext,
+    goPrev,
+    handleWithdraw,
+    fetchStats,
+  };
+};
+
+export default useTrackEarnings;

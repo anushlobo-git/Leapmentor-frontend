@@ -1,0 +1,56 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/hooks/useOngoingConnects.js
+import { useState, useEffect, useCallback } from "react";
+import { getOngoingConnects } from "@features/connects/models/connects.api";
+import { mapConnectRequest } from "@features/connects/models/connectsMapper";
+import type { MappedConnectRequest } from "@features/connects/models/connectsMapper";
+import { getApiErrorMessage } from "@lib/http/getApiError";
+/**
+ * Custom hook for ongoing connects.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
+
+const useOngoingConnects = () => {
+  const [ongoing,   setOngoing]   = useState<MappedConnectRequest[]>([]);
+  const [completed, setCompleted] = useState<MappedConnectRequest[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState<string | null>(null);
+
+  const fetchConnects = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getOngoingConnects();
+      const all: MappedConnectRequest[] = Array.isArray(res.data.connects)
+        ? res.data.connects.map(mapConnectRequest)
+        : [];
+
+      // ✅ Split into ongoing and completed
+      setOngoing(all.filter((c) => c.status === "ongoing"));
+      setCompleted(all.filter((c) => c.status === "completed"));
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Failed to load connects."));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchConnects();
+  }, [fetchConnects]);
+
+  // ✅ Keep connects for backward compat (ongoing only)
+  return {
+    connects: ongoing,   // backward compat
+    ongoing,
+    completed,
+    loading,
+    error,
+    refetch: fetchConnects,
+  };
+};
+
+export default useOngoingConnects;

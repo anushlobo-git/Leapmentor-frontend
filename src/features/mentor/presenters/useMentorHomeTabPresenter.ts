@@ -1,0 +1,175 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { getMentorEarnings } from "@features/mentor/models/mentor.api";
+import logger from "@lib/monitoring/logger";
+import {
+  selectDashboardUser,
+  selectDashboardProfile,
+  refetchMentorProfile,
+} from "@features/profile/models/dashboardUserSlice";
+import { MENTOR_BADGES } from "@features/mentor/models/mentorBadges";
+import {
+  fetchMentorRequests,
+  selectMentorRequestList,
+} from "@features/connects/models/connectRequestsSlice";
+import type { AppDispatch } from "@store/index";
+import { getErrorMessage } from "@lib/http/getApiError";
+
+const BADGES = MENTOR_BADGES;
+
+/** Minimal profile shape the badge conditions read from. */
+interface BadgeProfile {
+  totalSessions?: number;
+  avgRating?: number | string;
+}
+
+/** Shape of a badge definition used when computing unlocked badges. */
+interface MentorBadge {
+  key: string;
+  label: string;
+  icon: string;
+  desc: string;
+  condition: (profile?: BadgeProfile | null) => boolean;
+}
+
+/** Minimal profile shape used to compute profile-completion percentage. */
+interface ProfileCompletion {
+  currentRole?: string;
+  bio?: string;
+  company?: string;
+  industry?: string;
+  profilePicture?: string;
+  skills?: string[];
+  linkedInUrl?: string;
+  yearsOfExperience?: number | null;
+}
+
+export const getProfileCompletion = (profile: unknown) => {
+  if (!profile) return 0;
+  const p = profile as ProfileCompletion;
+  const fields = [
+    p.currentRole,
+    p.bio,
+    p.company,
+    p.industry,
+    p.profilePicture,
+    (p.skills?.length ?? 0) > 0,
+    p.linkedInUrl,
+    (p.yearsOfExperience ?? 0) > 0,
+  ];
+  return Math.round((fields.filter(Boolean).length / fields.length) * 100);
+};
+
+export const useMentorHomeTabPresenter = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector(selectDashboardUser) as {
+    name?: string;
+    email?: string;
+  } | null;
+  const profile = useSelector(selectDashboardProfile) as (ProfileCompletion & BadgeProfile & {
+    interestedFields?: string[];
+  }) | null;
+  const firstName = user?.name?.split(" ")[0] || "there";
+
+  // Sessions / pending / completed counts are derived from the shared requests slice.
+  const { items: allRequests, loadedOnce, status } = useSelector(selectMentorRequestList);
+  const loadingSessions = !loadedOnce;
+  const { sessions, pendingCount, actualSessionCount } = useMemo(() => {
+    const active = allRequests.filter(
+      (r) => r.status === "ongoing" || r.status === "accepted",
+    );
+    const completed = allRequests.filter((r) => r.status === "completed");
+    return {
+      sessions: active,
+      pendingCount: allRequests.filter((r) => r.status === "pending").length,
+      actualSessionCount: status === "succeeded"
+        ? completed.length + active.filter((r) => r.status === "ongoing").length
+        : null,
+    };
+  }, [allRequests, status]);
+
+  const [earnings, setEarnings] = useState<Record<string, number> | null>(null);
+  const [loadingEarnings, setLoadingEarnings] = useState(true);
+
+  const completionPct = getProfileCompletion(profile);
+
+  const bp = (profile ?? {}) as BadgeProfile;
+  const badgeProfile: BadgeProfile = {
+    ...bp,
+    totalSessions: actualSessionCount ?? bp.totalSessions ?? 0,
+  };
+  const badges = BADGES.map((b: MentorBadge) => ({
+    ...b,
+    unlocked: b.condition(badgeProfile),
+  }));
+  const unlockedCount = badges.filter((b) => b.unlocked).length;
+
+  useEffect(() => {
+    dispatch(refetchMentorProfile());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchMentorRequests());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const fetchEarnings = async () => {
+      try {
+        setLoadingEarnings(true);
+        const res = await getMentorEarnings();
+        setEarnings({
+          totalEarnings: res.data.totalEarnings || 0,
+          sessionsThisMonth: res.data.sessionsThisMonth || 0,
+          pendingPayout: res.data.pendingPayout || 0,
+          walletBalance: res.data.walletBalance || 0,
+        });
+      } catch (err: unknown) {
+        logger.error("MentorHomeTab earnings error:", {
+          error: getErrorMessage(err),
+        });
+        setEarnings({
+          totalEarnings: 0,
+          sessionsThisMonth: 0,
+          pendingPayout: 0,
+          walletBalance: 0,
+        });
+      } finally {
+        setLoadingEarnings(false);
+      }
+    };
+    fetchEarnings();
+  }, []);
+
+  // ── FIX FOR S3358 & S3776: Extracted Welcome Row Subtext layout logic ──
+  let sessionStatusText = "No active sessions yet.";
+  if (loadingSessions) {
+    sessionStatusText = "Loading your dashboard...";
+  } else if (sessions.length > 0) {
+    sessionStatusText = `You have ${sessions.length} active session${sessions.length > 1 ? "s" : ""}.`;
+  }
+
+  const welcomeMessage = `Welcome, ${firstName}! 👋`;
+
+  return {
+    navigate,
+    user,
+    profile,
+    sessions,
+    loadingSessions,
+    pendingCount,
+    actualSessionCount,
+    earnings,
+    loadingEarnings,
+    completionPct,
+    badges,
+    unlockedCount,
+    sessionStatusText,
+    welcomeMessage,
+  };
+};

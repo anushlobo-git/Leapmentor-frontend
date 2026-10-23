@@ -5,9 +5,12 @@ This repository contains the frontend for LeapMentor, a mentorship platform buil
 **Quick links**
 
 - Code: [src](src)
-- Docs: [docs](docs)
-- TypeScript migration: [docs/TYPESCRIPT_MIGRATION.md](docs/TYPESCRIPT_MIGRATION.md)
+- All docs: [docs/](docs)
+- Setup & running the server: [docs/SETUP.md](docs/SETUP.md)
 - Project structure: [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)
+- Debugging: [docs/DEBUGGING.md](docs/DEBUGGING.md)
+- Testing: [docs/TESTING.md](docs/TESTING.md)
+- Branching / Git flow: [docs/BRANCHING.md](docs/BRANCHING.md)
 
 ## What this repo contains
 
@@ -37,6 +40,7 @@ npm install
 Create a `.env` file in the project root and provide the API and feature keys required by your environment. Typical variables used by the app:
 
 ```env
+VITE_ADMIN_API_BASE_URL=http://localhost:5000/api/v1
 VITE_API_BASE_URL=http://localhost:5000/api/v1
 VITE_SOCKET_URL=http://localhost:5000
 VITE_API_SOCKET_URL=http://localhost:5000
@@ -46,7 +50,7 @@ VITE_LOGTAIL_SOURCE_TOKEN=your-logtail-source-token
 VITE_SENTRY_DSN=your-sentry-dsn
 ```
 
-`VITE_SENTRY_DSN` is read by `src/lib/sentry.ts` when the production app initializes Sentry. Keep the real value in the local `.env` file or your deployment environment; `.env` is ignored by Git.
+`VITE_SENTRY_DSN` is read by `src/lib/monitoring/sentry.ts` when the production app initializes Sentry. Keep the real value in the local `.env` file or your deployment environment; `.env` is ignored by Git.
 
 Do not commit secrets or environment-specific values to version control.
 
@@ -99,6 +103,8 @@ Run tests:
 npm test
 ```
 
+For the full testing guide (tools, coverage thresholds, how to write a test) see [docs/TESTING.md](docs/TESTING.md).
+
 ## Linting
 
 Run ESLint across the codebase:
@@ -117,6 +123,5 @@ npm run lint
 
 - App entry: [src/main.tsx](src/main.tsx#L1)
 - Top-level app: [src/app/App.tsx](src/app/App.tsx#L1)
-- API helpers: [src/lib/axiosInstance.ts](src/lib/axiosInstance.ts#L1)
+- API helpers: [src/lib/http/axiosInstance.ts](src/lib/http/axiosInstance.ts#L1)
 - Onboarding config: [src/config/onboardingFields.ts](src/config/onboardingFields.ts#L1)
-- Migration status: [docs/TYPESCRIPT_MIGRATION.md](docs/TYPESCRIPT_MIGRATION.md)

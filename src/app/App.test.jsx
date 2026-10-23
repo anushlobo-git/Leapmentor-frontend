@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-import axiosInstance from "@lib/axiosInstance";
-import logger from "@lib/logger";
-import { hasSessionHint, clearAuthRole } from "@lib/cookies";
-import { setUser, logout } from "@features/auth/store/authSlice";
+import { appRoutes } from "./routes";
+import axiosInstance from "@lib/http/axiosInstance";
+import logger from "@lib/monitoring/logger";
+import { setUser, logout } from "@features/auth/models/authSlice";
 
 // ── 1. Mock External Modules & Libraries ──────────────────────────────────
 vi.mock("react-redux", () => ({
@@ -13,119 +14,123 @@ vi.mock("react-redux", () => ({
   useSelector: vi.fn(),
 }));
 
-vi.mock("@features/auth/store/authSlice", () => ({
+vi.mock("@features/auth/models/authSlice", () => ({
   setUser: vi.fn((payload) => ({ type: "auth/setUser", payload })),
   logout: vi.fn(() => ({ type: "auth/logout" })),
+  bootstrapAdminSession: vi.fn(() => ({ type: "auth/bootstrapAdminSession" })),
 }));
 
-vi.mock("@lib/axiosInstance", () => ({
+vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
   },
 }));
 
-vi.mock("@lib/logger", () => ({
+vi.mock("@lib/monitoring/logger", () => ({
   default: {
     warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
-vi.mock("@lib/cookies", () => ({
-  hasSessionHint: vi.fn(),
-  clearAuthRole: vi.fn(),
-}));
-
 // ── 2. Mock Page Components & Route Wrappers ──────────────────────────────
-vi.mock("@features/marketing/pages/Home", () => ({
+vi.mock("@features/marketing/views/Home", () => ({
   default: () => <div>Home Component</div>,
 }));
 vi.mock("@app/pages/NotFound", () => ({
   default: () => <div>NotFound Component</div>,
 }));
-vi.mock("@features/auth/pages/Register", () => ({
+vi.mock("@features/auth/views/Register", () => ({
   default: () => <div>Register Component</div>,
 }));
-vi.mock("@features/auth/pages/LoginMentor", () => ({
-  default: () => <div>LoginMentor Component</div>,
+vi.mock("@features/auth/views/Login", () => ({
+  default: () => <div>Login Toggle Component</div>,
 }));
-vi.mock("@features/auth/pages/LoginMentee", () => ({
-  default: () => <div>LoginMentee Component</div>,
-}));
-vi.mock("@features/auth/pages/VerifyEmail", () => ({
+vi.mock("@features/auth/views/VerifyEmail", () => ({
   default: () => <div>VerifyEmail Component</div>,
 }));
-vi.mock("@features/auth/pages/ForgotPassword", () => ({
+vi.mock("@features/auth/views/ForgotPassword", () => ({
   default: () => <div>ForgotPassword Component</div>,
 }));
-vi.mock("@features/auth/pages/SSOCallback", () => ({
+vi.mock("@features/auth/views/SSOCallback", () => ({
   default: () => <div>SSOCallback Component</div>,
 }));
-vi.mock("@features/mentor/pages/MentorOnboarding", () => ({
+vi.mock("@features/mentor/views/MentorOnboarding", () => ({
   default: () => <div>MentorOnboarding Component</div>,
 }));
-vi.mock("@features/mentor/pages/MentorVerification", () => ({
+vi.mock("@features/mentor/views/MentorVerification", () => ({
   default: () => <div>MentorVerification Component</div>,
 }));
-vi.mock("@features/mentee/pages/MenteeOnboarding", () => ({
+vi.mock("@features/mentee/views/MenteeOnboarding", () => ({
   default: () => <div>MenteeOnboarding Component</div>,
 }));
-vi.mock("@features/mentee/components/profile/MenteeEditProfileShell", () => ({
+vi.mock("@features/mentee/views/profile/MenteeEditProfileShell", () => ({
   default: () => <div>MenteeEditProfileShell Component</div>,
 }));
-vi.mock("@features/mentor/components/profile/MentorEditProfileShell", () => ({
+vi.mock("@features/mentor/views/profile/MentorEditProfileShell", () => ({
   default: () => <div>MentorEditProfileShell Component</div>,
 }));
-vi.mock("@features/mentor/pages/MentorDashboard", () => ({
+vi.mock("@features/mentor/views/MentorDashboard", () => ({
   default: () => <div>MentorDashboard Component</div>,
 }));
-vi.mock("@features/mentee/pages/MenteeDashboard", () => ({
+vi.mock("@features/mentee/views/MenteeDashboard", () => ({
   default: () => <div>MenteeDashboard Component</div>,
 }));
-vi.mock("@features/shared-dashboard/pages/SharedDashboardPage", () => ({
+// Phase 5: the route lazy-loads a loader alongside the page; stub it so the
+// route-matrix test doesn't hit the real store/API (loader has its own tests).
+vi.mock("@features/shared-dashboard/models/sharedDashboard.loader", () => ({
+  sharedDashboardLoader: () => ({ connect: null, error: null }),
+  shouldRevalidateSharedDashboard: () => false,
+}));
+
+vi.mock("@features/shared-dashboard/views/SharedDashboardPage", () => ({
   default: () => <div>SharedDashboardPage Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminLogin", () => ({
+vi.mock("@features/admin/views/AdminLogin", () => ({
   default: () => <div>AdminLogin Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminUserManagement", () => ({
+vi.mock("@features/admin/views/AdminUserManagement", () => ({
   default: () => <div>AdminUserManagement Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminEngagements", () => ({
+vi.mock("@features/admin/views/AdminEngagements", () => ({
   default: () => <div>AdminEngagements Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminReports", () => ({
+vi.mock("@features/admin/views/AdminReports", () => ({
   default: () => <div>AdminReports Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminPayments", () => ({
+vi.mock("@features/admin/views/AdminPayments", () => ({
   default: () => <div>AdminPayments Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminSettings", () => ({
+vi.mock("@features/admin/views/AdminSettings", () => ({
   default: () => <div>AdminSettings Component</div>,
 }));
-vi.mock("@features/admin/components/AdminSupportMessages", () => ({
+vi.mock("@features/admin/views/AdminSupportMessages", () => ({
   default: () => <div>AdminSupportMessages Component</div>,
 }));
-vi.mock("@features/admin/components/AdminLayout", () => ({
+vi.mock("@features/admin/views/AdminLayout", () => ({
   default: ({ children }) => <div>AdminLayout Component {children}</div>,
 }));
-vi.mock("@features/admin/pages/AdminWalletRequests", () => ({
+vi.mock("@features/admin/views/AdminWalletRequests", () => ({
   default: () => <div>AdminWalletRequests Component</div>,
 }));
-vi.mock("@features/admin/pages/AdminVerifications", () => ({
+vi.mock("@features/admin/views/AdminVerifications", () => ({
   default: () => <div>AdminVerifications Component</div>,
 }));
 
-vi.mock("@features/admin/components/AdminRoute", () => ({
-  default: ({ children }) => <div>AdminRoute Wrapper {children}</div>,
-}));
 vi.mock("@features/auth/components/ProtectedRoute", () => ({
   default: ({ children }) => <div>ProtectedRoute Wrapper {children}</div>,
 }));
-vi.mock("@features/admin/context/AdminAuthContext", () => ({
-  AdminAuthProvider: ({ children }) => (
-    <div>AdminAuthProvider Component {children}</div>
-  ),
-}));
+vi.mock("@features/admin/views/AdminSessionGate", async () => {
+  const { Outlet } = await vi.importActual("react-router-dom");
+  return {
+    default: () => (
+      <>
+        <div>AdminSessionGate Component</div>
+        <Outlet />
+      </>
+    ),
+  };
+});
 
 // ── 3. Test Suites ────────────────────────────────────────────────────────
 describe("App", () => {
@@ -176,8 +181,11 @@ describe("App", () => {
   });
 
   // ── Session Rehydration Logic Branches ──────────────────────────────────
-  it("should render target page immediately when no session hint cookie is present", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(false);
+  // These still render the real <App/>: createBrowserRouter (inside
+  // createAppRouter(), built in a useMemo — see App.tsx) reads
+  // window.location the moment it's constructed, which happens on first
+  // render, after the mock above is already in place.
+  it("should render target page when no refresh session is available", async () => {
     vi.mocked(useSelector).mockReturnValue(null);
 
     currentPath = "/";
@@ -188,20 +196,18 @@ describe("App", () => {
   });
 
   it("should render target page immediately when access token is already available in Redux", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue("valid-redux-token");
 
     currentPath = "/login";
     render(<App />);
 
     expect(
-      await screen.findByText("LoginMentee Component"),
+      await screen.findByText("Login Toggle Component"),
     ).toBeInTheDocument();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
   });
 
   it("should block UI with loader and successfully refresh token if session hint exists without an access token", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue(null);
 
     axiosInstance.post.mockResolvedValueOnce({
@@ -227,7 +233,6 @@ describe("App", () => {
   });
 
   it("should catch errors on failed refresh, trigger clean-up log, and handle location redirect", async () => {
-    vi.mocked(hasSessionHint).mockReturnValue(true);
     vi.mocked(useSelector).mockReturnValue(null);
 
     axiosInstance.post.mockRejectedValueOnce(
@@ -242,21 +247,21 @@ describe("App", () => {
       await screen.findByText("MentorDashboard Component"),
     ).toBeInTheDocument();
 
-    expect(interceptedHref).toBe("/login");
+    expect(interceptedHref).toBe("");
     expect(mockDispatch).toHaveBeenCalledWith(logout());
-    expect(clearAuthRole).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledWith(
-      "Silent refresh failed — redirecting to login",
+      "Silent refresh unavailable — continuing without a session",
     );
   });
 
   // ── Router Declarations & Component Matching Matrix ─────────────────────
+  // Drives `appRoutes` directly through createMemoryRouter, per the data
+  // router migration plan — this no longer depends on the window.location
+  // mock at all, and exercises exactly the route tree App.tsx renders.
   const navigationMatrix = [
     { path: "/", targetText: "Home Component" },
     { path: "/register", targetText: "Register Component" },
-    { path: "/login", targetText: "LoginMentee Component" },
-    { path: "/login/mentor", targetText: "LoginMentor Component" },
-    { path: "/login/mentee", targetText: "LoginMentee Component" },
+    { path: "/login", targetText: "Login Toggle Component" },
     { path: "/verify-email", targetText: "VerifyEmail Component" },
     { path: "/forgot-password", targetText: "ForgotPassword Component" },
     { path: "/sso-callback", targetText: "SSOCallback Component" },
@@ -268,7 +273,11 @@ describe("App", () => {
     {
       path: "/verify-documents",
       targetText: "MentorVerification Component",
+      // Role is guarded once by the mentor group's layout route; the
+      // permission check is a second, inner <ProtectedRoute> — see
+      // buildRoleGroup / page() in routes.tsx.
       wrappers: ["ProtectedRoute Wrapper"],
+      wrapperCounts: { "ProtectedRoute Wrapper": 2 },
     },
     {
       path: "/onboarding/mentee",
@@ -302,44 +311,44 @@ describe("App", () => {
     {
       path: "/admin/login",
       targetText: "AdminLogin Component",
-      wrappers: ["AdminAuthProvider Component"],
+      wrappers: ["AdminSessionGate Component"],
     },
     {
       path: "/admin/users",
       targetText: "AdminUserManagement Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/engagements",
       targetText: "AdminEngagements Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/reports",
       targetText: "AdminReports Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/payments",
       targetText: "AdminPayments Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/settings",
       targetText: "AdminSettings Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/wallet-requests",
       targetText: "AdminWalletRequests Component",
-      wrappers: ["AdminAuthProvider Component", "AdminRoute Wrapper"],
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     {
       path: "/admin/support",
       targetText: "AdminSupportMessages Component",
       wrappers: [
-        "AdminAuthProvider Component",
-        "AdminRoute Wrapper",
+        "AdminSessionGate Component",
+        "ProtectedRoute Wrapper",
         "AdminLayout Component",
       ],
     },
@@ -347,22 +356,28 @@ describe("App", () => {
       path: "/admin/verifications",
       targetText: "AdminVerifications Component",
       wrappers: [
-        "AdminAuthProvider Component",
-        "AdminRoute Wrapper",
+        "AdminSessionGate Component",
+        "ProtectedRoute Wrapper",
         "AdminLayout Component",
       ],
+    },
+    // /admin itself is now an index route that redirects to /admin/users
+    // instead of 404ing (Phase 2 — see buildAdminRoute in routes.tsx).
+    {
+      path: "/admin",
+      targetText: "AdminUserManagement Component",
+      wrappers: ["AdminSessionGate Component", "ProtectedRoute Wrapper"],
     },
     { path: "/unknown-route-fallback-test", targetText: "NotFound Component" },
   ];
 
   it.each(navigationMatrix)(
     "should properly resolve route match mapping for path '$path'",
-    async ({ path, targetText, wrappers }) => {
-      vi.mocked(hasSessionHint).mockReturnValue(false);
+    async ({ path, targetText, wrappers, wrapperCounts }) => {
       vi.mocked(useSelector).mockReturnValue("active-token");
 
-      currentPath = path;
-      render(<App />);
+      const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
+      render(<RouterProvider router={router} />);
 
       expect(
         await screen.findByText(new RegExp(targetText, "i")),
@@ -370,9 +385,10 @@ describe("App", () => {
 
       if (wrappers) {
         wrappers.forEach((wrapper) => {
+          const expectedCount = wrapperCounts?.[wrapper] ?? 1;
           expect(
-            screen.getByText(new RegExp(wrapper, "i")),
-          ).toBeInTheDocument();
+            screen.getAllByText(new RegExp(wrapper, "i")).length,
+          ).toBeGreaterThanOrEqual(expectedCount);
         });
       }
     },

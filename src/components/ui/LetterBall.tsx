@@ -8,7 +8,7 @@ interface LetterBallProps {
   size?: "sm" | "md" | "lg";
 }
 
-export default function LetterBall({ letter, color, size = "md" }: LetterBallProps) {
+export default function LetterBall({ letter, color, size = "md" }: Readonly<LetterBallProps>) {
   const sizes = {
     sm: "w-7 h-7 text-xs",
     md: "w-9 h-9 text-xs",

@@ -6,6 +6,7 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { HelpCircle, X } from "lucide-react";
+import type { DashboardSidebarSlotProps } from "@components/layout/DashboardShell.types";
 
 interface NavItem {
   key: string;
@@ -229,13 +230,8 @@ const SidebarContent = ({ navItems, activeTab, setActiveTab, onClose, unreadCoun
   </div>
 );
 
-interface DashboardSidebarProps {
+interface DashboardSidebarProps extends DashboardSidebarSlotProps {
   navItems: NavItem[];
-  activeTab: string;
-  setActiveTab: (key: string) => void;
-  isOpen: boolean;
-  onClose: () => void;
-  unreadCount?: number;
 }
 
 const DashboardSidebar = ({ navItems, activeTab, setActiveTab, isOpen, onClose, unreadCount = 0 }: DashboardSidebarProps) => {

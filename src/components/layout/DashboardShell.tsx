@@ -2,63 +2,99 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// src/components/shared-dashboard/DashboardShell.jsx
-import { useState, useEffect, Suspense } from "react";
-import type { ComponentType, CSSProperties } from "react";
-import { useDispatch } from "react-redux";
-import { setUser, setProfile, resetDashboardUser } from "@features/profile/store/dashboardUserSlice";
-import useUnreadCount from "@features/notifications/hooks/useUnreadCount";
-import useSocketToast from "@features/notifications/hooks/useSocketToast";
-import type { AppDispatch } from "@store/index";
+/**
+ * SRP
+ * before all the logic was in one file now seperated into different files for better maintainability and readability
+ * useDashboardCleanup.ts         	Clears shared Redux data when the dashboard unmounts
+   useDashboardNavigation.ts	      Controls active tabs, sidebar state, URL sync, and tab events
+   useDashboardRealtime.ts	        Coordinates socket updates and notification badges
+   DashboardStates.tsx            	Renders loading, error, and skeleton states
+   DashboardTabContent.tsx	        Renders the selected lazy-loaded tab
+ */
 
-const TabSkeleton = () => (
-  <div className="w-full flex flex-col gap-4 animate-pulse pt-2">
-    <div className="h-7 w-48 bg-slate-200 rounded-xl" />
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white rounded-2xl border border-slate-100 p-5 h-24" />
-      ))}
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 h-48" />
-    </div>
-  </div>
-);
 
-interface DashboardTab {
-  key: string;
-  Component: ComponentType<any>;
-  getProps?: (handleSetTab: (tab: string) => void) => Record<string, any>;
-}
+//LSP--Liskov Substitution Principle
+// src/components/layout/DashboardShell.tsx
+// DashboardShell does not create its own top bar or sidebar. It receives them:
 
-interface LoadingConfig {
-  spinnerBorderClass: string;
-  message: string;
-  textClass: string;
-  textStyle?: CSSProperties;
-}
+// <DashboardShell  Top bar={Topbar}  Sidebar={Sidebar} ... />
+// Inside the shell, it expects every supplied top bar to support:
+// <Top bar
+//   user={user}
+//   onMenuToggle={openSidebar}
+//   onLogoClick={() => handleSetTab("home")}
+// />
+// It expects every supplied sidebar to support:
+// <Sidebar
+//   activeTab={activeTab}
+//   setActiveTab={handleSetTab}
+//   isOpen={sidebarOpen}
+//   onClose={closeSidebar}
+//   unreadCount={unreadCount}
+// />
 
-interface DashboardShellProps {
-  useDashboardData: () => {
-    user: any;
-    profile: any;
-    loading: boolean;
-    error: string | null;
-    refetch?: () => void;
-  };
-  Topbar: ComponentType<any>;
-  Sidebar: ComponentType<any>;
-  tabs: DashboardTab[];
-  listenForTabEvent?: boolean;
-  loadingConfig: LoadingConfig;
-}
+// Therefore, a mentee topbar or mentor topbar should be replaceable without breaking DashboardShell.
+// Example: mentee and mentor sidebars
+// The mentee dashboard supplies:
+// const MenteeSidebar = (props) => (
+//   <DashboardSidebar
+//     {...props}
+//     navItems={MENTEE_NAV_ITEMS}
+//   />
+// );
+// The mentor dashboard supplies:
+// const MentorSidebar = (props) => (
+//   <DashboardSidebar
+//     {...props}
+//     navItems={MENTOR_NAV_ITEMS}
+//   />
+// );
+// Both wrappers can be used by DashboardShell because both preserve the sidebar contract:
+// activeTab
+// setActiveTab
+// isOpen
+// onClose
+// unreadCount
+// The shell does not need to know whether it received the mentee sidebar or mentor sidebar.
+//3rd principles of solid that is
+//Objects or implementations should be replaceable with another implementation without breaking the behavior expected by the caller.
+//
+
 
 /**
- * tabs: [{ key, Component, getProps?: (handleSetTab) => props }]
- * loadingConfig: { spinnerBorderClass, message, textClass, textStyle? }
- * listenForTabEvent: mentee-only "setDashboardTab" window event support
+ * ISP--Interface Segregation Principle
+ *
+ * This shows that the shell uses each component through its own focused contract.
+The shell does not need to know the internal implementation of the topbar or sidebar.
+It only provides the data that belongs to that component.
+
+
  */
+import useDashboardCleanup from "@components/layout/useDashboardCleanup";
+import useDashboardNavigation from "@components/layout/useDashboardNavigation";
+import useDashboardRealtime from "@components/layout/useDashboardRealtime";
+import DashboardTabContent from "@components/layout/DashboardTabContent";
+import {
+  DashboardErrorState,
+  DashboardLoadingState,
+} from "@components/layout/DashboardStates";
+import type { DashboardShellProps } from "@components/layout/DashboardShell.types";
+
+export type { DashboardTab } from "@components/layout/DashboardShell.types";
+
+/**
+ * Shared dashboard composition layer.
+ *
+ * Data loading, lifecycle cleanup, realtime notifications, navigation, and
+ * fallback states are delegated to focused hooks/components. This component
+ * only coordinates them into the common dashboard structure.
+ */
+
+//it receives the props and it doest not have mentor specific or mentee specific logic
+// so it extends the behaviour according to the props passed for example there is one tab
+//less in mentee dashboard but still here no mentee specific logic is written again the
+//component receives the tabs and the component displays the tabs according to the props passed
+//this is the OCP principle of SOLID which states that the component should be open for extension but closed for modification
 const DashboardShell = ({
   useDashboardData,
   Topbar,
@@ -67,81 +103,24 @@ const DashboardShell = ({
   listenForTabEvent = false,
   loadingConfig,
 }: DashboardShellProps) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { user, profile, loading, error, refetch } = useDashboardData();
-  const { unreadCount, clearBadge, incrementBadge } = useUnreadCount();
+  const { user, loading, error, refetch } = useDashboardData();
+  const { unreadCount, clearBadge } = useDashboardRealtime(refetch);
+  const {
+    activeTab,
+    sidebarOpen,
+    openSidebar,
+    closeSidebar,
+    handleSetTab,
+  } = useDashboardNavigation({ tabs, listenForTabEvent, clearBadge });
 
-  const onRequestChanged = refetch ? () => refetch() : undefined;
-  useSocketToast(onRequestChanged, incrementBadge);
-
-  const [activeTab, setActiveTab] = useState("home");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (user) dispatch(setUser(user));
-  }, [user, dispatch]);
-
-  useEffect(() => {
-    if (profile) dispatch(setProfile(profile));
-  }, [profile, dispatch]);
-
-  useEffect(() => () => { dispatch(resetDashboardUser()); }, [dispatch]);
-
-  useEffect(() => {
-    if (!listenForTabEvent) return;
-    const handler = (e: any) => setActiveTab(e.detail);
-    globalThis.addEventListener("setDashboardTab", handler);
-    return () => globalThis.removeEventListener("setDashboardTab", handler);
-  }, [listenForTabEvent]);
-
-  useEffect(() => {
-    if (activeTab === "notifications") clearBadge();
-  }, [activeTab, clearBadge]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(globalThis.location.search);
-    const tab = params.get("tab");
-    const validTabs = tabs.map((t) => t.key);
-    if (tab && validTabs.includes(tab)) {
-      setActiveTab(tab);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSetTab = (tab: string) => {
-    setActiveTab(tab);
-    setSidebarOpen(false);
-    const url = new URL(globalThis.location.href);
-    if (tab === "home") {
-      url.searchParams.delete("tab");
-    } else {
-      url.searchParams.set("tab", tab);
-    }
-    globalThis.history.replaceState(null, "", url.toString());
-  };
+  useDashboardCleanup();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className={`w-9 h-9 rounded-full border-4 border-blue-100 ${loadingConfig.spinnerBorderClass} animate-spin`} />
-          <p className={loadingConfig.textClass} style={loadingConfig.textStyle}>
-            {loadingConfig.message}
-          </p>
-        </div>
-      </div>
-    );
+    return <DashboardLoadingState {...loadingConfig} />;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
-          <span className="text-red-500">⚠</span>
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      </div>
-    );
+    return <DashboardErrorState error={error} />;
   }
 
   const activeTabConfig = tabs.find(({ key }) => key === activeTab);
@@ -150,7 +129,7 @@ const DashboardShell = ({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Topbar
         user={user}
-        onMenuToggle={() => setSidebarOpen(true)}
+        onMenuToggle={openSidebar}
         onLogoClick={() => handleSetTab("home")}
       />
       <div className="flex flex-1">
@@ -158,20 +137,14 @@ const DashboardShell = ({
           activeTab={activeTab}
           setActiveTab={handleSetTab}
           isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
+          onClose={closeSidebar}
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          <Suspense fallback={<TabSkeleton />}>
-            {activeTabConfig && (
-              <activeTabConfig.Component
-                key={activeTabConfig.key}
-                {...(activeTabConfig.getProps
-                  ? activeTabConfig.getProps(handleSetTab)
-                  : {})}
-              />
-            )}
-          </Suspense>
+          <DashboardTabContent
+            activeTabConfig={activeTabConfig}
+            handleSetTab={handleSetTab}
+          />
         </main>
       </div>
     </div>
@@ -179,3 +152,11 @@ const DashboardShell = ({
 };
 
 export default DashboardShell;
+
+//another example dashboardTopbar
+
+//“I implemented Liskov Substitution for the dashboard data providers.
+//  DashboardShell requires a DashboardDataProvider contract containing
+// user, profile, loading, error, and a required refetch function.
+// Both useMenteeDashboard and useMentorDashboard implement that contract.
+// Therefore, the shell can substitute one dashboard hook for the other without changing its internal logic.”

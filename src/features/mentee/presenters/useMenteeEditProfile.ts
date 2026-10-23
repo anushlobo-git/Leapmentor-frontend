@@ -1,0 +1,141 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/hooks/useMenteeEditProfile.js
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getMenteeProfile, updateMenteeProfile } from "@features/mentee/models/mentee.api";
+import { refetchMenteeProfile } from "@features/profile/models/dashboardUserSlice";
+import type { AppDispatch } from "@store/index";
+import { useFormDirty } from "@lib/hooks/useFormDirty";
+import logger from "@lib/monitoring/logger";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+import type { MenteeOnboardingForm } from "@features/mentee/models/mentee.types";
+/**
+ * Custom hook for mentee edit profile.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
+
+type MenteeEditProfileForm = Omit<MenteeOnboardingForm, "profilePictureFileName">;
+
+interface MenteeFormChangeEvent {
+  target: { name: string; value: string | string[] };
+}
+
+interface MenteeSubmitEvent {
+  preventDefault: () => void;
+}
+
+const useMenteeEditProfile = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [msg, setMsg] = useState({ type: "", text: "" });
+  const [saved, setSaved] = useState(false);
+
+  const [form, setForm] = useState<MenteeEditProfileForm>({
+    currentRole: "", industry: "", company: "",
+    yearsOfExperience: "", bio: "", profilePicture: "",
+    linkedInUrl: "", portfolioUrl: "",
+    skills: [], interestedFields: [],
+    communicationPreferences: [], languages: [],
+  });
+
+  const isDirty = useFormDirty(form, { ready: !fetchLoading, disabled: saved });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data } = await getMenteeProfile();
+        setForm({
+          currentRole: data.currentRole || "",
+          industry: data.industry || "",
+          company: data.company || "",
+          yearsOfExperience: data.yearsOfExperience || "",
+          bio: data.bio || "",
+          profilePicture: data.profilePicture || "",
+          linkedInUrl: data.linkedInUrl || "",
+          portfolioUrl: data.portfolioUrl || "",
+          skills: data.skills || [],
+          interestedFields: data.interestedFields || [],
+          communicationPreferences: data.communicationPreferences || [],
+          languages: data.languages || [],
+        });
+      } catch (err: unknown) {
+        logger.error("Failed to load mentee profile data", {
+          error: getErrorMessage(err),
+        });
+        setMsg({ type: "error", text: "Failed to load profile data." });
+      } finally {
+        setFetchLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleChange = (e: MenteeFormChangeEvent) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: MenteeSubmitEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMsg({ type: "", text: "" });
+
+    // ✅ Required field validations
+    if (!form.currentRole.trim())
+      return setMsg({ type: "error", text: "Current Role is required." });
+    if (!form.yearsOfExperience)
+      return setMsg({ type: "error", text: "Years of Experience is required." });
+    if (!form.industry)
+      return setMsg({ type: "error", text: "Industry is required." });
+    if (!form.interestedFields.length)
+      return setMsg({ type: "error", text: "Please add at least one Field of Interest." });
+    if (!form.skills.length)
+      return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
+
+    const isOnlyNumbers = (val: string) => val && /^\d+$/.test(val.trim());
+    if (isOnlyNumbers(form.currentRole))
+      return setMsg({ type: "error", text: "Current Role cannot be a number." });
+    if (isOnlyNumbers(form.company))
+      return setMsg({ type: "error", text: "Company name cannot be a number." });
+
+    const isValidUrl = (val: string) => {
+      if (!val) return true;
+      try { new URL(val); return true; }
+      catch { return false; }
+    };
+    if (!isValidUrl(form.linkedInUrl))
+      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
+    if (!isValidUrl(form.portfolioUrl))
+      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
+
+    try {
+      const payload = {
+        ...form,
+        yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
+      };
+      await updateMenteeProfile(payload);
+      setSaved(true);
+      // Keep dashboardUserSlice in sync so Home/Profile tabs show the edit without a reload.
+      dispatch(refetchMenteeProfile());
+      setMsg({ type: "success", text: "Profile updated successfully!" });
+      setTimeout(() => navigate("/dashboard/mentee"), 1500);
+    } catch (err: unknown) {
+      setMsg({
+        type: "error",
+        text: getApiErrorMessage(err, "Update failed."),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { form, loading, fetchLoading, msg, isDirty, handleChange, handleSubmit };
+};
+
+export default useMenteeEditProfile;

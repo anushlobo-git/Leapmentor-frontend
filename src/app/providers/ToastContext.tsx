@@ -16,7 +16,7 @@ import type { MouseEvent, ReactNode } from "react";
 type BuiltInToastType = "success" | "error" | "info" | "warning";
 
 interface ToastOptions {
-  type?: BuiltInToastType | string;
+  type?: BuiltInToastType;
   title?: string;
   message?: string;
 }
@@ -39,6 +39,11 @@ interface ToastStyle {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+// useToast is intentionally co-located with its ToastProvider: the hook is
+// imported (and mocked by module path) across many features/tests, so moving
+// it out purely to satisfy fast refresh would churn every consumer for no
+// runtime gain.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => {
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error("useToast must be used within ToastProvider");
@@ -185,7 +190,7 @@ const Toast = ({
   toast: ToastNotification;
   onRemove: (id: string) => void;
 }) => {
-  const style = TOAST_STYLES[toast.type as BuiltInToastType] || TOAST_STYLES.info;
+  const style = TOAST_STYLES[toast.type] || TOAST_STYLES.info;
 
   return (
     <div

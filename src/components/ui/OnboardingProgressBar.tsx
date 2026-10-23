@@ -12,13 +12,13 @@ const getBarColor = (percent: number) => {
 };
 
 interface OnboardingProgressBarProps {
-  form: Record<string, any>;
+  form: object;
   fields: OnboardingFieldConfig[];
 }
 
 const OnboardingProgressBar = ({ form, fields }: OnboardingProgressBarProps) => {
   const filled = fields.filter(({ key, type }) => {
-    const val = form[key];
+    const val = (form as Record<string, unknown>)[key];
     if (type === "array") return Array.isArray(val) && val.length > 0;
     return val !== "" && val !== null && val !== undefined;
   });

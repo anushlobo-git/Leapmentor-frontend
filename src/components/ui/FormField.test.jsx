@@ -5,7 +5,8 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import FormField, { FIELD_BASE_STYLE } from "./FormField";
+import FormField from "./FormField";
+import { FIELD_BASE_STYLE } from "./fieldStyles";
 
 describe("FormField", () => {
   it("should render as input by default", () => {

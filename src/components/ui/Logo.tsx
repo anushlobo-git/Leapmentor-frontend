@@ -9,7 +9,7 @@ interface LogoProps {
   variant?: "dark" | "light";
 }
 
-export default function Logo({ onClick, variant = "dark" }: LogoProps) {
+export default function Logo({ onClick, variant = "dark" }: Readonly<LogoProps>) {
 
   // "dark" variant gets dark text (gray-900), "light" variant gets white text
   const textColor = variant === "light" ? "text-white" : "text-gray-900";

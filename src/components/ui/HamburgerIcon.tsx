@@ -6,7 +6,7 @@ interface HamburgerIconProps {
   isOpen: boolean;
 }
 
-export default function HamburgerIcon({ isOpen }: HamburgerIconProps) {
+export default function HamburgerIcon({ isOpen }: Readonly<HamburgerIconProps>) {
   return (
     <svg
       width="24"

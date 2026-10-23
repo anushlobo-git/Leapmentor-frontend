@@ -11,7 +11,7 @@ interface StatCardProps {
   gradientTo: string;
 }
 
-export default function StatCard({ value, label, gradientFrom, gradientTo }: StatCardProps) {
+export default function StatCard({ value, label, gradientFrom, gradientTo }: Readonly<StatCardProps>) {
   return (
     <Card className="text-center py-5 px-4">
       <p

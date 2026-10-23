@@ -1,5 +1,223 @@
 /*
  * Copyright (c) 2026 Leapmentor. All rights reserved.
+ *
+ * This is the app's global CSS file. Think of it as the "style setup" for the
+ * whole LeapMentor frontend: fonts, colors, dark mode, and a few default rules.
+ *
+ * How this file is used:
+ * 1. We import tools (Tailwind, animations, shadcn, the Geist font).
+ * 2. We name our colors and fonts so Tailwind classes like `bg-primary` work.
+ * 3. We give those names real color values for light mode and dark mode.
+ * 4. We apply a few base styles so every page starts looking consistent.
  */
 
+/* Tailwind CSS: utility classes like `flex`, `p-4`, `text-sm`. */
 @import "tailwindcss";
+
+/* Extra animation utilities (fade, slide, etc.) used by some UI components. */
+@import "tw-animate-css";
+
+/* shadcn UI defaults. shadcn is our component library (buttons, dialogs, etc.). */
+@import "shadcn/tailwind.css";
+
+/* Geist font (variable version = one file, many weights). Makes text look consistent. */
+@import "@fontsource-variable/geist";
+
+/*
+ * Dark mode switch for Tailwind.
+ * When a parent has class `dark`, classes like `dark:bg-background` kick in.
+ * This helps users who prefer a darker screen, and it helps us keep one codebase
+ * for both themes instead of writing two separate CSS files.
+ */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * @theme inline = "tell Tailwind the names of our design tokens".
+ *
+ * Design tokens are shared names like "primary color" or "card background".
+ * Components (buttons, cards, sidebar) use those names, not raw hex codes.
+ *
+ * Why `--color-*`? Tailwind maps them to classes:
+ *   --color-primary  ->  bg-primary, text-primary, border-primary
+ *
+ * The `var(--primary)` part means: "use the value from :root or .dark below".
+ * So we change the color once in :root / .dark, and every component updates.
+ */
+@theme inline {
+    /* Headings use the same family as body text so the UI feels unified. */
+    --font-heading: var(--font-sans);
+    /* Default app font. `font-sans` in HTML/components will use Geist. */
+    --font-sans: 'Geist Variable', sans-serif;
+
+    /* Sidebar tokens — used by the navigation sidebar (mentors/mentees). */
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+
+    /* Chart tokens — used by graphs (wallet, sessions, dashboard stats). */
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+
+    /* Focus ring around inputs/buttons (keyboard and accessibility). */
+    --color-ring: var(--ring);
+    /* Input field borders / backgrounds. */
+    --color-input: var(--input);
+    /* Default border color for cards, dividers, inputs. */
+    --color-border: var(--border);
+    /* Danger / delete / error actions (red). */
+    --color-destructive: var(--destructive);
+    /* Hover / highlight surfaces (tabs, selected rows). */
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    /* Quiet / secondary text and backgrounds (hints, placeholders). */
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    /* Secondary buttons and less important actions. */
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    /* Main brand action color (primary buttons) + text on top of it. */
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    /* Popovers / dropdowns / tooltips. */
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    /* Cards (session cards, request cards, dashboard widgets). */
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    /* Page background and default text color. */
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+
+    /*
+     * Corner roundness scale. `--radius` is the base (set in :root).
+     * Smaller numbers = slightly sharper; larger = more rounded.
+     * Components pick sm/md/lg so buttons, cards, and dialogs match.
+     */
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Light mode colors (the default).
+ * `:root` means "the whole page" until something overrides it (like `.dark`).
+ *
+ * Colors use `oklch(...)` — a modern way to write color. You don't need to
+ * memorize it. Roughly: first number is lightness (1 = white, 0 = black).
+ *
+ * "foreground" always means "the text/icon color that sits on that surface".
+ * Example: `--card` is the card background, `--card-foreground` is the text on it.
+ */
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+/*
+ * Dark mode colors.
+ * Same token names as :root, different values (darker backgrounds, lighter text).
+ * Put class `dark` on <html> or a wrapper to switch the whole UI.
+ * We do not change component code — only these values change.
+ */
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+/*
+ * Base layer = defaults that apply to the whole site unless a component overrides them.
+ * `@apply` means "reuse these Tailwind classes here".
+ */
+@layer base {
+  /* Every element gets the shared border color and a soft focus outline. */
+  * {
+    @apply border-border outline-ring/50;
+    }
+  /* Page canvas: background + default text from our tokens above. */
+  body {
+    @apply bg-background text-foreground;
+    }
+  /* Whole document uses Geist (`--font-sans`) unless a component says otherwise. */
+  html {
+    @apply font-sans;
+    }
+}
+/*
+imports     → tools (Tailwind, font, shadcn extras)
+dark variant → dark: classes work
+@theme      → names become Tailwind classes (bg-primary)
+:root       → light numbers for those names
+.dark       → dark numbers for the same names
+@layer base → html/body defaults
+*/

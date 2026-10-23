@@ -11,12 +11,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import DashboardTopbar from "./DashboardTopbar";
 
 // Mock dependencies
-vi.mock("@features/auth/api/auth.api", () => ({
+vi.mock("@features/auth/models/auth.api", () => ({
   logoutRequest: vi.fn(),
-}));
-
-vi.mock("@lib/cookies", () => ({
-  clearAuthRole: vi.fn(),
 }));
 
 vi.mock("@constants/images", () => ({
@@ -25,8 +21,7 @@ vi.mock("@constants/images", () => ({
   },
 }));
 
-import { logoutRequest } from "@features/auth/api/auth.api";
-import { clearAuthRole } from "@lib/cookies";
+import { logoutRequest } from "@features/auth/models/auth.api";
 
 describe("DashboardTopbar", () => {
   let store;
@@ -119,10 +114,10 @@ describe("DashboardTopbar", () => {
         </BrowserRouter>
       </Provider>
     );
-    
+
     const hamburger = screen.getByLabelText("Open menu");
     await user.click(hamburger);
-    
+
     expect(onMenuToggle).toHaveBeenCalledTimes(1);
   });
 
@@ -139,17 +134,17 @@ describe("DashboardTopbar", () => {
         </BrowserRouter>
       </Provider>
     );
-    
+
     const logoButton = screen.getByLabelText("Go to Home");
     await user.click(logoButton);
-    
+
     expect(onLogoClick).toHaveBeenCalledTimes(1);
   });
 
   it("should handle logout on button click", async () => {
     const user = userEvent.setup();
     logoutRequest.mockResolvedValue({});
-    
+
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -161,18 +156,17 @@ describe("DashboardTopbar", () => {
         </BrowserRouter>
       </Provider>
     );
-    
+
     const logoutButton = screen.getByText("Logout");
     await user.click(logoutButton);
-    
+
     expect(logoutRequest).toHaveBeenCalled();
-    expect(clearAuthRole).toHaveBeenCalled();
   });
 
   it("should handle logout even if API request fails", async () => {
     const user = userEvent.setup();
     logoutRequest.mockRejectedValue(new Error("API Error"));
-    
+
     render(
       <Provider store={store}>
         <BrowserRouter>
@@ -184,12 +178,11 @@ describe("DashboardTopbar", () => {
         </BrowserRouter>
       </Provider>
     );
-    
+
     const logoutButton = screen.getByText("Logout");
     await user.click(logoutButton);
-    
+
     expect(logoutRequest).toHaveBeenCalled();
-    expect(clearAuthRole).toHaveBeenCalled();
   });
 
   it("should have header element", () => {

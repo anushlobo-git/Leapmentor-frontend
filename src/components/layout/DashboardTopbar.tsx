@@ -5,15 +5,13 @@
 // src/components/shared-dashboard/DashboardTopbar.jsx
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logoutRequest } from "@features/auth/api/auth.api";
-import { logout } from "@features/auth/store/authSlice";
-import { clearAuthRole } from "@lib/cookies";
+import { logoutRequest } from "@features/auth/models/auth.api";
+import { logout } from "@features/auth/models/authSlice";
 import { IMAGES } from "@constants/images";
 import type { AppDispatch } from "@store/index";
+import type { DashboardTopbarSlotProps } from "@components/layout/DashboardShell.types";
 
-interface DashboardTopbarProps {
-  onMenuToggle: () => void;
-  onLogoClick: () => void;
+interface DashboardTopbarProps extends DashboardTopbarSlotProps {
   logoutRedirectPath: string;
 }
 
@@ -23,7 +21,27 @@ interface DashboardTopbarProps {
  * redirects to, so that's passed in as a prop rather than duplicating
  * this whole component per role.
  */
-const DashboardTopbar = ({ onMenuToggle, onLogoClick, logoutRedirectPath }: DashboardTopbarProps) => {
+
+//to explain about the open and close principles of solid
+// here u are not focused to change the redirecting path instead
+//its passed as a prop to the component
+//so u can add other path without changing the component itself
+
+
+/**
+ * ISP- Interface Segregation Principle
+ * The topbar receives only the data it needs to render and behave correctly.
+ * It does not receive sidebar-specific properties such as:
+ *
+ * it retrives the data from the types only data that it needs to render and behave correctly
+ * and then adds one more property logoutRedirectPath which is not present in the types
+ * but it is passed as a prop to the component
+ */
+const DashboardTopbar = ({
+  onMenuToggle,
+  onLogoClick,
+  logoutRedirectPath,
+}: DashboardTopbarProps) => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -34,7 +52,6 @@ const DashboardTopbar = ({ onMenuToggle, onLogoClick, logoutRedirectPath }: Dash
       // even if the request fails, clear local state and redirect regardless
     }
     dispatch(logout());
-    clearAuthRole();
     navigate(logoutRedirectPath);
   };
 

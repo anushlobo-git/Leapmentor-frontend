@@ -15,7 +15,7 @@ Run `npm run typecheck` before the build to validate TypeScript without emitting
 ## Runtime And Build Environment Variables
 
 Values observed in the codebase via `import.meta.env`:
-
+- `VITE_ADMIN_API_BASE_URL` (optional override for cookie-based `/admin/*` endpoints; include `/api/v1` when that is the backend API prefix)
 - `VITE_API_BASE_URL`
 - `VITE_SOCKET_URL`
 - `VITE_API_SOCKET_URL`
@@ -41,7 +41,3 @@ The root `Dockerfile` does the following:
 ## CI/CD
 
 No CI/CD configuration is present in the repository tree provided here. There is no `.github/workflows` directory or equivalent pipeline config checked in.
-
-## Generated Artifacts
-
-Do not deploy or commit local analysis output. `dist/` is the deployable build output; `coverage/` contains local test coverage; `.scannerwork/` is the SonarQube Scanner working directory. The latter two are ignored by `.gitignore`.

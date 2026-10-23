@@ -12,7 +12,7 @@ export default function GoogleIcon({
   className = "",
   width = "18",
   height = "18"
-}: GoogleIconProps) {
+}: Readonly<GoogleIconProps>) {
   return (
     <svg
       width={width}

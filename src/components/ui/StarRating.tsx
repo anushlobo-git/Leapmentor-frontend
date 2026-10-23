@@ -9,7 +9,7 @@ interface StarRatingProps {
   total?: number;
 }
 
-export default function StarRating({ count = 5, total = 5 }: StarRatingProps) {
+export default function StarRating({ count = 5, total = 5 }: Readonly<StarRatingProps>) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: total }, (_, i) => i).map((i) => (

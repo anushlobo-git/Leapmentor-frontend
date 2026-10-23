@@ -1,0 +1,144 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+// src/hooks/useAvailability.js
+import { useState, useEffect } from "react";
+import { getMyAvailability, updateMyAvailability } from "@features/mentor/models/mentor.api";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
+import { getApiErrorMessage, getErrorMessage } from "@lib/http/getApiError";
+import type { DateEntry } from "@features/mentor/presenters/useCalendarAvailabilityPresenter";
+
+interface AvailabilityState {
+  timezone: string;
+  sessionDurations: number[];
+  googleCalendarConnected: boolean;
+  specificDates: DateEntry[];
+}
+/**
+ * Custom hook for availability.
+ * @returns {Object} Hook state and handlers for the caller.
+ */
+
+const useAvailability = () => {
+  const [availability, setAvailability] = useState<AvailabilityState>({
+    timezone: "Asia/Kolkata",
+    sessionDurations: [30, 60],
+    googleCalendarConnected: false,
+    specificDates: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [saving,  setSaving]  = useState(false);
+  const [msg,     setMsg]     = useState({ type: "", text: "" });
+
+
+  // Fetch existing availability on mount
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        setLoading(true);
+        const res = await getMyAvailability();
+        const { ...data } = res.data;
+        setAvailability((prev) => ({
+          ...prev,
+          ...data,
+          specificDates: data.specificDates || [],
+        }));
+      } catch (err: unknown) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status !== HTTP_STATUS.NOT_FOUND) {
+          setMsg({ type: "error", text: "Failed to load availability." });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, []);
+
+  // Toggle session duration
+  const toggleDuration = (duration: number) => {
+    setAvailability((prev) => {
+      const current = prev.sessionDurations;
+      const updated = current.includes(duration)
+        ? current.filter((d) => d !== duration)
+        : [...current, duration].sort((a, b) => a - b);
+      return { ...prev, sessionDurations: updated };
+    });
+  };
+
+  // Update timezone
+  const updateTimezone = (tz: string) => {
+    setAvailability((prev) => ({ ...prev, timezone: tz }));
+  };
+
+  // Set specificDates — accepts value or updater function
+  const setSpecificDates = (
+    updater: DateEntry[] | ((prev: DateEntry[]) => DateEntry[]),
+  ) => {
+    setAvailability((prev) => ({
+      ...prev,
+      specificDates: typeof updater === "function"
+        ? updater(prev.specificDates)
+        : updater,
+    }));
+  };
+
+  // Save
+  const saveAvailability = async () => {
+    setMsg({ type: "", text: "" });
+    try {
+      setSaving(true);
+      await updateMyAvailability({
+        timezone:         availability.timezone,
+        sessionDurations: availability.sessionDurations,
+        specificDates:    availability.specificDates,
+      });
+      setMsg({ type: "success", text: "Availability saved successfully!" });
+    } catch (err: unknown) {
+      const apiMsg = getApiErrorMessage(
+        err,
+        getErrorMessage(err) ?? "Failed to save.",
+      );
+      setMsg({ type: "error", text: apiMsg });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Cancel — re-fetch from server to discard local changes
+  const cancelChanges = async () => {
+    try {
+      setLoading(true);
+      const res = await getMyAvailability();
+      const { ...data } = res.data;
+      setAvailability((prev) => ({
+        ...prev,
+        ...data,
+        specificDates: data.specificDates || [],
+      }));
+      setMsg({ type: "", text: "" });
+    } catch {
+      // silently ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    availability,
+    setAvailability, // ← exposed so AvailabilityTab can update googleCalendarConnected
+    loading,
+    saving,
+    msg,
+    toggleDuration,
+    updateTimezone,
+    setSpecificDates,
+    saveAvailability,
+    cancelChanges,
+  };
+};
+
+export default useAvailability;

@@ -10,7 +10,7 @@ interface DotIndicatorProps {
   onDotClick: (index: number) => void;
 }
 
-export default function DotIndicator({ total, active, onDotClick }: DotIndicatorProps) {
+export default function DotIndicator({ total, active, onDotClick }: Readonly<DotIndicatorProps>) {
   return (
     <div className="flex justify-center gap-2 mt-10">
       {Array.from({ length: total }, (_, i) => `dot-${i}`).map((key, i) => (

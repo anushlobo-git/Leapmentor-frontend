@@ -14,7 +14,7 @@ export default function LinkedInIcon({
   width = "18",
   height = "18",
   fill = "#0A66C2"
-}: LinkedInIconProps) {
+}: Readonly<LinkedInIconProps>) {
   return (
     <svg
       width={width}

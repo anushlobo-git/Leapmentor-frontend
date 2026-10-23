@@ -2,7 +2,13 @@
  * Copyright (c) 2026 Leapmentor. All rights reserved.
  */
 
-// Common SVG password visibility toggle icons used across auth forms
+// Common SVG password visibility toggle icons used across auth forms.
+//
+// This is a utility module of JSX-element constants + a selector, not a
+// component module — the icons are consumed as `{EyeIconSVG}`, never rendered
+// as `<EyeIconSVG/>`. Fast refresh's component heuristic misfires on the
+// PascalCase element constants, so the rule is disabled for this file.
+/* eslint-disable react-refresh/only-export-components */
 
 export const EyeIconSVG = (
   <svg

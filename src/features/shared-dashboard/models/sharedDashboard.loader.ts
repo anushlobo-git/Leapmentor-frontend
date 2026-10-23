@@ -1,0 +1,74 @@
+/**
+ * Copyright (c) 2026 Leapmentor. All rights reserved.
+ */
+
+import { redirect, type LoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router-dom";
+import store from "@store/index";
+import { selectIsAuthenticated } from "@features/auth/models/authSlice";
+import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashboard.api";
+import { HTTP_STATUS } from "@lib/http/httpStatus";
+
+/**
+ * Connect/session detail returned by GET /connect-requests/:id/detail.
+ * The backend DTO is broad; only the fields the dashboard actually reads are
+ * modelled here (the loader is a pass-through, other fields stay untyped).
+ */
+export interface ConnectDetail {
+  _id?: string;
+  status?: string;
+  viewerRole?: "mentee" | "mentor";
+  [key: string]: unknown;
+}
+
+export interface SharedDashboardLoaderData {
+  connect: ConnectDetail | null;
+  error: string | null;
+}
+
+type SharedDashboardApiError = {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+};
+
+/**
+ * Fetches the connect for /shared-dashboard/:connectRequestId before the page renders.
+ * Loaders aren't components, so auth is read straight from the store.
+ *  - not signed in / 401  → redirect to /login (was navigate("/login"))
+ *  - 403                  → thrown 403 Response, shown by RouteErrorBoundary
+ *                           (a loader can't navigate(-1) like the old effect did)
+ *  - anything else        → returned as `error`, the page keeps its inline error UI
+ * The loader does NOT write to Redux; the page mirrors `connect` into the slice
+ * so the slice stays the single read path for the dashboard's child components.
+ */
+export const sharedDashboardLoader = async ({
+  params,
+}: LoaderFunctionArgs): Promise<SharedDashboardLoaderData> => {
+  if (!selectIsAuthenticated(store.getState())) throw redirect("/login");
+
+  try {
+    const res = await getConnectDetail(params.connectRequestId!);
+    return { connect: res.data.connect, error: null };
+  } catch (err: unknown) {
+    const error = err as SharedDashboardApiError;
+    const status = error.response?.status;
+    if (status === HTTP_STATUS.UNAUTHORIZED) throw redirect("/login");
+    if (status === HTTP_STATUS.FORBIDDEN) {
+      throw new Response("Forbidden", { status: HTTP_STATUS.FORBIDDEN });
+    }
+    return {
+      connect: null,
+      error: error.response?.data?.message || "Failed to load session.",
+    };
+  }
+};
+
+/** Only refetch when the connect id changes — not on `?tab=` changes or
+ * after unrelated navigations/submissions (the default would refetch). */
+export const shouldRevalidateSharedDashboard: ShouldRevalidateFunction = ({
+  currentParams,
+  nextParams,
+}) => currentParams.connectRequestId !== nextParams.connectRequestId;
