@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.vite
+.git
+.gitignore
+.env
+.env.*
+!*.env.example
+*.log
+docs
+src/**/*.test.*
+src/**/*.stories.*
