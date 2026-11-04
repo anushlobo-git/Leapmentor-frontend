@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import * as appRouter from "./createAppRouter";
 import App from "./App";
 import { appRoutes } from "./routes";
 import axiosInstance from "@lib/http/axiosInstance";
@@ -246,6 +247,45 @@ describe("App", () => {
         accessToken: "newly-refreshed-token",
       }),
     );
+  });
+
+  it("waits for session restoration before creating routes with auth loaders", async () => {
+    vi.mocked(useSelector).mockReturnValue(null);
+
+    let resolveRefresh;
+    axiosInstance.post.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveRefresh = resolve;
+      }),
+    );
+    axiosInstance.get.mockResolvedValueOnce({
+      data: {
+        _id: "user-123",
+        email: "user@leapmentor.com",
+        roles: ["mentee"],
+      },
+    });
+
+    currentPath = "/shared-dashboard/request-123";
+    const createRouterSpy = vi.spyOn(appRouter, "createAppRouter");
+    render(<App />);
+
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(createRouterSpy).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveRefresh({
+        data: {
+          accessToken: "newly-refreshed-token",
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(createRouterSpy).toHaveBeenCalledTimes(1);
+    });
+
+    createRouterSpy.mockRestore();
   });
 
   it("does not restore auth if the current-user check fails", async () => {

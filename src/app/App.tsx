@@ -66,9 +66,12 @@ const useSessionBootstrap = () => {
 
 const App = () => {
   const ready = useSessionBootstrap();
-  const router = useMemo(() => createAppRouter(), []);
+  // createBrowserRouter starts its initial loaders as soon as it is created.
+  // Wait until bearer-session restoration has updated Redux so loaders (such
+  // as the shared-dashboard loader) don't mistake a hard refresh for logout.
+  const router = useMemo(() => (ready ? createAppRouter() : null), [ready]);
 
-  if (!ready) return <PageLoader />;
+  if (!ready || !router) return <PageLoader />;
 
   return (
     <>

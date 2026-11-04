@@ -100,18 +100,18 @@ describe("useSocketToast", () => {
       expect(globalThis.__leapSocket).toBeNull();
     });
 
-    it("should restore the global socket reference on reconnect", () => {
+    it("should restore the global socket reference after reconnecting", () => {
       mockUseSelector.mockReturnValue("token-abc");
 
       renderHook(() => useSocketToast());
       globalThis.__leapSocket = null;
 
       act(() => {
-        mockSocket.emit("reconnect", 2);
+        mockSocket.emit("connect");
       });
 
-      expect(logger.info).toHaveBeenCalledWith("Socket reconnected", {
-        attempt: 2,
+      expect(logger.info).toHaveBeenCalledWith("Socket connected", {
+        socketId: mockSocket.id,
       });
       expect(globalThis.__leapSocket).toBe(mockSocket);
     });

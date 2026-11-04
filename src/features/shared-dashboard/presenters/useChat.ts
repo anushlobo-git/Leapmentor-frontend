@@ -39,7 +39,10 @@ type ChatApiError = {
  * @returns {Object} Hook state and handlers for the caller.
  */
 
-const useChat = (connectRequestId: string | null | undefined) => {
+const useChat = (
+  connectRequestId: string | null | undefined,
+  otherUserId: string | null | undefined,
+) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -132,10 +135,23 @@ const useChat = (connectRequestId: string | null | undefined) => {
 
       const handleTypingStart = () => setIsTyping(true);
       const handleTypingStop = () => setIsTyping(false);
-      const handleUserOnline = () => setOtherOnline(true);
-      const handleUserOffline = () => setOtherOnline(false);
+      const handleUserOnline = (presence: { userId?: string }) => {
+        if (presence.userId === otherUserId) setOtherOnline(true);
+      };
+      const handleUserOffline = (presence: { userId?: string }) => {
+        if (presence.userId === otherUserId) setOtherOnline(false);
+      };
+      const handleSocketConnect = () => {
+        const socket = socketRef.current;
+        if (!socket || !connectRequestId) return;
+        setOtherOnline(false);
+        socket.emit("join_room", { connectRequestId });
+      };
       const handleMessagesRead = ({ readAt }: { readAt?: string | null }) => {
         setMessages((prev) => markMessagesAsRead(prev, readAt));
+      };
+      const handleSocketDisconnect = () => {
+        setOtherOnline(false);
       };
       const handleError = (error: unknown) => {
         const socketError = error as ChatApiError | null | undefined;
@@ -146,12 +162,15 @@ const useChat = (connectRequestId: string | null | undefined) => {
       return {
         onConnect: (socket: Socket) => {
           socketRef.current = socket;
+          setOtherOnline(false);
           logger.info("Chat socket connected, joining room", {
             roomId: connectRequestId,
           });
           socket.emit("join_room", { connectRequestId });
         },
         events: {
+          connect: handleSocketConnect,
+          disconnect: handleSocketDisconnect,
           new_message: handleNewMessage,
           typing_start: handleTypingStart,
           typing_stop: handleTypingStop,
@@ -169,7 +188,7 @@ const useChat = (connectRequestId: string | null | undefined) => {
         },
       };
     },
-    [connectRequestId],
+    [connectRequestId, otherUserId],
     "Chat socket",
   );
 

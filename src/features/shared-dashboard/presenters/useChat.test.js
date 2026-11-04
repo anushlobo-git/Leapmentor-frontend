@@ -346,19 +346,49 @@ describe("useChat Hook Test Suite", () => {
       expect(result.current.isTyping).toBe(false);
     });
 
-    it("should track session partner presence flags cleanly down user_online and user_offline vectors", async () => {
-      const { result } = renderHook(() => useChat("room_123"));
+    it("should track only the session partner across user_online and user_offline events", async () => {
+      const { result } = renderHook(() => useChat("room_123", "mentor-1"));
       await act(async () => {});
 
       const setupConfig = globalSocketContext.capturedInitializer();
 
       act(() => {
-        setupConfig.events.user_online();
+        setupConfig.events.user_online({ userId: "mentee-1" });
+      });
+      expect(result.current.otherOnline).toBe(false);
+
+      act(() => {
+        setupConfig.events.user_online({ userId: "mentor-1" });
       });
       expect(result.current.otherOnline).toBe(true);
 
       act(() => {
-        setupConfig.events.user_offline();
+        setupConfig.events.user_offline({ userId: "mentee-1" });
+      });
+      expect(result.current.otherOnline).toBe(true);
+
+      act(() => {
+        setupConfig.events.user_offline({ userId: "mentor-1" });
+      });
+      expect(result.current.otherOnline).toBe(false);
+    });
+
+    it("should rejoin the room after the shared socket reconnects", async () => {
+      const { result } = renderHook(() => useChat("room_123", "mentor-1"));
+      await act(async () => {});
+      const socket = { emit: vi.fn() };
+      const setupConfig = globalSocketContext.capturedInitializer();
+      setupConfig.onConnect(socket);
+
+      act(() => {
+        setupConfig.events.connect();
+      });
+
+      expect(socket.emit).toHaveBeenNthCalledWith(1, "join_room", {
+        connectRequestId: "room_123",
+      });
+      expect(socket.emit).toHaveBeenNthCalledWith(2, "join_room", {
+        connectRequestId: "room_123",
       });
       expect(result.current.otherOnline).toBe(false);
     });

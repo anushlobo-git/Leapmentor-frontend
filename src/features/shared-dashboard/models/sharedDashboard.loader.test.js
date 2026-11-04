@@ -5,39 +5,45 @@ import {
 } from "./sharedDashboard.loader";
 import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashboard.api";
 
-const mockState = { auth: {} };
-vi.mock("@store/index", () => ({ default: { getState: () => mockState } }));
-vi.mock("@features/auth/models/authSlice", () => ({
-  selectIsAuthenticated: (s) => Boolean(s.auth.ok),
-}));
 vi.mock("@features/shared-dashboard/models/shared-dashboard.api", () => ({
   getConnectDetail: vi.fn(),
 }));
 
-const args = { params: { connectRequestId: "c1" }, request: new Request("http://x/") };
+const args = {
+  params: { connectRequestId: "c1" },
+  request: new Request("http://x/shared-dashboard/c1?tab=chat"),
+};
 const thrown = async (p) => { try { await p; } catch (e) { return e; } return null; };
 
 describe("sharedDashboardLoader", () => {
-  beforeEach(() => { vi.clearAllMocks(); mockState.auth = { ok: true }; });
+  beforeEach(() => { vi.clearAllMocks(); });
 
-  it("redirects to /login without fetching when unauthenticated", async () => {
-    mockState.auth = { ok: false };
+  it("requests the connect so Axios can refresh the session before redirecting", async () => {
+    getConnectDetail.mockRejectedValue({ response: { status: 401 } });
     const res = await thrown(sharedDashboardLoader(args));
     expect(res.status).toBe(302);
-    expect(res.headers.get("Location")).toBe("/login");
-    expect(getConnectDetail).not.toHaveBeenCalled();
+    expect(res.headers.get("Location")).toBe(
+      "/login?returnTo=%2Fshared-dashboard%2Fc1%3Ftab%3Dchat",
+    );
+    expect(getConnectDetail).toHaveBeenCalledWith("c1", {
+      _skipAuthRedirect: true,
+    });
   });
 
   it("returns the connect on success", async () => {
     getConnectDetail.mockResolvedValue({ data: { connect: { _id: "c1" } } });
     expect(await sharedDashboardLoader(args)).toEqual({ connect: { _id: "c1" }, error: null });
-    expect(getConnectDetail).toHaveBeenCalledWith("c1");
+    expect(getConnectDetail).toHaveBeenCalledWith("c1", {
+      _skipAuthRedirect: true,
+    });
   });
 
-  it("redirects to /login on 401", async () => {
+  it("returns to the requested shared-dashboard URL after an unrecoverable 401", async () => {
     getConnectDetail.mockRejectedValue({ response: { status: 401 } });
     const res = await thrown(sharedDashboardLoader(args));
-    expect(res.headers.get("Location")).toBe("/login");
+    expect(res.headers.get("Location")).toContain(
+      "returnTo=%2Fshared-dashboard%2Fc1%3Ftab%3Dchat",
+    );
   });
 
   it("throws a 403 Response on forbidden", async () => {

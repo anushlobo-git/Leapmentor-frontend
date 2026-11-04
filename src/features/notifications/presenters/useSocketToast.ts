@@ -65,6 +65,7 @@ const useSocketToast = (onRequestChanged: ((data: unknown) => void) | undefined,
     globalThis.__leapSocket = socket;
 
     socket.on("connect", () => {
+      globalThis.__leapSocket = socket;
       logger.info("Socket connected", { socketId: socket.id });
     });
 
@@ -77,11 +78,6 @@ const useSocketToast = (onRequestChanged: ((data: unknown) => void) | undefined,
       if (globalThis.__leapSocket === socket) {
         globalThis.__leapSocket = null;
       }
-    });
-
-    socket.on("reconnect", (attempt) => {
-      logger.info("Socket reconnected", { attempt });
-      globalThis.__leapSocket = socket;
     });
 
     socket.on("new_connect_request", ({ title, message, type }) => {

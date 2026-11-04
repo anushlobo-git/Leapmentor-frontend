@@ -1,127 +1,115 @@
-# LeapMentor — Frontend
+# LeapMentor Frontend
 
-This repository contains the frontend for LeapMentor, a mentorship platform built with React, Vite, and TypeScript. The app uses a feature-based `src/` layout, centralized infrastructure helpers, and reusable UI primitives.
-
-**Quick links**
-
-- Code: [src](src)
-- All docs: [docs/](docs)
-- Setup & running the server: [docs/SETUP.md](docs/SETUP.md)
-- Project structure: [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)
-- Debugging: [docs/DEBUGGING.md](docs/DEBUGGING.md)
-- Testing: [docs/TESTING.md](docs/TESTING.md)
-- Branching / Git flow: [docs/BRANCHING.md](docs/BRANCHING.md)
-
-## What this repo contains
-
-- A Vite + React 19 + TypeScript application bootstrapped for fast local development and production builds.
-- Feature-based source organization under `src/features/*` (auth, mentor, mentee, sessions, reports, etc.).
-- Shared UI primitives in `src/components/` and `src/ui/`.
-- HTTP helpers and shared utilities in `src/lib/`.
+The LeapMentor frontend is a React 19, TypeScript, and Vite single-page
+application. It provides the browser UI for mentors, mentees, and
+administrators. Backend APIs and realtime services run separately.
 
 ## Requirements
 
-- Node.js 18.x or newer
-- npm 9.x or newer
+- Node.js `>=18 <23`
+- npm `>=9`
 
-See the `engines` field in package.json for the exact supported versions.
+## Run locally with Vite
 
-## Install
-
-Clone the repo and install dependencies:
+Install dependencies and start the development server:
 
 ```bash
-cd Leapmentor-frontend
-npm install
-```
-
-## Environment
-
-Create a `.env` file in the project root and provide the API and feature keys required by your environment. Typical variables used by the app:
-
-```env
-VITE_ADMIN_API_BASE_URL=http://localhost:5000/api/v1
-VITE_API_BASE_URL=http://localhost:5000/api/v1
-VITE_SOCKET_URL=http://localhost:5000
-VITE_API_SOCKET_URL=http://localhost:5000
-VITE_GOOGLE_CLIENT_ID=your-google-client-id
-VITE_VAPID_PUBLIC_KEY=your-vapid-public-key
-VITE_LOGTAIL_SOURCE_TOKEN=your-logtail-source-token
-VITE_SENTRY_DSN=your-sentry-dsn
-```
-
-`VITE_SENTRY_DSN` is read by `src/lib/monitoring/sentry.ts` when the production app initializes Sentry. Keep the real value in the local `.env` file or your deployment environment; `.env` is ignored by Git.
-
-Do not commit secrets or environment-specific values to version control.
-
-## Scripts
-
-Use the npm scripts defined in `package.json`:
-
-- `npm run dev` / `npm start` — Start Vite dev server
-- `npm run build` — Build production assets into `dist/`
-- `npm run preview` — Preview the production build locally
-- `npm run lint` — Run ESLint
-- `npm test` — Run Vitest once
-- `npm run test:watch` — Vitest in watch mode
-- `npm run test:coverage` — Run tests with coverage
-- `npm run analyze` — Analyze source maps for bundle sizes
-- `npm run typecheck` — Run TypeScript without emitting files
-
-Example: start the dev server
-
-```bash
+npm ci
 npm run dev
 ```
 
-## Project structure (high level)
+Open the URL Vite prints, normally [http://localhost:5173](http://localhost:5173).
+The frontend does not start the backend. When using the local microservices
+gateway, configure the API and Socket.IO URLs to point to
+`http://localhost:8080`; setup and container instructions are in
+[`../services/CONTAINER_BUILD.md`](../services/CONTAINER_BUILD.md).
+
+## Configure the frontend
+
+Copy [`.env.example`](./.env.example) to `.env` and set values for the local
+environment. Vite exposes `VITE_*` values in the browser bundle, so only put
+public configuration here—never backend secrets, private API keys, or signing
+credentials.
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_BASE_URL` | API base URL, including `/api/v1`; defaults to `http://localhost:5000/api/v1`. |
+| `VITE_ADMIN_API_BASE_URL` | Optional admin API base URL; defaults to `VITE_API_BASE_URL`. |
+| `VITE_API_URL` | Compatibility build argument accepted by the Dockerfile; the frontend's current HTTP clients use `VITE_API_BASE_URL`. |
+| `VITE_API_SOCKET_URL` | Socket.IO endpoint; defaults in the app to `http://localhost:5000`. Use `/` when the frontend and gateway share an origin. |
+| `VITE_GOOGLE_CLIENT_ID` | Public Google OAuth client ID; optional unless enabling Google sign-in. |
+| `VITE_VAPID_PUBLIC_KEY` | Public VAPID key for web push subscriptions. |
+| `VITE_SENTRY_DSN` | Optional browser error reporting configuration. |
+| `VITE_LOGTAIL_SOURCE_TOKEN` | Optional browser log shipping configuration. |
+| `VITE_APP_BASE_URL` | Public app URL included in the environment template for browser-facing integrations. |
+
+For Vite development with the local microservices gateway, set
+`VITE_API_BASE_URL=http://localhost:8080/api/v1` and
+`VITE_API_SOCKET_URL=http://localhost:8080`. Relative values `/api/v1` and `/`
+are appropriate when the frontend is served on the same origin as the gateway,
+as in the container deployment. Vite reads environment values when it starts,
+so restart the dev server after changing `.env`.
+
+## Production build
+
+Build and preview the static production bundle:
+
+```bash
+npm run typecheck
+npm run build
+npm run preview
+```
+
+The build is written to `dist/`. Vite preview normally serves it at
+`http://localhost:4173`.
+
+The frontend Dockerfile builds the Vite bundle and serves it with
+unprivileged NGINX on port `8080`. Its default API settings are same-origin,
+which is appropriate when a gateway routes frontend and API requests together.
+Browser configuration is embedded at image build time; pass only public
+`VITE_*` values as Docker build arguments. See
+[`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) and
+[`../services/CONTAINER_BUILD.md`](../services/CONTAINER_BUILD.md).
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` / `npm start` | Start the Vite development server |
+| `npm run build` | Create the production bundle in `dist/` |
+| `npm run preview` | Serve the built bundle locally |
+| `npm run typecheck` | Run TypeScript checks without emitting files |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run Vitest once |
+| `npm run test:watch` | Run Vitest in watch mode |
+| `npm run test:coverage` | Run tests with coverage |
+| `npm run analyze` | Analyze built JavaScript bundle sizes |
+
+## Project layout
 
 ```text
 src/
-├─ app/                 # App bootstrap and top-level providers
-├─ components/          # Shared presentational components
-├─ config/              # Onboarding fields and static config
-├─ constants/           # Shared constants and image paths
-├─ features/            # Feature-based folders (auth, mentor, mentee, sessions...)
-├─ lib/                 # Axios instances, mappers, cookies, logger, helpers
-├─ store/               # Redux store and feature slices
-├─ ui/                  # Small UI atoms and icons
-├─ index.css
-├─ main.tsx
-└─ vite-env.d.ts
+├── app/          # App bootstrap and top-level providers
+├── components/   # Shared presentational components
+├── config/       # Application configuration
+├── constants/    # Shared constants
+├── features/     # Auth, mentor, mentee, sessions, admin, and other features
+├── lib/          # HTTP, monitoring, mapping, and shared utilities
+├── store/        # Redux store and feature slices
+├── ui/           # Reusable UI primitives
+└── main.tsx      # Browser entry point
+docs/             # Setup, architecture, testing, debugging, and deployment guides
 ```
 
-For more detail see [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md).
+## Tests and further documentation
 
-## Testing
+Tests use Vitest, jsdom, and Testing Library. Run `npm test` for a single
+complete test run. See [`docs/TESTING.md`](./docs/TESTING.md) for test guidance.
 
-Tests use Vitest and Testing Library. The test setup file is `src/test/setup.ts`. Production code is fully migrated to TypeScript/TSX; remaining JavaScript/JSX files are legacy tests and are temporarily supported by `allowJs`.
-
-Run tests:
-
-```bash
-npm test
-```
-
-For the full testing guide (tools, coverage thresholds, how to write a test) see [docs/TESTING.md](docs/TESTING.md).
-
-## Linting
-
-Run ESLint across the codebase:
-
-```bash
-npm run lint
-```
-
-## Notes & gotchas
-
-- Keep backend URLs and socket URLs in `.env` as Vite environment variables (`VITE_...`).
-- Do not commit real API keys or VAPID keys.
-- Generated `dist/`, `coverage/`, and `.scannerwork/` directories are ignored.
-
-## Where to look next
-
-- App entry: [src/main.tsx](src/main.tsx#L1)
-- Top-level app: [src/app/App.tsx](src/app/App.tsx#L1)
-- API helpers: [src/lib/http/axiosInstance.ts](src/lib/http/axiosInstance.ts#L1)
-- Onboarding config: [src/config/onboardingFields.ts](src/config/onboardingFields.ts#L1)
+- [Setup guide](./docs/SETUP.md)
+- [Project structure](./docs/PROJECT_STRUCTURE.md)
+- [Testing](./docs/TESTING.md)
+- [Debugging](./docs/DEBUGGING.md)
+- [Deployment](./docs/DEPLOYMENT.md)
+- [Onboarding](./docs/ONBOARDING.md)
+- [Branching and Git flow](./docs/BRANCHING.md)
