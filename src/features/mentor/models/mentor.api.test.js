@@ -11,6 +11,7 @@ import {
   getSimilarMentors,
   referRequest,
   getMentorEarnings,
+  withdrawMentorEarnings,
   getGoogleCalendarAuthUrl,
   disconnectGoogleCalendar,
   getGoogleCalendarBusySlots,
@@ -31,6 +32,37 @@ describe("mentor.api", () => {
     vi.clearAllMocks();
   });
 
+  describe("withdrawMentorEarnings", () => {
+    it("sends an idempotency key with the empty withdrawal body", async () => {
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
+      axiosInstance.post.mockResolvedValue({ data: { success: true } });
+
+      await withdrawMentorEarnings();
+
+      const [path, body, config] = axiosInstance.post.mock.calls[0];
+      expect(path).toBe("/mentor/earnings/withdraw");
+      expect(body).toEqual({});
+      expect(config.headers["Idempotency-Key"]).toEqual(expect.any(String));
+      expect(config.headers["Idempotency-Key"].length).toBeGreaterThan(7);
+    });
+
+    it("reuses the same idempotency key after an uncertain network failure", async () => {
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
+      axiosInstance.post
+        .mockRejectedValueOnce(new Error("network timeout"))
+        .mockResolvedValueOnce({ data: { success: true } });
+
+      await expect(withdrawMentorEarnings()).rejects.toThrow("network timeout");
+      await withdrawMentorEarnings();
+
+      const firstKey =
+        axiosInstance.post.mock.calls[0][2].headers["Idempotency-Key"];
+      const retryKey =
+        axiosInstance.post.mock.calls[1][2].headers["Idempotency-Key"];
+      expect(retryKey).toBe(firstKey);
+    });
+  });
+
   describe("uploadVerificationDocuments", () => {
     it("should call axiosInstance.post with correct endpoint and config", async () => {
       const mockResponse = { data: { success: true } };
@@ -39,12 +71,15 @@ describe("mentor.api", () => {
 
       const formData = new FormData();
       const onUploadProgress = vi.fn();
-      const result = await uploadVerificationDocuments(formData, onUploadProgress);
+      const result = await uploadVerificationDocuments(
+        formData,
+        onUploadProgress,
+      );
 
       expect(axiosInstance.post).toHaveBeenCalledWith(
         "/upload/verification-documents",
         formData,
-        { onUploadProgress }
+        { onUploadProgress },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -58,12 +93,15 @@ describe("mentor.api", () => {
 
       const formData = new FormData();
       const onUploadProgress = vi.fn();
-      const result = await uploadMentorProfilePicture(formData, onUploadProgress);
+      const result = await uploadMentorProfilePicture(
+        formData,
+        onUploadProgress,
+      );
 
       expect(axiosInstance.post).toHaveBeenCalledWith(
         "/upload/profile-picture",
         formData,
-        { onUploadProgress }
+        { onUploadProgress },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -77,7 +115,9 @@ describe("mentor.api", () => {
 
       const result = await getIncomingRequests();
 
-      expect(axiosInstance.get).toHaveBeenCalledWith("/connect-requests/incoming");
+      expect(axiosInstance.get).toHaveBeenCalledWith(
+        "/connect-requests/incoming",
+      );
       expect(result).toEqual(mockResponse);
     });
   });
@@ -93,7 +133,7 @@ describe("mentor.api", () => {
 
       expect(axiosInstance.patch).toHaveBeenCalledWith(
         "/connect-requests/req123",
-        body
+        body,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -108,7 +148,7 @@ describe("mentor.api", () => {
       const result = await getSimilarMentors("req123");
 
       expect(axiosInstance.get).toHaveBeenCalledWith(
-        "/connect-requests/req123/similar-mentors"
+        "/connect-requests/req123/similar-mentors",
       );
       expect(result).toEqual(mockResponse);
     });
@@ -124,7 +164,7 @@ describe("mentor.api", () => {
 
       expect(axiosInstance.patch).toHaveBeenCalledWith(
         "/connect-requests/req123/refer",
-        { referToMentorId: "mentor456" }
+        { referToMentorId: "mentor456" },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -152,7 +192,9 @@ describe("mentor.api", () => {
 
         const result = await getGoogleCalendarAuthUrl();
 
-        expect(axiosInstance.get).toHaveBeenCalledWith("/google-calendar/auth-url");
+        expect(axiosInstance.get).toHaveBeenCalledWith(
+          "/google-calendar/auth-url",
+        );
         expect(result).toEqual(mockResponse);
       });
     });
@@ -165,7 +207,9 @@ describe("mentor.api", () => {
 
         const result = await disconnectGoogleCalendar();
 
-        expect(axiosInstance.post).toHaveBeenCalledWith("/google-calendar/disconnect");
+        expect(axiosInstance.post).toHaveBeenCalledWith(
+          "/google-calendar/disconnect",
+        );
         expect(result).toEqual(mockResponse);
       });
     });
@@ -181,7 +225,7 @@ describe("mentor.api", () => {
 
         expect(axiosInstance.get).toHaveBeenCalledWith(
           "/google-calendar/busy",
-          { params }
+          { params },
         );
         expect(result).toEqual(mockResponse);
       });
@@ -198,7 +242,7 @@ describe("mentor.api", () => {
 
         expect(axiosInstance.get).toHaveBeenCalledWith(
           "/google-calendar/events",
-          { params }
+          { params },
         );
         expect(result).toEqual(mockResponse);
       });

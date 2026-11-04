@@ -28,11 +28,13 @@ import {
   setActiveTab,
 } from "@features/shared-dashboard/models/sharedDashboardSlice";
 interface SessionSlot {
+  _id?: string;
   date?: string;
   day?: string;
   displayDate?: string;
   startTime: string;
   endTime: string;
+  paymentStatus?: "pending" | "paid";
 }
 
 interface ScheduledSessionSlot extends SessionSlot {
@@ -68,7 +70,6 @@ interface SuccessScreenProps {
 
 interface AdditionalSessionPaymentModalProps {
   slot: ScheduledSessionSlot;
-  slotId: string;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -230,7 +231,7 @@ const LockIcon = ({ size = 13 }: { size?: number }) => (
   </svg>
 );
 
-const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: AdditionalSessionPaymentModalProps) => {
+const AdditionalSessionPaymentModal = ({ slot, onClose, onSuccess }: AdditionalSessionPaymentModalProps) => {
   const connect = useSelector((state: RootState) => selectConnect(state));
   const connectId = useSelector((state: RootState) => selectConnectId(state));
   const dispatch = useDispatch<AppDispatch>();
@@ -240,9 +241,11 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
   // Wallet lives in walletSlice (`null` until a balance is known).
   const walletBalance = useSelector(selectWalletBalanceOrNull);
   const [commissionRate, setCommissionRate] = useState(20);
+  const [sessionRate, setSessionRate] = useState(
+    connect?.mentorProfile?.hourlyRate ?? 0,
+  );
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const sessionRate = connect?.mentorProfile?.hourlyRate || 0;
   const platformFee = Math.ceil((sessionRate * commissionRate) / 100);
   const totalAmount = sessionRate + platformFee;
   const insufficient = walletBalance !== null && walletBalance < totalAmount;
@@ -274,7 +277,17 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
         if (typeof status?.wallet?.balance === "number") {
           dispatch(walletSynced({ balance: status.wallet.balance }));
         }
-        if (status?.commissionRate != null) setCommissionRate(status.commissionRate);
+        if (status?.commissionRate != null) {
+          setCommissionRate(Number(status.commissionRate));
+        }
+        const statusSessionRate = Number(status?.sessionRate);
+        if (
+          status?.sessionRate != null &&
+          Number.isFinite(statusSessionRate) &&
+          statusSessionRate >= 1
+        ) {
+          setSessionRate(statusSessionRate);
+        }
       } catch (err: unknown) {
         const error = err as { message?: string };
         logger.warn("Could not fetch escrow status:", { error: error.message });
@@ -291,7 +304,16 @@ const AdditionalSessionPaymentModal = ({ slot, slotId, onClose, onSuccess }: Add
     if (insufficient) { setError(`Need ${paymentShortfall} more tokens.`); return; }
     try {
       setLoading(true);
-      await payAdditionalEscrow({ connectRequestId: connectId!, sessionRate, slotId });
+      await payAdditionalEscrow({
+        connectRequestId: connectId!,
+        sessionRate,
+        slot: {
+          day: slot.day,
+          date: slot.date,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        },
+      });
       dispatch(fetchWallet()); // tokens moved to escrow — refresh the balance everywhere
       setShowSuccess(true);
     } catch (err: unknown) {
@@ -406,12 +428,15 @@ const SharedAdditionalSessionTab = () => {
   // Confirm / payment / success
   const [confirmSlot, setConfirmSlot] = useState<ScheduledSessionSlot | null>(null);
   const [successSlot, setSuccessSlot] = useState<ScheduledSessionSlot | null>(null);
-  const [paymentSlot, setPaymentSlot] = useState<{ slot: ScheduledSessionSlot; slotId: string } | null>(null);
+  const [paymentSlot, setPaymentSlot] = useState<ScheduledSessionSlot | null>(null);
 
-  const { slots: untypedSlots, additionalSlots, saving, addSlot } = useSessions(connectId, undefined) as LegacyAdditionalSessionsState;
+  const { slots: untypedSlots, additionalSlots, saving, refetch } = useSessions(connectId, undefined) as LegacyAdditionalSessionsState;
   const slots = untypedSlots as SessionSlot[];
 
-  const existingSlotDates = [...slots, ...(additionalSlots || [])].map((s) => ({
+  const existingSlotDates = [
+    ...slots,
+    ...(additionalSlots || []).filter((slot) => slot.paymentStatus === "paid"),
+  ].map((s) => ({
     date: s.date, startTime: s.startTime, endTime: s.endTime,
   }));
 
@@ -470,15 +495,13 @@ const SharedAdditionalSessionTab = () => {
 
   const handleConfirm = async () => {
     if (!confirmSlot) return;
-    const result = await addSlot(confirmSlot);
-    if (result?.success) {
+    if (!isMentor) {
+      setPaymentSlot(confirmSlot);
       setConfirmSlot(null);
-      if (!isMentor && result?.slotId) {
-        setPaymentSlot({ slot: confirmSlot, slotId: result.slotId });
-      } else {
-        setSuccessSlot(confirmSlot);
-      }
+      return;
     }
+    setConfirmSlot(null);
+    setAvailError("The mentee must select and pay for an additional session before it is booked.");
   };
 
   if (!connectId) return null;
@@ -664,10 +687,13 @@ const SharedAdditionalSessionTab = () => {
       {/* Payment modal */}
       {paymentSlot && (
         <AdditionalSessionPaymentModal
-          slot={paymentSlot.slot}
-          slotId={paymentSlot.slotId}
+          slot={paymentSlot}
           onClose={() => setPaymentSlot(null)}
-          onSuccess={() => { setSuccessSlot(paymentSlot.slot); setPaymentSlot(null); }}
+          onSuccess={() => {
+            void refetch(true);
+            setSuccessSlot(paymentSlot);
+            setPaymentSlot(null);
+          }}
         />
       )}
     </div>

@@ -14,7 +14,13 @@ interface EscrowPaymentPayload {
 interface AdditionalEscrowPayload {
   connectRequestId: string;
   sessionRate: number;
-  slotId: string;
+  slotId?: string;
+  slot?: {
+    day: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  };
 }
 
 /**
@@ -79,10 +85,11 @@ export const payAdditionalEscrow = async ({
   connectRequestId,
   sessionRate,
   slotId,
+  slot,
 }: AdditionalEscrowPayload) => {
   const res = await axiosInstance.post(
     `/escrow/pay-additional`,
-    { connectRequestId, sessionRate, slotId },
+    { connectRequestId, sessionRate, ...(slotId ? { slotId } : { slot }) },
   );
   return res.data;
 };

@@ -25,10 +25,25 @@ describe("AuthSSOButtons", () => {
     mockOnLinkedIn = vi.fn();
   });
 
+  it("hides Google sign-in when it is not configured", () => {
+    render(
+      <AuthSSOButtons
+        googleBtnRef={mockGoogleRef}
+        googleEnabled={false}
+        loading={false}
+        onLinkedIn={mockOnLinkedIn}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /Google/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /LinkedIn/i })).toBeInTheDocument();
+  });
+
   it("should render both buttons cleanly with icons when disabled state is false", () => {
     const { container } = render(
       <AuthSSOButtons
         googleBtnRef={mockGoogleRef}
+        googleEnabled={true}
         loading={false}
         disabled={false}
         onLinkedIn={mockOnLinkedIn}
@@ -52,6 +67,7 @@ describe("AuthSSOButtons", () => {
     const { container } = render(
       <AuthSSOButtons
         googleBtnRef={mockGoogleRef}
+        googleEnabled={true}
         loading={true}
         disabled={false}
         onLinkedIn={mockOnLinkedIn}
@@ -70,6 +86,7 @@ describe("AuthSSOButtons", () => {
     const { container } = render(
       <AuthSSOButtons
         googleBtnRef={mockGoogleRef}
+        googleEnabled={true}
         loading={false}
         disabled={true}
         onLinkedIn={mockOnLinkedIn}
@@ -88,6 +105,7 @@ describe("AuthSSOButtons", () => {
     render(
       <AuthSSOButtons
         googleBtnRef={mockGoogleRef}
+        googleEnabled={true}
         loading={false}
         disabled={false}
         onLinkedIn={mockOnLinkedIn}
@@ -110,6 +128,7 @@ describe("AuthSSOButtons", () => {
     render(
       <AuthSSOButtons
         googleBtnRef={mockGoogleRef}
+        googleEnabled={true}
         loading={false}
         disabled={false}
         onLinkedIn={mockOnLinkedIn}
@@ -131,6 +150,7 @@ describe("AuthSSOButtons", () => {
     render(
       <AuthSSOButtons
         googleBtnRef={emptyRef}
+        googleEnabled={true}
         loading={false}
         disabled={false}
         onLinkedIn={mockOnLinkedIn}

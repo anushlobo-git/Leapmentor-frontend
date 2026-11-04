@@ -387,6 +387,11 @@ const SharedChatTab = () => {
       ? c.mentorProfile?.profilePicture || ""
       : c.menteeProfile?.profilePicture || "";
   });
+  const otherId = useSelector((state: RootState) => {
+    const c = state.sharedDashboard.connect as ChatConnect | null;
+    if (!c) return null;
+    return c.viewerRole === "mentee" ? c.mentor?._id : c.mentee?._id;
+  });
   const myId = useSelector((state: RootState) => {
     const c = state.sharedDashboard.connect as ChatConnect | null;
     if (!c) return "";
@@ -399,7 +404,7 @@ const SharedChatTab = () => {
     messages, loading, loadingMore, hasMore, error,
     isTyping, otherOnline,
     sendMessage, loadMore, handleTyping, markRead,
-  } = useChat(connectId);
+  } = useChat(connectId, otherId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);

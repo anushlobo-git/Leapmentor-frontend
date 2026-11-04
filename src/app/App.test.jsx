@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import * as appRouter from "./createAppRouter";
 import App from "./App";
 import { appRoutes } from "./routes";
 import axiosInstance from "@lib/http/axiosInstance";
@@ -23,6 +24,7 @@ vi.mock("@features/auth/models/authSlice", () => ({
 vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
@@ -212,8 +214,14 @@ describe("App", () => {
 
     axiosInstance.post.mockResolvedValueOnce({
       data: {
-        user: { id: "user-123", email: "user@leapmentor.com" },
         accessToken: "newly-refreshed-token",
+      },
+    });
+    axiosInstance.get.mockResolvedValueOnce({
+      data: {
+        _id: "user-123",
+        email: "user@leapmentor.com",
+        roles: ["mentee"],
       },
     });
 
@@ -224,9 +232,76 @@ describe("App", () => {
 
     expect(await screen.findByText("Home Component")).toBeInTheDocument();
     expect(axiosInstance.post).toHaveBeenCalledWith("/auth/refresh");
+    expect(axiosInstance.get).toHaveBeenCalledWith("/users/me", {
+      headers: { Authorization: "Bearer newly-refreshed-token" },
+      _skipAuthRedirect: true,
+      _skipAuthRefresh: true,
+    });
     expect(mockDispatch).toHaveBeenCalledWith(
       setUser({
-        user: { id: "user-123", email: "user@leapmentor.com" },
+        user: {
+          _id: "user-123",
+          email: "user@leapmentor.com",
+          roles: ["mentee"],
+        },
+        accessToken: "newly-refreshed-token",
+      }),
+    );
+  });
+
+  it("waits for session restoration before creating routes with auth loaders", async () => {
+    vi.mocked(useSelector).mockReturnValue(null);
+
+    let resolveRefresh;
+    axiosInstance.post.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveRefresh = resolve;
+      }),
+    );
+    axiosInstance.get.mockResolvedValueOnce({
+      data: {
+        _id: "user-123",
+        email: "user@leapmentor.com",
+        roles: ["mentee"],
+      },
+    });
+
+    currentPath = "/shared-dashboard/request-123";
+    const createRouterSpy = vi.spyOn(appRouter, "createAppRouter");
+    render(<App />);
+
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(createRouterSpy).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveRefresh({
+        data: {
+          accessToken: "newly-refreshed-token",
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(createRouterSpy).toHaveBeenCalledTimes(1);
+    });
+
+    createRouterSpy.mockRestore();
+  });
+
+  it("does not restore auth if the current-user check fails", async () => {
+    vi.mocked(useSelector).mockReturnValue(null);
+    axiosInstance.post.mockResolvedValueOnce({
+      data: { accessToken: "newly-refreshed-token" },
+    });
+    axiosInstance.get.mockRejectedValueOnce(new Error("Current user unavailable"));
+
+    render(<App />);
+
+    expect(await screen.findByText("Home Component")).toBeInTheDocument();
+    expect(mockDispatch).toHaveBeenCalledWith(logout());
+    expect(mockDispatch).not.toHaveBeenCalledWith(
+      setUser({
+        user: expect.any(Object),
         accessToken: "newly-refreshed-token",
       }),
     );
@@ -250,7 +325,8 @@ describe("App", () => {
     expect(interceptedHref).toBe("");
     expect(mockDispatch).toHaveBeenCalledWith(logout());
     expect(logger.warn).toHaveBeenCalledWith(
-      "Silent refresh unavailable — continuing without a session",
+      "Session restoration unavailable — continuing without a session",
+      { reason: "Refresh token expired" },
     );
   });
 

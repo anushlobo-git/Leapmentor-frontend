@@ -80,6 +80,7 @@ const defaultSessions = {
   additionalSlots: [],
   saving: false,
   addSlot: vi.fn(() => Promise.resolve({ success: true, slotId: "slot-1" })),
+  refetch: vi.fn(() => Promise.resolve()),
 };
 
 // ─── A mock availability slot ────────────────────────────────────────────────
@@ -183,8 +184,8 @@ describe("SharedAdditionalSessionTab", () => {
     );
   });
 
-  // ── Confirm → addSlot called ──────────────────────────────────────────────
-  it("calls addSlot when the confirm button is clicked", async () => {
+  // ── Confirm opens payment without booking a slot ───────────────────────────
+  it("opens payment without creating a session slot", async () => {
     const addSlot = vi.fn(() => Promise.resolve({ success: true, slotId: "slot-1" }));
     vi.mocked(useSessions).mockReturnValue({ ...defaultSessions, addSlot });
     vi.mocked(sessionsApi.getMentorAvailabilityForConnect).mockResolvedValueOnce({
@@ -193,7 +194,8 @@ describe("SharedAdditionalSessionTab", () => {
     render(<SharedAdditionalSessionTab />);
     fireEvent.click(await screen.findByRole("button", { name: /10:00/i }));
     fireEvent.click(await screen.findByRole("button", { name: /confirm/i }));
-    await waitFor(() => expect(addSlot).toHaveBeenCalled());
+    expect(await screen.findByText("Pay for Additional Session")).toBeInTheDocument();
+    expect(addSlot).not.toHaveBeenCalled();
   });
 
   // ── Cancel button closes confirm modal ────────────────────────────────────
@@ -223,12 +225,33 @@ describe("SharedAdditionalSessionTab", () => {
     // Component should still mount without crashing for mentor role
     expect(document.body).toBeTruthy();
   });
+
+  it("does not allow mentors to book additional sessions without mentee payment", async () => {
+    vi.mocked(useSelector).mockImplementation((selector) =>
+      selector(makeFakeState({ viewerRole: "mentor" }))
+    );
+    const addSlot = vi.fn();
+    vi.mocked(useSessions).mockReturnValue({ ...defaultSessions, addSlot });
+    vi.mocked(sessionsApi.getMentorAvailabilityForConnect).mockResolvedValueOnce({
+      data: { slots: [mockSlot], sessionDurations: [60] },
+    });
+
+    render(<SharedAdditionalSessionTab />);
+    fireEvent.click(await screen.findByRole("button", { name: /10:00/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /confirm/i }));
+
+    expect(await screen.findByText(/mentee must select and pay/i)).toBeInTheDocument();
+    expect(addSlot).not.toHaveBeenCalled();
+  });
+
   // ── Payment modal ↔ shared wallet slice ───────────────────────────────────
   describe("payment modal and the shared wallet", () => {
     // Real wallet reducer: selectors read the real store, dispatch goes to it.
-    const useRealWalletStore = (viewerRole = "mentee") => {
+    const useRealWalletStore = (viewerRole = "mentee", connect) => {
       const store = makeTestStore({
-        sharedDashboard: (state = makeFakeState({ viewerRole }).sharedDashboard) => state,
+        sharedDashboard: (
+          state = makeFakeState({ viewerRole, ...(connect ? { connect } : {}) }).sharedDashboard,
+        ) => state,
       });
       vi.mocked(useSelector).mockImplementation((selector) => selector(store.getState()));
       vi.mocked(useDispatch).mockReturnValue(store.dispatch);
@@ -271,6 +294,40 @@ describe("SharedAdditionalSessionTab", () => {
       expect(screen.getByText("(10%)")).toBeInTheDocument();
     });
 
+    it("uses the session rate returned by escrow status when the connect has no mentor profile rate", async () => {
+      vi.mocked(escrowApi.getEscrowStatus).mockResolvedValue({
+        wallet: { balance: 500 },
+        commissionRate: 20,
+        sessionRate: 125,
+      });
+      useRealWalletStore("mentee", {
+        _id: "conn-123",
+        mentor: { _id: "mentor-id", name: "Mentor User" },
+      });
+
+      await openPaymentModal();
+
+      expect(await screen.findByText("125 tokens / session")).toBeInTheDocument();
+      expect(screen.getByText("125 tokens")).toBeInTheDocument();
+      expect(screen.getByText("+ 25 tokens")).toBeInTheDocument();
+      expect(screen.getByText("Confirm & Pay 150 Tokens")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: /confirm & pay/i }));
+
+      await waitFor(() =>
+        expect(escrowApi.payAdditionalEscrow).toHaveBeenCalledWith({
+          connectRequestId: "conn-123",
+          sessionRate: 125,
+          slot: {
+            day: "Mon",
+            date: "2025-12-01",
+            startTime: "10:00",
+            endTime: "11:00",
+          },
+        }),
+      );
+    });
+
     it("falls back to a balance another screen already loaded when the status has none", async () => {
       vi.mocked(escrowApi.getEscrowStatus).mockResolvedValue({ commissionRate: 20 }); // no wallet
       const store = useRealWalletStore();
@@ -294,7 +351,12 @@ describe("SharedAdditionalSessionTab", () => {
       expect(escrowApi.payAdditionalEscrow).toHaveBeenCalledWith({
         connectRequestId: "conn-123",
         sessionRate: 50,
-        slotId: "slot-1",
+        slot: {
+          day: "Mon",
+          date: "2025-12-01",
+          startTime: "10:00",
+          endTime: "11:00",
+        },
       });
       expect(menteeApi.getEscrowWallet).toHaveBeenCalledTimes(1);
       expect(store.getState().wallet.escrow).toBe(60);
@@ -322,7 +384,7 @@ describe("SharedAdditionalSessionTab", () => {
       fireEvent.click(await screen.findByRole("button", { name: /10:00/i }));
       fireEvent.click(await screen.findByRole("button", { name: /confirm/i }));
 
-      expect(await screen.findByText("Session Added!")).toBeInTheDocument();
+      expect(await screen.findByText(/mentee must select and pay/i)).toBeInTheDocument();
       expect(escrowApi.getEscrowStatus).not.toHaveBeenCalled();
       expect(menteeApi.getEscrowWallet).not.toHaveBeenCalled();
       expect(store.getState().wallet.loadedOnce).toBe(false);

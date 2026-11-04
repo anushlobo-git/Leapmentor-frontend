@@ -219,6 +219,7 @@ const isRefreshableRequest = (
   originalRequest: RetryableRequestConfig | undefined,
 ): boolean =>
   status === HTTP_STATUS.UNAUTHORIZED &&
+  !originalRequest?._skipAuthRefresh &&
   !originalRequest?._retry &&
   originalRequest?.url !== domain.refreshUrl &&
   originalRequest?.url !== domain.loginUrl;

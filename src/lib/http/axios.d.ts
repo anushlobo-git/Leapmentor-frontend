@@ -12,6 +12,7 @@ declare module "axios" {
       startTime: number;
     };
     _skipAuthRedirect?: boolean;
+    _skipAuthRefresh?: boolean;
     /** Explicitly select the cookie-based admin auth domain. */
     authDomain?: "admin" | "default";
   }
@@ -22,6 +23,7 @@ declare module "axios" {
       startTime: number;
     };
     _skipAuthRedirect?: boolean;
+    _skipAuthRefresh?: boolean;
     authDomain?: "admin" | "default";
   }
 }

@@ -17,6 +17,7 @@ export interface MentorOnboardingForm {
   currentRole: string;
   industry: string;
   company: string;
+  education: string;
   yearsOfExperience: string | number;
   hourlyRate: string | number;
   skills: string[];
@@ -44,6 +45,7 @@ const DEFAULT_FORM: MentorOnboardingForm = {
   currentRole: "",
   industry: "",
   company: "",
+  education: "",
   yearsOfExperience: "",
   hourlyRate: "",
   skills: [],

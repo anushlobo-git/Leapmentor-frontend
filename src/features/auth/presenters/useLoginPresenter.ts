@@ -123,7 +123,15 @@ export const useLoginPresenter = ({ registerPath, role }: UseLoginPresenterArgs)
     }
 
     setRedirecting(true);
-    setTimeout(() => navigate(`/dashboard/${chosenRole}`), 800);
+    const returnTo = new URLSearchParams(location.search).get("returnTo");
+    const safeReturnTo =
+      returnTo?.startsWith("/") && !returnTo.startsWith("//") && !returnTo.startsWith("/login")
+        ? returnTo
+        : null;
+    setTimeout(
+      () => navigate(safeReturnTo ?? `/dashboard/${chosenRole}`),
+      800,
+    );
   };
 
   useGoogleAuth({

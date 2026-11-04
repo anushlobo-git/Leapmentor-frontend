@@ -177,6 +177,16 @@ describe("ForgotPassword", () => {
     expect(mockDispatch).toHaveBeenCalledWith(clearMessages());
   });
 
+  it("falls back to stable OTP box keys when crypto.randomUUID is unavailable", () => {
+    vi.stubGlobal("crypto", {});
+    try {
+      expect(() => render(<ForgotPassword />)).not.toThrow();
+      expect(screen.getByPlaceholderText("you@example.com")).toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("should navigate back to standard login routes when the redirect trigger button is clicked", async () => {
     render(<ForgotPassword />);
     await act(async () => {

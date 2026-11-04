@@ -128,7 +128,14 @@ const useSessions = (
         setSavingSlot(slotIndex, true);
         setError(null);
         const res = await markSlotCompleteRequest(connectRequestId!, slotIndex);
-        applySlotUpdate(res.data); //  replaces manual setSlots/setCompletedSlots/setProgress
+        const mappedSlot = mapSlot(res.data.slot);
+        setSlots((prev) =>
+          prev.map((slot, index) => (index === slotIndex ? mappedSlot : slot)),
+        );
+        setCompletedSlots(res.data.completedSlots ?? 0);
+        setTotalSlots(res.data.totalSlots ?? 0);
+        setProgress(res.data.progress ?? 0);
+        setAllComplete(Boolean(res.data.allComplete));
         return { ...res.data, success: true };
       } catch (err: unknown) {
         const error = err as SessionApiError;

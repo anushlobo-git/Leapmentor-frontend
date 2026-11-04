@@ -3,8 +3,6 @@
  */
 
 import { redirect, type LoaderFunctionArgs, type ShouldRevalidateFunction } from "react-router-dom";
-import store from "@store/index";
-import { selectIsAuthenticated } from "@features/auth/models/authSlice";
 import { getConnectDetail } from "@features/shared-dashboard/models/shared-dashboard.api";
 import { HTTP_STATUS } from "@lib/http/httpStatus";
 
@@ -37,25 +35,32 @@ type SharedDashboardApiError = {
 /**
  * Fetches the connect for /shared-dashboard/:connectRequestId before the page renders.
  * Loaders aren't components, so auth is read straight from the store.
- *  - not signed in / 401  → redirect to /login (was navigate("/login"))
+ *  - 401                  → allow Axios silent refresh, then redirect to login
+ *                           with the shared-dashboard URL as the return target
  *  - 403                  → thrown 403 Response, shown by RouteErrorBoundary
  *                           (a loader can't navigate(-1) like the old effect did)
  *  - anything else        → returned as `error`, the page keeps its inline error UI
- * The loader does NOT write to Redux; the page mirrors `connect` into the slice
- * so the slice stays the single read path for the dashboard's child components.
+ * The loader does NOT make its own Redux auth decision: Axios owns the shared
+ * bearer-token refresh flow. The page mirrors `connect` into the slice so the
+ * slice stays the single read path for the dashboard's child components.
  */
 export const sharedDashboardLoader = async ({
   params,
+  request,
 }: LoaderFunctionArgs): Promise<SharedDashboardLoaderData> => {
-  if (!selectIsAuthenticated(store.getState())) throw redirect("/login");
-
   try {
-    const res = await getConnectDetail(params.connectRequestId!);
+    const res = await getConnectDetail(params.connectRequestId!, {
+      _skipAuthRedirect: true,
+    });
     return { connect: res.data.connect, error: null };
   } catch (err: unknown) {
     const error = err as SharedDashboardApiError;
     const status = error.response?.status;
-    if (status === HTTP_STATUS.UNAUTHORIZED) throw redirect("/login");
+    if (status === HTTP_STATUS.UNAUTHORIZED) {
+      const currentUrl = new URL(request.url);
+      const returnTo = `${currentUrl.pathname}${currentUrl.search}`;
+      throw redirect(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+    }
     if (status === HTTP_STATUS.FORBIDDEN) {
       throw new Response("Forbidden", { status: HTTP_STATUS.FORBIDDEN });
     }

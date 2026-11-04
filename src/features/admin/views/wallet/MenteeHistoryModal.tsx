@@ -55,30 +55,36 @@ const MenteeHistoryModal = ({
 }: MenteeHistoryModalProps) => {
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     const fetchEngagements = async () => {
       try {
         setLoading(true);
-        const res = await getEngagements({ search: mentee.name, limit: 50 });
-        const all = (res.data.engagements || []) as Engagement[];
-        // Filter to only this mentee's engagements
-        const filtered = all.filter(
-          (e) =>
-            e.mentee?._id === mentee._id || e.mentee?.email === mentee.email,
-        );
-        setEngagements(filtered);
+        setLoadError(false);
+        if (!mentee._id) {
+          throw new Error("Mentee ID is required to load engagement history");
+        }
+        const res = await getEngagements({ menteeId: mentee._id, limit: 50 });
+        if (active) {
+          setEngagements((res.data.engagements || []) as Engagement[]);
+        }
       } catch (error) {
         logger.error("Failed to fetch engagements", {
           menteeId: mentee._id,
           error,
         });
+        if (active) setLoadError(true);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
     if (mentee) fetchEngagements();
+    return () => {
+      active = false;
+    };
   }, [mentee]);
 
   const toggleExpand = (engagementId: string) => {
@@ -140,10 +146,12 @@ const MenteeHistoryModal = ({
           </svg>
         </div>
         <p className="text-sm font-semibold text-slate-500">
-          No engagements found
+          {loadError ? "Unable to load engagement history" : "No engagements found"}
         </p>
         <p className="text-xs text-slate-400">
-          This mentee has no session history yet.
+          {loadError
+            ? "Please try again later."
+            : "This mentee has no session history yet."}
         </p>
       </div>
     );

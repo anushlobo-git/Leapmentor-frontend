@@ -7,6 +7,7 @@ const mockUseDispatch = vi.fn();
 const mockLogin = vi.fn();
 const mockSetUser = vi.fn();
 const mockUseGoogleAuth = vi.fn();
+let mockSearch = "";
 //we are mocking the usedispatch and usenavigate hooks that is the dependency which is needed during the login
 vi.mock("react-redux", () => ({
   useDispatch: () => mockUseDispatch,
@@ -16,7 +17,7 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => mockUseNavigate,
   // The login presenter reads useLocation() to prefill the email + show the
   // "you already have an account" notice pushed by the register redirect.
-  useLocation: () => ({ pathname: "/login", state: {} }),
+  useLocation: () => ({ pathname: "/login", search: mockSearch, state: {} }),
 }));
 vi.mock("@features/auth/models/auth.api", () => ({
   login: (...args) => mockLogin(...args),
@@ -65,6 +66,7 @@ describe("LoginForm", () => {
   //It only clears the recorded call history.
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSearch = "";
   });
   //vi.advanceTimersByTime(5000);  by doing this when we are using the setTimeOut in the code
   //we can skip 5 seconds from the real time to skip waiting so if its done then to reset to
@@ -159,6 +161,38 @@ describe("LoginForm", () => {
     );
     await waitFor(
       () => expect(mockUseNavigate).toHaveBeenCalledWith("/dashboard/mentor"),
+      { timeout: 2000 },
+    );
+  });
+
+  it("returns to a shared dashboard after login when a return target is provided", async () => {
+    mockSearch = "?returnTo=%2Fshared-dashboard%2Frequest-123%3Ftab%3Dchat";
+    mockLogin.mockResolvedValue({
+      data: { user: { roles: ["mentor"] }, accessToken: "abc" },
+    });
+
+    setUp();
+    fireEvent.input(screen.getByPlaceholderText(/you@example.com/i), {
+      target: { value: "mentor@example.com" },
+    });
+    fireEvent.input(screen.getByLabelText(/Password/i, { selector: "input" }), {
+      target: { value: "Password1!" },
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: /Login to Dashboard/i }),
+      ).toBeEnabled(),
+    );
+    fireEvent.submit(
+      screen.getByRole("button", { name: /Login to Dashboard/i }).closest("form"),
+    );
+
+    await waitFor(
+      () =>
+        expect(mockUseNavigate).toHaveBeenCalledWith(
+          "/shared-dashboard/request-123?tab=chat",
+        ),
       { timeout: 2000 },
     );
   });

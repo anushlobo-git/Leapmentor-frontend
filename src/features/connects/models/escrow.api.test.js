@@ -169,6 +169,28 @@ describe("escrow.api", () => {
 
       await expect(payAdditionalEscrow(params)).rejects.toThrow("Additional payment failed");
     });
+
+    it("sends the selected slot details for booking after payment", async () => {
+      const axiosInstance = (await import("@lib/http/axiosInstance")).default;
+      axiosInstance.post.mockResolvedValue({ data: { success: true } });
+      const params = {
+        connectRequestId: "req123",
+        sessionRate: 100,
+        slot: {
+          day: "Monday",
+          date: "2026-11-02",
+          startTime: "16:00",
+          endTime: "17:00",
+        },
+      };
+
+      await payAdditionalEscrow(params);
+
+      expect(axiosInstance.post).toHaveBeenCalledWith(
+        "/escrow/pay-additional",
+        params,
+      );
+    });
   });
 
   describe("getPlatformCommissionRate", () => {

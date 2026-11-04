@@ -51,6 +51,26 @@ describe("usePaymentsData", () => {
     expect(hookResult.current.toast).toBeNull();
   });
 
+  it("normalizes missing or partial pagination when there are no payments", async () => {
+    getPaymentStats.mockResolvedValueOnce({ data: {} });
+    getPaymentChart.mockResolvedValueOnce({ data: {} });
+    getPaymentTransactions.mockResolvedValueOnce({
+      data: { transactions: [], pagination: { currentPage: 2 } },
+    });
+
+    let hookResult;
+    await act(async () => {
+      const { result } = renderHook(() => usePaymentsData());
+      hookResult = result;
+    });
+
+    expect(hookResult.current.pagination).toEqual({
+      totalCount: 0,
+      currentPage: 2,
+      totalPages: 0,
+    });
+  });
+
   it("should evaluate logical OR fallback assignments for alternate API data structures", async () => {
     getPaymentStats.mockResolvedValueOnce({ data: { grossRevenue: 2000 } });
     getPaymentChart.mockResolvedValueOnce({ data: { data: null } });
@@ -67,6 +87,11 @@ describe("usePaymentsData", () => {
     expect(hookResult.current.stats).toEqual({ grossRevenue: 2000 });
     expect(hookResult.current.chartData).toEqual([]);
     expect(hookResult.current.transactions).toEqual([]);
+    expect(hookResult.current.pagination).toEqual({
+      totalCount: 0,
+      currentPage: 1,
+      totalPages: 0,
+    });
   });
 
   it("should execute fallback to empty object when response structure is completely empty", async () => {

@@ -25,6 +25,7 @@ export interface RawMentorProfile {
   isEmailVerified?: boolean;
   currentRole?: string;
   company?: string;
+  education?: string;
   industry?: string;
   bio?: string;
   location?: string;
@@ -83,6 +84,7 @@ export const mapMentorProfile = (raw: RawMentorProfile = {}) => ({
 
   currentRole: raw.currentRole ?? "",
   company: raw.company ?? "",
+  education: raw.education ?? "",
   industry: raw.industry ?? "",
   bio: raw.bio ?? "",
   location: raw.location ?? "",

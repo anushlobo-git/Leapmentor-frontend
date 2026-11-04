@@ -44,7 +44,10 @@ export const useForgotPasswordPresenter = () => {
   // Stable per-box React keys (generated once) so the OTP inputs aren't
   // keyed off their array index.
   const otpKeysRef = useRef(
-    Array.from({ length: 6 }, () => crypto.randomUUID()),
+    Array.from(
+      { length: 6 },
+      (_, index) => globalThis.crypto?.randomUUID?.() ?? `otp-box-${index + 1}`,
+    ),
   );
   const [newPassword, setNewPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
