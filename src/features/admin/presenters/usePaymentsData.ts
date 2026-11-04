@@ -19,6 +19,34 @@ import type {
 const SEARCH_DEBOUNCE_MS = 400;
 const TOAST_DURATION_MS = 3500;
 const PAGE_SIZE = 15;
+const EMPTY_PAGINATION: TransactionPagination = {
+  totalCount: 0,
+  currentPage: 1,
+  totalPages: 0,
+};
+
+const normalizePagination = (
+  pagination: Partial<TransactionPagination> | undefined,
+  page: number,
+): TransactionPagination => {
+  const totalCount = Number.isFinite(Number(pagination?.totalCount))
+    ? Math.max(0, Number(pagination?.totalCount))
+    : EMPTY_PAGINATION.totalCount;
+  const currentPage = Number.isFinite(Number(pagination?.currentPage))
+    ? Math.max(1, Number(pagination?.currentPage))
+    : page;
+  const totalPages = Number.isFinite(Number(pagination?.totalPages))
+    ? Math.max(0, Number(pagination?.totalPages))
+    : totalCount > 0
+      ? Math.ceil(totalCount / PAGE_SIZE)
+      : EMPTY_PAGINATION.totalPages;
+
+  return {
+    totalCount,
+    currentPage,
+    totalPages,
+  };
+};
 
 interface PaymentStats {
   totalRevenue?: number;
@@ -37,9 +65,7 @@ export const usePaymentsData = () => {
   const [chartData, setChartData] = useState<RevenueDatum[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [pagination, setPagination] = useState<TransactionPagination>({
-    totalCount: 0,
-    currentPage: 1,
-    totalPages: 1,
+    ...EMPTY_PAGINATION,
   });
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -85,8 +111,9 @@ export const usePaymentsData = () => {
         if (q) params.search = q;
         if (type) params.type = type;
         const res = await getPaymentTransactions(params);
-        setTransactions(res.data.transactions || []);
-        setPagination(res.data.pagination);
+        const payload = res?.data || {};
+        setTransactions(Array.isArray(payload.transactions) ? payload.transactions : []);
+        setPagination(normalizePagination(payload.pagination, page));
       } catch {
         showToast("Failed to load transactions.");
       } finally {

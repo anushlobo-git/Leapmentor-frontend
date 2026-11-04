@@ -24,3 +24,10 @@ export const googleAuthRequest = ({ credential, roles, termsAccepted }: SsoReque
   axiosInstance.post(`/auth/google`, { credential, roles, termsAccepted });
 
 export const refreshTokenRequest = () => axiosInstance.post("/auth/refresh");
+
+export const getCurrentUserRequest = (accessToken: string) =>
+  axiosInstance.get("/users/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    _skipAuthRedirect: true,
+    _skipAuthRefresh: true,
+  });

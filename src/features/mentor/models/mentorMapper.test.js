@@ -23,6 +23,7 @@ describe("mentorMapper", () => {
         },
         currentRole: "",
         company: "",
+        education: "",
         industry: "",
         bio: "",
         location: "",
@@ -115,11 +116,20 @@ describe("mentorMapper", () => {
         bio: "Test bio",
         location: "Remote",
       });
+
       expect(result.currentRole).toBe("Developer");
       expect(result.company).toBe("Tech Corp");
       expect(result.industry).toBe("Software");
       expect(result.bio).toBe("Test bio");
       expect(result.location).toBe("Remote");
+    });
+
+    it("should map education", () => {
+      const result = mapMentorProfile({
+        education: "B.Tech in Computer Science, VIT Vellore",
+      });
+
+      expect(result.education).toBe("B.Tech in Computer Science, VIT Vellore");
     });
 
     it("should map skills as array", () => {

@@ -23,6 +23,7 @@ vi.mock("@features/auth/models/authSlice", () => ({
 vi.mock("@lib/http/axiosInstance", () => ({
   default: {
     post: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
@@ -212,8 +213,14 @@ describe("App", () => {
 
     axiosInstance.post.mockResolvedValueOnce({
       data: {
-        user: { id: "user-123", email: "user@leapmentor.com" },
         accessToken: "newly-refreshed-token",
+      },
+    });
+    axiosInstance.get.mockResolvedValueOnce({
+      data: {
+        _id: "user-123",
+        email: "user@leapmentor.com",
+        roles: ["mentee"],
       },
     });
 
@@ -224,9 +231,37 @@ describe("App", () => {
 
     expect(await screen.findByText("Home Component")).toBeInTheDocument();
     expect(axiosInstance.post).toHaveBeenCalledWith("/auth/refresh");
+    expect(axiosInstance.get).toHaveBeenCalledWith("/users/me", {
+      headers: { Authorization: "Bearer newly-refreshed-token" },
+      _skipAuthRedirect: true,
+      _skipAuthRefresh: true,
+    });
     expect(mockDispatch).toHaveBeenCalledWith(
       setUser({
-        user: { id: "user-123", email: "user@leapmentor.com" },
+        user: {
+          _id: "user-123",
+          email: "user@leapmentor.com",
+          roles: ["mentee"],
+        },
+        accessToken: "newly-refreshed-token",
+      }),
+    );
+  });
+
+  it("does not restore auth if the current-user check fails", async () => {
+    vi.mocked(useSelector).mockReturnValue(null);
+    axiosInstance.post.mockResolvedValueOnce({
+      data: { accessToken: "newly-refreshed-token" },
+    });
+    axiosInstance.get.mockRejectedValueOnce(new Error("Current user unavailable"));
+
+    render(<App />);
+
+    expect(await screen.findByText("Home Component")).toBeInTheDocument();
+    expect(mockDispatch).toHaveBeenCalledWith(logout());
+    expect(mockDispatch).not.toHaveBeenCalledWith(
+      setUser({
+        user: expect.any(Object),
         accessToken: "newly-refreshed-token",
       }),
     );
@@ -250,7 +285,8 @@ describe("App", () => {
     expect(interceptedHref).toBe("");
     expect(mockDispatch).toHaveBeenCalledWith(logout());
     expect(logger.warn).toHaveBeenCalledWith(
-      "Silent refresh unavailable — continuing without a session",
+      "Session restoration unavailable — continuing without a session",
+      { reason: "Refresh token expired" },
     );
   });
 

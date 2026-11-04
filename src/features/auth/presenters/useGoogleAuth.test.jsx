@@ -99,17 +99,14 @@ describe("useGoogleAuth", () => {
     cleanup();
   });
 
-  it("should trigger early error loop when VITE_GOOGLE_CLIENT_ID environment variable is completely missing", async () => {
+  it("silently skips Google auth when VITE_GOOGLE_CLIENT_ID is not configured", async () => {
     const mockOnError = vi.fn();
 
     await renderTestComponent({ onError: mockOnError }, "");
 
-    expect(logger.error).toHaveBeenCalledWith(
-      "Missing VITE_GOOGLE_CLIENT_ID in frontend .env",
-    );
-    expect(mockOnError).toHaveBeenCalledWith(
-      "Missing VITE_GOOGLE_CLIENT_ID in frontend .env",
-    );
+    expect(logger.error).not.toHaveBeenCalled();
+    expect(mockOnError).not.toHaveBeenCalled();
+    expect(globalThis.google.accounts.id.initialize).not.toHaveBeenCalled();
   });
 
   it("should exit execution path early inside initGoogle if button reference target is missing", async () => {

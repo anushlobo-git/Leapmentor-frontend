@@ -56,26 +56,29 @@ describe("MenteeHistoryModal", () => {
     expect(screen.getByText("Loading engagement history…")).toBeInTheDocument();
   });
 
-  it("should handle api tracking error gracefully and show empty state log", async () => {
+  it("should show an explicit history load error when the API fails", async () => {
     const apiError = new Error("Database network failure");
     getEngagements.mockRejectedValueOnce(apiError);
 
     render(<MenteeHistoryModal mentee={mockMentee} onClose={mockOnClose} />);
 
-    expect(await screen.findByText("No engagements found")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Unable to load engagement history"),
+    ).toBeInTheDocument();
     expect(logger.error).toHaveBeenCalledWith("Failed to fetch engagements", {
       menteeId: mockMentee._id,
       error: apiError,
     });
   });
 
-  it("should show empty message state if fetched engagements list matches no criteria", async () => {
+  it("should request history by stable mentee ID and render the scoped response", async () => {
     getEngagements.mockResolvedValueOnce({
       data: {
         engagements: [
           {
-            _id: "eng-other",
-            mentee: { _id: "other-id", email: "other@leapmentor.com" },
+            _id: "eng-1",
+            mentor: { name: "Mentor A" },
+            mentee: { _id: "mentee-123" },
           },
         ],
       },
@@ -83,10 +86,14 @@ describe("MenteeHistoryModal", () => {
 
     render(<MenteeHistoryModal mentee={mockMentee} onClose={mockOnClose} />);
 
-    expect(await screen.findByText("No engagements found")).toBeInTheDocument();
+    expect(await screen.findByText("Mentor: Mentor A")).toBeInTheDocument();
+    expect(getEngagements).toHaveBeenCalledWith({
+      menteeId: "mentee-123",
+      limit: 50,
+    });
   });
 
-  it("should correctly render summary calculations for filtering metrics by ID or Email match matching strategy", async () => {
+  it("should correctly render summary calculations from the scoped history response", async () => {
     getEngagements.mockResolvedValueOnce({
       data: {
         engagements: [
@@ -99,13 +106,7 @@ describe("MenteeHistoryModal", () => {
           {
             _id: "eng-2",
             mentor: { name: "Mentor B" },
-            mentee: { _id: "diff-id", email: "john@leapmentor.com" },
-            selectedSlots: [{ status: "completed" }],
-          },
-          {
-            _id: "eng-unmatched",
-            mentor: { name: "Mentor C" },
-            mentee: { _id: "diff-id", email: "diff@leapmentor.com" },
+            mentee: { _id: "mentee-123", email: "john@leapmentor.com" },
             selectedSlots: [{ status: "completed" }],
           },
         ],

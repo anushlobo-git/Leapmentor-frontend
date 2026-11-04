@@ -263,9 +263,17 @@ describe("useSessions", () => {
 
     it("should mark a slot complete and apply the updated slot data", async () => {
       const { result } = await setup();
-      const updatedMapped = { ...defaultMapped, completedSlots: 1 };
-      markSlotCompleteRequest.mockResolvedValue({ data: { raw: "payload" } });
-      mapSessionSlotsResponse.mockReturnValue(updatedMapped);
+      const updatedSlot = { ...defaultMapped.slots[0], menteeMarked: true };
+      markSlotCompleteRequest.mockResolvedValue({
+        data: {
+          slot: updatedSlot,
+          completedSlots: 0,
+          totalSlots: 1,
+          progress: 0,
+          allComplete: false,
+        },
+      });
+      mapSlot.mockReturnValue(updatedSlot);
 
       let response;
       await act(async () => {
@@ -273,8 +281,15 @@ describe("useSessions", () => {
       });
 
       expect(markSlotCompleteRequest).toHaveBeenCalledWith("req-1", 0);
-      expect(response).toEqual({ raw: "payload", success: true });
-      expect(result.current.completedSlots).toBe(1);
+      expect(response).toEqual({
+        slot: updatedSlot,
+        completedSlots: 0,
+        totalSlots: 1,
+        progress: 0,
+        allComplete: false,
+        success: true,
+      });
+      expect(result.current.slots[0].menteeMarked).toBe(true);
     });
 
     it("should set an error and return failure when marking complete fails", async () => {

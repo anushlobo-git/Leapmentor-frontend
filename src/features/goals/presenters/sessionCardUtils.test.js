@@ -12,11 +12,12 @@ import {
   getSessionStatus,
   getCardBorderClass,
   isMoreThan12HrsAway,
+  formatTime,
 } from "./sessionCardUtils";
 
 // Mock the formatTime import
 vi.mock("@lib/formatters/dateTime", () => ({
-  formatTimeString: vi.fn((time) => time),
+  formatTimeOfDay: vi.fn((time) => `formatted:${time}`),
 }));
 
 const buildLocalDateTime = (offsetHours) => {
@@ -30,6 +31,12 @@ const buildLocalDateTime = (offsetHours) => {
 };
 
 describe("sessionCardUtils", () => {
+  describe("formatTime", () => {
+    it("formats time-only session slot values", () => {
+      expect(formatTime("10:30")).toBe("formatted:10:30");
+    });
+  });
+
   describe("formatSlotDate", () => {
     it("should return empty string when slot is null", () => {
       expect(formatSlotDate(null)).toBe("");

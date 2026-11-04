@@ -4,7 +4,7 @@
 
 // src/features/goals/utils/sessionCardUtils.js
 // Pure, framework-free helpers shared across the SessionCard component family.
-export { formatTimeString as formatTime } from "@lib/formatters/dateTime";
+export { formatTimeOfDay as formatTime } from "@lib/formatters/dateTime";
 
 /**
  * Shared shape of a session slot object, used across the whole

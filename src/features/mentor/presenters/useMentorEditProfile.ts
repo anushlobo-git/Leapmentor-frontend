@@ -26,6 +26,7 @@ interface MentorEditProfileForm {
   currentRole: string;
   industry: string;
   company: string;
+  education: string;
   yearsOfExperience: string | number;
   hourlyRate: string | number;
   skills: string[];
@@ -54,6 +55,7 @@ const useMentorEditProfile = () => {
     currentRole: "",
     industry: "",
     company: "",
+    education: "",
     yearsOfExperience: "",
     hourlyRate: "",
     skills: [],
@@ -78,6 +80,7 @@ const useMentorEditProfile = () => {
           currentRole: data.currentRole || "",
           industry: data.industry || "",
           company: data.company || "",
+          education: data.education || "",
           yearsOfExperience: data.yearsOfExperience || "",
           hourlyRate: data.hourlyRate || "",
           skills: data.skills || [],

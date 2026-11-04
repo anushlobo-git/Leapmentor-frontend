@@ -140,8 +140,6 @@ const useGoogleAuth = ({
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
-      logger.error("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
-      onError?.("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
       return;
     }
 

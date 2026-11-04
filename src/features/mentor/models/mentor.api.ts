@@ -43,8 +43,23 @@ export const getMentorEarningsChart = (period: string) =>
 export const getMentorEarningsPayouts = (queryString: string) =>
   axiosInstance.get(`/mentor/earnings/payouts?${queryString}`);
 
-export const withdrawMentorEarnings = () =>
-  axiosInstance.post(`/mentor/earnings/withdraw`, {});
+let pendingWithdrawalIdempotencyKey: string | null = null;
+
+export const withdrawMentorEarnings = async () => {
+  pendingWithdrawalIdempotencyKey ??= globalThis.crypto?.randomUUID?.()
+    ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  try {
+    const response = await axiosInstance.post(`/mentor/earnings/withdraw`, {}, {
+      headers: { "Idempotency-Key": pendingWithdrawalIdempotencyKey },
+    });
+    pendingWithdrawalIdempotencyKey = null;
+    return response;
+  } catch (error) {
+    const status = (error as { response?: { status?: number } })?.response?.status;
+    if (status && status >= 400 && status < 500) pendingWithdrawalIdempotencyKey = null;
+    throw error;
+  }
+};
 
 // --- availability ---
 export const getMyAvailability = () => axiosInstance.get(`/availability/me`);
